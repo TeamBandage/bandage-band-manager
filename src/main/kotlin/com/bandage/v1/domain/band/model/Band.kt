@@ -11,11 +11,11 @@ import java.util.UUID
 @Entity
 @Table(name = "p_band")
 class Band(
-    @Column(name = "band_name", nullable = false)
+    @Column(name = "name", nullable = false)
     var name: String,
-    @Column(name = "band_member_cnt", nullable = false)
+    @Column(name = "member_cnt", nullable = false)
     var memberCnt: Int = 1,
-    @Column(name = "band_profile_img")
+    @Column(name = "profile_img")
     var profileImg: String? = null
 ): BaseEntity() {
     @Id
