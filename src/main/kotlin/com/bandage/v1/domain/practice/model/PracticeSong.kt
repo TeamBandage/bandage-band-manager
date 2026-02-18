@@ -13,9 +13,6 @@ import java.util.*
 @Entity
 @Table(name = "p_practice_song")
 class PracticeSong(
-    @OneToOne(fetch = FetchType.LAZY)
-    @Column(name = "practice_id")
-    val practice: Practice,
     @Column(name = "title", nullable = false)
     var title: String,
     @Column(name = "artist", nullable = false)
@@ -33,9 +30,8 @@ class PracticeSong(
     var id: UUID? = null
 
     companion object {
-        fun create(practice: Practice, title: String, artist: String, album: String, duration: Int): PracticeSong{
+        fun create(title: String, artist: String, album: String, duration: Int): PracticeSong{
             return PracticeSong(
-                practice = practice,
                 title = title,
                 artist = artist,
                 album = album,
