@@ -13,9 +13,8 @@ class BandMember(
     @ManyToOne(fetch = FetchType.LAZY)
     val band: Band,
 
-    @JoinColumn(name = "member_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    val member: Member,
+    @Column(name = "member_id", nullable = false)
+    val member: UUID,
 
     @Column(name = "role", nullable = false)
     var role: BandRole = BandRole.MEMBER
@@ -26,7 +25,7 @@ class BandMember(
     var id: UUID? = null
 
     companion object {
-        fun create(band: Band, member: Member): BandMember {
+        fun create(band: Band, member: UUID): BandMember {
             return BandMember(
                 band = band,
                 member = member
