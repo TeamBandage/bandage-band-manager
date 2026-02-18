@@ -1,10 +1,15 @@
 package com.bandage.v1.domain.band.model
 
-import com.bandage.v1.domain.member.model.Member
 import com.bandage.v1.global.domain.BaseEntity
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import org.hibernate.annotations.UuidGenerator
-import java.util.*
+import java.util.UUID
 
 @Entity
 @Table(name = "p_band_member")
@@ -12,30 +17,32 @@ class BandMember(
     @JoinColumn(name = "band_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     val band: Band,
-
     @Column(name = "member_id", nullable = false)
     val member: UUID,
-
     @Column(name = "role", nullable = false)
-    var role: BandRole = BandRole.MEMBER
-): BaseEntity() {
+    var role: BandRole = BandRole.MEMBER,
+) : BaseEntity() {
     @Id
     @Column(name = "band_member_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     var id: UUID? = null
 
     companion object {
-        fun create(band: Band, member: UUID): BandMember {
-            return BandMember(
+        fun create(
+            band: Band,
+            member: UUID,
+        ): BandMember =
+            BandMember(
                 band = band,
-                member = member
+                member = member,
             )
-        }
     }
+
     fun promoteToLeader() {
         require(this.role != BandRole.LEADER)
         this.role = BandRole.LEADER
     }
+
     fun dismissFromLeader() {
         require(this.role == BandRole.LEADER)
         this.role = BandRole.MEMBER

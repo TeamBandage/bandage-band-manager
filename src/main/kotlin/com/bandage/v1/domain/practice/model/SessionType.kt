@@ -1,7 +1,7 @@
 package com.bandage.v1.domain.practice.model
 
 enum class SessionType(
-    val label: String
+    val label: String,
 ) {
     VOCAL("Vocal"),
     CHORUS("Chorus"),
@@ -10,5 +10,5 @@ enum class SessionType(
     DRUM("Drum"),
     PERCUSSION("Percussion"),
     SYNTH("Synth"),
-    ETC("Session");
+    ETC("Session"),
 }
