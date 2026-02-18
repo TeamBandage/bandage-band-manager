@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.spring") version "2.2.21"
     id("org.springframework.boot") version "4.0.2"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.spotless") version "7.2.1"
     kotlin("plugin.jpa") version "2.2.21"
 }
 
@@ -59,4 +60,30 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("**/build/**")
+
+        ktlint()
+
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+tasks.register<Copy>("updateGitHooks") {
+    from("./scripts/pre-commit")
+    into("./.git/hooks")
+}
+
+tasks.register<Exec>("makeGitHooksExecutable") {
+    commandLine("chmod", "+x", "./.git/hooks/pre-commit")
+    dependsOn("updateGitHooks")
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("makeGitHooksExecutable")
 }

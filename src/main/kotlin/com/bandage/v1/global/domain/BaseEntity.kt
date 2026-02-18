@@ -12,18 +12,21 @@ import java.time.LocalDateTime
 open class BaseEntity {
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
-    var createdDate : LocalDateTime = LocalDateTime.now()
+    var createdDate: LocalDateTime = LocalDateTime.now()
         protected set
+
     @CreatedBy
     @Column(name = "created_by")
-    var createdBy : String? = null
+    var createdBy: String? = null
         protected set
+
     @LastModifiedDate
     @Column(name = "last_modified_date", nullable = false)
-    var lastModifiedDate : LocalDateTime = LocalDateTime.now()
+    var lastModifiedDate: LocalDateTime = LocalDateTime.now()
         protected set
+
     @LastModifiedBy
     @Column(name = "last_modified_by")
-    var lastModifiedBy : String? = null
+    var lastModifiedBy: String? = null
         protected set
 }

@@ -16,25 +16,29 @@ class Band(
     @Column(name = "member_cnt", nullable = false)
     var memberCnt: Int = 1,
     @Column(name = "profile_img")
-    var profileImg: String? = null
-): BaseEntity() {
+    var profileImg: String? = null,
+) : BaseEntity() {
     @Id
     @Column(name = "band_id", nullable = false)
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     val id: UUID? = null
 
     companion object {
-        fun create(name: String, profileImg: String?): Band{
-            return Band(
+        fun create(
+            name: String,
+            profileImg: String?,
+        ): Band =
+            Band(
                 name = name,
-                profileImg = profileImg
+                profileImg = profileImg,
             )
-        }
     }
-    fun addMemberCnt(){
+
+    fun addMemberCnt() {
         this.memberCnt++
     }
-    fun updateImg(newImg: String){
+
+    fun updateImg(newImg: String) {
         this.profileImg = newImg
     }
 }

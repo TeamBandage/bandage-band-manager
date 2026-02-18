@@ -10,7 +10,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "p_member")
-class Member (
+class Member(
     @Column(name = "email", nullable = false)
     var email: String,
     @Column(name = "password", nullable = false)
@@ -19,25 +19,31 @@ class Member (
     var name: String,
     @Column(name = "contact", nullable = false)
     var contact: String,
-    ): BaseEntity() {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     val id: Long? = null
 
     companion object {
-        fun create(email: String, password: String, name: String, contact: String): Member {
-            return Member(
+        fun create(
+            email: String,
+            password: String,
+            name: String,
+            contact: String,
+        ): Member =
+            Member(
                 email = email,
                 password = password,
                 name = name,
-                contact = contact
+                contact = contact,
             )
-        }
     }
+
     fun updateName(newName: String) {
         this.name = newName
     }
+
     fun updateContact(newContact: String) {
         this.contact = newContact
     }
