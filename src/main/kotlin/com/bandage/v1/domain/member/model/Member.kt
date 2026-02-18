@@ -11,13 +11,13 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "p_member")
 class Member (
-    @Column(name = "member_email", nullable = false)
+    @Column(name = "email", nullable = false)
     var email: String,
-    @Column(name = "member_password", nullable = false)
+    @Column(name = "password", nullable = false)
     var password: String,
-    @Column(name = "member_name", nullable = false)
+    @Column(name = "name", nullable = false)
     var name: String,
-    @Column(name = "member_contact", nullable = false)
+    @Column(name = "contact", nullable = false)
     var contact: String,
     ): BaseEntity() {
     @Id
