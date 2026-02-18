@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate
 import java.time.LocalDateTime
 
 @MappedSuperclass
-class BaseEntity {
+open class BaseEntity {
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     var createdDate : LocalDateTime = LocalDateTime.now()
