@@ -6,7 +6,7 @@ enum class SessionType(
     VOCAL("Vocal"),
     CHORUS("Chorus"),
     GUITAR("Guitar"),
-    BASE("Base"),
+    BASS("Bass"),
     DRUM("Drum"),
     PERCUSSION("Percussion"),
     SYNTH("Synth"),
