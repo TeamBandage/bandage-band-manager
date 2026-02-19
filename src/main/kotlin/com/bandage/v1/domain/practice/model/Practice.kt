@@ -57,7 +57,7 @@ class Practice(
             song: PracticeSong,
         ): Practice =
             Practice(title = title, song = song).apply {
-                listOf(SessionType.VOCAL, SessionType.GUITAR, SessionType.BASE, SessionType.DRUM)
+                listOf(SessionType.VOCAL, SessionType.GUITAR, SessionType.BASS, SessionType.DRUM)
                     .forEach { addDefaultSession(it) }
             }
 
