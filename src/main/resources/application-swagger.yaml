@@ -1,0 +1,10 @@
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: ASC
+    tags-sorter: alpha # 알파벳 순서
+    operations-sorter: method
+  api-docs:
+    path: /api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
