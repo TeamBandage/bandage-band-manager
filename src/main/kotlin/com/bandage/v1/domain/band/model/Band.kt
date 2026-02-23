@@ -10,7 +10,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "p_band")
-class Band(
+open class Band(
     @Column(name = "name", nullable = false)
     var name: String,
     @Column(name = "member_cnt", nullable = false)
@@ -21,7 +21,8 @@ class Band(
     @Id
     @Column(name = "band_id", nullable = false)
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
-    val id: UUID? = null
+    lateinit var id: UUID
+        protected set
 
     companion object {
         fun create(
