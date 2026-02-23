@@ -4,6 +4,7 @@ import com.bandage.v1.global.common.domain.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.Lob
 import jakarta.persistence.Table
 import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
@@ -13,6 +14,9 @@ import java.util.UUID
 open class Band(
     @Column(name = "name", nullable = false)
     var name: String,
+    @Lob
+    @Column(name = "description", nullable = false)
+    var description: String? = null,
     @Column(name = "member_cnt", nullable = false)
     var memberCnt: Int = 1,
     @Column(name = "profile_img")
@@ -27,10 +31,12 @@ open class Band(
     companion object {
         fun create(
             name: String,
+            description: String,
             profileImg: String?,
         ): Band =
             Band(
                 name = name,
+                description = description,
                 profileImg = profileImg,
             )
     }

@@ -15,6 +15,7 @@ class BandService(
             bandRepository.save(
                 Band.create(
                     name = request.name,
+                    description = request.description,
                     profileImg = request.profileImg,
                 ),
             )
