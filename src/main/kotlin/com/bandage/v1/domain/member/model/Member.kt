@@ -1,6 +1,6 @@
 package com.bandage.v1.domain.member.model
 
-import com.bandage.v1.global.domain.BaseEntity
+import com.bandage.v1.global.common.domain.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

@@ -1,4 +1,4 @@
-package com.bandage.v1.global.domain
+package com.bandage.v1.global.common.domain
 
 import jakarta.persistence.Column
 import jakarta.persistence.MappedSuperclass
@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate
 import java.time.LocalDateTime
 
 @MappedSuperclass
-open class BaseEntity {
+class BaseEntity {
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
     var createdDate: LocalDateTime = LocalDateTime.now()
