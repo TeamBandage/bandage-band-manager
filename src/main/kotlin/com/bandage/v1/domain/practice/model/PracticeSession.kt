@@ -18,16 +18,10 @@ import java.util.UUID
 @Table(name = "p_practice_session")
 @SQLRestriction("deleted_at IS NULL")
 open class PracticeSession(
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "practice_id")
-    val practice: Practice,
-    @Column(name = "label")
-    var label: String,
-    @Column(name = "session_type", nullable = false)
-    var type: SessionType = SessionType.ETC,
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "participant_id")
-    var participant: PracticeParticipant? = null,
+    practice: Practice,
+    label: String,
+    type: SessionType = SessionType.ETC,
+    participant: PracticeParticipant?,
 ) : BaseEntity() {
     @Id
     @Column(name = "practice_session_id")
@@ -35,16 +29,35 @@ open class PracticeSession(
     lateinit var id: UUID
         protected set
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "practice_id")
+    val practice: Practice = practice
+
+    @Column(name = "label")
+    var label: String = label
+        protected set
+
+    @Column(name = "session_type", nullable = false)
+    var type: SessionType = type
+        protected set
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "participant_id")
+    var participant: PracticeParticipant? = participant
+        protected set
+
     companion object {
         fun create(
             practice: Practice,
             label: String,
             type: SessionType,
+            participant: PracticeParticipant?,
         ): PracticeSession =
             PracticeSession(
                 practice = practice,
                 label = label,
                 type = type,
+                participant = participant,
             )
     }
 

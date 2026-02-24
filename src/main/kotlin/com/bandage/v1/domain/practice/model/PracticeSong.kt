@@ -13,21 +13,36 @@ import java.util.UUID
 @Table(name = "p_practice_song")
 @SQLRestriction("deleted_at IS NULL")
 open class PracticeSong(
-    @Column(name = "title", nullable = false)
-    var title: String,
-    @Column(name = "artist", nullable = false)
-    var artist: String,
-    @Column(name = "album", nullable = false)
-    var album: String,
-    @Column(name = "duration", nullable = false)
-    var duration: Int,
-    @Column(name = "ref_link", nullable = true)
-    var refLink: String? = null,
+    title: String,
+    artist: String,
+    album: String,
+    duration: Int,
+    refLink: String? = null,
 ) : BaseEntity() {
     @Id
     @Column(name = "practice_song_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
+        protected set
+
+    @Column(name = "title", nullable = false)
+    var title: String = title
+        protected set
+
+    @Column(name = "artist", nullable = false)
+    var artist: String = artist
+        protected set
+
+    @Column(name = "album", nullable = false)
+    var album: String = album
+        protected set
+
+    @Column(name = "duration", nullable = false)
+    var duration: Int = duration
+        protected set
+
+    @Column(name = "ref_link", nullable = true)
+    var refLink: String? = refLink
         protected set
 
     companion object {

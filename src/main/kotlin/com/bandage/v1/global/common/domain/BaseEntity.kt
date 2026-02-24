@@ -13,12 +13,10 @@ open class BaseEntity {
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
-        protected set
 
     @CreatedBy
     @Column(name = "created_by")
     val createdBy: String? = null
-        protected set
 
     @LastModifiedDate
     @Column(name = "last_modified_at", nullable = false)

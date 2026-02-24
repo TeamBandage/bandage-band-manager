@@ -16,15 +16,19 @@ import java.util.UUID
 @Table(name = "p_practice_participant")
 @SQLRestriction("deleted_at IS NULL")
 open class PracticeParticipant(
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "practice_id")
-    val practice: Practice,
-    @Column(name = "member_id")
-    val member: UUID,
+    practice: Practice,
+    member: Long,
 ) : BaseEntity() {
     @Id
     @Column(name = "practice_participant_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
         protected set
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "practice_id")
+    val practice: Practice = practice
+
+    @Column(name = "member_id")
+    val member: Long = member
 }

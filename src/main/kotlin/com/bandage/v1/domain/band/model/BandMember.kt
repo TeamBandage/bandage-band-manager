@@ -17,13 +17,9 @@ import java.util.UUID
 @Table(name = "p_band_member")
 @SQLRestriction("deleted_at IS NULL")
 open class BandMember(
-    @JoinColumn(name = "band_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    val band: Band,
-    @Column(name = "member_id", nullable = false)
-    val member: UUID,
-    @Column(name = "role", nullable = false)
-    var role: BandRole = BandRole.MEMBER,
+    band: Band,
+    member: Long,
+    role: BandRole = BandRole.MEMBER,
 ) : BaseEntity() {
     @Id
     @Column(name = "band_member_id")
@@ -31,14 +27,27 @@ open class BandMember(
     lateinit var id: UUID
         protected set
 
+    @JoinColumn(name = "band_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    val band: Band = band
+
+    @Column(name = "member_id", nullable = false)
+    val member: Long = member
+
+    @Column(name = "role", nullable = false)
+    var role: BandRole = role
+        protected set
+
     companion object {
         fun create(
             band: Band,
-            member: UUID,
+            member: Long,
+            role: BandRole,
         ): BandMember =
             BandMember(
                 band = band,
                 member = member,
+                role = role,
             )
     }
 

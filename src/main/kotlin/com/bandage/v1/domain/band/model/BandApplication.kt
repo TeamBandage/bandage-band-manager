@@ -18,17 +18,24 @@ import java.util.UUID
 @Table(name = "p_band_application")
 @SQLRestriction("deleted_at IS NULL")
 open class BandApplication(
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "band_id", nullable = false)
-    val band: Band,
-    @Column(name = "member_id", nullable = false)
-    val member: Long,
-    @Column(name = "status", nullable = false)
-    var status: ApplicationStatus? = ApplicationStatus.PENDING,
+    band: Band,
+    member: Long,
+    status: ApplicationStatus = ApplicationStatus.PENDING,
 ) {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
+        protected set
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "band_id", nullable = false)
+    val band: Band = band
+
+    @Column(name = "member_id", nullable = false)
+    val member: Long = member
+
+    @Column(name = "status", nullable = false)
+    var status: ApplicationStatus = status
         protected set
 
     companion object {
