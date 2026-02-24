@@ -5,27 +5,45 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
 @Entity
 @Table(name = "p_practice_song")
-class PracticeSong(
-    @Column(name = "title", nullable = false)
-    var title: String,
-    @Column(name = "artist", nullable = false)
-    var artist: String,
-    @Column(name = "album", nullable = false)
-    var album: String,
-    @Column(name = "duration", nullable = false)
-    var duration: Int,
-    @Column(name = "ref_link", nullable = true)
-    var refLink: String? = null,
+@SQLRestriction("deleted_at IS NULL")
+open class PracticeSong(
+    title: String,
+    artist: String,
+    album: String,
+    duration: Int,
+    refLink: String? = null,
 ) : BaseEntity() {
     @Id
     @Column(name = "practice_song_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
-    var id: UUID? = null
+    lateinit var id: UUID
+        protected set
+
+    @Column(name = "title", nullable = false)
+    var title: String = title
+        protected set
+
+    @Column(name = "artist", nullable = false)
+    var artist: String = artist
+        protected set
+
+    @Column(name = "album", nullable = false)
+    var album: String = album
+        protected set
+
+    @Column(name = "duration", nullable = false)
+    var duration: Int = duration
+        protected set
+
+    @Column(name = "ref_link", nullable = true)
+    var refLink: String? = refLink
+        protected set
 
     companion object {
         fun create(

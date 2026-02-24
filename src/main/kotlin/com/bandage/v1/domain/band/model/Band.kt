@@ -6,26 +6,39 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Lob
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
 @Entity
 @Table(name = "p_band")
+@SQLRestriction("deleted_at IS NULL")
 open class Band(
-    @Column(name = "name", nullable = false)
-    var name: String,
-    @Lob
-    @Column(name = "description", nullable = false)
-    var description: String? = null,
-    @Column(name = "member_cnt", nullable = false)
-    var memberCnt: Int = 1,
-    @Column(name = "profile_img")
-    var profileImg: String? = null,
+    name: String,
+    description: String,
+    profileImg: String?,
 ) : BaseEntity() {
     @Id
     @Column(name = "band_id", nullable = false)
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
+        protected set
+
+    @Column(name = "name", unique = true, nullable = false)
+    var name: String = name
+        protected set
+
+    @Lob
+    @Column(name = "description", nullable = false)
+    var description: String? = description
+        protected set
+
+    @Column(name = "member_cnt", nullable = false)
+    var memberCnt: Int = 1
+        protected set
+
+    @Column(name = "profile_img")
+    var profileImg: String? = profileImg
         protected set
 
     companion object {
