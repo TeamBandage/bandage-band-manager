@@ -1,5 +1,6 @@
 package com.bandage.v1.domain.practice.model
 
+import com.bandage.v1.domain.practice.model.enums.SessionType
 import com.bandage.v1.global.common.domain.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -9,12 +10,14 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
 @Entity
 @Table(name = "p_practice_session")
-class PracticeSession(
+@SQLRestriction("deleted_at IS NULL")
+open class PracticeSession(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "practice_id")
     val practice: Practice,
@@ -29,7 +32,8 @@ class PracticeSession(
     @Id
     @Column(name = "practice_session_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
-    var id: UUID? = null
+    lateinit var id: UUID
+        protected set
 
     companion object {
         fun create(

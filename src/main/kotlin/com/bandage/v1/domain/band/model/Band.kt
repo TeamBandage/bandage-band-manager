@@ -6,11 +6,13 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Lob
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
 @Entity
 @Table(name = "p_band")
+@SQLRestriction("deleted_at IS NULL")
 open class Band(
     @Column(name = "name", nullable = false)
     var name: String,

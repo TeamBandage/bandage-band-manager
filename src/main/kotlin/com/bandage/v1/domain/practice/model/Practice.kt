@@ -1,5 +1,6 @@
 package com.bandage.v1.domain.practice.model
 
+import com.bandage.v1.domain.practice.model.enums.SessionType
 import com.bandage.v1.global.common.domain.BaseEntity
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -10,6 +11,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.UuidGenerator
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -17,7 +19,8 @@ import java.util.UUID
 
 @Entity
 @Table(name = "p_practice")
-class Practice(
+@SQLRestriction("deleted_at IS NULL")
+open class Practice(
     @Column(name = "title", nullable = false)
     var title: String,
     @OneToOne(fetch = FetchType.LAZY)
@@ -37,7 +40,8 @@ class Practice(
     @Id
     @Column(name = "practice_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
-    var id: UUID? = null
+    lateinit var id: UUID
+        protected set
 
     val participants: List<PracticeParticipant> get() = _participants.toList()
     val sessions: List<PracticeSession> get() = _sessions.toList()
