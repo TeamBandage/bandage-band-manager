@@ -37,7 +37,6 @@ class BandController(
     @Operation(summary = "밴드 생성 API", description = "새로운 밴드를 생성하고 초기 설정을 완료합니다.")
     fun createBand(request: BandCreateRequest): ApiResponse<BandResponse> = ApiResponse.success(bandService.createBand(request))
 
-    // TODO: BandApplication 엔티티 추가
     @PostMapping("/{bandId}/applications")
     @Operation(summary = "밴드 가입 신청 API", description = "특정 밴드에 가입하기 위해 승인 요청을 보냅니다.")
     fun applyToJoin(

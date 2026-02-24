@@ -1,4 +1,4 @@
-package com.bandage.v1.domain.practice.model
+package com.bandage.v1.domain.practice.model.enums
 
 enum class SessionType(
     val label: String,

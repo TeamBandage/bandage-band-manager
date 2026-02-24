@@ -1,7 +1,8 @@
 package com.bandage.v1.domain.band.model
 
-import com.bandage.v1.domain.band.model.enums.BandRole
-import com.bandage.v1.global.common.domain.BaseEntity
+import com.bandage.v1.domain.band.model.enums.ApplicationStatus
+import com.bandage.v1.global.common.exception.errorcode.ErrorCode
+import com.bandage.v1.global.common.exception.exception.BusinessException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -14,50 +15,42 @@ import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
 @Entity
-@Table(name = "p_band_member")
+@Table(name = "p_band_application")
 @SQLRestriction("deleted_at IS NULL")
-open class BandMember(
+open class BandApplication(
     band: Band,
     member: Long,
-    role: BandRole = BandRole.MEMBER,
-) : BaseEntity() {
+    status: ApplicationStatus = ApplicationStatus.PENDING,
+) {
     @Id
-    @Column(name = "band_member_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
         protected set
 
-    @JoinColumn(name = "band_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "band_id", nullable = false)
     val band: Band = band
 
     @Column(name = "member_id", nullable = false)
     val member: Long = member
 
-    @Column(name = "role", nullable = false)
-    var role: BandRole = role
+    @Column(name = "status", nullable = false)
+    var status: ApplicationStatus = status
         protected set
 
     companion object {
         fun create(
             band: Band,
             member: Long,
-            role: BandRole,
-        ): BandMember =
-            BandMember(
+        ): BandApplication =
+            BandApplication(
                 band = band,
                 member = member,
-                role = role,
             )
     }
 
-    fun promoteToLeader() {
-        require(this.role != BandRole.LEADER)
-        this.role = BandRole.LEADER
-    }
-
-    fun dismissFromLeader() {
-        require(this.role == BandRole.LEADER)
-        this.role = BandRole.MEMBER
+    fun updateStatus(newStatus: ApplicationStatus) {
+        require(newStatus != this.status, throw BusinessException(ErrorCode.INVALID_INPUT_VALUE))
+        this.status = newStatus
     }
 }
