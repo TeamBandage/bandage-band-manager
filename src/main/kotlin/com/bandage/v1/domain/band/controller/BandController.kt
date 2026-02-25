@@ -58,7 +58,7 @@ class BandController(
     ): ApiResponse<Nothing> = ApiResponse.success()
 
     @GetMapping("/{bandId}")
-    @Operation(summary = "밴드 상세 조회 API", description = "밴드 고유 식별 ID를 통해 밴드 정보를 조회합니다.")
+    @Operation(summary = "밴드 단건 조회 API", description = "밴드 고유 식별 ID를 통해 밴드 정보를 조회합니다.")
     fun getBand(
         @PathVariable bandId: UUID,
     ): ApiResponse<BandInfoResponse> = ApiResponse.success(bandService.getBand(bandId))
@@ -71,7 +71,7 @@ class BandController(
     ): ApiResponse<CursorResponse<BandInfoResponse, UUID>> = ApiResponse.success(bandService.getBandsByCursor(lastId, pageSize))
 
     @GetMapping("/{bandId}/members/{bandMemberId}")
-    @Operation(summary = "밴드 멤버 상세 조회 API", description = "밴드 내 특정 멤버의 프로필 및 권한 정보를 조회합니다.")
+    @Operation(summary = "밴드 멤버 단건 조회 API", description = "밴드 내 특정 멤버의 프로필 및 권한 정보를 조회합니다.")
     fun getBandMember(
         @PathVariable bandId: UUID,
         @PathVariable bandMemberId: String,
