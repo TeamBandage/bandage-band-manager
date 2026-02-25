@@ -1,4 +1,4 @@
-package com.bandage.v1.global.config
+package com.bandage.v1.global.config.swagger
 
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Contact
