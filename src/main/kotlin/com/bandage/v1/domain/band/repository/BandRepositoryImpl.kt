@@ -37,5 +37,5 @@ class BandRepositoryImpl(
         )
     }
 
-    private fun ltBandId(lastId: UUID?): BooleanExpression? = lastId.let { QBand.band.id.lt(it) }
+    private fun ltBandId(lastId: UUID?): BooleanExpression? = lastId?.let { QBand.band.id.lt(it) }
 }
