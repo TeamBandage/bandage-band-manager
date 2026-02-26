@@ -1,4 +1,4 @@
-package com.bandage.v1.global.common.dto
+package com.bandage.v1.global.common.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 

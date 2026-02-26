@@ -1,4 +1,4 @@
-package com.bandage.v1.global.config.security
+package com.bandage.v1.global.security
 
 object SecurityPathConstants {
     const val PREFIX = "/api/v1"

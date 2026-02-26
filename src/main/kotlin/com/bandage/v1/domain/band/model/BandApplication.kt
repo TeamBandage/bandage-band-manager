@@ -1,8 +1,8 @@
 package com.bandage.v1.domain.band.model
 
 import com.bandage.v1.domain.band.model.enums.ApplicationStatus
-import com.bandage.v1.global.common.exception.errorcode.ErrorCode
-import com.bandage.v1.global.common.exception.exception.BusinessException
+import com.bandage.v1.global.error.errorcode.ErrorCode
+import com.bandage.v1.global.error.exception.BusinessException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType

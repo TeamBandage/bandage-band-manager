@@ -1,4 +1,4 @@
-package com.bandage.v1.global.config.redis
+package com.bandage.v1.global.infra.redis
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

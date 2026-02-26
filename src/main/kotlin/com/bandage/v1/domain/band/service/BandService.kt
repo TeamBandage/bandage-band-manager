@@ -5,9 +5,9 @@ import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
 import com.bandage.v1.domain.band.model.Band
 import com.bandage.v1.domain.band.repository.BandRepository
-import com.bandage.v1.global.common.dto.CursorResponse
-import com.bandage.v1.global.common.exception.errorcode.ErrorCode
-import com.bandage.v1.global.common.exception.exception.BusinessException
+import com.bandage.v1.global.common.response.CursorResponse
+import com.bandage.v1.global.error.errorcode.ErrorCode
+import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

@@ -1,4 +1,4 @@
-package com.bandage.v1.global.config.security
+package com.bandage.v1.global.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
