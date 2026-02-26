@@ -54,7 +54,7 @@ class BandController(
     @Operation(summary = "밴드 가입 신청 승인/거절 API", description = "리더가 특정 신청 건의 상태를 승인 혹은 거절로 변경합니다.")
     fun processApplication(
         @PathVariable bandId: UUID,
-        @PathVariable applicationId: UUID, // TODO: String -> UUID
+        @PathVariable applicationId: UUID,
     ): ApiResponse<Nothing> = ApiResponse.success()
 
     @GetMapping("/{bandId}")
