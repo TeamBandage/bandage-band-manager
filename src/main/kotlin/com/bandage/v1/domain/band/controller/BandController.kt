@@ -6,6 +6,7 @@ import com.bandage.v1.domain.band.dto.res.BandResponse
 import com.bandage.v1.domain.band.service.BandService
 import com.bandage.v1.global.common.dto.CursorResponse
 import com.bandage.v1.global.common.response.ApiResponse
+import com.bandage.v1.global.config.security.SecurityPathConstants.PREFIX
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import lombok.RequiredArgsConstructor
@@ -21,7 +22,7 @@ import java.util.UUID
 
 @Tag(name = "bands", description = "밴드 API")
 @RestController
-@RequestMapping("/api/v1/bands")
+@RequestMapping("$PREFIX/bands")
 @RequiredArgsConstructor
 class BandController(
     private val bandService: BandService,
