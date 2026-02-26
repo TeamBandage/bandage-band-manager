@@ -3,8 +3,8 @@ spring:
     name: v1
   profiles:
     group:
-      local: local, default-datasource, swagger
-      dev: dev, dev-datasource, swagger
+      local: local, default-datasource, swagger, redis
+      dev: dev, dev-datasource, swagger, redis
     active: ${PROFILE_ACTIVE:local}
 
 
