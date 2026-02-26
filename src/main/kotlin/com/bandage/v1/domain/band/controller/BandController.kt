@@ -21,7 +21,7 @@ import java.util.UUID
 
 @Tag(name = "bands", description = "밴드 API")
 @RestController
-@RequestMapping("api/v1/bands")
+@RequestMapping("/api/v1/bands")
 @RequiredArgsConstructor
 class BandController(
     private val bandService: BandService,
@@ -54,7 +54,7 @@ class BandController(
     @Operation(summary = "밴드 가입 신청 승인/거절 API", description = "리더가 특정 신청 건의 상태를 승인 혹은 거절로 변경합니다.")
     fun processApplication(
         @PathVariable bandId: UUID,
-        @PathVariable applicationId: String,
+        @PathVariable applicationId: UUID,
     ): ApiResponse<Nothing> = ApiResponse.success()
 
     @GetMapping("/{bandId}")
@@ -66,15 +66,15 @@ class BandController(
     @GetMapping
     @Operation(summary = "밴드 목록 조회 API", description = "필터 조건에 맞는 밴드 리스트를 페이징하여 조회합니다.")
     fun getBands(
-        @RequestParam lastId: UUID?,
-        @RequestParam pageSize: Int,
+        @RequestParam(required = false) lastId: UUID?,
+        @RequestParam(defaultValue = "10") pageSize: Int,
     ): ApiResponse<CursorResponse<BandInfoResponse, UUID>> = ApiResponse.success(bandService.getBandsByCursor(lastId, pageSize))
 
     @GetMapping("/{bandId}/members/{bandMemberId}")
     @Operation(summary = "밴드 멤버 단건 조회 API", description = "밴드 내 특정 멤버의 프로필 및 권한 정보를 조회합니다.")
     fun getBandMember(
         @PathVariable bandId: UUID,
-        @PathVariable bandMemberId: String,
+        @PathVariable bandMemberId: UUID,
     ): ApiResponse<Nothing> = ApiResponse.success()
 
     @GetMapping("/{bandId}/members")
