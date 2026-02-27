@@ -1,5 +1,6 @@
 package com.bandage.v1.domain.member.model
 
+import com.bandage.v1.domain.member.model.enums.MemberRole
 import com.bandage.v1.global.common.domain.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -17,6 +18,7 @@ open class Member(
     password: String,
     name: String,
     contact: String,
+    role: MemberRole = MemberRole.MEMBER,
 ) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +38,10 @@ open class Member(
 
     @Column(name = "contact", nullable = false)
     var contact: String = contact
+        protected set
+
+    @Column(name = "role", nullable = false)
+    var role: MemberRole = role
         protected set
 
     companion object {
