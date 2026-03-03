@@ -26,6 +26,10 @@ spring:
     redis:
       host: localhost
       port: 6379
+jwt:
+  access-token-expr: 3600
+  refresh-token-expr: 25200
+  secret: "OXCdljnxxIeLMbX/dnQIWyVSuVAdkGc6p6FYaChtCb6Zzg//p1tdUwekTL/CB7QPNf47GjGhhRvXYe2bs3UWTg=="
 
 logging:
   level:
