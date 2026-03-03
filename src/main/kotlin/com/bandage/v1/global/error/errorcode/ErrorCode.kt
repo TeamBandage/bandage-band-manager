@@ -1,4 +1,4 @@
-package com.bandage.v1.global.common.exception.errorcode
+package com.bandage.v1.global.error.errorcode
 
 import org.springframework.http.HttpStatus
 

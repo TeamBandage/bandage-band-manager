@@ -2,7 +2,7 @@ package com.bandage.v1.domain.band.repository
 
 import com.bandage.v1.domain.band.model.Band
 import com.bandage.v1.domain.band.model.QBand
-import com.bandage.v1.global.common.dto.CursorResponse
+import com.bandage.v1.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import java.util.UUID

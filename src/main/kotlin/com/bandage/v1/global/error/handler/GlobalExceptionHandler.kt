@@ -1,9 +1,9 @@
-package com.bandage.v1.global.common.exception.handler
+package com.bandage.v1.global.error.handler
 
-import com.bandage.v1.global.common.exception.errorcode.ErrorCode
-import com.bandage.v1.global.common.exception.exception.BusinessException
-import com.bandage.v1.global.common.exception.exception.Exception
 import com.bandage.v1.global.common.response.ApiResponse
+import com.bandage.v1.global.error.errorcode.ErrorCode
+import com.bandage.v1.global.error.exception.BusinessException
+import com.bandage.v1.global.error.exception.Exception
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
