@@ -9,7 +9,6 @@ import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.security.SecurityPathConstants.PREFIX
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import lombok.RequiredArgsConstructor
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -23,7 +22,6 @@ import java.util.UUID
 @Tag(name = "bands", description = "밴드 API")
 @RestController
 @RequestMapping("$PREFIX/bands")
-@RequiredArgsConstructor
 class BandController(
     private val bandService: BandService,
 ) {

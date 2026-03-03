@@ -21,6 +21,7 @@ open class Member(
     role: MemberRole = MemberRole.MEMBER,
 ) : BaseEntity() {
     @Id
+    @Column(name = "member_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 

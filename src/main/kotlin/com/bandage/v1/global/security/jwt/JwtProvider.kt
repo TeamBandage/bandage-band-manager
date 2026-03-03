@@ -1,5 +1,6 @@
 package com.bandage.v1.global.security.jwt
 
+import com.bandage.v1.domain.member.model.Member
 import com.bandage.v1.domain.member.model.enums.MemberRole
 import com.bandage.v1.global.error.exception.Exception
 import com.bandage.v1.global.properties.JwtProperties
@@ -21,6 +22,9 @@ class JwtProvider(
     private val key: SecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.secret))
     private val accessExpr = jwtProperties.accessTokenExpr
     private val refreshExpr = jwtProperties.refreshTokenExpr
+
+    fun issueToken(member: Member) {
+    }
 
     fun createAccessToken(
         memberId: Long,
