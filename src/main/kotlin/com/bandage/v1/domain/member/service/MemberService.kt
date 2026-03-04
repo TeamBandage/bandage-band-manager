@@ -6,6 +6,8 @@ import com.bandage.v1.domain.member.model.Member
 import com.bandage.v1.domain.member.repository.MemberRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
+import com.bandage.v1.global.util.SecurityUtil
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -40,4 +42,8 @@ class MemberService(
     private fun encodePassword(rawPassword: String): String =
         passwordEncoder.encode(rawPassword)
             ?: throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+
+    private fun getMember(): Member =
+        memberRepository.findByIdOrNull(SecurityUtil.getCurrentMemberId())
+            ?: throw BusinessException(ErrorCode.MEMBER_NOT_FOUND)
 }

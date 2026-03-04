@@ -1,4 +1,4 @@
-package com.bandage.v1.domain.member.dto.req
+package com.bandage.v1.domain.auth.dto.req
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
