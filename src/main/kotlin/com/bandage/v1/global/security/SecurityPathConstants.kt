@@ -1,8 +1,8 @@
 package com.bandage.v1.global.security
 
-object SecurityPathConstants {
-    const val PREFIX = "/api/v1"
+import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 
+object SecurityPathConstants {
     val AUTH_WHITELIST =
         arrayOf(
             "$PREFIX/auth/login",

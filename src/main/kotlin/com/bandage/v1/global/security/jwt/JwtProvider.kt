@@ -19,8 +19,8 @@ class JwtProvider(
     private val jwtProperties: JwtProperties,
 ) {
     private val key: SecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.secret))
-    private val accessExpr = jwtProperties.accessTokenExpr
-    private val refreshExpr = jwtProperties.refreshTokenExpr
+    private val accessExpr = jwtProperties.accessTokenExpr * 1000
+    private val refreshExpr = jwtProperties.refreshTokenExpr * 1000
 
     fun createAccessToken(
         memberId: Long,
