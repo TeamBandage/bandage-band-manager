@@ -3,8 +3,8 @@ package com.bandage.v1.domain.member.controller
 import com.bandage.v1.domain.member.dto.req.MemberLoginRequest
 import com.bandage.v1.domain.member.dto.res.MemberLoginResponse
 import com.bandage.v1.domain.member.service.MemberAuthService
+import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
-import com.bandage.v1.global.security.SecurityPathConstants.PREFIX
 import com.bandage.v1.global.util.CookieUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

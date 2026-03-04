@@ -3,8 +3,8 @@ package com.bandage.v1.domain.member.controller
 import com.bandage.v1.domain.member.dto.req.MemberJoinRequest
 import com.bandage.v1.domain.member.dto.res.MemberResponse
 import com.bandage.v1.domain.member.service.MemberService
+import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
-import com.bandage.v1.global.security.SecurityPathConstants.PREFIX
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.PostMapping

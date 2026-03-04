@@ -4,9 +4,9 @@ import com.bandage.v1.domain.band.dto.req.BandCreateRequest
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
 import com.bandage.v1.domain.band.service.BandService
+import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.common.response.CursorResponse
-import com.bandage.v1.global.security.SecurityPathConstants.PREFIX
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.DeleteMapping
