@@ -1,0 +1,26 @@
+package com.bandage.v1.global.common.domain
+
+import jakarta.persistence.Column
+import jakarta.persistence.MappedSuperclass
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import java.time.LocalDateTime
+
+@MappedSuperclass
+open class BaseTimeEntity {
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    val createdAt: LocalDateTime = LocalDateTime.now()
+
+    @LastModifiedDate
+    @Column(name = "last_modified_at", nullable = false, updatable = true)
+    var lastModifiedAt: LocalDateTime = LocalDateTime.now()
+        protected set
+
+    @Column(name = "deleted_at", nullable = true, updatable = true)
+    var deletedAt: LocalDateTime? = null
+
+    fun markAsDeleted() {
+        this.deletedAt = LocalDateTime.now()
+    }
+}
