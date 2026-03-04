@@ -34,6 +34,11 @@ class MemberAuthController(
         )
     }
 
-    // TODO: Member Logout 구현
-    // TODO: Cookie 삭제 & Redis 토큰 무효화 구현
+    @PostMapping("/logout")
+    @Operation(summary = "회원 로그인 API", description = "회원 로그아웃을 진행하고 redis, 쿠키에 저장된 refresh 토큰을 만료시킵니다.")
+    fun logout(response: HttpServletResponse): ApiResponse<Nothing> {
+        memberAuthService.processLogout()
+        response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.expireCookie())
+        return ApiResponse.success()
+    }
 }

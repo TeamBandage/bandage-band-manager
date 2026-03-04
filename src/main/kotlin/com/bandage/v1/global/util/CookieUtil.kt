@@ -15,5 +15,16 @@ class CookieUtil {
                 .sameSite("None") // Lax 이상 권장
                 .build()
                 .toString()
+
+        fun expireCookie(): String =
+            ResponseCookie
+                .from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build()
+                .toString()
     }
 }
