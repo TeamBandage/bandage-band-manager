@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "bands", description = "밴드 API")
+@Tag(name = "auth", description = "회원 인증 API")
 @RestController
 @RequestMapping("$PREFIX/auth")
 class MemberAuthController(
@@ -33,4 +33,7 @@ class MemberAuthController(
             MemberLoginResponse(tokens.accessToken),
         )
     }
+
+    // TODO: Member Logout 구현
+    // TODO: Cookie 삭제 & Redis 토큰 무효화 구현
 }

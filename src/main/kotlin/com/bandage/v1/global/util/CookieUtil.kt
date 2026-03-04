@@ -7,7 +7,7 @@ class CookieUtil {
     companion object {
         fun generateCookieFrom(refreshToken: String): String =
             ResponseCookie
-                .from("refreshToken,", refreshToken)
+                .from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
