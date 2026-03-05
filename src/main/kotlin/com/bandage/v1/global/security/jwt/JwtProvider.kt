@@ -1,6 +1,6 @@
 package com.bandage.v1.global.security.jwt
 
-import com.bandage.v1.domain.member.model.enums.MemberRole
+import com.bandage.v1.global.common.domain.enums.MemberRole
 import com.bandage.v1.global.error.exception.Exception
 import com.bandage.v1.global.properties.JwtProperties
 import com.bandage.v1.global.security.PrincipalDetails

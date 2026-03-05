@@ -1,8 +1,8 @@
-package com.bandage.v1.domain.member.controller
+package com.bandage.v1.domain.auth.controller
 
-import com.bandage.v1.domain.member.dto.req.MemberLoginRequest
-import com.bandage.v1.domain.member.dto.res.MemberLoginResponse
-import com.bandage.v1.domain.member.service.MemberAuthService
+import com.bandage.v1.domain.auth.dto.req.MemberLoginRequest
+import com.bandage.v1.domain.auth.dto.res.MemberLoginResponse
+import com.bandage.v1.domain.auth.service.MemberAuthService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.util.CookieUtil

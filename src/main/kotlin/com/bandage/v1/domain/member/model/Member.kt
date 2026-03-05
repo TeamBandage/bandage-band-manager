@@ -1,7 +1,7 @@
 package com.bandage.v1.domain.member.model
 
-import com.bandage.v1.domain.member.model.enums.MemberRole
-import com.bandage.v1.global.common.domain.BaseEntity
+import com.bandage.v1.global.common.domain.BaseTimeEntity
+import com.bandage.v1.global.common.domain.enums.MemberRole
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -19,7 +19,7 @@ open class Member(
     name: String,
     contact: String,
     role: MemberRole = MemberRole.MEMBER,
-) : BaseEntity() {
+) : BaseTimeEntity() {
     @Id
     @Column(name = "member_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
