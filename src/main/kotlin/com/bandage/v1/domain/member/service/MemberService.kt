@@ -4,6 +4,9 @@ import com.bandage.v1.domain.member.dto.req.MemberJoinRequest
 import com.bandage.v1.domain.member.dto.res.MemberResponse
 import com.bandage.v1.domain.member.model.Member
 import com.bandage.v1.domain.member.repository.MemberRepository
+import com.bandage.v1.global.async.event.MemberJoinEvent
+import com.bandage.v1.global.async.event.MemberWithdrawnEvent
+import com.bandage.v1.global.async.publisher.EventPublisher
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import com.bandage.v1.global.util.SecurityUtil
@@ -17,11 +20,12 @@ import org.springframework.transaction.annotation.Transactional
 class MemberService(
     private val memberRepository: MemberRepository,
     private val passwordEncoder: BCryptPasswordEncoder,
+    private val eventPublisher: EventPublisher,
 ) {
     @Transactional
     fun createMember(request: MemberJoinRequest): MemberResponse {
         validateMemberJoin(request)
-        return MemberResponse.of(
+        val member =
             memberRepository.save(
                 Member.create(
                     email = request.email,
@@ -29,8 +33,17 @@ class MemberService(
                     name = request.name,
                     contact = request.contact,
                 ),
-            ),
-        )
+            )
+        eventPublisher.publish(MemberJoinEvent.of(member))
+        return MemberResponse.of(member)
+    }
+
+    @Transactional
+    fun deleteMember() {
+        val member = getMember()
+        member.markAsDeleted()
+        memberRepository.save(member)
+        eventPublisher.publish(MemberWithdrawnEvent.of(member.id!!))
     }
 
     private fun validateMemberJoin(request: MemberJoinRequest) {

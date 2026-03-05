@@ -7,19 +7,26 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLRestriction
+import org.hibernate.annotations.UuidGenerator
+import java.util.UUID
 
 @Entity
 @Table(name = "p_member_auth")
 @SQLRestriction("deleted_at IS NULL")
 open class MemberAuth(
-    id: Long,
+    memberId: Long,
     email: String,
     password: String,
     role: MemberRole = MemberRole.MEMBER,
 ) : BaseTimeEntity() {
     @Id
-    @Column(name = "member_id")
-    val id: Long = id
+    @Column(name = "member_auth_id")
+    @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
+    lateinit var id: UUID
+        protected set
+
+    @Column(name = "member_id", unique = true, nullable = false)
+    val memberId: Long = memberId
 
     @Column(name = "email", unique = true, nullable = false)
     val email: String = email
@@ -32,13 +39,13 @@ open class MemberAuth(
 
     companion object {
         fun create(
-            id: Long,
+            memberId: Long,
             email: String,
             password: String,
             role: MemberRole,
         ): MemberAuth =
             MemberAuth(
-                id = id,
+                memberId = memberId,
                 email = email,
                 password = password,
                 role = role,

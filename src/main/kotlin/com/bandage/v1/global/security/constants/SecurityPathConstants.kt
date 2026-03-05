@@ -1,12 +1,12 @@
-package com.bandage.v1.global.security
+package com.bandage.v1.global.security.constants
 
-import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
+import com.bandage.v1.global.common.constants.PathPrefix
 
 object SecurityPathConstants {
     val AUTH_WHITELIST =
         arrayOf(
-            "$PREFIX/auth/login",
-            "$PREFIX/members/join",
+            "${PathPrefix.PREFIX}/auth/login",
+            "${PathPrefix.PREFIX}/members/join",
         )
 
     val METRICS =
@@ -26,8 +26,8 @@ object SecurityPathConstants {
 
     val TMP_FOR_TEST =
         arrayOf(
-            "$PREFIX/bands/**",
-            "$PREFIX/practices/**",
-            "$PREFIX/performances/**",
+            "${PathPrefix.PREFIX}/bands/**",
+            "${PathPrefix.PREFIX}/practices/**",
+            "${PathPrefix.PREFIX}/performances/**",
         )
 }

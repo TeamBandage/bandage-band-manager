@@ -5,8 +5,11 @@ import com.bandage.v1.domain.member.dto.res.MemberResponse
 import com.bandage.v1.domain.member.service.MemberService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
+import com.bandage.v1.global.util.CookieUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -27,5 +30,9 @@ class MemberController(
 
     @DeleteMapping
     @Operation(summary = "회원 탈퇴 API", description = "회원 정보를 삭제하고 로그아웃 처리합니다.")
-    fun withdrawMember(): ApiResponse<Nothing> = ApiResponse.success()
+    fun withdrawMember(response: HttpServletResponse): ApiResponse<Nothing> {
+        memberService.deleteMember()
+        response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.expireCookie())
+        return ApiResponse.success()
+    }
 }

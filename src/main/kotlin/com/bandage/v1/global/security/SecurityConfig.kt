@@ -1,5 +1,6 @@
 package com.bandage.v1.global.security
 
+import com.bandage.v1.global.security.constants.SecurityPathConstants
 import com.bandage.v1.global.security.filter.JwtAuthenticationFilter
 import com.bandage.v1.global.security.jwt.JwtProvider
 import org.springframework.context.annotation.Bean
