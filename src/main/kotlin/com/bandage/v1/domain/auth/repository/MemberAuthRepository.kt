@@ -9,4 +9,6 @@ interface MemberAuthRepository : JpaRepository<MemberAuth, Long> {
     fun findByEmail(email: String): MemberAuth?
 
     fun findByMemberId(memberId: Long): MemberAuth?
+
+    fun existsByMemberId(memberId: Long): Boolean
 }
