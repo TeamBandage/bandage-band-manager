@@ -8,18 +8,18 @@ import org.springframework.stereotype.Service
 import java.time.Duration
 
 @Service
-class RefreshTokenService(
+class RedisRefreshTokenAdapter(
     private val redisTemplate: RedisTemplate<String, String>,
     private val jwtProperties: JwtProperties,
     private val jwtProvider: JwtProvider,
-) {
+) : RefreshTokenRepository {
     val refreshExpr = jwtProperties.refreshTokenExpr
 
     companion object {
         private const val RT_PREFIX = "RT:"
     }
 
-    fun saveRefreshToken(
+    override fun save(
         memberId: Long,
         refreshToken: String,
     ) {
@@ -30,7 +30,7 @@ class RefreshTokenService(
         )
     }
 
-    fun validateRefreshToken(
+    override fun validate(
         refreshToken: String,
         memberId: Long,
     ) {
@@ -40,7 +40,7 @@ class RefreshTokenService(
         if (refreshToken != savedRefreshToken) throw BusinessException(ErrorCode.INVALID_REFRESH_TOKEN)
     }
 
-    fun deleteRefreshToken(memberId: Long) {
+    override fun delete(memberId: Long) {
         redisTemplate.delete(getRtKey(memberId))
     }
 

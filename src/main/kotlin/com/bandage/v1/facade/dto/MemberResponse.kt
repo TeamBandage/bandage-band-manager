@@ -1,4 +1,4 @@
-package com.bandage.v1.domain.member.dto.res
+package com.bandage.v1.facade.dto
 
 import com.bandage.v1.domain.member.model.Member
 import io.swagger.v3.oas.annotations.media.Schema

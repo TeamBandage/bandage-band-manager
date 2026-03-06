@@ -1,5 +1,6 @@
-package com.bandage.v1.domain.member.dto.req
+package com.bandage.v1.facade.dto
 
+import com.bandage.v1.domain.member.dto.req.MemberCreateRequest
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
@@ -16,4 +17,12 @@ data class MemberJoinRequest(
     val name: String,
     @NotBlank @Schema(description = "회원 연락처", example = "010-1234-5678")
     val contact: String,
-)
+) {
+    fun toMemberCreateRequest(): MemberCreateRequest =
+        MemberCreateRequest(
+            email = this.email,
+            password = this.password,
+            name = this.name,
+            contact = this.contact,
+        )
+}
