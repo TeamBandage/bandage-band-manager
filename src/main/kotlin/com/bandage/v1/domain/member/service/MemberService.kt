@@ -6,7 +6,6 @@ import com.bandage.v1.domain.member.repository.MemberRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class MemberService(
     private val memberRepository: MemberRepository,
-    private val passwordEncoder: BCryptPasswordEncoder,
 ) {
     @Transactional
     fun createMember(request: MemberCreateRequest): Member {
@@ -22,7 +20,6 @@ class MemberService(
         return memberRepository.save(
             Member.create(
                 email = request.email,
-                password = encodePassword(request.password),
                 name = request.name,
                 contact = request.contact,
             ),
@@ -41,10 +38,6 @@ class MemberService(
             throw BusinessException(ErrorCode.DUPLICATE_EMAIL)
         }
     }
-
-    private fun encodePassword(rawPassword: String): String =
-        passwordEncoder.encode(rawPassword)
-            ?: throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
 
     private fun getMember(memberId: Long): Member =
         memberRepository.findByIdOrNull(memberId)

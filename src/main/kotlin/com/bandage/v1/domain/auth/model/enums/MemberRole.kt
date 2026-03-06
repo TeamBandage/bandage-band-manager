@@ -1,4 +1,4 @@
-package com.bandage.v1.global.common.domain.enums
+package com.bandage.v1.domain.auth.model.enums
 
 enum class MemberRole(
     val value: String,

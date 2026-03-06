@@ -1,5 +1,6 @@
 package com.bandage.v1.facade.dto
 
+import com.bandage.v1.domain.auth.dto.req.MemberAuthCreateRequest
 import com.bandage.v1.domain.member.dto.req.MemberCreateRequest
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email
@@ -21,8 +22,14 @@ data class MemberJoinRequest(
     fun toMemberCreateRequest(): MemberCreateRequest =
         MemberCreateRequest(
             email = this.email,
-            password = this.password,
             name = this.name,
             contact = this.contact,
+        )
+
+    fun toMemberAuthCreateRequest(memberId: Long): MemberAuthCreateRequest =
+        MemberAuthCreateRequest(
+            memberId = memberId,
+            email = this.email,
+            rawPassword = this.password,
         )
 }

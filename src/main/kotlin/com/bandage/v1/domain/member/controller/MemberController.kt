@@ -8,6 +8,7 @@ import com.bandage.v1.facade.dto.MemberResponse
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.util.CookieUtil
+import com.bandage.v1.global.util.SecurityUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
@@ -38,7 +39,7 @@ class MemberController(
     @DeleteMapping
     @Operation(summary = "회원 탈퇴 API", description = "회원 정보를 삭제하고 로그아웃 처리합니다.")
     fun withdrawMember(response: HttpServletResponse): ApiResponse<Nothing> {
-        memberWithdrawFacade.withdrawMember()
+        memberWithdrawFacade.withdrawMember(SecurityUtil.getCurrentMemberId())
         response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.expireCookie())
         return ApiResponse.success()
     }

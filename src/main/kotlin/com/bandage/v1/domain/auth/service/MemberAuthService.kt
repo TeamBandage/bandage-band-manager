@@ -9,7 +9,6 @@ import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import com.bandage.v1.global.security.jwt.JwtProvider
 import com.bandage.v1.global.security.jwt.RefreshTokenRepository
-import com.bandage.v1.global.util.SecurityUtil
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -29,8 +28,7 @@ class MemberAuthService(
             MemberAuth.create(
                 memberId = request.memberId,
                 email = request.email,
-                password = request.password,
-                role = request.role,
+                password = encodePassword(request.rawPassword),
             ),
         )
     }
@@ -55,8 +53,8 @@ class MemberAuthService(
         )
     }
 
-    fun processLogout() {
-        refreshTokenRepository.delete(SecurityUtil.getCurrentMemberId())
+    fun processLogout(memberId: Long) {
+        refreshTokenRepository.delete(memberId)
     }
 
     fun reissueToken(oldRefreshToken: String): TokenDto {
@@ -93,4 +91,8 @@ class MemberAuthService(
     private fun getMemberAuth(memberId: Long): MemberAuth =
         memberAuthRepository.findByMemberId(memberId)
             ?: throw BusinessException(ErrorCode.MEMBER_NOT_FOUND)
+
+    private fun encodePassword(rawPassword: String): String =
+        passwordEncoder.encode(rawPassword)
+            ?: throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
 }

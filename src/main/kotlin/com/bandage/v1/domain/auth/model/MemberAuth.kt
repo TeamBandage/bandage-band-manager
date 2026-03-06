@@ -1,14 +1,14 @@
 package com.bandage.v1.domain.auth.model
 
+import com.bandage.v1.domain.auth.model.enums.MemberRole
 import com.bandage.v1.global.common.domain.BaseTimeEntity
-import com.bandage.v1.global.common.domain.enums.MemberRole
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLRestriction
-import org.hibernate.annotations.UuidGenerator
-import java.util.UUID
 
 @Entity
 @Table(name = "p_member_auth")
@@ -20,11 +20,6 @@ open class MemberAuth(
     role: MemberRole = MemberRole.MEMBER,
 ) : BaseTimeEntity() {
     @Id
-    @Column(name = "member_auth_id")
-    @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
-    lateinit var id: UUID
-        protected set
-
     @Column(name = "member_id", unique = true, nullable = false)
     val memberId: Long = memberId
 
@@ -32,23 +27,26 @@ open class MemberAuth(
     val email: String = email
 
     @Column(name = "password", nullable = false)
-    val password: String = password
+    var password: String = password
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    val role: MemberRole = role
+    var role: MemberRole = role
 
     companion object {
         fun create(
             memberId: Long,
             email: String,
             password: String,
-            role: MemberRole,
         ): MemberAuth =
             MemberAuth(
                 memberId = memberId,
                 email = email,
                 password = password,
-                role = role,
             )
+    }
+
+    fun updatePassword(newPassword: String) {
+        this.password = newPassword
     }
 }

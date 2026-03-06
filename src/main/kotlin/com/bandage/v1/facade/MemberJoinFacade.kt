@@ -1,6 +1,5 @@
 package com.bandage.v1.facade
 
-import com.bandage.v1.domain.auth.dto.req.MemberAuthCreateRequest
 import com.bandage.v1.domain.auth.service.MemberAuthService
 import com.bandage.v1.domain.member.service.MemberService
 import com.bandage.v1.facade.dto.MemberJoinRequest
@@ -16,14 +15,7 @@ class MemberJoinFacade(
     @Transactional
     fun joinMember(request: MemberJoinRequest): MemberResponse {
         val member = memberService.createMember(request.toMemberCreateRequest())
-        val authRequest =
-            MemberAuthCreateRequest(
-                memberId = member.id!!,
-                email = member.email,
-                password = member.password,
-                role = member.role,
-            )
-        memberAuthService.createMemberAuth(authRequest)
+        memberAuthService.createMemberAuth(request.toMemberAuthCreateRequest(member.id))
         return MemberResponse.of(member)
     }
 }

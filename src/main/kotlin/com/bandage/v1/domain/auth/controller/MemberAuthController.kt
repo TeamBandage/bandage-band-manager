@@ -6,6 +6,7 @@ import com.bandage.v1.domain.auth.service.MemberAuthService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.util.CookieUtil
+import com.bandage.v1.global.util.SecurityUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
@@ -38,7 +39,7 @@ class MemberAuthController(
     @PostMapping("/logout")
     @Operation(summary = "회원 로그인 API", description = "회원 로그아웃을 진행하고 redis, 쿠키에 저장된 refresh 토큰을 만료시킵니다.")
     fun logout(response: HttpServletResponse): ApiResponse<Nothing> {
-        memberAuthService.processLogout()
+        memberAuthService.processLogout(SecurityUtil.getCurrentMemberId())
         response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.expireCookie())
         return ApiResponse.success()
     }
