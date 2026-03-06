@@ -7,6 +7,7 @@ import com.bandage.v1.domain.auth.model.MemberAuth
 import com.bandage.v1.domain.auth.repository.MemberAuthRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
+import com.bandage.v1.global.properties.JwtProperties
 import com.bandage.v1.global.security.jwt.JwtProvider
 import com.bandage.v1.global.security.jwt.RefreshTokenRepository
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -20,6 +21,7 @@ class MemberAuthService(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: BCryptPasswordEncoder,
     private val jwtProvider: JwtProvider,
+    private val jwtProperties: JwtProperties,
 ) {
     @Transactional
     fun createMemberAuth(request: MemberAuthCreateRequest): MemberAuth {
@@ -44,8 +46,13 @@ class MemberAuthService(
 
         val accessToken = jwtProvider.createAccessToken(memberId, memberAuth.role)
         val refreshToken = jwtProvider.createRefreshToken(memberId)
+        val expiration = jwtProperties.refreshTokenExpr
 
-        refreshTokenRepository.save(memberId, refreshToken)
+        refreshTokenRepository.save(
+            memberId = memberAuth.memberId,
+            refreshToken = refreshToken,
+            expiration = expiration,
+        )
 
         return TokenDto(
             accessToken = accessToken,
@@ -59,15 +66,20 @@ class MemberAuthService(
 
     fun reissueToken(oldRefreshToken: String): TokenDto {
         val memberId = jwtProvider.getMemberIdFromToken(oldRefreshToken)
-        refreshTokenRepository.validate(oldRefreshToken, memberId)
+        validateRefreshToken(oldRefreshToken, memberId)
         val memberAuth =
             memberAuthRepository.findByMemberId(memberId)
                 ?: throw BusinessException(ErrorCode.MEMBER_AUTH_NOT_FOUND)
 
         val newAccessToken = jwtProvider.createAccessToken(memberAuth.memberId, memberAuth.role)
         val newRefreshToken = jwtProvider.createRefreshToken(memberAuth.memberId)
+        val expiration = jwtProperties.refreshTokenExpr
 
-        refreshTokenRepository.save(memberAuth.memberId, newRefreshToken)
+        refreshTokenRepository.save(
+            memberId = memberAuth.memberId,
+            refreshToken = newRefreshToken,
+            expiration = expiration,
+        )
 
         return TokenDto(
             accessToken = newAccessToken,
@@ -95,4 +107,15 @@ class MemberAuthService(
     private fun encodePassword(rawPassword: String): String =
         passwordEncoder.encode(rawPassword)
             ?: throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+
+    private fun validateRefreshToken(
+        refreshToken: String,
+        memberId: Long,
+    ) {
+        if (!jwtProvider.validateToken(refreshToken)) throw BusinessException(ErrorCode.INVALID_REFRESH_TOKEN)
+        val savedRefreshToken =
+            refreshTokenRepository.get(memberId)
+                ?: throw BusinessException(ErrorCode.EXPIRED_REFRESH_TOKEN)
+        if (refreshToken != savedRefreshToken) throw BusinessException(ErrorCode.INVALID_REFRESH_TOKEN)
+    }
 }

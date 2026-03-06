@@ -4,12 +4,10 @@ interface RefreshTokenRepository {
     fun save(
         memberId: Long,
         refreshToken: String,
+        expiration: Long,
     )
 
     fun delete(memberId: Long)
 
-    fun validate(
-        refreshToken: String,
-        memberId: Long,
-    )
+    fun get(memberId: Long): String?
 }

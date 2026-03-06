@@ -1,8 +1,5 @@
 package com.bandage.v1.global.security.jwt
 
-import com.bandage.v1.global.error.errorcode.ErrorCode
-import com.bandage.v1.global.error.exception.BusinessException
-import com.bandage.v1.global.properties.JwtProperties
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import java.time.Duration
@@ -10,11 +7,7 @@ import java.time.Duration
 @Service
 class RedisRefreshTokenAdapter(
     private val redisTemplate: RedisTemplate<String, String>,
-    private val jwtProperties: JwtProperties,
-    private val jwtProvider: JwtProvider,
 ) : RefreshTokenRepository {
-    val refreshExpr = jwtProperties.refreshTokenExpr
-
     companion object {
         private const val RT_PREFIX = "RT:"
     }
@@ -22,29 +15,20 @@ class RedisRefreshTokenAdapter(
     override fun save(
         memberId: Long,
         refreshToken: String,
+        expiration: Long,
     ) {
         redisTemplate.opsForValue().set(
             getRtKey(memberId),
             refreshToken,
-            Duration.ofMillis(refreshExpr),
+            Duration.ofMillis(expiration),
         )
-    }
-
-    override fun validate(
-        refreshToken: String,
-        memberId: Long,
-    ) {
-        if (!jwtProvider.validateToken(refreshToken)) throw BusinessException(ErrorCode.INVALID_REFRESH_TOKEN)
-        val memberId = jwtProvider.getMemberIdFromToken(refreshToken)
-        val savedRefreshToken = getRefreshToken(memberId) ?: throw BusinessException(ErrorCode.EXPIRED_REFRESH_TOKEN)
-        if (refreshToken != savedRefreshToken) throw BusinessException(ErrorCode.INVALID_REFRESH_TOKEN)
     }
 
     override fun delete(memberId: Long) {
         redisTemplate.delete(getRtKey(memberId))
     }
 
-    private fun getRtKey(memberId: Long): String = "$RT_PREFIX$memberId"
+    override fun get(memberId: Long): String? = redisTemplate.opsForValue().get(getRtKey(memberId))
 
-    private fun getRefreshToken(memberId: Long): String? = redisTemplate.opsForValue().get(getRtKey(memberId))
+    private fun getRtKey(memberId: Long): String = "$RT_PREFIX$memberId"
 }
