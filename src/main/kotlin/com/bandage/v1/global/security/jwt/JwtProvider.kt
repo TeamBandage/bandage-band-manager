@@ -76,4 +76,15 @@ class JwtProvider(
 
         return UsernamePasswordAuthenticationToken(principal, token, authorities)
     }
+
+    fun getMemberIdFromToken(token: String): Long {
+        val claims =
+            Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+        return claims.subject.toLong()
+    }
 }

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -40,5 +41,18 @@ class MemberAuthController(
         memberAuthService.processLogout()
         response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.expireCookie())
         return ApiResponse.success()
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "토큰 리프레시 API", description = "refresh 토큰을 검증하고, 새로운 access, refresh 토큰을 발급합니다.")
+    fun tokenRefresh(
+        @CookieValue refreshToken: String,
+        response: HttpServletResponse,
+    ): ApiResponse<MemberLoginResponse> {
+        val tokens = memberAuthService.reissueToken(refreshToken)
+        response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.generateCookieFrom(tokens.refreshToken))
+        return ApiResponse.success(
+            MemberLoginResponse(tokens.accessToken),
+        )
     }
 }
