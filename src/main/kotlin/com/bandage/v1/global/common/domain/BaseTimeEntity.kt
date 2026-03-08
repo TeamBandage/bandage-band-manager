@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 open class BaseTimeEntity {
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    var createdAt: LocalDateTime = LocalDateTime.now()
 
     @LastModifiedDate
     @Column(name = "last_modified_at", nullable = false, updatable = true)

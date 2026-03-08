@@ -26,7 +26,7 @@ object SecurityPathConstants {
 
     val TMP_FOR_TEST =
         arrayOf(
-            "${PathPrefix.PREFIX}/bands/**",
+//            "${PathPrefix.PREFIX}/bands/**",
             "${PathPrefix.PREFIX}/practices/**",
             "${PathPrefix.PREFIX}/performances/**",
         )

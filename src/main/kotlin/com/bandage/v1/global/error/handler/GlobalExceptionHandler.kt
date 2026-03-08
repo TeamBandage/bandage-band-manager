@@ -6,6 +6,7 @@ import com.bandage.v1.global.error.exception.BusinessException
 import com.bandage.v1.global.error.exception.Exception
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -23,6 +24,13 @@ open class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     protected fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ApiResponse<Nothing>> {
         val message = e.bindingResult.fieldErrors[0].defaultMessage ?: "잘못된 요청입니다."
+        val response = ApiResponse.error(message)
+        return ResponseEntity(response, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    protected fun handleHttpMessageNotReadableException(e: HttpMessageNotReadableException): ResponseEntity<ApiResponse<Nothing>> {
+        val message = e.message
         val response = ApiResponse.error(message)
         return ResponseEntity(response, HttpStatus.BAD_REQUEST)
     }
