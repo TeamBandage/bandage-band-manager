@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 open class BaseEntity : BaseTimeEntity() {
     @CreatedBy
     @Column(name = "created_by", nullable = true, updatable = false)
-    val createdBy: Long? = null
+    var createdBy: Long? = null
 
     @LastModifiedBy
     @Column(name = "last_modified_by", nullable = true, updatable = true)
