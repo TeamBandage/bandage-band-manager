@@ -1,6 +1,6 @@
 package com.bandage.v1.domain.member.model
 
-import com.bandage.v1.global.common.domain.BaseEntity
+import com.bandage.v1.global.common.domain.BaseTimeEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -14,20 +14,16 @@ import org.hibernate.annotations.SQLRestriction
 @SQLRestriction("deleted_at IS NULL")
 open class Member(
     email: String,
-    password: String,
     name: String,
     contact: String,
-) : BaseEntity() {
+) : BaseTimeEntity() {
     @Id
+    @Column(name = "member_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
+    val id: Long = 0L
 
     @Column(name = "email", unique = true, nullable = false)
     var email: String = email
-        protected set
-
-    @Column(name = "password", nullable = false)
-    var password: String = password
         protected set
 
     @Column(name = "name", nullable = false)
@@ -41,13 +37,11 @@ open class Member(
     companion object {
         fun create(
             email: String,
-            password: String,
             name: String,
             contact: String,
         ): Member =
             Member(
                 email = email,
-                password = password,
                 name = name,
                 contact = contact,
             )

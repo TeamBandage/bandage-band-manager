@@ -4,16 +4,18 @@ import com.bandage.v1.domain.band.dto.req.BandCreateRequest
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
 import com.bandage.v1.domain.band.service.BandService
-import com.bandage.v1.global.common.dto.CursorResponse
+import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
+import com.bandage.v1.global.common.response.CursorResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import lombok.RequiredArgsConstructor
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -21,8 +23,7 @@ import java.util.UUID
 
 @Tag(name = "bands", description = "밴드 API")
 @RestController
-@RequestMapping("/api/v1/bands")
-@RequiredArgsConstructor
+@RequestMapping("$PREFIX/bands")
 class BandController(
     private val bandService: BandService,
 ) {
@@ -36,7 +37,9 @@ class BandController(
 
     @PostMapping
     @Operation(summary = "밴드 생성 API", description = "새로운 밴드를 생성하고 초기 설정을 완료합니다.")
-    fun createBand(request: BandCreateRequest): ApiResponse<BandResponse> = ApiResponse.success(bandService.createBand(request))
+    fun createBand(
+        @Valid @RequestBody request: BandCreateRequest,
+    ): ApiResponse<BandResponse> = ApiResponse.success(bandService.createBand(request))
 
     @PostMapping("/{bandId}/applications")
     @Operation(summary = "밴드 가입 신청 API", description = "특정 밴드에 가입하기 위해 승인 요청을 보냅니다.")
@@ -54,7 +57,7 @@ class BandController(
     @Operation(summary = "밴드 가입 신청 승인/거절 API", description = "리더가 특정 신청 건의 상태를 승인 혹은 거절로 변경합니다.")
     fun processApplication(
         @PathVariable bandId: UUID,
-        @PathVariable applicationId: UUID, // TODO: String -> UUID
+        @PathVariable applicationId: UUID,
     ): ApiResponse<Nothing> = ApiResponse.success()
 
     @GetMapping("/{bandId}")
