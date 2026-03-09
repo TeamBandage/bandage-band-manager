@@ -1,6 +1,9 @@
 package com.bandage.v1.domain.band.service
 
+import com.bandage.v1.domain.band.dto.req.BandApplicationPagingQuery
 import com.bandage.v1.domain.band.dto.req.BandCreateRequest
+import com.bandage.v1.domain.band.dto.req.BandPagingQuery
+import com.bandage.v1.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
 import com.bandage.v1.domain.band.model.Band
@@ -58,13 +61,25 @@ class BandService(
             getBand(bandId),
         )
 
-    fun getBandsByCursor(
-        lastId: UUID?,
-        size: Int,
-    ): CursorResponse<BandInfoResponse, UUID> {
-        val result = bandRepository.findAllByPaging(lastId, size)
+    fun getBandsByCursor(query: BandPagingQuery): CursorResponse<BandInfoResponse, UUID> {
+        val result = bandRepository.findAllByPaging(query.lastId, query.pageSize)
         return CursorResponse(
             content = result.content.map { BandInfoResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
+    fun getBandApplicationsByCursor(
+        bandId: UUID,
+        query: BandApplicationPagingQuery,
+        memberId: Long,
+    ): CursorResponse<BandApplicationInfoResponse, UUID> {
+        val band = getBand(bandId)
+        isMemberBandLeader(band, memberId)
+        val result = applicationRepository.findAllByPaging(query.lastId, query.pageSize, query.status, band)
+        return CursorResponse(
+            content = result.content.map { BandApplicationInfoResponse.of(it) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -126,4 +141,13 @@ class BandService(
     ): BandApplication =
         applicationRepository.findByBandAndMemberAndStatus(band, member, ApplicationStatus.PENDING)
             ?: throw BusinessException(ErrorCode.UNABLE_TO_WITHDRAW)
+
+    private fun isMemberBandLeader(
+        band: Band,
+        memberId: Long,
+    ) {
+        if (!bandMemberRepository.existsByBandAndMemberAndRole(band, memberId, BandRole.LEADER)) {
+            throw BusinessException(ErrorCode.NOT_A_LEADER)
+        }
+    }
 }

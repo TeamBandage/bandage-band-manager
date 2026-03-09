@@ -55,7 +55,9 @@ open class BandApplication(
     }
 
     fun updateStatus(newStatus: ApplicationStatus) {
-        require(newStatus != this.status, throw BusinessException(ErrorCode.INVALID_INPUT_VALUE))
+        if (newStatus == this.status) {
+            throw BusinessException(ErrorCode.INVALID_INPUT_VALUE)
+        }
         this.status = newStatus
     }
 }
