@@ -26,6 +26,8 @@ enum class ErrorCode(
     // band
     BAND_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 밴드 정보를 찾을 수 없습니다."),
     DUPLICATE_BAND_NAME(HttpStatus.CONFLICT, "이미 사용 중인 밴드 이름입니다."),
+    BAND_MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 가입 된 밴드 멤버입니다."),
+    DUPLICATE_BAND_APPLICATION(HttpStatus.CONFLICT, "이미 밴드 가입이 처리 중이거나 처리가 완료되었습니다."),
 
     // practice
     PRACTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 합주 정보를 찾을 수 없습니다."),

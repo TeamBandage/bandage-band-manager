@@ -4,6 +4,10 @@ import com.bandage.v1.domain.band.dto.req.BandCreateRequest
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
 import com.bandage.v1.domain.band.model.Band
+import com.bandage.v1.domain.band.model.BandApplication
+import com.bandage.v1.domain.band.model.enums.ApplicationStatus
+import com.bandage.v1.domain.band.repository.BandApplicationRepository
+import com.bandage.v1.domain.band.repository.BandMemberRepository
 import com.bandage.v1.domain.band.repository.BandRepository
 import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.error.errorcode.ErrorCode
@@ -17,6 +21,8 @@ import java.util.UUID
 @Transactional(readOnly = true)
 class BandService(
     private val bandRepository: BandRepository,
+    private val applicationRepository: BandApplicationRepository,
+    private val bandMemberRepository: BandMemberRepository,
 ) {
     // TODO: profileImg multi-part 처리 구현
     @Transactional
@@ -35,12 +41,10 @@ class BandService(
         return BandResponse.of(band)
     }
 
-    fun getBand(bandId: UUID): BandInfoResponse {
-        val band =
-            bandRepository.findByIdOrNull(bandId)
-                ?: throw BusinessException(ErrorCode.BAND_NOT_FOUND)
-        return BandInfoResponse.of(band)
-    }
+    fun getOnlyOneBand(bandId: UUID): BandInfoResponse =
+        BandInfoResponse.of(
+            getBand(bandId),
+        )
 
     fun getBandsByCursor(
         lastId: UUID?,
@@ -52,5 +56,44 @@ class BandService(
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
+    }
+
+    @Transactional
+    fun createBandApplication(
+        bandId: UUID,
+        memberId: Long,
+    ) {
+        val band = getBand(bandId)
+        isBandMemberAlreadyExists(band, memberId)
+        isBandApplicationAlreadyExists(band, memberId)
+
+        applicationRepository.save(
+            BandApplication.create(
+                band = band,
+                member = memberId,
+            ),
+        )
+    }
+
+    private fun getBand(bandId: UUID): Band =
+        bandRepository.findByIdOrNull(bandId)
+            ?: throw BusinessException(ErrorCode.BAND_NOT_FOUND)
+
+    private fun isBandMemberAlreadyExists(
+        band: Band,
+        member: Long,
+    ) {
+        if (bandMemberRepository.existsBandMemberByBandAndMember(band, member)) {
+            throw BusinessException(ErrorCode.BAND_MEMBER_ALREADY_EXISTS)
+        }
+    }
+
+    private fun isBandApplicationAlreadyExists(
+        band: Band,
+        member: Long,
+    ) {
+        if (applicationRepository.existsByBandAndMemberAndStatus(band, member, ApplicationStatus.PENDING)) {
+            throw BusinessException(ErrorCode.DUPLICATE_BAND_APPLICATION)
+        }
     }
 }

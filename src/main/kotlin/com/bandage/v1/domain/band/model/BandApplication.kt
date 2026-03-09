@@ -1,6 +1,7 @@
 package com.bandage.v1.domain.band.model
 
 import com.bandage.v1.domain.band.model.enums.ApplicationStatus
+import com.bandage.v1.global.common.domain.BaseEntity
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import jakarta.persistence.Column
@@ -21,7 +22,7 @@ open class BandApplication(
     band: Band,
     member: Long,
     status: ApplicationStatus = ApplicationStatus.PENDING,
-) {
+) : BaseEntity() {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
@@ -36,6 +37,10 @@ open class BandApplication(
 
     @Column(name = "status", nullable = false)
     var status: ApplicationStatus = status
+        protected set
+
+    @Column(name = "processed_by")
+    var processedBy: Long? = null
         protected set
 
     companion object {

@@ -7,6 +7,7 @@ import com.bandage.v1.domain.band.service.BandService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.common.response.CursorResponse
+import com.bandage.v1.global.util.SecurityUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -27,7 +28,6 @@ import java.util.UUID
 class BandController(
     private val bandService: BandService,
 ) {
-    // TODO: 밴드 가입 신청 API
     // TODO: 밴드 가입 신청 철회 API
     // TODO: (리더) 밴드 가입 신청 승인/거절 API
     // TODO: 밴드 멤버 단일 정보 조회 API
@@ -45,7 +45,13 @@ class BandController(
     @Operation(summary = "밴드 가입 신청 API", description = "특정 밴드에 가입하기 위해 승인 요청을 보냅니다.")
     fun applyToJoin(
         @PathVariable bandId: UUID,
-    ): ApiResponse<Nothing> = ApiResponse.success()
+    ): ApiResponse<Nothing> {
+        bandService.createBandApplication(
+            bandId = bandId,
+            memberId = SecurityUtil.getCurrentMemberId(),
+        )
+        return ApiResponse.success()
+    }
 
     @DeleteMapping("/{bandId}/applications")
     @Operation(summary = "밴드 가입 신청 철회 API", description = "수락 대기 중인 본인의 가입 신청을 취소합니다.")
@@ -64,7 +70,7 @@ class BandController(
     @Operation(summary = "밴드 단건 조회 API", description = "밴드 고유 식별 ID를 통해 밴드 정보를 조회합니다.")
     fun getBand(
         @PathVariable bandId: UUID,
-    ): ApiResponse<BandInfoResponse> = ApiResponse.success(bandService.getBand(bandId))
+    ): ApiResponse<BandInfoResponse> = ApiResponse.success(bandService.getOnlyOneBand(bandId))
 
     @GetMapping
     @Operation(summary = "밴드 목록 조회 API", description = "필터 조건에 맞는 밴드 리스트를 페이징하여 조회합니다.")
