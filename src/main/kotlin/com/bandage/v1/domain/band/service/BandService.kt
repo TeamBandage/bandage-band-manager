@@ -5,7 +5,9 @@ import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
 import com.bandage.v1.domain.band.model.Band
 import com.bandage.v1.domain.band.model.BandApplication
+import com.bandage.v1.domain.band.model.BandMember
 import com.bandage.v1.domain.band.model.enums.ApplicationStatus
+import com.bandage.v1.domain.band.model.enums.BandRole
 import com.bandage.v1.domain.band.repository.BandApplicationRepository
 import com.bandage.v1.domain.band.repository.BandMemberRepository
 import com.bandage.v1.domain.band.repository.BandRepository
@@ -26,7 +28,10 @@ class BandService(
 ) {
     // TODO: profileImg multi-part 처리 구현
     @Transactional
-    fun createBand(request: BandCreateRequest): BandResponse {
+    fun createBand(
+        request: BandCreateRequest,
+        memberId: Long,
+    ): BandResponse {
         if (bandRepository.existsByName(request.name)) {
             throw BusinessException(ErrorCode.DUPLICATE_BAND_NAME)
         }
@@ -38,6 +43,13 @@ class BandService(
                     profileImg = request.profileImg,
                 ),
             )
+        bandMemberRepository.save(
+            BandMember.create(
+                band = band,
+                member = memberId,
+                role = BandRole.LEADER,
+            ),
+        )
         return BandResponse.of(band)
     }
 
