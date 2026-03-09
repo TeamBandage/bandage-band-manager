@@ -14,4 +14,10 @@ interface BandApplicationRepository : JpaRepository<BandApplication, UUID> {
         member: Long,
         status: ApplicationStatus,
     ): Boolean
+
+    fun findByBandAndMemberAndStatus(
+        band: Band,
+        member: Long,
+        status: ApplicationStatus,
+    ): BandApplication?
 }

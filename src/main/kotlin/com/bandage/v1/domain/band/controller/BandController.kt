@@ -56,13 +56,19 @@ class BandController(
         return ApiResponse.success()
     }
 
-    @DeleteMapping("/{bandId}/applications")
+    @PatchMapping("/{bandId}/applications")
     @Operation(summary = "밴드 가입 신청 철회 API", description = "수락 대기 중인 본인의 가입 신청을 취소합니다.")
     fun cancelApplication(
         @PathVariable bandId: UUID,
-    ): ApiResponse<Nothing> = ApiResponse.success()
+    ): ApiResponse<Nothing> {
+        bandService.withdrawBandApplication(
+            bandId = bandId,
+            memberId = SecurityUtil.getCurrentMemberId(),
+        )
+        return ApiResponse.success()
+    }
 
-    @PostMapping("/{bandId}/applications/{applicationId}")
+    @PatchMapping("/{bandId}/applications/{applicationId}")
     @Operation(summary = "밴드 가입 신청 승인/거절 API", description = "리더가 특정 신청 건의 상태를 승인 혹은 거절로 변경합니다.")
     fun processApplication(
         @PathVariable bandId: UUID,

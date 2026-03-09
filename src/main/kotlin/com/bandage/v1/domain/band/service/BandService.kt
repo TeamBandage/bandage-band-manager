@@ -87,6 +87,17 @@ class BandService(
         )
     }
 
+    @Transactional
+    fun withdrawBandApplication(
+        bandId: UUID,
+        memberId: Long,
+    ) {
+        val band = getBand(bandId)
+        isBandMemberAlreadyExists(band, memberId)
+        val application = getWithdrawableBandApplication(band, memberId)
+        application.updateStatus(ApplicationStatus.WITHDRAWN)
+    }
+
     private fun getBand(bandId: UUID): Band =
         bandRepository.findByIdOrNull(bandId)
             ?: throw BusinessException(ErrorCode.BAND_NOT_FOUND)
@@ -108,4 +119,11 @@ class BandService(
             throw BusinessException(ErrorCode.DUPLICATE_BAND_APPLICATION)
         }
     }
+
+    private fun getWithdrawableBandApplication(
+        band: Band,
+        member: Long,
+    ): BandApplication =
+        applicationRepository.findByBandAndMemberAndStatus(band, member, ApplicationStatus.PENDING)
+            ?: throw BusinessException(ErrorCode.UNABLE_TO_WITHDRAW)
 }
