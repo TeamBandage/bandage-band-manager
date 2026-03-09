@@ -35,8 +35,6 @@ class BandController(
     // TODO: 밴드 멤버 단일 정보 조회 API
     // TODO: 밴드 멤버 목록 조회 API
 
-    // TODO: 밴드 리더 권한 위임 API
-
     // TODO: 밴드 탈퇴 API
 
     @PostMapping
@@ -127,7 +125,10 @@ class BandController(
         @PathVariable bandId: UUID,
         @PathVariable bandMemberId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<Nothing> = ApiResponse.success()
+    ): ApiResponse<Nothing> {
+        bandService.changeLeader(bandId, bandMemberId, memberId)
+        return ApiResponse.success()
+    }
 
     @DeleteMapping("/{bandId}/leave")
     @Operation(summary = "밴드 탈퇴 API", description = "해당 밴드에서 탈퇴 처리하며 소속 정보를 삭제합니다.")

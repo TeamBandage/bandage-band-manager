@@ -127,11 +127,37 @@ class BandService(
         }
     }
 
+    // TODO: 알림 이벤트 publish 구현
+    fun changeLeader(
+        bandId: UUID,
+        bandMemberId: UUID,
+        memberId: Long,
+    ) {
+        val band = getBand(bandId)
+        isMemberBandLeader(band, memberId)
+        val currentLeader = getCurrentLeader(band, memberId)
+        val newLeader = getBandMember(bandMemberId)
+        newLeader.promoteToLeader()
+        currentLeader.dismissFromLeader()
+        confirmOnlyOneLeader(band)
+    }
+
     // --- 내부 유틸리티 메서드 ---
 
     private fun getBand(bandId: UUID): Band =
         bandRepository.findByIdOrNull(bandId)
             ?: throw BusinessException(ErrorCode.BAND_NOT_FOUND)
+
+    private fun getBandMember(bandMemberId: UUID): BandMember =
+        bandMemberRepository.findByIdOrNull(bandMemberId)
+            ?: throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
+
+    private fun getCurrentLeader(
+        band: Band,
+        memberId: Long,
+    ): BandMember =
+        bandMemberRepository.findByBandAndMemberAndRole(band, memberId, BandRole.LEADER)
+            ?: throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
 
     private fun isBandMemberAlreadyExists(
         band: Band,
@@ -191,6 +217,12 @@ class BandService(
     ) {
         if (!bandMemberRepository.existsByBandAndMemberAndRole(band, memberId, BandRole.LEADER)) {
             throw BusinessException(ErrorCode.NOT_A_LEADER)
+        }
+    }
+
+    private fun confirmOnlyOneLeader(band: Band) {
+        if (bandMemberRepository.countByBandAndRole(band, BandRole.LEADER) != 1) {
+            throw BusinessException(ErrorCode.ABNORMAL_LEADER_COUNT)
         }
     }
 

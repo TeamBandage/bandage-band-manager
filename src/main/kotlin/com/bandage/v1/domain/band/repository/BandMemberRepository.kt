@@ -19,4 +19,15 @@ interface BandMemberRepository : JpaRepository<BandMember, UUID> {
         member: Long,
         role: BandRole,
     ): Boolean
+
+    fun findByBandAndMemberAndRole(
+        band: Band,
+        memberId: Long,
+        role: BandRole,
+    ): BandMember?
+
+    fun countByBandAndRole(
+        band: Band,
+        role: BandRole,
+    ): Int
 }
