@@ -6,6 +6,7 @@ import com.bandage.v1.domain.band.dto.req.BandPagingQuery
 import com.bandage.v1.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
+import com.bandage.v1.domain.band.model.enums.ApplicationStatus
 import com.bandage.v1.domain.band.service.BandService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -30,10 +32,11 @@ import java.util.UUID
 class BandController(
     private val bandService: BandService,
 ) {
-    // TODO: (리더) 밴드 가입 신청 승인/거절 API
     // TODO: 밴드 멤버 단일 정보 조회 API
     // TODO: 밴드 멤버 목록 조회 API
+
     // TODO: 밴드 리더 권한 위임 API
+
     // TODO: 밴드 탈퇴 API
 
     @PostMapping
@@ -72,12 +75,17 @@ class BandController(
         return ApiResponse.success()
     }
 
-    @PatchMapping("/{bandId}/applications/{applicationId}")
+    @PostMapping("/{bandId}/applications/{bandApplicationId}")
     @Operation(summary = "밴드 가입 신청 승인/거절 API", description = "리더가 특정 신청 건의 상태를 승인 혹은 거절로 변경합니다.")
     fun processApplication(
         @PathVariable bandId: UUID,
-        @PathVariable applicationId: UUID,
-    ): ApiResponse<Nothing> = ApiResponse.success()
+        @PathVariable bandApplicationId: UUID,
+        @CurrentMemberId memberId: Long,
+        @RequestParam status: ApplicationStatus,
+    ): ApiResponse<Nothing> {
+        bandService.processBandApplication(bandId, bandApplicationId, memberId, status)
+        return ApiResponse.success()
+    }
 
     @GetMapping("/{bandId}")
     @Operation(summary = "밴드 단건 조회 API", description = "밴드 고유 식별 ID를 통해 밴드 정보를 조회합니다.")
@@ -113,10 +121,12 @@ class BandController(
     ): ApiResponse<CursorResponse<BandApplicationInfoResponse, UUID>> =
         ApiResponse.success(bandService.getBandApplicationsByCursor(bandId, query, memberId))
 
-    @PatchMapping("/{bandId}/leader")
+    @PatchMapping("/{bandId}/leader/{bandMemberId}")
     @Operation(summary = "밴드 리더 권한 위임 API", description = "현재 리더가 지정한 멤버에게 리더 권한을 양도합니다.")
     fun delegateLeader(
         @PathVariable bandId: UUID,
+        @PathVariable bandMemberId: UUID,
+        @CurrentMemberId memberId: Long,
     ): ApiResponse<Nothing> = ApiResponse.success()
 
     @DeleteMapping("/{bandId}/leave")

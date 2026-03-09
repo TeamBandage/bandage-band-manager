@@ -46,13 +46,7 @@ class BandService(
                     profileImg = request.profileImg,
                 ),
             )
-        bandMemberRepository.save(
-            BandMember.create(
-                band = band,
-                member = memberId,
-                role = BandRole.LEADER,
-            ),
-        )
+        createBandMember(band, memberId, BandRole.LEADER)
         return BandResponse.of(band)
     }
 
@@ -109,9 +103,31 @@ class BandService(
     ) {
         val band = getBand(bandId)
         isBandMemberAlreadyExists(band, memberId)
-        val application = getWithdrawableBandApplication(band, memberId)
+        val application = getPendingBandApplicationByMember(band, memberId)
         application.updateStatus(ApplicationStatus.WITHDRAWN)
     }
+
+    @Transactional
+    fun processBandApplication(
+        bandId: UUID,
+        bandApplicationId: UUID,
+        memberId: Long,
+        status: ApplicationStatus,
+    ) {
+        val band = getBand(bandId)
+        isMemberBandLeader(band, memberId)
+
+        val application = getPendingBandApplicationById(bandApplicationId)
+        isApplicationBelongsToBand(band, application)
+
+        when (status) {
+            ApplicationStatus.APPROVED -> approve(band, application, memberId)
+            ApplicationStatus.REJECTED -> application.updateStatus(ApplicationStatus.REJECTED)
+            else -> throw BusinessException(ErrorCode.INVALID_INPUT_VALUE)
+        }
+    }
+
+    // --- 내부 유틸리티 메서드 ---
 
     private fun getBand(bandId: UUID): Band =
         bandRepository.findByIdOrNull(bandId)
@@ -126,6 +142,20 @@ class BandService(
         }
     }
 
+    private fun createBandMember(
+        band: Band,
+        memberId: Long,
+        role: BandRole,
+    ) {
+        bandMemberRepository.save(
+            BandMember.create(
+                band = band,
+                member = memberId,
+                role = role,
+            ),
+        )
+    }
+
     private fun isBandApplicationAlreadyExists(
         band: Band,
         member: Long,
@@ -135,12 +165,25 @@ class BandService(
         }
     }
 
-    private fun getWithdrawableBandApplication(
+    private fun getPendingBandApplicationByMember(
         band: Band,
         member: Long,
     ): BandApplication =
         applicationRepository.findByBandAndMemberAndStatus(band, member, ApplicationStatus.PENDING)
             ?: throw BusinessException(ErrorCode.UNABLE_TO_WITHDRAW)
+
+    private fun getPendingBandApplicationById(bandApplicationId: UUID): BandApplication =
+        applicationRepository.findByIdAndStatus(bandApplicationId, ApplicationStatus.PENDING)
+            ?: throw BusinessException(ErrorCode.BAND_APPLICATION_NOT_FOUND)
+
+    private fun isApplicationBelongsToBand(
+        band: Band,
+        application: BandApplication,
+    ) {
+        if (application.band != band) {
+            throw BusinessException(ErrorCode.BAND_APPLICATION_NOT_BELONGS_TO_BAND)
+        }
+    }
 
     private fun isMemberBandLeader(
         band: Band,
@@ -149,5 +192,16 @@ class BandService(
         if (!bandMemberRepository.existsByBandAndMemberAndRole(band, memberId, BandRole.LEADER)) {
             throw BusinessException(ErrorCode.NOT_A_LEADER)
         }
+    }
+
+    private fun approve(
+        band: Band,
+        application: BandApplication,
+        leaderId: Long,
+    ) {
+        isBandMemberAlreadyExists(band, application.member)
+        application.updateStatus(ApplicationStatus.APPROVED)
+        application.markProcessedBy(leaderId)
+        createBandMember(band, application.member, BandRole.MEMBER)
     }
 }

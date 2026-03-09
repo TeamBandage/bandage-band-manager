@@ -60,4 +60,8 @@ open class BandApplication(
         }
         this.status = newStatus
     }
+
+    fun markProcessedBy(leaderId: Long) {
+        this.processedBy = leaderId
+    }
 }

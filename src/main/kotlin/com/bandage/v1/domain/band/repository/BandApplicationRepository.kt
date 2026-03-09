@@ -22,4 +22,9 @@ interface BandApplicationRepository :
         member: Long,
         status: ApplicationStatus,
     ): BandApplication?
+
+    fun findByIdAndStatus(
+        id: UUID,
+        status: ApplicationStatus,
+    ): BandApplication?
 }
