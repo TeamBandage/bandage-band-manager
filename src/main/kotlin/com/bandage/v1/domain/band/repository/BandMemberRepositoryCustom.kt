@@ -1,0 +1,14 @@
+package com.bandage.v1.domain.band.repository
+
+import com.bandage.v1.domain.band.model.Band
+import com.bandage.v1.domain.band.model.BandMember
+import com.bandage.v1.global.common.response.CursorResponse
+import java.util.UUID
+
+interface BandMemberRepositoryCustom {
+    fun findAllByPaging(
+        lastId: UUID?,
+        pageSize: Int,
+        band: Band,
+    ): CursorResponse<BandMember, UUID>
+}

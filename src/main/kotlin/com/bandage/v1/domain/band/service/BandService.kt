@@ -5,6 +5,7 @@ import com.bandage.v1.domain.band.dto.req.BandCreateRequest
 import com.bandage.v1.domain.band.dto.req.BandPagingQuery
 import com.bandage.v1.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
+import com.bandage.v1.domain.band.dto.res.BandMemberInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
 import com.bandage.v1.domain.band.model.Band
 import com.bandage.v1.domain.band.model.BandApplication
@@ -59,6 +60,24 @@ class BandService(
         val result = bandRepository.findAllByPaging(query.lastId, query.pageSize)
         return CursorResponse(
             content = result.content.map { BandInfoResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
+    fun getOnlyOneBandMember(bandMemberId: UUID): BandMemberInfoResponse =
+        BandMemberInfoResponse.of(
+            getBandMember(bandMemberId),
+        )
+
+    fun getBandMembersByCursor(
+        query: BandPagingQuery,
+        bandId: UUID,
+    ): CursorResponse<BandMemberInfoResponse, UUID> {
+        val band = getBand(bandId)
+        val result = bandMemberRepository.findAllByPaging(query.lastId, query.pageSize, band)
+        return CursorResponse(
+            content = result.content.map { BandMemberInfoResponse.of(it) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )

@@ -5,6 +5,7 @@ import com.bandage.v1.domain.band.dto.req.BandCreateRequest
 import com.bandage.v1.domain.band.dto.req.BandPagingQuery
 import com.bandage.v1.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
+import com.bandage.v1.domain.band.dto.res.BandMemberInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
 import com.bandage.v1.domain.band.model.enums.ApplicationStatus
 import com.bandage.v1.domain.band.service.BandService
@@ -61,7 +62,7 @@ class BandController(
     }
 
     @PatchMapping("/{bandId}/applications")
-    @Operation(summary = "밴드 가입 신청 철회 API", description = "수락 대기 중인 본인의 가입 신청을 취소합니다.")
+    @Operation(summary = "밴드 가입 신청 철회 API", description = "승인 대기 중인 본인의 가입 신청을 취소합니다.")
     fun withdrawApplication(
         @PathVariable bandId: UUID,
         @CurrentMemberId memberId: Long,
@@ -97,18 +98,18 @@ class BandController(
         @Valid query: BandPagingQuery,
     ): ApiResponse<CursorResponse<BandInfoResponse, UUID>> = ApiResponse.success(bandService.getBandsByCursor(query))
 
-    @GetMapping("/{bandId}/members/{bandMemberId}")
+    @GetMapping("/members/{bandMemberId}")
     @Operation(summary = "밴드 멤버 단건 조회 API", description = "밴드 내 특정 멤버의 프로필 및 권한 정보를 조회합니다.")
     fun getBandMember(
-        @PathVariable bandId: UUID,
         @PathVariable bandMemberId: UUID,
-    ): ApiResponse<Nothing> = ApiResponse.success()
+    ): ApiResponse<BandMemberInfoResponse> = ApiResponse.success(bandService.getOnlyOneBandMember(bandMemberId))
 
     @GetMapping("/{bandId}/members")
     @Operation(summary = "밴드 멤버 목록 조회 API", description = "해당 밴드에 소속된 전체 멤버 목록을 확인합니다.")
     fun getBandMembers(
+        @Valid query: BandPagingQuery,
         @PathVariable bandId: UUID,
-    ): ApiResponse<Nothing> = ApiResponse.success()
+    ): ApiResponse<CursorResponse<BandMemberInfoResponse, UUID>> = ApiResponse.success(bandService.getBandMembersByCursor(query, bandId))
 
     @GetMapping("/{bandId}/applications")
     @Operation(summary = "밴드 가입 신청 목록 조회 API", description = "필터 조건에 맞는 해당 밴드 가입 요청 목록을 확인합니다.")

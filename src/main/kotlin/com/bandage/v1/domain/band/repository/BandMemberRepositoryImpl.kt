@@ -1,32 +1,29 @@
 package com.bandage.v1.domain.band.repository
 
 import com.bandage.v1.domain.band.model.Band
-import com.bandage.v1.domain.band.model.BandApplication
-import com.bandage.v1.domain.band.model.QBandApplication
-import com.bandage.v1.domain.band.model.enums.ApplicationStatus
+import com.bandage.v1.domain.band.model.BandMember
+import com.bandage.v1.domain.band.model.QBandMember
 import com.bandage.v1.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import java.util.UUID
 
-class BandApplicationRepositoryImpl(
+class BandMemberRepositoryImpl(
     private val queryFactory: JPAQueryFactory,
-) : BandApplicationRepositoryCustom {
+) : BandMemberRepositoryCustom {
     override fun findAllByPaging(
         lastId: UUID?,
         pageSize: Int,
-        status: ApplicationStatus,
         band: Band,
-    ): CursorResponse<BandApplication, UUID> {
-        val qBandApplication = QBandApplication.bandApplication
+    ): CursorResponse<BandMember, UUID> {
+        val qBandMember = QBandMember.bandMember
 
         val contents =
             queryFactory
-                .selectFrom(qBandApplication)
-                .where(qBandApplication.band.eq(band))
-                .where(qBandApplication.status.eq(status))
+                .selectFrom(qBandMember)
+                .where(qBandMember.band.eq(band))
                 .where(ltBandId(lastId))
-                .orderBy(qBandApplication.id.desc())
+                .orderBy(qBandMember.id.desc())
                 .limit(pageSize.toLong() + 1) // 실제 요청한 pageSize + 1
                 .fetch()
 
@@ -43,5 +40,5 @@ class BandApplicationRepositoryImpl(
         )
     }
 
-    private fun ltBandId(lastId: UUID?): BooleanExpression? = lastId?.let { QBandApplication.bandApplication.id.lt(it) }
+    private fun ltBandId(lastId: UUID?): BooleanExpression? = lastId?.let { QBandMember.bandMember.id.lt(it) }
 }

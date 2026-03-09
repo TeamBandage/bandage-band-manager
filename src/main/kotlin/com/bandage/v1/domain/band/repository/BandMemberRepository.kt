@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-interface BandMemberRepository : JpaRepository<BandMember, UUID> {
+interface BandMemberRepository :
+    JpaRepository<BandMember, UUID>,
+    BandMemberRepositoryCustom {
     fun existsBandMemberByBandAndMember(
         band: Band,
         member: Long,
