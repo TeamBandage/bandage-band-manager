@@ -11,7 +11,6 @@ import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.security.annotation.CurrentMemberId
-import com.bandage.v1.global.util.SecurityUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.UUID
 
 @Tag(name = "bands", description = "밴드 API")
 @RestController
@@ -41,19 +40,21 @@ class BandController(
     @Operation(summary = "밴드 생성 API", description = "새로운 밴드를 생성하고 초기 설정을 완료합니다.")
     fun createBand(
         @Valid @RequestBody request: BandCreateRequest,
+        @CurrentMemberId memberId: Long,
     ): ApiResponse<BandResponse> =
         ApiResponse.success(
-            bandService.createBand(request, SecurityUtil.getCurrentMemberId()),
+            bandService.createBand(request, memberId),
         )
 
     @PostMapping("/{bandId}/applications")
     @Operation(summary = "밴드 가입 신청 API", description = "특정 밴드에 가입하기 위해 승인 요청을 보냅니다.")
     fun applyToJoin(
         @PathVariable bandId: UUID,
+        @CurrentMemberId memberId: Long,
     ): ApiResponse<Nothing> {
         bandService.createBandApplication(
             bandId = bandId,
-            memberId = SecurityUtil.getCurrentMemberId(),
+            memberId = memberId,
         )
         return ApiResponse.success()
     }
@@ -62,10 +63,11 @@ class BandController(
     @Operation(summary = "밴드 가입 신청 철회 API", description = "수락 대기 중인 본인의 가입 신청을 취소합니다.")
     fun withdrawApplication(
         @PathVariable bandId: UUID,
+        @CurrentMemberId memberId: Long,
     ): ApiResponse<Nothing> {
         bandService.withdrawBandApplication(
             bandId = bandId,
-            memberId = SecurityUtil.getCurrentMemberId(),
+            memberId = memberId,
         )
         return ApiResponse.success()
     }
@@ -107,7 +109,7 @@ class BandController(
     fun getBandApplications(
         @PathVariable bandId: UUID,
         @Valid query: BandApplicationPagingQuery,
-        @CurrentMemberId memberId: Long
+        @CurrentMemberId memberId: Long,
     ): ApiResponse<CursorResponse<BandApplicationInfoResponse, UUID>> =
         ApiResponse.success(bandService.getBandApplicationsByCursor(bandId, query, memberId))
 
