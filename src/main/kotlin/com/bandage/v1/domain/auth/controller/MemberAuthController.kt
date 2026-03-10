@@ -1,6 +1,7 @@
 package com.bandage.v1.domain.auth.controller
 
 import com.bandage.v1.domain.auth.dto.req.MemberLoginRequest
+import com.bandage.v1.domain.auth.dto.req.MemberPasswordChangeRequest
 import com.bandage.v1.domain.auth.dto.res.MemberLoginResponse
 import com.bandage.v1.domain.auth.service.MemberAuthService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
@@ -10,8 +11,11 @@ import com.bandage.v1.global.util.CookieUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.CookieValue
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -36,12 +40,12 @@ class MemberAuthController(
         )
     }
 
-    @PostMapping("/logout")
-    @Operation(summary = "회원 로그인 API", description = "회원 로그아웃을 진행하고 redis, 쿠키에 저장된 refresh 토큰을 만료시킵니다.")
+    @DeleteMapping("/logout")
+    @Operation(summary = "회원 로그아웃 API", description = "회원 로그아웃을 진행하고 redis, 쿠키에 저장된 refresh 토큰을 만료시킵니다.")
     fun logout(
         @CurrentMemberId memberId: Long,
         response: HttpServletResponse,
-    ): ApiResponse<Nothing> {
+    ): ApiResponse<Unit> {
         memberAuthService.processLogout(memberId)
         response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.expireCookie())
         return ApiResponse.success()
@@ -58,5 +62,17 @@ class MemberAuthController(
         return ApiResponse.success(
             MemberLoginResponse(tokens.accessToken),
         )
+    }
+
+    @PatchMapping("/password")
+    @Operation(summary = "회원 비밀번호 변경 API", description = "회원 비밀번호를 변경합니다.")
+    fun changePassword(
+        @Valid @RequestBody request: MemberPasswordChangeRequest,
+        @CurrentMemberId memberId: Long,
+        response: HttpServletResponse,
+    ): ApiResponse<Unit> {
+        memberAuthService.changePassword(request, memberId)
+        response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.expireCookie())
+        return ApiResponse.success()
     }
 }

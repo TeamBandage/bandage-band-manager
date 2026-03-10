@@ -1,5 +1,6 @@
 package com.bandage.v1.domain.member.controller
 
+import com.bandage.v1.domain.member.dto.req.MemberInfoUpdateRequest
 import com.bandage.v1.domain.member.service.MemberService
 import com.bandage.v1.facade.MemberJoinFacade
 import com.bandage.v1.facade.MemberWithdrawFacade
@@ -12,8 +13,11 @@ import com.bandage.v1.global.util.CookieUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -36,12 +40,31 @@ class MemberController(
             memberJoinFacade.joinMember(request),
         )
 
-    @DeleteMapping
+    @GetMapping("/me")
+    @Operation(summary = "회원 정보 조회 API", description = "회원 본인의 정보를 조회합니다.")
+    fun getMemberInfo(
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        memberService.getMemberInfo(memberId)
+        return ApiResponse.success()
+    }
+
+    @PatchMapping("/me")
+    @Operation(summary = "회원 기본 정보 변경 API", description = "회원 본인의 정보를 조회합니다.")
+    fun updateMemberInfo(
+        @Valid @RequestBody request: MemberInfoUpdateRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        memberService.updateMemberInfo(request, memberId)
+        return ApiResponse.success()
+    }
+
+    @DeleteMapping("/me")
     @Operation(summary = "회원 탈퇴 API", description = "회원 정보를 삭제하고 로그아웃 처리합니다.")
     fun withdrawMember(
         response: HttpServletResponse,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<Nothing> {
+    ): ApiResponse<Unit> {
         memberWithdrawFacade.withdrawMember(memberId)
         response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.expireCookie())
         return ApiResponse.success()
