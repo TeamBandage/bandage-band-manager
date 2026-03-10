@@ -51,6 +51,23 @@ class BandService(
         return BandResponse.of(band)
     }
 
+    @Transactional
+    fun createBandApplication(
+        bandId: UUID,
+        memberId: Long,
+    ) {
+        val band = getBand(bandId)
+        validateBandMemberNotExists(band, memberId)
+        validateBandApplicationNotExists(band, memberId)
+
+        applicationRepository.save(
+            BandApplication.create(
+                band = band,
+                member = memberId,
+            ),
+        )
+    }
+
     fun getOnlyOneBand(bandId: UUID): BandInfoResponse =
         BandInfoResponse.of(
             getBand(bandId),
@@ -89,7 +106,7 @@ class BandService(
         memberId: Long,
     ): CursorResponse<BandApplicationInfoResponse, UUID> {
         val band = getBand(bandId)
-        isMemberBandLeader(band, memberId)
+        validateMemberIsBandLeader(band, memberId)
         val result = applicationRepository.findAllByPaging(query.lastId, query.pageSize, query.status, band)
         return CursorResponse(
             content = result.content.map { BandApplicationInfoResponse.of(it) },
@@ -99,29 +116,11 @@ class BandService(
     }
 
     @Transactional
-    fun createBandApplication(
-        bandId: UUID,
-        memberId: Long,
-    ) {
-        val band = getBand(bandId)
-        isBandMemberAlreadyExists(band, memberId)
-        isBandApplicationAlreadyExists(band, memberId)
-
-        applicationRepository.save(
-            BandApplication.create(
-                band = band,
-                member = memberId,
-            ),
-        )
-    }
-
-    @Transactional
     fun withdrawBandApplication(
         bandId: UUID,
         memberId: Long,
     ) {
         val band = getBand(bandId)
-        isBandMemberAlreadyExists(band, memberId)
         val application = getPendingBandApplicationByMember(band, memberId)
         application.updateStatus(ApplicationStatus.WITHDRAWN)
     }
@@ -134,10 +133,10 @@ class BandService(
         status: ApplicationStatus,
     ) {
         val band = getBand(bandId)
-        isMemberBandLeader(band, memberId)
+        validateMemberIsBandLeader(band, memberId)
 
         val application = getPendingBandApplicationById(bandApplicationId)
-        isApplicationBelongsToBand(band, application)
+        validateApplicationBelongsToBand(band, application)
 
         when (status) {
             ApplicationStatus.APPROVED -> approve(band, application, memberId)
@@ -154,14 +153,14 @@ class BandService(
         memberId: Long,
     ) {
         val band = getBand(bandId)
-        isMemberBandLeader(band, memberId)
+        validateMemberIsBandLeader(band, memberId)
         val currentLeader = getCurrentLeader(band, memberId)
         val newLeader = getBandMemberById(bandMemberId)
         switchLeader(
             from = currentLeader,
             to = newLeader,
         )
-        confirmOnlyOneLeader(band)
+        validateOnlyOneLeader(band)
     }
 
     @Transactional
@@ -184,21 +183,38 @@ class BandService(
         }
 
         processBandMemberStatusAsLeaved(bandMember, band, memberId)
-        confirmOnlyOneLeader(band)
+        validateOnlyOneLeader(band)
     }
 
     // --- 내부 유틸리티 메서드 ---
+    private fun createBandMember(
+        band: Band,
+        memberId: Long,
+        role: BandRole,
+    ) {
+        bandMemberRepository.save(
+            BandMember.create(
+                band = band,
+                member = memberId,
+                role = role,
+            ),
+        )
+    }
 
     private fun getBand(bandId: UUID): Band =
         bandRepository.findByIdOrNull(bandId)
             ?: throw BusinessException(ErrorCode.BAND_NOT_FOUND)
 
-    private fun getOldestBandMemberExcluding(
+    private fun getPendingBandApplicationById(bandApplicationId: UUID): BandApplication =
+        applicationRepository.findByIdAndStatus(bandApplicationId, ApplicationStatus.PENDING)
+            ?: throw BusinessException(ErrorCode.BAND_APPLICATION_NOT_FOUND)
+
+    private fun getPendingBandApplicationByMember(
         band: Band,
-        leavingMemberId: Long,
-    ): BandMember =
-        bandMemberRepository.findTopByBandAndMemberNotOrderByCreatedAtAsc(band, leavingMemberId)
-            ?: throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
+        member: Long,
+    ): BandApplication =
+        applicationRepository.findByBandAndMemberAndStatus(band, member, ApplicationStatus.PENDING)
+            ?: throw BusinessException(ErrorCode.UNABLE_TO_WITHDRAW)
 
     private fun getBandMemberById(bandMemberId: UUID): BandMember =
         bandMemberRepository.findByIdOrNull(bandMemberId)
@@ -218,7 +234,14 @@ class BandService(
         bandMemberRepository.findByBandAndMemberAndRole(band, memberId, BandRole.LEADER)
             ?: throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
 
-    private fun isBandMemberAlreadyExists(
+    private fun getOldestBandMemberExcluding(
+        band: Band,
+        leavingMemberId: Long,
+    ): BandMember =
+        bandMemberRepository.findTopByBandAndMemberNotOrderByCreatedAtAsc(band, leavingMemberId)
+            ?: throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
+
+    private fun validateBandMemberNotExists(
         band: Band,
         member: Long,
     ) {
@@ -227,21 +250,7 @@ class BandService(
         }
     }
 
-    private fun createBandMember(
-        band: Band,
-        memberId: Long,
-        role: BandRole,
-    ) {
-        bandMemberRepository.save(
-            BandMember.create(
-                band = band,
-                member = memberId,
-                role = role,
-            ),
-        )
-    }
-
-    private fun isBandApplicationAlreadyExists(
+    private fun validateBandApplicationNotExists(
         band: Band,
         member: Long,
     ) {
@@ -250,18 +259,7 @@ class BandService(
         }
     }
 
-    private fun getPendingBandApplicationByMember(
-        band: Band,
-        member: Long,
-    ): BandApplication =
-        applicationRepository.findByBandAndMemberAndStatus(band, member, ApplicationStatus.PENDING)
-            ?: throw BusinessException(ErrorCode.UNABLE_TO_WITHDRAW)
-
-    private fun getPendingBandApplicationById(bandApplicationId: UUID): BandApplication =
-        applicationRepository.findByIdAndStatus(bandApplicationId, ApplicationStatus.PENDING)
-            ?: throw BusinessException(ErrorCode.BAND_APPLICATION_NOT_FOUND)
-
-    private fun isApplicationBelongsToBand(
+    private fun validateApplicationBelongsToBand(
         band: Band,
         application: BandApplication,
     ) {
@@ -270,7 +268,7 @@ class BandService(
         }
     }
 
-    private fun isMemberBandLeader(
+    private fun validateMemberIsBandLeader(
         band: Band,
         memberId: Long,
     ) {
@@ -279,7 +277,7 @@ class BandService(
         }
     }
 
-    private fun confirmOnlyOneLeader(band: Band) {
+    private fun validateOnlyOneLeader(band: Band) {
         if (bandMemberRepository.countByBandAndRole(band, BandRole.LEADER) != 1) {
             throw BusinessException(ErrorCode.ABNORMAL_LEADER_COUNT)
         }
@@ -290,7 +288,7 @@ class BandService(
         application: BandApplication,
         leaderId: Long,
     ) {
-        isBandMemberAlreadyExists(band, application.member)
+        validateBandMemberNotExists(band, application.member)
         application.updateStatus(ApplicationStatus.APPROVED)
         application.markProcessedBy(leaderId)
         createBandMember(band, application.member, BandRole.MEMBER)

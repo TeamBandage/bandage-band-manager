@@ -48,36 +48,11 @@ class BandController(
     fun applyToJoin(
         @PathVariable bandId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<Nothing> {
+    ): ApiResponse<Unit> {
         bandService.createBandApplication(
             bandId = bandId,
             memberId = memberId,
         )
-        return ApiResponse.success()
-    }
-
-    @PatchMapping("/{bandId}/applications")
-    @Operation(summary = "밴드 가입 신청 철회 API", description = "승인 대기 중인 본인의 가입 신청을 취소합니다.")
-    fun withdrawApplication(
-        @PathVariable bandId: UUID,
-        @CurrentMemberId memberId: Long,
-    ): ApiResponse<Nothing> {
-        bandService.withdrawBandApplication(
-            bandId = bandId,
-            memberId = memberId,
-        )
-        return ApiResponse.success()
-    }
-
-    @PostMapping("/{bandId}/applications/{bandApplicationId}")
-    @Operation(summary = "밴드 가입 신청 승인/거절 API", description = "리더가 특정 신청 건의 상태를 승인 혹은 거절로 변경합니다.")
-    fun processApplication(
-        @PathVariable bandId: UUID,
-        @PathVariable bandApplicationId: UUID,
-        @CurrentMemberId memberId: Long,
-        @RequestParam status: ApplicationStatus,
-    ): ApiResponse<Nothing> {
-        bandService.processBandApplication(bandId, bandApplicationId, memberId, status)
         return ApiResponse.success()
     }
 
@@ -93,9 +68,10 @@ class BandController(
         @Valid query: BandPagingQuery,
     ): ApiResponse<CursorResponse<BandInfoResponse, UUID>> = ApiResponse.success(bandService.getBandsByCursor(query))
 
-    @GetMapping("/members/{bandMemberId}")
+    @GetMapping("/{bandId}/members/{bandMemberId}")
     @Operation(summary = "밴드 멤버 단건 조회 API", description = "밴드 내 특정 멤버의 프로필 및 권한 정보를 조회합니다.")
     fun getBandMember(
+        @PathVariable bandId: UUID,
         @PathVariable bandMemberId: UUID,
     ): ApiResponse<BandMemberInfoResponse> = ApiResponse.success(bandService.getOnlyOneBandMember(bandMemberId))
 
@@ -115,23 +91,48 @@ class BandController(
     ): ApiResponse<CursorResponse<BandApplicationInfoResponse, UUID>> =
         ApiResponse.success(bandService.getBandApplicationsByCursor(bandId, query, memberId))
 
-    @PatchMapping("/{bandId}/leader/{bandMemberId}")
+    @PatchMapping("/{bandId}/applications/me")
+    @Operation(summary = "밴드 가입 신청 철회 API", description = "승인 대기 중인 본인의 가입 신청을 취소합니다.")
+    fun withdrawApplication(
+        @PathVariable bandId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        bandService.withdrawBandApplication(
+            bandId = bandId,
+            memberId = memberId,
+        )
+        return ApiResponse.success()
+    }
+
+    @PatchMapping("/{bandId}/applications/{bandApplicationId}")
+    @Operation(summary = "밴드 가입 신청 승인/거절 API", description = "리더가 특정 신청 건의 상태를 승인 혹은 거절로 변경합니다.")
+    fun processApplication(
+        @PathVariable bandId: UUID,
+        @PathVariable bandApplicationId: UUID,
+        @CurrentMemberId memberId: Long,
+        @RequestParam status: ApplicationStatus,
+    ): ApiResponse<Unit> {
+        bandService.processBandApplication(bandId, bandApplicationId, memberId, status)
+        return ApiResponse.success()
+    }
+
+    @PatchMapping("/{bandId}/members/{bandMemberId}/role")
     @Operation(summary = "밴드 리더 권한 위임 API", description = "현재 리더가 지정한 멤버에게 리더 권한을 양도합니다.")
     fun delegateLeader(
         @PathVariable bandId: UUID,
         @PathVariable bandMemberId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<Nothing> {
+    ): ApiResponse<Unit> {
         bandService.changeLeader(bandId, bandMemberId, memberId)
         return ApiResponse.success()
     }
 
-    @DeleteMapping("/{bandId}/leave")
+    @DeleteMapping("/{bandId}/members/me")
     @Operation(summary = "밴드 탈퇴 API", description = "해당 밴드에서 탈퇴 처리하며 소속 정보를 삭제합니다.")
     fun leaveBand(
         @PathVariable bandId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<Nothing> {
+    ): ApiResponse<Unit> {
         bandService.leaveBand(bandId, memberId)
         return ApiResponse.success()
     }
