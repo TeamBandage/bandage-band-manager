@@ -2,6 +2,7 @@ package com.bandage.v1.domain.auth.service
 
 import com.bandage.v1.domain.auth.dto.req.MemberAuthCreateRequest
 import com.bandage.v1.domain.auth.dto.req.MemberLoginRequest
+import com.bandage.v1.domain.auth.dto.req.MemberPasswordChangeRequest
 import com.bandage.v1.domain.auth.dto.res.TokenDto
 import com.bandage.v1.domain.auth.model.MemberAuth
 import com.bandage.v1.domain.auth.repository.MemberAuthRepository
@@ -35,6 +36,7 @@ class MemberAuthService(
         )
     }
 
+    @Transactional
     fun processLogin(request: MemberLoginRequest): TokenDto {
         val memberAuth =
             memberAuthRepository.findByEmail(request.email)
@@ -60,10 +62,12 @@ class MemberAuthService(
         )
     }
 
+    @Transactional
     fun processLogout(memberId: Long) {
         refreshTokenRepository.delete(memberId)
     }
 
+    @Transactional
     fun reissueToken(oldRefreshToken: String): TokenDto {
         val memberId = jwtProvider.getMemberIdFromToken(oldRefreshToken)
         validateRefreshToken(oldRefreshToken, memberId)
@@ -92,6 +96,22 @@ class MemberAuthService(
         val memberAuth = getMemberAuth(memberId)
         memberAuth.markAsDeleted()
         memberAuthRepository.save(memberAuth)
+    }
+
+    @Transactional
+    fun changePassword(
+        request: MemberPasswordChangeRequest,
+        memberId: Long,
+    ) {
+        val memberAuth = getMemberAuth(memberId)
+        if (!passwordEncoder.matches(request.originalPassword, memberAuth.password)) {
+            throw BusinessException(ErrorCode.INVALID_PASSWORD)
+        }
+        if (passwordEncoder.matches(request.newPassword, memberAuth.password)) {
+            throw BusinessException(ErrorCode.DUPLICATE_PASSWORD)
+        }
+        memberAuth.updatePassword(encodePassword(request.newPassword))
+        refreshTokenRepository.delete(memberId) // member logout
     }
 
     private fun isMemberAuthAlreadyExists(request: MemberAuthCreateRequest) {
