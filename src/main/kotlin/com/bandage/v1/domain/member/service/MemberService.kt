@@ -1,6 +1,8 @@
 package com.bandage.v1.domain.member.service
 
 import com.bandage.v1.domain.member.dto.req.MemberCreateRequest
+import com.bandage.v1.domain.member.dto.req.MemberInfoUpdateRequest
+import com.bandage.v1.domain.member.dto.res.MemberInfoResponse
 import com.bandage.v1.domain.member.model.Member
 import com.bandage.v1.domain.member.repository.MemberRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
@@ -26,11 +28,44 @@ class MemberService(
         )
     }
 
+    fun getMemberInfo(memberId: Long): MemberInfoResponse {
+        val member = getMember(memberId)
+        return MemberInfoResponse.of(member)
+    }
+
     @Transactional
     fun deleteMember(memberId: Long) {
         val member = getMember(memberId)
         member.markAsDeleted()
         memberRepository.save(member)
+    }
+
+    @Transactional
+    fun updateMemberInfo(
+        request: MemberInfoUpdateRequest,
+        memberId: Long,
+    ) {
+        if (request.name == null && request.contact == null) {
+            throw BusinessException(ErrorCode.NO_CHANGE)
+        }
+        val member = getMember(memberId)
+        var isChanged = false
+
+        request.name
+            ?.takeIf { it != member.name }
+            ?.let {
+                member.updateName(it)
+                isChanged = true
+            }
+        request.contact
+            ?.takeIf { it != member.contact }
+            ?.let {
+                member.updateContact(it)
+                isChanged = true
+            }
+        if (!isChanged) {
+            throw BusinessException(ErrorCode.NO_CHANGE)
+        }
     }
 
     private fun isMemberAlreadyExists(request: MemberCreateRequest) {
