@@ -28,8 +28,20 @@ interface BandMemberRepository :
         role: BandRole,
     ): BandMember?
 
+    fun findByBandAndMember(
+        band: Band,
+        memberId: Long,
+    ): BandMember?
+
+    fun findTopByBandAndMemberNotOrderByCreatedAtAsc(
+        band: Band,
+        leavingMemberId: Long,
+    ): BandMember?
+
     fun countByBandAndRole(
         band: Band,
         role: BandRole,
     ): Int
+
+    fun countByBand(band: Band): Int
 }

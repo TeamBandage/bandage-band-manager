@@ -33,11 +33,6 @@ import java.util.UUID
 class BandController(
     private val bandService: BandService,
 ) {
-    // TODO: 밴드 멤버 단일 정보 조회 API
-    // TODO: 밴드 멤버 목록 조회 API
-
-    // TODO: 밴드 탈퇴 API
-
     @PostMapping
     @Operation(summary = "밴드 생성 API", description = "새로운 밴드를 생성하고 초기 설정을 완료합니다.")
     fun createBand(
@@ -135,5 +130,9 @@ class BandController(
     @Operation(summary = "밴드 탈퇴 API", description = "해당 밴드에서 탈퇴 처리하며 소속 정보를 삭제합니다.")
     fun leaveBand(
         @PathVariable bandId: UUID,
-    ): ApiResponse<Nothing> = ApiResponse.success()
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Nothing> {
+        bandService.leaveBand(bandId, memberId)
+        return ApiResponse.success()
+    }
 }

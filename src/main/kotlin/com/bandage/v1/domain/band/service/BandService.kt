@@ -67,7 +67,7 @@ class BandService(
 
     fun getOnlyOneBandMember(bandMemberId: UUID): BandMemberInfoResponse =
         BandMemberInfoResponse.of(
-            getBandMember(bandMemberId),
+            getBandMemberById(bandMemberId),
         )
 
     fun getBandMembersByCursor(
@@ -147,6 +147,7 @@ class BandService(
     }
 
     // TODO: 알림 이벤트 publish 구현
+    @Transactional
     fun changeLeader(
         bandId: UUID,
         bandMemberId: UUID,
@@ -155,9 +156,34 @@ class BandService(
         val band = getBand(bandId)
         isMemberBandLeader(band, memberId)
         val currentLeader = getCurrentLeader(band, memberId)
-        val newLeader = getBandMember(bandMemberId)
-        newLeader.promoteToLeader()
-        currentLeader.dismissFromLeader()
+        val newLeader = getBandMemberById(bandMemberId)
+        switchLeader(
+            from = currentLeader,
+            to = newLeader,
+        )
+        confirmOnlyOneLeader(band)
+    }
+
+    @Transactional
+    fun leaveBand(
+        bandId: UUID,
+        memberId: Long,
+    ) {
+        val band = getBand(bandId)
+        val bandMember = getBandMemberByMember(band, memberId)
+        val totalMemberCount = bandMemberRepository.countByBand(band)
+
+        if (totalMemberCount <= 1) {
+            processBandMemberStatusAsLeaved(bandMember, band, memberId)
+            band.markAsDeleted(memberId)
+            return
+        }
+        if (bandMember.role == BandRole.LEADER) {
+            val nextLeader = getOldestBandMemberExcluding(band, memberId)
+            switchLeader(from = bandMember, to = nextLeader)
+        }
+
+        processBandMemberStatusAsLeaved(bandMember, band, memberId)
         confirmOnlyOneLeader(band)
     }
 
@@ -167,8 +193,22 @@ class BandService(
         bandRepository.findByIdOrNull(bandId)
             ?: throw BusinessException(ErrorCode.BAND_NOT_FOUND)
 
-    private fun getBandMember(bandMemberId: UUID): BandMember =
+    private fun getOldestBandMemberExcluding(
+        band: Band,
+        leavingMemberId: Long,
+    ): BandMember =
+        bandMemberRepository.findTopByBandAndMemberNotOrderByCreatedAtAsc(band, leavingMemberId)
+            ?: throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
+
+    private fun getBandMemberById(bandMemberId: UUID): BandMember =
         bandMemberRepository.findByIdOrNull(bandMemberId)
+            ?: throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
+
+    private fun getBandMemberByMember(
+        band: Band,
+        memberId: Long,
+    ): BandMember =
+        bandMemberRepository.findByBandAndMember(band, memberId)
             ?: throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
 
     private fun getCurrentLeader(
@@ -254,5 +294,23 @@ class BandService(
         application.updateStatus(ApplicationStatus.APPROVED)
         application.markProcessedBy(leaderId)
         createBandMember(band, application.member, BandRole.MEMBER)
+    }
+
+    private fun switchLeader(
+        from: BandMember,
+        to: BandMember,
+    ) {
+        from.dismissFromLeader()
+        to.promoteToLeader()
+    }
+
+    private fun processBandMemberStatusAsLeaved(
+        bandMember: BandMember,
+        band: Band,
+        memberId: Long,
+    ) {
+        val application = applicationRepository.findByBandAndMemberAndStatus(band, memberId, ApplicationStatus.APPROVED)
+        application?.updateStatus(ApplicationStatus.LEAVED)
+        bandMember.markAsDeleted(memberId)
     }
 }
