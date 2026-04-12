@@ -1,6 +1,7 @@
 package com.bandage.v1.domain.practice.service
 
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
+import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeResponse
 import com.bandage.v1.domain.practice.model.Practice
 import com.bandage.v1.domain.practice.model.PracticeSong
@@ -10,6 +11,7 @@ import com.bandage.v1.domain.practice.repository.PracticeSessionRepository
 import com.bandage.v1.domain.practice.repository.PracticeSongRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -37,6 +39,12 @@ class PracticeService(
             )
         return PracticeResponse.of(practice)
     }
+
+    fun getPracticeDetail(practiceId: UUID): PracticeDetailResponse = PracticeDetailResponse.of(getPractice(practiceId))
+
+    private fun getPractice(practiceId: UUID): Practice =
+        practiceRepository.findByIdOrNull(practiceId)
+            ?: throw BusinessException(ErrorCode.PRACTICE_NOT_FOUND)
 
     private fun getPracticeSong(songId: UUID): PracticeSong =
         practiceSongRepository.getPracticeSongById(songId)
