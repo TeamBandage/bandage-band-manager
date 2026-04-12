@@ -1,9 +1,12 @@
 package com.bandage.v1.domain.practice.service
 
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeResponse
+import com.bandage.v1.domain.practice.dto.res.PracticeSessionResponse
 import com.bandage.v1.domain.practice.model.Practice
+import com.bandage.v1.domain.practice.model.PracticeSession
 import com.bandage.v1.domain.practice.model.PracticeSong
 import com.bandage.v1.domain.practice.repository.PracticeParticipantRepository
 import com.bandage.v1.domain.practice.repository.PracticeRepository
@@ -42,6 +45,35 @@ class PracticeService(
 
     fun getPracticeDetail(practiceId: UUID): PracticeDetailResponse = PracticeDetailResponse.of(getPractice(practiceId))
 
+    @Transactional
+    fun createSession(
+        practiceId: UUID,
+        request: PracticeSessionCreateRequest,
+    ): PracticeSessionResponse {
+        val practice = getPractice(practiceId)
+        val session =
+            practiceSessionRepository.save(
+                PracticeSession.create(
+                    practice = practice,
+                    label = request.label,
+                    type = request.type,
+                    participant = null,
+                ),
+            )
+        return PracticeSessionResponse.of(session)
+    }
+
+    @Transactional
+    fun deleteSession(
+        practiceId: UUID,
+        sessionId: UUID,
+        memberId: Long,
+    ) {
+        val practice = getPractice(practiceId)
+        val session = getSessionByIdAndPractice(sessionId, practice)
+        session.markAsDeleted(memberId)
+    }
+
     private fun getPractice(practiceId: UUID): Practice =
         practiceRepository.findByIdOrNull(practiceId)
             ?: throw BusinessException(ErrorCode.PRACTICE_NOT_FOUND)
@@ -49,4 +81,11 @@ class PracticeService(
     private fun getPracticeSong(songId: UUID): PracticeSong =
         practiceSongRepository.getPracticeSongById(songId)
             ?: throw BusinessException(ErrorCode.PRACTICE_SONG_NOT_FOUND)
+
+    private fun getSessionByIdAndPractice(
+        sessionId: UUID,
+        practice: Practice,
+    ): PracticeSession =
+        practiceSessionRepository.findByIdAndPractice(sessionId, practice)
+            ?: throw BusinessException(ErrorCode.PRACTICE_SESSION_NOT_FOUND)
 }
