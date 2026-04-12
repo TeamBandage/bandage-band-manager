@@ -81,3 +81,22 @@ Default active profile is `local` (set via `PROFILE_ACTIVE` env var). Profile gr
 - **Auth**: JWT (JJWT 0.12.6) — access token 1h, refresh token 7h
 - **Docs**: SpringDoc OpenAPI (Swagger UI available in local/dev)
 - **Formatting**: Spotless + Ktlint
+
+## Commit Convention
+
+Always use this format for every commit message:
+
+```
+{type}: {summary}
+- {detail 1}
+- {detail 2}
+- {detail n}
+
+#{issue-number}
+```
+
+**Types**: `chore`, `feat`, `ai`, `test`, `refactor`, `fix`
+
+- `{summary}` — concise description of the change
+- bullet list — one line per meaningful change (omit if only one trivial change)
+- `#{issue-number}` — GitHub issue number (omit if no related issue)
