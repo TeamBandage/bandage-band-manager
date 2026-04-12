@@ -68,12 +68,14 @@ open class Practice(
             title: String,
             song: PracticeSong,
             startAt: LocalDateTime,
+            durationMinutes: Int,
             venue: String?,
         ): Practice =
             Practice(
                 title = title,
                 song = song,
                 startAt = startAt,
+                durationMinutes = durationMinutes,
                 venue = venue,
             )
 
@@ -121,8 +123,8 @@ open class Practice(
     }
 
     fun addParticipant(member: Long) {
-        if (!this._participants.any { it.member == member }) return
-        var participant =
+        if (this._participants.any { it.member == member }) return
+        val participant =
             PracticeParticipant(
                 practice = this,
                 member = member,
