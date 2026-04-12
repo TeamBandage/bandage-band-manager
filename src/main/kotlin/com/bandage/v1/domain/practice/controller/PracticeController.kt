@@ -2,7 +2,9 @@ package com.bandage.v1.domain.practice.controller
 
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeScheduleUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeVenueUpdateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeParticipantResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeResponse
@@ -100,6 +102,38 @@ class PracticeController(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
         practiceService.withdrawSessionParticipant(practiceId, sessionId, memberId)
+        return ApiResponse.success()
+    }
+
+    @PatchMapping("/{practiceId}/schedule")
+    @Operation(summary = "합주 일정 변경 API", description = "합주 일정(시작 시간, 소요 시간)을 변경합니다.")
+    fun updateSchedule(
+        @PathVariable practiceId: UUID,
+        @Valid @RequestBody request: PracticeScheduleUpdateRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        practiceService.updateSchedule(practiceId, request)
+        return ApiResponse.success()
+    }
+
+    @PatchMapping("/{practiceId}/venue")
+    @Operation(summary = "합주 장소 변경 API", description = "합주 장소를 변경합니다.")
+    fun updateVenue(
+        @PathVariable practiceId: UUID,
+        @Valid @RequestBody request: PracticeVenueUpdateRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        practiceService.updateVenue(practiceId, request)
+        return ApiResponse.success()
+    }
+
+    @DeleteMapping("/{practiceId}")
+    @Operation(summary = "합주 삭제 API", description = "합주를 삭제합니다.")
+    fun deletePractice(
+        @PathVariable practiceId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        practiceService.deletePractice(practiceId, memberId)
         return ApiResponse.success()
     }
 }

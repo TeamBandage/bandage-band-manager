@@ -2,7 +2,9 @@ package com.bandage.v1.domain.practice.service
 
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeScheduleUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeVenueUpdateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeParticipantResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeResponse
@@ -119,6 +121,35 @@ class PracticeService(
         session.withdrawParticipant()
     }
 
+    @Transactional
+    fun updateSchedule(
+        practiceId: UUID,
+        request: PracticeScheduleUpdateRequest,
+    ) {
+        val practice = getPractice(practiceId)
+        practice.updateStartAt(request.startAt)
+        practice.updateDurationMinutes(request.durationMinutes)
+    }
+
+    @Transactional
+    fun updateVenue(
+        practiceId: UUID,
+        request: PracticeVenueUpdateRequest,
+    ) {
+        val practice = getPractice(practiceId)
+        practice.updateVenue(request.venue)
+    }
+
+    @Transactional
+    fun deletePractice(
+        practiceId: UUID,
+        memberId: Long,
+    ) {
+        val practice = getPractice(practiceId)
+        practice.markAsDeleted(memberId)
+    }
+
+    // --- 내부 유틸리티 메서드 ---
     private fun getPractice(practiceId: UUID): Practice =
         practiceRepository.findByIdOrNull(practiceId)
             ?: throw BusinessException(ErrorCode.PRACTICE_NOT_FOUND)
