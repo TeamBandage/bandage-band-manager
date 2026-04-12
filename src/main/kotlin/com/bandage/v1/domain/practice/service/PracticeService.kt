@@ -1,11 +1,14 @@
 package com.bandage.v1.domain.practice.service
 
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
+import com.bandage.v1.domain.practice.dto.res.PracticeParticipantResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeSessionResponse
 import com.bandage.v1.domain.practice.model.Practice
+import com.bandage.v1.domain.practice.model.PracticeParticipant
 import com.bandage.v1.domain.practice.model.PracticeSession
 import com.bandage.v1.domain.practice.model.PracticeSong
 import com.bandage.v1.domain.practice.repository.PracticeParticipantRepository
@@ -74,6 +77,48 @@ class PracticeService(
         session.markAsDeleted(memberId)
     }
 
+    @Transactional
+    fun addParticipant(
+        practiceId: UUID,
+        request: PracticeMemberAddRequest,
+    ): PracticeParticipantResponse {
+        val practice = getPractice(practiceId)
+        validateParticipantNotExists(practice, request.memberId)
+        val participant =
+            practiceParticipantRepository.save(
+                PracticeParticipant.create(
+                    practice = practice,
+                    member = request.memberId,
+                ),
+            )
+        return PracticeParticipantResponse.of(participant)
+    }
+
+    @Transactional
+    fun assignSessionParticipant(
+        practiceId: UUID,
+        sessionId: UUID,
+        memberId: Long,
+    ) {
+        val practice = getPractice(practiceId)
+        val session = getSessionByIdAndPractice(sessionId, practice)
+        if (session.participant != null) throw BusinessException(ErrorCode.PRACTICE_SESSION_ALREADY_ASSIGNED)
+        val participant = getParticipant(practice, memberId)
+        session.assignParticipant(participant)
+    }
+
+    @Transactional
+    fun withdrawSessionParticipant(
+        practiceId: UUID,
+        sessionId: UUID,
+        memberId: Long,
+    ) {
+        val practice = getPractice(practiceId)
+        val session = getSessionByIdAndPractice(sessionId, practice)
+        validateSessionAssignedToMember(session, memberId)
+        session.withdrawParticipant()
+    }
+
     private fun getPractice(practiceId: UUID): Practice =
         practiceRepository.findByIdOrNull(practiceId)
             ?: throw BusinessException(ErrorCode.PRACTICE_NOT_FOUND)
@@ -88,4 +133,29 @@ class PracticeService(
     ): PracticeSession =
         practiceSessionRepository.findByIdAndPractice(sessionId, practice)
             ?: throw BusinessException(ErrorCode.PRACTICE_SESSION_NOT_FOUND)
+
+    private fun getParticipant(
+        practice: Practice,
+        memberId: Long,
+    ): PracticeParticipant =
+        practiceParticipantRepository.findByPracticeAndMember(practice, memberId)
+            ?: throw BusinessException(ErrorCode.PRACTICE_PARTICIPANT_NOT_FOUND)
+
+    private fun validateParticipantNotExists(
+        practice: Practice,
+        memberId: Long,
+    ) {
+        if (practiceParticipantRepository.existsByPracticeAndMember(practice, memberId)) {
+            throw BusinessException(ErrorCode.PRACTICE_PARTICIPANT_ALREADY_EXISTS)
+        }
+    }
+
+    private fun validateSessionAssignedToMember(
+        session: PracticeSession,
+        memberId: Long,
+    ) {
+        if (session.participant?.member != memberId) {
+            throw BusinessException(ErrorCode.PRACTICE_PARTICIPANT_NOT_FOUND)
+        }
+    }
 }
