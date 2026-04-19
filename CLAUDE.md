@@ -82,6 +82,10 @@ Default active profile is `local` (set via `PROFILE_ACTIVE` env var). Profile gr
 - **Docs**: SpringDoc OpenAPI (Swagger UI available in local/dev)
 - **Formatting**: Spotless + Ktlint
 
+## Pull Request Convention
+
+When writing a PR description, always follow `.github/PULL_REQUEST_TEMPLATE.md` and write all content in valid Markdown syntax.
+
 ## Commit Convention
 
 Always use this format for every commit message:
@@ -99,6 +103,7 @@ Always use this format for every commit message:
 
 - `{summary}` — concise description of the change
 - bullet list — one line per meaningful change (omit if only one trivial change)
+- `#{issue-number}` — GitHub issue number (omit if no related issue)
 - `#{issue-number}` — **REQUIRED** when working on a branch tied to a GitHub issue (e.g. `feat/#12-practice-crud` → `#12`). Always place on its own line at the very end, after a blank line. Omit only if there is genuinely no related issue.
 
 **Example:**
