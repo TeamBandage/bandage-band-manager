@@ -127,8 +127,7 @@ class PracticeService(
         request: PracticeScheduleUpdateRequest,
     ) {
         val practice = getPractice(practiceId)
-        practice.updateStartAt(request.startAt)
-        practice.updateDurationMinutes(request.durationMinutes)
+        practice.updateSchedule(request.startAt, request.durationMinutes)
     }
 
     @Transactional

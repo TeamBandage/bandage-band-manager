@@ -41,9 +41,9 @@ data class PracticeDetailResponse(
             PracticeDetailResponse(
                 practiceId = practice.id,
                 title = practice.title,
-                venue = practice.venue,
-                startAt = practice.startAt,
-                durationMinutes = practice.durationMinutes,
+                venue = practice.schedule.venue,
+                startAt = practice.schedule.startAt,
+                durationMinutes = practice.schedule.durationMinutes,
                 song =
                     PracticeSongInfo(
                         songId = practice.song.id,
