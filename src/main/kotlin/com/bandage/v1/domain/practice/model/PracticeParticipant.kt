@@ -31,4 +31,15 @@ open class PracticeParticipant(
 
     @Column(name = "member_id")
     val member: Long = member
+
+    companion object {
+        fun create(
+            practice: Practice,
+            member: Long,
+        ): PracticeParticipant =
+            PracticeParticipant(
+                practice = practice,
+                member = member,
+            )
+    }
 }
