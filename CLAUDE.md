@@ -82,6 +82,10 @@ Default active profile is `local` (set via `PROFILE_ACTIVE` env var). Profile gr
 - **Docs**: SpringDoc OpenAPI (Swagger UI available in local/dev)
 - **Formatting**: Spotless + Ktlint
 
+## Pull Request Convention
+
+When writing a PR description, always follow `.github/PULL_REQUEST_TEMPLATE.md` and write all content in valid Markdown syntax.
+
 ## Commit Convention
 
 Always use this format for every commit message:
