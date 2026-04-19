@@ -2,8 +2,10 @@ package com.bandage.v1.domain.practice.model
 
 import com.bandage.v1.domain.practice.model.enums.SessionType
 import com.bandage.v1.global.common.domain.BaseEntity
+import com.bandage.v1.global.common.domain.ScheduleUnit
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
@@ -14,7 +16,6 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.UuidGenerator
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Entity
@@ -23,9 +24,7 @@ import java.util.UUID
 open class Practice(
     title: String,
     song: PracticeSong,
-    startAt: LocalDateTime = defaultStartTime(),
-    durationMinutes: Int = 60,
-    venue: String?,
+    schedule: ScheduleUnit,
 ) : BaseEntity() {
     @Id
     @Column(name = "practice_id")
@@ -42,16 +41,8 @@ open class Practice(
     var song: PracticeSong = song
         protected set
 
-    @Column(name = "start_at", nullable = false)
-    var startAt: LocalDateTime = startAt
-        protected set
-
-    @Column(name = "duration_minutes", nullable = false)
-    var durationMinutes: Int = durationMinutes
-        protected set
-
-    @Column(name = "venue", nullable = true)
-    var venue: String? = venue
+    @Embedded
+    var schedule: ScheduleUnit = schedule
         protected set
 
     @OneToMany(mappedBy = "practice", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
@@ -68,13 +59,13 @@ open class Practice(
             title: String,
             song: PracticeSong,
             startAt: LocalDateTime,
+            durationMinutes: Int,
             venue: String?,
         ): Practice =
             Practice(
                 title = title,
                 song = song,
-                startAt = startAt,
-                venue = venue,
+                schedule = ScheduleUnit(startAt = startAt, durationMinutes = durationMinutes, venue = venue),
             )
 
         fun createWithBasicSessions(
@@ -85,19 +76,12 @@ open class Practice(
         ): Practice =
             Practice(
                 title = title,
-                startAt = startAt,
-                venue = venue,
                 song = song,
+                schedule = ScheduleUnit(startAt = startAt, venue = venue),
             ).apply {
                 listOf(SessionType.VOCAL, SessionType.GUITAR, SessionType.BASS, SessionType.DRUM)
                     .forEach { addDefaultSession(it) }
             }
-
-        private fun defaultStartTime(): LocalDateTime =
-            LocalDateTime
-                .now()
-                .plusDays(1)
-                .truncatedTo(ChronoUnit.HOURS)
     }
 
     fun updateTitle(newTitle: String) {
@@ -108,21 +92,20 @@ open class Practice(
         this.song = song
     }
 
-    fun updateStartAt(newStartAt: LocalDateTime) {
-        this.startAt = newStartAt
-    }
-
-    fun updateDurationMinutes(newDurationMinutes: Int) {
-        this.durationMinutes = newDurationMinutes
+    fun updateSchedule(
+        startAt: LocalDateTime,
+        durationMinutes: Int,
+    ) {
+        schedule.updateSchedule(startAt, durationMinutes)
     }
 
     fun updateVenue(newVenue: String) {
-        this.venue = newVenue
+        schedule.updateVenue(newVenue)
     }
 
     fun addParticipant(member: Long) {
-        if (!this._participants.any { it.member == member }) return
-        var participant =
+        if (this._participants.any { it.member == member }) return
+        val participant =
             PracticeParticipant(
                 practice = this,
                 member = member,
