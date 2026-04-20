@@ -125,6 +125,17 @@ class PerformanceService(
         performancePracticeRepository.delete(performancePractice)
     }
 
+    @Transactional
+    fun deletePerformance(
+        performanceId: UUID,
+        memberId: Long,
+    ) {
+        val performance = getPerformance(performanceId)
+        validateIsManager(performance, memberId)
+        performance.practices.forEach { it.practice.markAsDeleted(memberId) }
+        performance.markAsDeleted(memberId)
+    }
+
     fun getPerformance(performanceId: UUID): Performance =
         performanceRepository.findByIdOrNull(performanceId)
             ?: throw BusinessException(ErrorCode.PERFORMANCE_NOT_FOUND)

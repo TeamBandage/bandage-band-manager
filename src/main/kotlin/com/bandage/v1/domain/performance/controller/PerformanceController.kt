@@ -99,4 +99,14 @@ class PerformanceController(
         performanceService.removePractice(performanceId, practiceId, memberId)
         return ApiResponse.success()
     }
+
+    @DeleteMapping("/{performanceId}")
+    @Operation(summary = "공연 삭제 API", description = "공연을 삭제합니다. PerformanceManager만 수행할 수 있으며, 연관된 합주도 함께 삭제됩니다.")
+    fun deletePerformance(
+        @PathVariable performanceId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        performanceService.deletePerformance(performanceId, memberId)
+        return ApiResponse.success()
+    }
 }
