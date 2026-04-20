@@ -2,6 +2,7 @@ package com.bandage.v1.domain.performance.service
 
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
+import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceResponse
 import com.bandage.v1.domain.performance.model.Performance
@@ -66,6 +67,8 @@ class PerformanceService(
             hasNext = result.hasNext,
         )
     }
+
+    fun getPerformanceDetail(performanceId: UUID): PerformanceDetailResponse = PerformanceDetailResponse.of(getPerformance(performanceId))
 
     fun getPerformance(performanceId: UUID): Performance =
         performanceRepository.findByIdOrNull(performanceId)

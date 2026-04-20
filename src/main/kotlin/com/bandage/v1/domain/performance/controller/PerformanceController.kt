@@ -2,6 +2,7 @@ package com.bandage.v1.domain.performance.controller
 
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
+import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceResponse
 import com.bandage.v1.domain.performance.service.PerformanceService
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -44,4 +46,10 @@ class PerformanceController(
         } else {
             ApiResponse.success(performanceService.getPerformances(query))
         }
+
+    @GetMapping("/{performanceId}")
+    @Operation(summary = "공연 단건 조회 API", description = "공연 고유 식별 ID를 통해 공연 상세 정보를 조회합니다.")
+    fun getPerformance(
+        @PathVariable performanceId: UUID,
+    ): ApiResponse<PerformanceDetailResponse> = ApiResponse.success(performanceService.getPerformanceDetail(performanceId))
 }
