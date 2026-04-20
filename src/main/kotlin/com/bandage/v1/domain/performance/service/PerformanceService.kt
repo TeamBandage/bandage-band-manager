@@ -46,6 +46,15 @@ class PerformanceService(
         return PerformanceResponse.of(performance)
     }
 
+    fun getPerformances(query: PerformancePagingQuery): CursorResponse<PerformanceListResponse, UUID> {
+        val result = performanceRepository.findAllByPaging(query.lastId, query.pageSize)
+        return CursorResponse(
+            content = result.content.map { PerformanceListResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
     fun getPerformancesByBand(
         bandId: UUID,
         query: PerformancePagingQuery,

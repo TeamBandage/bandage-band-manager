@@ -34,10 +34,14 @@ class PerformanceController(
     ): ApiResponse<PerformanceResponse> = ApiResponse.success(performanceService.createPerformance(request, memberId))
 
     @GetMapping
-    @Operation(summary = "공연 목록 조회 API (밴드 필터)", description = "특정 밴드가 소속된 공연 목록을 커서 기반으로 조회합니다.")
-    fun getPerformancesByBand(
-        @RequestParam bandId: UUID,
+    @Operation(summary = "공연 목록 조회 API", description = "공연 목록을 커서 기반으로 조회합니다. bandId 제공 시 해당 밴드 소속 공연만 조회합니다.")
+    fun getPerformances(
+        @RequestParam(required = false) bandId: UUID?,
         @Valid query: PerformancePagingQuery,
     ): ApiResponse<CursorResponse<PerformanceListResponse, UUID>> =
-        ApiResponse.success(performanceService.getPerformancesByBand(bandId, query))
+        if (bandId != null) {
+            ApiResponse.success(performanceService.getPerformancesByBand(bandId, query))
+        } else {
+            ApiResponse.success(performanceService.getPerformances(query))
+        }
 }

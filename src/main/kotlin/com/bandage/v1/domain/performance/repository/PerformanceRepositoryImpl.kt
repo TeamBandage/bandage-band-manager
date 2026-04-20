@@ -11,6 +11,31 @@ import java.util.UUID
 class PerformanceRepositoryImpl(
     private val queryFactory: JPAQueryFactory,
 ) : PerformanceRepositoryCustom {
+    override fun findAllByPaging(
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<Performance, UUID> {
+        val qPerformance = QPerformance.performance
+
+        val contents =
+            queryFactory
+                .selectFrom(qPerformance)
+                .where(ltPerformanceId(lastId))
+                .orderBy(qPerformance.id.desc())
+                .limit(pageSize.toLong() + 1)
+                .fetch()
+
+        val hasNext = contents.size > pageSize
+        val resultContents = if (hasNext) contents.dropLast(1) else contents
+        val nextCursor = resultContents.lastOrNull()?.id
+
+        return CursorResponse(
+            content = resultContents,
+            nextCursor = nextCursor,
+            hasNext = hasNext,
+        )
+    }
+
     override fun findAllByBandIdAndPaging(
         bandId: UUID,
         lastId: UUID?,
