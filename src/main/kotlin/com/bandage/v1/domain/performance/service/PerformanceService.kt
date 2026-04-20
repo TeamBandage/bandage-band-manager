@@ -1,6 +1,8 @@
 package com.bandage.v1.domain.performance.service
 
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
+import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
+import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceResponse
 import com.bandage.v1.domain.performance.model.Performance
 import com.bandage.v1.domain.performance.model.PerformanceBand
@@ -8,6 +10,7 @@ import com.bandage.v1.domain.performance.model.PerformanceManager
 import com.bandage.v1.domain.performance.repository.PerformanceBandRepository
 import com.bandage.v1.domain.performance.repository.PerformanceManagerRepository
 import com.bandage.v1.domain.performance.repository.PerformanceRepository
+import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
@@ -41,6 +44,18 @@ class PerformanceService(
         }
         performanceManagerRepository.save(PerformanceManager.create(performance = performance, member = memberId))
         return PerformanceResponse.of(performance)
+    }
+
+    fun getPerformancesByBand(
+        bandId: UUID,
+        query: PerformancePagingQuery,
+    ): CursorResponse<PerformanceListResponse, UUID> {
+        val result = performanceRepository.findAllByBandIdAndPaging(bandId, query.lastId, query.pageSize)
+        return CursorResponse(
+            content = result.content.map { PerformanceListResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
     }
 
     fun getPerformance(performanceId: UUID): Performance =

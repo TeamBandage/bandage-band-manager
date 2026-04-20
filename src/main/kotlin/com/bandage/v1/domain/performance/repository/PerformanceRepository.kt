@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-interface PerformanceRepository : JpaRepository<Performance, UUID>
+interface PerformanceRepository :
+    JpaRepository<Performance, UUID>,
+    PerformanceRepositoryCustom
