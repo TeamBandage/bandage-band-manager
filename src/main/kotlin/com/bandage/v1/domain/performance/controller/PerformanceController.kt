@@ -2,6 +2,7 @@ package com.bandage.v1.domain.performance.controller
 
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
+import com.bandage.v1.domain.performance.dto.req.PerformancePracticeAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePracticeCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
@@ -77,4 +78,13 @@ class PerformanceController(
         @Valid @RequestBody request: PerformancePracticeCreateRequest,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<PerformancePracticeResponse> = ApiResponse.success(performanceFacade.addNewPractice(performanceId, request, memberId))
+
+    @PostMapping("/{performanceId}/practices/batch")
+    @Operation(summary = "공연 합주곡 리스트 추가 API", description = "기존 합주 ID 목록으로 공연에 합주를 일괄 추가합니다. PerformanceManager만 수행할 수 있습니다.")
+    fun addPractices(
+        @PathVariable performanceId: UUID,
+        @Valid @RequestBody request: PerformancePracticeAddRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<List<PerformancePracticeResponse>> =
+        ApiResponse.success(performanceService.addPractices(performanceId, request, memberId))
 }
