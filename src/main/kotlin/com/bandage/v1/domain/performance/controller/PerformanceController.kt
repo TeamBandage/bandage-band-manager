@@ -2,11 +2,14 @@ package com.bandage.v1.domain.performance.controller
 
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
+import com.bandage.v1.domain.performance.dto.req.PerformancePracticeCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
+import com.bandage.v1.domain.performance.dto.res.PerformancePracticeResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceResponse
 import com.bandage.v1.domain.performance.service.PerformanceService
+import com.bandage.v1.facade.PerformanceFacade
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.common.response.CursorResponse
@@ -29,6 +32,7 @@ import java.util.UUID
 @RequestMapping("$PREFIX/performances")
 class PerformanceController(
     private val performanceService: PerformanceService,
+    private val performanceFacade: PerformanceFacade,
 ) {
     @PostMapping
     @Operation(summary = "공연 생성 API", description = "신규 공연을 생성하고 생성자를 매니저로 등록합니다.")
@@ -65,4 +69,12 @@ class PerformanceController(
         performanceService.updatePerformance(performanceId, request, memberId)
         return ApiResponse.success()
     }
+
+    @PostMapping("/{performanceId}/practices")
+    @Operation(summary = "공연 합주곡 추가 API (신규 생성)", description = "빈 합주를 즉시 생성하여 공연에 추가합니다. PerformanceManager만 수행할 수 있습니다.")
+    fun addNewPractice(
+        @PathVariable performanceId: UUID,
+        @Valid @RequestBody request: PerformancePracticeCreateRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<PerformancePracticeResponse> = ApiResponse.success(performanceFacade.addNewPractice(performanceId, request, memberId))
 }
