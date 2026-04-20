@@ -18,6 +18,7 @@ import com.bandage.v1.global.security.annotation.CurrentMemberId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -87,4 +88,15 @@ class PerformanceController(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<List<PerformancePracticeResponse>> =
         ApiResponse.success(performanceService.addPractices(performanceId, request, memberId))
+
+    @DeleteMapping("/{performanceId}/practices/{practiceId}")
+    @Operation(summary = "공연 합주곡 삭제 API", description = "공연에 연결된 합주를 제거합니다. PerformanceManager만 수행할 수 있습니다.")
+    fun removePractice(
+        @PathVariable performanceId: UUID,
+        @PathVariable practiceId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        performanceService.removePractice(performanceId, practiceId, memberId)
+        return ApiResponse.success()
+    }
 }
