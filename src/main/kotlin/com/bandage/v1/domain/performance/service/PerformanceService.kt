@@ -2,6 +2,7 @@ package com.bandage.v1.domain.performance.service
 
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
+import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceResponse
@@ -69,6 +70,19 @@ class PerformanceService(
     }
 
     fun getPerformanceDetail(performanceId: UUID): PerformanceDetailResponse = PerformanceDetailResponse.of(getPerformance(performanceId))
+
+    @Transactional
+    fun updatePerformance(
+        performanceId: UUID,
+        request: PerformanceUpdateRequest,
+        memberId: Long,
+    ) {
+        val performance = getPerformance(performanceId)
+        validateIsManager(performance, memberId)
+        performance.updateTitle(request.title)
+        performance.updateSchedule(request.startAt, request.durationMinutes)
+        request.venue?.let { performance.updateVenue(it) }
+    }
 
     fun getPerformance(performanceId: UUID): Performance =
         performanceRepository.findByIdOrNull(performanceId)

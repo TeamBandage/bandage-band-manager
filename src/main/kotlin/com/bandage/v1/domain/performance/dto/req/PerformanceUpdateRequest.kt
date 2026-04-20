@@ -1,0 +1,22 @@
+package com.bandage.v1.domain.performance.dto.req
+
+import com.fasterxml.jackson.annotation.JsonFormat
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
+import java.time.LocalDateTime
+
+@Schema(description = "공연 정보 수정 요청")
+data class PerformanceUpdateRequest(
+    @NotBlank
+    @Schema(description = "공연 제목", example = "TuNA 정기공연 (수정)")
+    val title: String,
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", shape = JsonFormat.Shape.STRING, timezone = "Asia/Seoul")
+    @Schema(description = "공연 시작 시간", example = "2026-06-15 19:00")
+    val startAt: LocalDateTime,
+    @field:Min(1)
+    @Schema(description = "공연 시간 (분)", example = "90")
+    val durationMinutes: Int,
+    @Schema(description = "공연 장소", example = "강남 클럽")
+    val venue: String?,
+)
