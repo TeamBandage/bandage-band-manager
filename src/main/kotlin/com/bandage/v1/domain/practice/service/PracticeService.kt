@@ -4,6 +4,7 @@ import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeScheduleUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeSongRefLinkUpsertRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeVenueUpdateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeParticipantResponse
@@ -146,6 +147,15 @@ class PracticeService(
     ) {
         val practice = getPractice(practiceId)
         practice.markAsDeleted(memberId)
+    }
+
+    @Transactional
+    fun upsertPracticeSongRefLink(
+        songId: UUID,
+        request: PracticeSongRefLinkUpsertRequest,
+    ) {
+        val song = getPracticeSong(songId)
+        song.updateRefLink(request.refLink)
     }
 
     // --- 내부 유틸리티 메서드 ---
