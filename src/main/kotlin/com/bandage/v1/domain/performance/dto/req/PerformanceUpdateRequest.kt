@@ -17,6 +17,6 @@ data class PerformanceUpdateRequest(
     @field:Min(1)
     @Schema(description = "공연 시간 (분)", example = "90")
     val durationMinutes: Int,
-    @Schema(description = "공연 장소", example = "강남 클럽")
+    @Schema(description = "공연 장소", example = "Club FF")
     val venue: String?,
 )

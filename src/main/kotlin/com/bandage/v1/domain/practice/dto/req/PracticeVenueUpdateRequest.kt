@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotBlank
 
 @Schema(description = "합주 장소 변경 요청")
 data class PracticeVenueUpdateRequest(
-    @NotBlank @Schema(description = "합주 장소", example = "홍대 스튜디오")
+    @NotBlank @Schema(description = "합주 장소", example = "Club FF")
     val venue: String,
 )
