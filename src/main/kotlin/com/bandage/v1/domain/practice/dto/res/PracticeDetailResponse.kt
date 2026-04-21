@@ -12,7 +12,7 @@ data class PracticeDetailResponse(
     val practiceId: UUID,
     @Schema(description = "합주 타이틀", example = "TuNA 정기공연 1주차 합주")
     val title: String,
-    @Schema(description = "합주 장소", example = "홍대 스튜디오")
+    @Schema(description = "합주 장소", example = "Club FF")
     val venue: String?,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", shape = JsonFormat.Shape.STRING, timezone = "Asia/Seoul")
     @Schema(description = "합주 시작 시간", example = "2026-03-15 18:00")

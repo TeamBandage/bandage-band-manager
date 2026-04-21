@@ -20,6 +20,6 @@ data class PerformanceCreateRequest(
     @field:Min(1)
     @Schema(description = "공연 시간 (분)", example = "120")
     val durationMinutes: Int,
-    @Schema(description = "공연 장소", example = "홍대 클럽 빵")
+    @Schema(description = "공연 장소", example = "Club FF")
     val venue: String?,
 )
