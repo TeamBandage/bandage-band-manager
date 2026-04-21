@@ -63,4 +63,8 @@ open class PracticeSong(
     fun updateRefLink(refLink: String) {
         this.refLink = refLink
     }
+
+    fun deleteRefLink() {
+        this.refLink = null
+    }
 }

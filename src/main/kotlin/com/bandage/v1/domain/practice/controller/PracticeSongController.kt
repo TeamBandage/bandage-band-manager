@@ -7,6 +7,7 @@ import com.bandage.v1.global.common.response.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -30,5 +31,12 @@ class PracticeSongController(
         return ApiResponse.success()
     }
 
-    // TODO: Practice Song 참조 링크 삭제
+    @DeleteMapping("/{songId}/ref-link")
+    @Operation(summary = "합주곡 참조 링크 삭제 API", description = "합주곡 참조 링크를 삭제합니다.")
+    fun deleteRefLink(
+        @PathVariable songId: UUID,
+    ): ApiResponse<Unit> {
+        practiceService.deletePracticeSongRefLink(songId)
+        return ApiResponse.success()
+    }
 }

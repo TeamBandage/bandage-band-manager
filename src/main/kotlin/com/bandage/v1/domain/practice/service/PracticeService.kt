@@ -158,6 +158,12 @@ class PracticeService(
         song.updateRefLink(request.refLink)
     }
 
+    @Transactional
+    fun deletePracticeSongRefLink(songId: UUID) {
+        val song = getPracticeSong(songId)
+        song.deleteRefLink()
+    }
+
     // --- 내부 유틸리티 메서드 ---
     private fun getPractice(practiceId: UUID): Practice =
         practiceRepository.findByIdOrNull(practiceId)
