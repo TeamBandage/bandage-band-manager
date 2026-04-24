@@ -7,11 +7,13 @@ import com.bandage.v1.global.error.exception.Exception
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
-@RestControllerAdvice(basePackages = ["com.bandage.v1.domain"])
+@RestControllerAdvice
 open class GlobalExceptionHandler {
     @ExceptionHandler
     protected fun handleBusinessException(e: BusinessException): ResponseEntity<ApiResponse<Nothing>> {
@@ -33,6 +35,22 @@ open class GlobalExceptionHandler {
         val message = e.message
         val response = ApiResponse.error(message)
         return ResponseEntity(response, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
+    protected fun handleMethodNotSupported(e: HttpRequestMethodNotSupportedException): ResponseEntity<ApiResponse<Nothing>> {
+        val errorCode = ErrorCode.METHOD_NOT_ALLOWED
+        return ResponseEntity
+            .status(errorCode.status)
+            .body(ApiResponse.error("${errorCode.message} (요청 메서드: ${e.method})"))
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    protected fun handleNoResourceFound(e: NoResourceFoundException): ResponseEntity<ApiResponse<Nothing>> {
+        val errorCode = ErrorCode.RESOURCE_NOT_FOUND
+        return ResponseEntity
+            .status(errorCode.status)
+            .body(ApiResponse.error(errorCode.message))
     }
 
     @ExceptionHandler(Exception::class)
