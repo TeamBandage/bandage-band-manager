@@ -2,6 +2,7 @@ package com.bandage.v1.global.security
 
 import com.bandage.v1.global.security.constants.SecurityPathConstants
 import com.bandage.v1.global.security.filter.JwtAuthenticationFilter
+import com.bandage.v1.global.security.handler.JwtAuthenticationEntryPoint
 import com.bandage.v1.global.security.jwt.JwtProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 class SecurityConfig(
     private val jwtProvider: JwtProvider,
+    private val jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint,
 ) {
     @Bean
     fun passwordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder()
@@ -37,7 +39,8 @@ class SecurityConfig(
                     ).permitAll()
                     .anyRequest()
                     .authenticated()
-            }.addFilterBefore(JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter::class.java)
+            }.exceptionHandling { it.authenticationEntryPoint(jwtAuthenticationEntryPoint) }
+            .addFilterBefore(JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }

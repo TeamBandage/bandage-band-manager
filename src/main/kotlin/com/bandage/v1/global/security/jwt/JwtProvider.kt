@@ -1,9 +1,9 @@
 package com.bandage.v1.global.security.jwt
 
 import com.bandage.v1.domain.auth.model.enums.MemberRole
-import com.bandage.v1.global.error.exception.Exception
 import com.bandage.v1.global.properties.JwtProperties
 import com.bandage.v1.global.security.PrincipalDetails
+import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
@@ -56,7 +56,9 @@ class JwtProvider(
                 .build()
                 .parseSignedClaims(token)
             true
-        } catch (e: Exception) {
+        } catch (e: JwtException) {
+            false
+        } catch (e: IllegalArgumentException) {
             false
         }
 

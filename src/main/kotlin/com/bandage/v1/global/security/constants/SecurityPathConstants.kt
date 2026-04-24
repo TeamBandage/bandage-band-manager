@@ -6,6 +6,7 @@ object SecurityPathConstants {
     val AUTH_WHITELIST =
         arrayOf(
             "${PathPrefix.PREFIX}/auth/login",
+            "${PathPrefix.PREFIX}/auth/refresh",
             "${PathPrefix.PREFIX}/members/join",
         )
 
