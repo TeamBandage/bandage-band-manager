@@ -1,6 +1,7 @@
 package com.bandage.v1.domain.member.controller
 
 import com.bandage.v1.domain.member.dto.req.MemberInfoUpdateRequest
+import com.bandage.v1.domain.member.dto.res.MemberInfoResponse
 import com.bandage.v1.domain.member.service.MemberService
 import com.bandage.v1.facade.MemberJoinFacade
 import com.bandage.v1.facade.MemberWithdrawFacade
@@ -44,10 +45,10 @@ class MemberController(
     @Operation(summary = "회원 정보 조회 API", description = "회원 본인의 정보를 조회합니다.")
     fun getMemberInfo(
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<Unit> {
-        memberService.getMemberInfo(memberId)
-        return ApiResponse.success()
-    }
+    ): ApiResponse<MemberInfoResponse> =
+        ApiResponse.success(
+            memberService.getMemberInfo(memberId),
+        )
 
     @PatchMapping("/me")
     @Operation(summary = "회원 기본 정보 변경 API", description = "회원 본인의 정보를 조회합니다.")

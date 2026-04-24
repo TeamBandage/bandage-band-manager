@@ -2,7 +2,7 @@
 
 Base URL: `/api/v1`
 
-모든 응답은 `ApiResponse<T>` 래퍼로 감싸져 반환됩니다.  
+모든 응답은 `ApiResponse<T>` 래퍼로 감싸져 반환됩니다.
 인증이 필요한 API는 `Authorization: Bearer {accessToken}` 헤더를 사용합니다.
 
 ---
@@ -142,7 +142,7 @@ Base URL: `/api/v1`
 
 ### 3-2. 밴드 단건 조회
 - **GET** `/api/v1/bands/{bandId}`
-- **인증 불필요**
+- **인증 필요**
 - **Path Variable**: `bandId` (UUID)
 - **Response**
   ```json
@@ -158,7 +158,7 @@ Base URL: `/api/v1`
 
 ### 3-3. 밴드 목록 조회 (커서 페이징)
 - **GET** `/api/v1/bands`
-- **인증 불필요**
+- **인증 필요**
 - **Query Parameters**
   | 파라미터 | 타입 | 필수 | 기본값 | 설명 |
   |---------|------|------|--------|------|
@@ -170,7 +170,7 @@ Base URL: `/api/v1`
 
 ### 3-4. 밴드 멤버 단건 조회
 - **GET** `/api/v1/bands/{bandId}/members/{bandMemberId}`
-- **인증 불필요**
+- **인증 필요**
 - **Path Variables**: `bandId` (UUID), `bandMemberId` (UUID)
 - **Response**
   ```json
@@ -186,7 +186,7 @@ Base URL: `/api/v1`
 
 ### 3-5. 밴드 멤버 목록 조회 (커서 페이징)
 - **GET** `/api/v1/bands/{bandId}/members`
-- **인증 불필요**
+- **인증 필요**
 - **Path Variable**: `bandId` (UUID)
 - **Query Parameters**: `lastId` (UUID, optional), `pageSize` (Int 1~100, 기본값 10)
 - **Response**: `CursorResponse<BandMemberInfoResponse, UUID>`
@@ -257,13 +257,13 @@ Base URL: `/api/v1`
 
 ### 4-1. 합주 생성
 - **POST** `/api/v1/practices`
-- **인증 불필요** (TODO: 인증 추가 예정)
+- **인증 필요**
 - **Request Body**
   ```json
   {
     "title": "TuNA 정기공연 1주차 합주",
     "song": "550e8400-e29b-41d4-a716-446655440000",
-    "venue": "TuNA",
+    "venue": "홍대 스튜디오",
     "startAt": "2026-03-15 18:00",
     "durationMinutes": 60
   }
@@ -281,18 +281,316 @@ Base URL: `/api/v1`
 
 ---
 
-## 미구현 (TODO)
+### 4-2. 합주 상세 조회
+- **GET** `/api/v1/practices/{practiceId}`
+- **인증 필요**
+- **Path Variable**: `practiceId` (UUID)
+- **Response**
+  ```json
+  {
+    "practiceId": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "TuNA 정기공연 1주차 합주",
+    "venue": "홍대 스튜디오",
+    "startAt": "2026-03-15 18:00",
+    "durationMinutes": 60,
+    "song": {
+      "songId": "550e8400-e29b-41d4-a716-446655440000",
+      "title": "Stairway to Heaven",
+      "artist": "Led Zeppelin"
+    },
+    "sessions": [
+      {
+        "sessionId": "550e8400-e29b-41d4-a716-446655440000",
+        "label": "Guitar 2",
+        "type": "GUITAR",
+        "participant": null
+      }
+    ],
+    "participants": [
+      {
+        "participantId": "550e8400-e29b-41d4-a716-446655440000",
+        "memberId": 1
+      }
+    ]
+  }
+  ```
 
-`PracticeController`에 명시된 미구현 API 목록:
+---
 
-| 기능 | 설명 |
-|------|------|
-| 합주 조회 | 합주 단건/목록 조회 |
-| 합주 세션 생성 | 합주 내 세션 추가 |
-| 합주 세션 삭제 | 합주 세션 제거 |
-| 합주 멤버 추가 | 합주에 멤버 추가 |
-| 합주 세션 멤버 지정 | 세션 참여 신청 (본인) |
-| 합주 세션 멤버 지정 취소 | 세션 참여 취소 (본인) |
-| 합주 일정 변경 | 날짜/시간 수정 |
-| 합주 장소 변경 | 장소 수정 |
-| 합주 삭제 | 합주 soft delete |
+### 4-3. 합주 세션 생성
+- **POST** `/api/v1/practices/{practiceId}/sessions`
+- **인증 필요**
+- **Path Variable**: `practiceId` (UUID)
+- **Request Body**
+  ```json
+  {
+    "label": "Guitar 2",
+    "type": "GUITAR"
+  }
+  ```
+  - `type` enum — `VOCAL` | `CHORUS` | `GUITAR` | `BASS` | `DRUM` | `PERCUSSION` | `SYNTH` | `ETC` (기본값: `ETC`)
+- **Response**
+  ```json
+  {
+    "sessionId": "550e8400-e29b-41d4-a716-446655440000",
+    "label": "Guitar 2",
+    "type": "GUITAR",
+    "participant": null
+  }
+  ```
+
+---
+
+### 4-4. 합주 세션 삭제
+- **DELETE** `/api/v1/practices/{practiceId}/sessions/{sessionId}`
+- **인증 필요**
+- **Path Variables**: `practiceId` (UUID), `sessionId` (UUID)
+
+---
+
+### 4-5. 합주 멤버 추가
+- **POST** `/api/v1/practices/{practiceId}/participants`
+- **인증 필요**
+- **Path Variable**: `practiceId` (UUID)
+- **Request Body**
+  ```json
+  {
+    "memberId": 1
+  }
+  ```
+- **Response**
+  ```json
+  {
+    "participantId": "550e8400-e29b-41d4-a716-446655440000",
+    "memberId": 1
+  }
+  ```
+
+---
+
+### 4-6. 합주 세션 멤버 지정 (본인)
+- **PATCH** `/api/v1/practices/{practiceId}/sessions/{sessionId}/assignment`
+- **인증 필요**
+- **Path Variables**: `practiceId` (UUID), `sessionId` (UUID)
+- **비고**: 본인을 해당 세션에 배정
+
+---
+
+### 4-7. 합주 세션 멤버 지정 취소 (본인)
+- **DELETE** `/api/v1/practices/{practiceId}/sessions/{sessionId}/assignment`
+- **인증 필요**
+- **Path Variables**: `practiceId` (UUID), `sessionId` (UUID)
+- **비고**: 본인의 세션 배정 취소
+
+---
+
+### 4-8. 합주 일정 변경
+- **PATCH** `/api/v1/practices/{practiceId}/schedule`
+- **인증 필요**
+- **Path Variable**: `practiceId` (UUID)
+- **Request Body**
+  ```json
+  {
+    "startAt": "2026-03-15 18:00",
+    "durationMinutes": 90
+  }
+  ```
+  - `startAt` 형식: `yyyy-MM-dd HH:mm` (Asia/Seoul 기준)
+
+---
+
+### 4-9. 합주 장소 변경
+- **PATCH** `/api/v1/practices/{practiceId}/venue`
+- **인증 필요**
+- **Path Variable**: `practiceId` (UUID)
+- **Request Body**
+  ```json
+  {
+    "venue": "Club FF"
+  }
+  ```
+
+---
+
+### 4-10. 합주 삭제
+- **DELETE** `/api/v1/practices/{practiceId}`
+- **인증 필요**
+- **Path Variable**: `practiceId` (UUID)
+
+---
+
+## 5. 합주곡 (Practice Song)
+
+### 5-1. 합주곡 참조 링크 등록/수정 (Upsert)
+- **PUT** `/api/v1/practice-songs/{songId}/ref-link`
+- **인증 필요**
+- **Path Variable**: `songId` (UUID)
+- **Request Body**
+  ```json
+  {
+    "refLink": "https://www.youtube.com/watch?v=example"
+  }
+  ```
+
+---
+
+### 5-2. 합주곡 참조 링크 삭제
+- **DELETE** `/api/v1/practice-songs/{songId}/ref-link`
+- **인증 필요**
+- **Path Variable**: `songId` (UUID)
+
+---
+
+## 6. 공연 (Performance)
+
+### 6-1. 공연 생성
+- **POST** `/api/v1/performances`
+- **인증 필요**
+- **Request Body**
+  ```json
+  {
+    "title": "TuNA 정기공연",
+    "bandIds": ["550e8400-e29b-41d4-a716-446655440000"],
+    "startAt": "2026-06-15 18:00",
+    "durationMinutes": 120,
+    "venue": "Club FF"
+  }
+  ```
+  - `bandIds`: optional (기본값 빈 배열)
+  - `venue`: optional
+  - `startAt` 형식: `yyyy-MM-dd HH:mm` (Asia/Seoul 기준)
+- **Response**
+  ```json
+  {
+    "performanceId": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "TuNA 정기공연"
+  }
+  ```
+- **비고**: 생성자는 자동으로 PerformanceManager로 등록
+
+---
+
+### 6-2. 공연 목록 조회 (커서 페이징)
+- **GET** `/api/v1/performances`
+- **인증 필요**
+- **Query Parameters**
+  | 파라미터 | 타입 | 필수 | 기본값 | 설명 |
+  |---------|------|------|--------|------|
+  | `bandId` | UUID | N | - | 특정 밴드 소속 공연만 조회 |
+  | `lastId` | UUID | N | - | 이전 페이지 마지막 공연 ID |
+  | `pageSize` | Int (1~100) | N | 10 | 페이지 크기 |
+- **Response**: `CursorResponse<PerformanceListResponse, UUID>`
+  ```json
+  {
+    "performanceId": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "TuNA 정기공연",
+    "startAt": "2026-06-15 18:00",
+    "durationMinutes": 120,
+    "venue": "Club FF"
+  }
+  ```
+
+---
+
+### 6-3. 공연 상세 조회
+- **GET** `/api/v1/performances/{performanceId}`
+- **인증 필요**
+- **Path Variable**: `performanceId` (UUID)
+- **Response**
+  ```json
+  {
+    "performanceId": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "TuNA 정기공연",
+    "startAt": "2026-06-15 18:00",
+    "durationMinutes": 120,
+    "venue": "Club FF",
+    "bandIds": ["550e8400-e29b-41d4-a716-446655440000"],
+    "managerIds": [1],
+    "practiceIds": ["550e8400-e29b-41d4-a716-446655440001"]
+  }
+  ```
+
+---
+
+### 6-4. 공연 정보 수정
+- **PATCH** `/api/v1/performances/{performanceId}`
+- **인증 필요** (PerformanceManager)
+- **Path Variable**: `performanceId` (UUID)
+- **Request Body**
+  ```json
+  {
+    "title": "TuNA 정기공연 (수정)",
+    "startAt": "2026-06-15 19:00",
+    "durationMinutes": 90,
+    "venue": "Club FF"
+  }
+  ```
+  - `venue`: optional
+
+---
+
+### 6-5. 공연 합주 추가 (신규 생성)
+- **POST** `/api/v1/performances/{performanceId}/practices`
+- **인증 필요** (PerformanceManager)
+- **Path Variable**: `performanceId` (UUID)
+- **Request Body**
+  ```json
+  {
+    "title": "TuNA 정기공연 합주",
+    "songId": "550e8400-e29b-41d4-a716-446655440000",
+    "startAt": "2026-06-01 18:00",
+    "durationMinutes": 60,
+    "venue": "홍대 스튜디오"
+  }
+  ```
+  - `title`: optional (미입력 시 곡 제목으로 대체)
+  - `venue`: optional
+- **Response**
+  ```json
+  {
+    "performancePracticeId": "550e8400-e29b-41d4-a716-446655440000",
+    "practiceId": "550e8400-e29b-41d4-a716-446655440001"
+  }
+  ```
+- **비고**: 빈 합주를 즉시 생성하여 공연에 연결
+
+---
+
+### 6-6. 공연 합주 일괄 추가 (기존 합주 연결)
+- **POST** `/api/v1/performances/{performanceId}/practices/batch`
+- **인증 필요** (PerformanceManager)
+- **Path Variable**: `performanceId` (UUID)
+- **Request Body**
+  ```json
+  {
+    "practiceIds": [
+      "550e8400-e29b-41d4-a716-446655440000",
+      "550e8400-e29b-41d4-a716-446655440001"
+    ]
+  }
+  ```
+- **Response**: `List<PerformancePracticeResponse>`
+  ```json
+  [
+    {
+      "performancePracticeId": "550e8400-e29b-41d4-a716-446655440000",
+      "practiceId": "550e8400-e29b-41d4-a716-446655440001"
+    }
+  ]
+  ```
+
+---
+
+### 6-7. 공연 합주 삭제
+- **DELETE** `/api/v1/performances/{performanceId}/practices/{practiceId}`
+- **인증 필요** (PerformanceManager)
+- **Path Variables**: `performanceId` (UUID), `practiceId` (UUID)
+- **비고**: 공연과 합주의 연결을 제거 (합주 자체는 삭제되지 않음)
+
+---
+
+### 6-8. 공연 삭제
+- **DELETE** `/api/v1/performances/{performanceId}`
+- **인증 필요** (PerformanceManager)
+- **Path Variable**: `performanceId` (UUID)
+- **비고**: 연관된 합주도 함께 삭제

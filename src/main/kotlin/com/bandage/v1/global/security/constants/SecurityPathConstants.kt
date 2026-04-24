@@ -6,6 +6,7 @@ object SecurityPathConstants {
     val AUTH_WHITELIST =
         arrayOf(
             "${PathPrefix.PREFIX}/auth/login",
+            "${PathPrefix.PREFIX}/auth/refresh",
             "${PathPrefix.PREFIX}/members/join",
         )
 
@@ -27,7 +28,8 @@ object SecurityPathConstants {
     val TMP_FOR_TEST =
         arrayOf(
 //            "${PathPrefix.PREFIX}/bands/**",
-            "${PathPrefix.PREFIX}/practices/**",
-            "${PathPrefix.PREFIX}/performances/**",
+//            "${PathPrefix.PREFIX}/practices/**",
+//            "${PathPrefix.PREFIX}/performances/**",
+            "${PathPrefix.PREFIX}/tmp/**",
         )
 }
