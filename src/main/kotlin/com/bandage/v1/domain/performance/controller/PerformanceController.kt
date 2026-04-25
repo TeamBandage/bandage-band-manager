@@ -55,6 +55,14 @@ class PerformanceController(
             ApiResponse.success(performanceService.getPerformances(query))
         }
 
+    @GetMapping("/me")
+    @Operation(summary = "내 공연 목록 조회 API", description = "본인이 속한 밴드가 참여하는 공연 목록을 커서 기반으로 조회합니다.")
+    fun getMyPerformances(
+        @Valid query: PerformancePagingQuery,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<CursorResponse<PerformanceListResponse, UUID>> =
+        ApiResponse.success(performanceService.getMyPerformancesByCursor(memberId, query))
+
     @GetMapping("/{performanceId}")
     @Operation(summary = "공연 단건 조회 API", description = "공연 고유 식별 ID를 통해 공연 상세 정보를 조회합니다.")
     fun getPerformance(

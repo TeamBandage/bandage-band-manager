@@ -4,6 +4,8 @@ import com.bandage.v1.domain.band.model.Band
 import com.bandage.v1.domain.band.model.BandMember
 import com.bandage.v1.domain.band.model.enums.BandRole
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -11,6 +13,11 @@ import java.util.UUID
 interface BandMemberRepository :
     JpaRepository<BandMember, UUID>,
     BandMemberRepositoryCustom {
+    @Query("SELECT bm.band.id FROM BandMember bm WHERE bm.member = :memberId")
+    fun findAllBandIdsByMember(
+        @Param("memberId") memberId: Long,
+    ): List<UUID>
+
     fun existsBandMemberByBandAndMember(
         band: Band,
         member: Long,

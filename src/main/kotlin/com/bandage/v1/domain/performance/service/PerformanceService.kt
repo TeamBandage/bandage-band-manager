@@ -1,5 +1,6 @@
 package com.bandage.v1.domain.performance.service
 
+import com.bandage.v1.domain.band.repository.BandMemberRepository
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.v1.domain.performance.dto.req.PerformancePracticeAddRequest
@@ -34,6 +35,7 @@ class PerformanceService(
     private val performanceManagerRepository: PerformanceManagerRepository,
     private val performancePracticeRepository: PerformancePracticeRepository,
     private val practiceRepository: PracticeRepository,
+    private val bandMemberRepository: BandMemberRepository,
 ) {
     @Transactional
     fun createPerformance(
@@ -70,6 +72,22 @@ class PerformanceService(
         query: PerformancePagingQuery,
     ): CursorResponse<PerformanceListResponse, UUID> {
         val result = performanceRepository.findAllByBandIdAndPaging(bandId, query.lastId, query.pageSize)
+        return CursorResponse(
+            content = result.content.map { PerformanceListResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
+    fun getMyPerformancesByCursor(
+        memberId: Long,
+        query: PerformancePagingQuery,
+    ): CursorResponse<PerformanceListResponse, UUID> {
+        val bandIds = bandMemberRepository.findAllBandIdsByMember(memberId)
+        if (bandIds.isEmpty()) {
+            return CursorResponse(content = emptyList(), nextCursor = null, hasNext = false)
+        }
+        val result = performanceRepository.findAllByBandIdsAndPaging(bandIds, query.lastId, query.pageSize)
         return CursorResponse(
             content = result.content.map { PerformanceListResponse.of(it) },
             nextCursor = result.nextCursor,

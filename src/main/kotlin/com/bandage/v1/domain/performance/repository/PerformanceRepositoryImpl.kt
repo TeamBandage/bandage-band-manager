@@ -67,5 +67,36 @@ class PerformanceRepositoryImpl(
         )
     }
 
+    override fun findAllByBandIdsAndPaging(
+        bandIds: List<UUID>,
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<Performance, UUID> {
+        val qPerformance = QPerformance.performance
+        val qPerformanceBand = QPerformanceBand.performanceBand
+
+        val contents =
+            queryFactory
+                .selectFrom(qPerformance)
+                .join(qPerformanceBand)
+                .on(qPerformanceBand.performance.eq(qPerformance))
+                .where(qPerformanceBand.bandId.`in`(bandIds))
+                .where(ltPerformanceId(lastId))
+                .orderBy(qPerformance.id.desc())
+                .distinct()
+                .limit(pageSize.toLong() + 1)
+                .fetch()
+
+        val hasNext = contents.size > pageSize
+        val resultContents = if (hasNext) contents.dropLast(1) else contents
+        val nextCursor = resultContents.lastOrNull()?.id
+
+        return CursorResponse(
+            content = resultContents,
+            nextCursor = nextCursor,
+            hasNext = hasNext,
+        )
+    }
+
     private fun ltPerformanceId(lastId: UUID?): BooleanExpression? = lastId?.let { QPerformance.performance.id.lt(it) }
 }
