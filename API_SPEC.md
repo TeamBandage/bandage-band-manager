@@ -168,6 +168,19 @@ Base URL: `/api/v1`
 
 ---
 
+### 3-3-1. 내 밴드 목록 조회 (커서 페이징)
+- **GET** `/api/v1/bands/me`
+- **인증 필요**
+- **Query Parameters**
+  | 파라미터 | 타입 | 필수 | 기본값 | 설명 |
+  |---------|------|------|--------|------|
+  | `lastId` | UUID | N | - | 이전 페이지 마지막 밴드 ID |
+  | `pageSize` | Int (1~100) | N | 10 | 페이지 크기 |
+- **Response**: `CursorResponse<BandInfoResponse, UUID>`
+- **비고**: 현재 로그인한 회원이 소속된 밴드만 조회
+
+---
+
 ### 3-4. 밴드 멤버 단건 조회
 - **GET** `/api/v1/bands/{bandId}/members/{bandMemberId}`
 - **인증 필요**
@@ -278,6 +291,28 @@ Base URL: `/api/v1`
     "practiceTitle": "TuNA 정기공연 1주차 합주"
   }
   ```
+
+---
+
+### 4-1-1. 내 합주 목록 조회 (커서 페이징)
+- **GET** `/api/v1/practices/me`
+- **인증 필요**
+- **Query Parameters**
+  | 파라미터 | 타입 | 필수 | 기본값 | 설명 |
+  |---------|------|------|--------|------|
+  | `lastId` | UUID | N | - | 이전 페이지 마지막 합주 ID |
+  | `pageSize` | Int (1~100) | N | 10 | 페이지 크기 |
+- **Response**: `CursorResponse<PracticeListResponse, UUID>`
+  ```json
+  {
+    "practiceId": "550e8400-e29b-41d4-a716-446655440000",
+    "title": "TuNA 정기공연 1주차 합주",
+    "startAt": "2026-03-15 18:00",
+    "durationMinutes": 60,
+    "venue": "홍대 스튜디오"
+  }
+  ```
+- **비고**: 현재 로그인한 회원이 참여 중인 합주만 조회
 
 ---
 
@@ -489,6 +524,19 @@ Base URL: `/api/v1`
     "venue": "Club FF"
   }
   ```
+
+---
+
+### 6-2-1. 내 공연 목록 조회 (커서 페이징)
+- **GET** `/api/v1/performances/me`
+- **인증 필요**
+- **Query Parameters**
+  | 파라미터 | 타입 | 필수 | 기본값 | 설명 |
+  |---------|------|------|--------|------|
+  | `lastId` | UUID | N | - | 이전 페이지 마지막 공연 ID |
+  | `pageSize` | Int (1~100) | N | 10 | 페이지 크기 |
+- **Response**: `CursorResponse<PerformanceListResponse, UUID>`
+- **비고**: 현재 로그인한 회원이 속한 밴드가 참여하는 모든 공연 조회 (소속 밴드가 없으면 빈 목록 반환)
 
 ---
 
