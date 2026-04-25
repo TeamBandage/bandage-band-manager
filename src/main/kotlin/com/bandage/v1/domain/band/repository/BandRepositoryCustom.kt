@@ -9,4 +9,10 @@ interface BandRepositoryCustom {
         lastId: UUID?,
         pageSize: Int,
     ): CursorResponse<Band, UUID>
+
+    fun findAllByMemberAndPaging(
+        memberId: Long,
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<Band, UUID>
 }

@@ -82,6 +82,18 @@ class BandService(
         )
     }
 
+    fun getMyBandsByCursor(
+        memberId: Long,
+        query: BandPagingQuery,
+    ): CursorResponse<BandInfoResponse, UUID> {
+        val result = bandRepository.findAllByMemberAndPaging(memberId, query.lastId, query.pageSize)
+        return CursorResponse(
+            content = result.content.map { BandInfoResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
     fun getOnlyOneBandMember(bandMemberId: UUID): BandMemberInfoResponse =
         BandMemberInfoResponse.of(
             getBandMemberById(bandMemberId),

@@ -68,6 +68,13 @@ class BandController(
         @Valid query: BandPagingQuery,
     ): ApiResponse<CursorResponse<BandInfoResponse, UUID>> = ApiResponse.success(bandService.getBandsByCursor(query))
 
+    @GetMapping("/me")
+    @Operation(summary = "내 밴드 목록 조회 API", description = "본인이 소속된 밴드 목록을 커서 기반으로 조회합니다.")
+    fun getMyBands(
+        @Valid query: BandPagingQuery,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<CursorResponse<BandInfoResponse, UUID>> = ApiResponse.success(bandService.getMyBandsByCursor(memberId, query))
+
     @GetMapping("/{bandId}/members/{bandMemberId}")
     @Operation(summary = "밴드 멤버 단건 조회 API", description = "밴드 내 특정 멤버의 프로필 및 권한 정보를 조회합니다.")
     fun getBandMember(
