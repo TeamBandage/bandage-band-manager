@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-interface PracticeRepository : JpaRepository<Practice, UUID>
+interface PracticeRepository :
+    JpaRepository<Practice, UUID>,
+    PracticeRepositoryCustom

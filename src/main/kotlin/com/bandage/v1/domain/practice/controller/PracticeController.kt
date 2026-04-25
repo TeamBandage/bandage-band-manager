@@ -2,16 +2,19 @@ package com.bandage.v1.domain.practice.controller
 
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
+import com.bandage.v1.domain.practice.dto.req.PracticePagingQuery
 import com.bandage.v1.domain.practice.dto.req.PracticeScheduleUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeVenueUpdateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
+import com.bandage.v1.domain.practice.dto.res.PracticeListResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeParticipantResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeSessionResponse
 import com.bandage.v1.domain.practice.service.PracticeService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
+import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.security.annotation.CurrentMemberId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -49,6 +52,14 @@ class PracticeController(
         ApiResponse.success(
             practiceService.getPracticeDetail(practiceId),
         )
+
+    @GetMapping("/me")
+    @Operation(summary = "내 합주 목록 조회 API", description = "본인이 참여 중인 합주 목록을 커서 기반으로 조회합니다.")
+    fun getMyPractices(
+        @Valid query: PracticePagingQuery,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<CursorResponse<PracticeListResponse, UUID>> =
+        ApiResponse.success(practiceService.getMyPracticesByCursor(memberId, query))
 
     @PostMapping("/{practiceId}/sessions")
     @Operation(summary = "합주 세션 생성 API", description = "합주에 세션을 추가합니다.")

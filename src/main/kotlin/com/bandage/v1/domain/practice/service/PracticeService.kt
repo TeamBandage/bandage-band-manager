@@ -2,11 +2,13 @@ package com.bandage.v1.domain.practice.service
 
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
+import com.bandage.v1.domain.practice.dto.req.PracticePagingQuery
 import com.bandage.v1.domain.practice.dto.req.PracticeScheduleUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSongRefLinkUpsertRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeVenueUpdateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
+import com.bandage.v1.domain.practice.dto.res.PracticeListResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeParticipantResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeSessionResponse
@@ -18,6 +20,7 @@ import com.bandage.v1.domain.practice.repository.PracticeParticipantRepository
 import com.bandage.v1.domain.practice.repository.PracticeRepository
 import com.bandage.v1.domain.practice.repository.PracticeSessionRepository
 import com.bandage.v1.domain.practice.repository.PracticeSongRepository
+import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
@@ -50,6 +53,18 @@ class PracticeService(
     }
 
     fun getPracticeDetail(practiceId: UUID): PracticeDetailResponse = PracticeDetailResponse.of(getPractice(practiceId))
+
+    fun getMyPracticesByCursor(
+        memberId: Long,
+        query: PracticePagingQuery,
+    ): CursorResponse<PracticeListResponse, UUID> {
+        val result = practiceRepository.findAllByMemberAndPaging(memberId, query.lastId, query.pageSize)
+        return CursorResponse(
+            content = result.content.map { PracticeListResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
 
     @Transactional
     fun createSession(
