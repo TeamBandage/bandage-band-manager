@@ -18,6 +18,11 @@ interface BandMemberRepository :
         @Param("memberId") memberId: Long,
     ): List<UUID>
 
+    @Query("SELECT bm.member FROM BandMember bm WHERE bm.band.id = :bandId")
+    fun findAllMemberIdsByBand(
+        @Param("bandId") bandId: UUID,
+    ): List<Long>
+
     fun existsBandMemberByBandAndMember(
         band: Band,
         member: Long,

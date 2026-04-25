@@ -9,6 +9,6 @@ data class BandCreateRequest(
     val name: String,
     @NotBlank @Schema(description = "밴드 상세 설명/소개", example = "성균관대학교 문과대 락밴드 TuNA 입니다.")
     val description: String,
-    @Schema(description = "밴드 프로필 이미지 Url", example = "url")
-    val profileImg: String,
+    @Schema(description = "밴드 프로필 이미지 Url (optional)", example = "url")
+    val profileImg: String? = null,
 )

@@ -29,7 +29,7 @@ class BandRepositoryImpl(
 
         val resultContents = if (hasNext) contents.dropLast(1) else contents // 사이즈 확인 후 마지막 1개 항목 제외 반환
 
-        val nextCursor = resultContents.lastOrNull()?.id
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
 
         return CursorResponse(
             content = resultContents,
@@ -60,7 +60,71 @@ class BandRepositoryImpl(
 
         val hasNext = contents.size > pageSize
         val resultContents = if (hasNext) contents.dropLast(1) else contents
-        val nextCursor = resultContents.lastOrNull()?.id
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
+
+        return CursorResponse(
+            content = resultContents,
+            nextCursor = nextCursor,
+            hasNext = hasNext,
+        )
+    }
+
+    override fun searchByNameAndPaging(
+        keyword: String,
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<Band, UUID> {
+        val qBand = QBand.band
+
+        val contents =
+            queryFactory
+                .selectFrom(qBand)
+                .where(qBand.name.containsIgnoreCase(keyword))
+                .where(ltBandId(lastId))
+                .orderBy(qBand.id.desc())
+                .limit(pageSize.toLong() + 1)
+                .fetch()
+
+        val hasNext = contents.size > pageSize
+        val resultContents = if (hasNext) contents.dropLast(1) else contents
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
+
+        return CursorResponse(
+            content = resultContents,
+            nextCursor = nextCursor,
+            hasNext = hasNext,
+        )
+    }
+
+    override fun findAllByMemberWithRoleAndPaging(
+        memberId: Long,
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<BandRepositoryCustom.BandWithRole, UUID> {
+        val qBand = QBand.band
+        val qBandMember = QBandMember.bandMember
+
+        val tuples =
+            queryFactory
+                .select(qBand, qBandMember.role)
+                .from(qBand)
+                .join(qBandMember)
+                .on(qBandMember.band.eq(qBand))
+                .where(qBandMember.member.eq(memberId))
+                .where(ltBandId(lastId))
+                .orderBy(qBand.id.desc())
+                .limit(pageSize.toLong() + 1)
+                .fetch()
+
+        val hasNext = tuples.size > pageSize
+        val resultTuples = if (hasNext) tuples.dropLast(1) else tuples
+        val resultContents =
+            resultTuples.mapNotNull { tuple ->
+                val band = tuple.get(qBand) ?: return@mapNotNull null
+                val role = tuple.get(qBandMember.role) ?: return@mapNotNull null
+                BandRepositoryCustom.BandWithRole(band = band, role = role)
+            }
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.band?.id else null
 
         return CursorResponse(
             content = resultContents,

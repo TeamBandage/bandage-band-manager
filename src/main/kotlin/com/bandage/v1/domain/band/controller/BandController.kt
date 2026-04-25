@@ -3,10 +3,12 @@ package com.bandage.v1.domain.band.controller
 import com.bandage.v1.domain.band.dto.req.BandApplicationPagingQuery
 import com.bandage.v1.domain.band.dto.req.BandCreateRequest
 import com.bandage.v1.domain.band.dto.req.BandPagingQuery
+import com.bandage.v1.domain.band.dto.req.BandSearchQuery
 import com.bandage.v1.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandMemberInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
+import com.bandage.v1.domain.band.dto.res.MyBandInfoResponse
 import com.bandage.v1.domain.band.model.enums.ApplicationStatus
 import com.bandage.v1.domain.band.service.BandService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
@@ -69,11 +71,20 @@ class BandController(
     ): ApiResponse<CursorResponse<BandInfoResponse, UUID>> = ApiResponse.success(bandService.getBandsByCursor(query))
 
     @GetMapping("/me")
-    @Operation(summary = "내 밴드 목록 조회 API", description = "본인이 소속된 밴드 목록을 커서 기반으로 조회합니다.")
+    @Operation(
+        summary = "내 밴드 목록 조회 API",
+        description = "본인이 소속된 밴드 목록을 커서 기반으로 조회합니다. 응답에 본인의 밴드 내 역할(`myRole`)이 포함됩니다.",
+    )
     fun getMyBands(
         @Valid query: BandPagingQuery,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<CursorResponse<BandInfoResponse, UUID>> = ApiResponse.success(bandService.getMyBandsByCursor(memberId, query))
+    ): ApiResponse<CursorResponse<MyBandInfoResponse, UUID>> = ApiResponse.success(bandService.getMyBandsByCursor(memberId, query))
+
+    @GetMapping("/search")
+    @Operation(summary = "밴드 검색 API", description = "밴드 이름에 키워드가 포함된 밴드를 커서 기반으로 조회합니다.")
+    fun searchBands(
+        @Valid query: BandSearchQuery,
+    ): ApiResponse<CursorResponse<BandInfoResponse, UUID>> = ApiResponse.success(bandService.searchBandsByCursor(query))
 
     @GetMapping("/{bandId}/members/{bandMemberId}")
     @Operation(summary = "밴드 멤버 단건 조회 API", description = "밴드 내 특정 멤버의 프로필 및 권한 정보를 조회합니다.")

@@ -3,10 +3,12 @@ package com.bandage.v1.domain.band.service
 import com.bandage.v1.domain.band.dto.req.BandApplicationPagingQuery
 import com.bandage.v1.domain.band.dto.req.BandCreateRequest
 import com.bandage.v1.domain.band.dto.req.BandPagingQuery
+import com.bandage.v1.domain.band.dto.req.BandSearchQuery
 import com.bandage.v1.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandMemberInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandResponse
+import com.bandage.v1.domain.band.dto.res.MyBandInfoResponse
 import com.bandage.v1.domain.band.model.Band
 import com.bandage.v1.domain.band.model.BandApplication
 import com.bandage.v1.domain.band.model.BandMember
@@ -85,8 +87,17 @@ class BandService(
     fun getMyBandsByCursor(
         memberId: Long,
         query: BandPagingQuery,
-    ): CursorResponse<BandInfoResponse, UUID> {
-        val result = bandRepository.findAllByMemberAndPaging(memberId, query.lastId, query.pageSize)
+    ): CursorResponse<MyBandInfoResponse, UUID> {
+        val result = bandRepository.findAllByMemberWithRoleAndPaging(memberId, query.lastId, query.pageSize)
+        return CursorResponse(
+            content = result.content.map { MyBandInfoResponse.of(it.band, it.role) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
+    fun searchBandsByCursor(query: BandSearchQuery): CursorResponse<BandInfoResponse, UUID> {
+        val result = bandRepository.searchByNameAndPaging(query.keyword, query.lastId, query.pageSize)
         return CursorResponse(
             content = result.content.map { BandInfoResponse.of(it) },
             nextCursor = result.nextCursor,

@@ -1,17 +1,22 @@
 package com.bandage.v1.domain.practice.service
 
+import com.bandage.v1.domain.band.repository.BandMemberRepository
+import com.bandage.v1.domain.practice.dto.Song
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
 import com.bandage.v1.domain.practice.dto.req.PracticePagingQuery
 import com.bandage.v1.domain.practice.dto.req.PracticeScheduleUpdateRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeSearchQuery
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSongRefLinkUpsertRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeSongUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeVenueUpdateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeListResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeParticipantResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeSessionResponse
+import com.bandage.v1.domain.practice.dto.res.PracticeSongResponse
 import com.bandage.v1.domain.practice.model.Practice
 import com.bandage.v1.domain.practice.model.PracticeParticipant
 import com.bandage.v1.domain.practice.model.PracticeSession
@@ -35,6 +40,7 @@ class PracticeService(
     private val practiceSessionRepository: PracticeSessionRepository,
     private val practiceParticipantRepository: PracticeParticipantRepository,
     private val practiceSongRepository: PracticeSongRepository,
+    private val bandMemberRepository: BandMemberRepository,
 ) {
     @Transactional
     fun createPractice(request: PracticeCreateRequest): PracticeResponse {
@@ -54,11 +60,50 @@ class PracticeService(
 
     fun getPracticeDetail(practiceId: UUID): PracticeDetailResponse = PracticeDetailResponse.of(getPractice(practiceId))
 
+    fun getPracticesByCursor(
+        bandId: UUID?,
+        query: PracticePagingQuery,
+    ): CursorResponse<PracticeListResponse, UUID> {
+        val result =
+            if (bandId != null) {
+                val memberIds = bandMemberRepository.findAllMemberIdsByBand(bandId)
+                if (memberIds.isEmpty()) {
+                    return CursorResponse(content = emptyList(), nextCursor = null, hasNext = false)
+                }
+                practiceRepository.findAllByMembersAndPaging(memberIds, query.lastId, query.pageSize)
+            } else {
+                practiceRepository.findAllByPaging(query.lastId, query.pageSize)
+            }
+        return CursorResponse(
+            content = result.content.map { PracticeListResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
     fun getMyPracticesByCursor(
         memberId: Long,
         query: PracticePagingQuery,
     ): CursorResponse<PracticeListResponse, UUID> {
         val result = practiceRepository.findAllByMemberAndPaging(memberId, query.lastId, query.pageSize)
+        return CursorResponse(
+            content = result.content.map { PracticeListResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
+    fun searchMyPracticesByCursor(
+        memberId: Long,
+        query: PracticeSearchQuery,
+    ): CursorResponse<PracticeListResponse, UUID> {
+        val result =
+            practiceRepository.searchByMemberAndKeywordAndPaging(
+                memberId = memberId,
+                keyword = query.keyword,
+                lastId = query.lastId,
+                pageSize = query.pageSize,
+            )
         return CursorResponse(
             content = result.content.map { PracticeListResponse.of(it) },
             nextCursor = result.nextCursor,
@@ -177,6 +222,94 @@ class PracticeService(
     fun deletePracticeSongRefLink(songId: UUID) {
         val song = getPracticeSong(songId)
         song.deleteRefLink()
+    }
+
+    // TODO: 외부 음원 검색 API / gRPC 연동으로 대체. 현재는 Tool 곡 mock 결과를 무조건 반환.
+    fun searchSongs(keyword: String): List<Song> =
+        listOf(
+            Song(
+                title = "Vicarious",
+                artist = "Tool",
+                album = "10,000 Days",
+                duration = 426,
+            ),
+            Song(
+                title = "Schism",
+                artist = "Tool",
+                album = "Lateralus",
+                duration = 407,
+            ),
+        )
+
+    @Transactional
+    fun createPracticeSong(
+        practiceId: UUID,
+        song: Song,
+    ): PracticeSongResponse {
+        val practice = getPractice(practiceId)
+        val newSong =
+            practiceSongRepository.save(
+                PracticeSong.create(
+                    title = song.title,
+                    artist = song.artist,
+                    album = song.album,
+                    duration = song.duration,
+                    refLink = song.refLink,
+                ),
+            )
+        practice.updateSong(newSong)
+        return PracticeSongResponse.of(newSong)
+    }
+
+    @Transactional
+    fun createPracticeSong(
+        practiceId: UUID,
+        title: String,
+        artist: String,
+        album: String,
+        duration: Int,
+        refLink: String?,
+    ): PracticeSongResponse =
+        createPracticeSong(
+            practiceId = practiceId,
+            song =
+                Song(
+                    title = title,
+                    artist = artist,
+                    album = album,
+                    duration = duration,
+                    refLink = refLink,
+                ),
+        )
+
+    @Transactional
+    fun updatePracticeSong(
+        songId: UUID,
+        request: PracticeSongUpdateRequest,
+    ): PracticeSongResponse {
+        val song = getPracticeSong(songId)
+        request.title?.let { song.updateTitle(it) }
+        request.artist?.let { song.updateArtist(it) }
+        request.album?.let { song.updateAlbum(it) }
+        request.duration?.let { song.updateDuration(it) }
+        request.refLink?.let { song.updateRefLink(it) }
+        return PracticeSongResponse.of(song)
+    }
+
+    @Transactional
+    fun upsertPracticeSong(
+        songId: UUID,
+        song: Song,
+    ): PracticeSongResponse {
+        val practiceSong = getPracticeSong(songId)
+        practiceSong.updateAll(
+            title = song.title,
+            artist = song.artist,
+            album = song.album,
+            duration = song.duration,
+            refLink = song.refLink,
+        )
+        return PracticeSongResponse.of(practiceSong)
     }
 
     // --- 내부 유틸리티 메서드 ---

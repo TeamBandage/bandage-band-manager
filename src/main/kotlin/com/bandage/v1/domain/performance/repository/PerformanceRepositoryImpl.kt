@@ -27,7 +27,7 @@ class PerformanceRepositoryImpl(
 
         val hasNext = contents.size > pageSize
         val resultContents = if (hasNext) contents.dropLast(1) else contents
-        val nextCursor = resultContents.lastOrNull()?.id
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
 
         return CursorResponse(
             content = resultContents,
@@ -58,7 +58,7 @@ class PerformanceRepositoryImpl(
 
         val hasNext = contents.size > pageSize
         val resultContents = if (hasNext) contents.dropLast(1) else contents
-        val nextCursor = resultContents.lastOrNull()?.id
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
 
         return CursorResponse(
             content = resultContents,
@@ -89,7 +89,34 @@ class PerformanceRepositoryImpl(
 
         val hasNext = contents.size > pageSize
         val resultContents = if (hasNext) contents.dropLast(1) else contents
-        val nextCursor = resultContents.lastOrNull()?.id
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
+
+        return CursorResponse(
+            content = resultContents,
+            nextCursor = nextCursor,
+            hasNext = hasNext,
+        )
+    }
+
+    override fun searchByTitleAndPaging(
+        keyword: String,
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<Performance, UUID> {
+        val qPerformance = QPerformance.performance
+
+        val contents =
+            queryFactory
+                .selectFrom(qPerformance)
+                .where(qPerformance.title.containsIgnoreCase(keyword))
+                .where(ltPerformanceId(lastId))
+                .orderBy(qPerformance.id.desc())
+                .limit(pageSize.toLong() + 1)
+                .fetch()
+
+        val hasNext = contents.size > pageSize
+        val resultContents = if (hasNext) contents.dropLast(1) else contents
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
 
         return CursorResponse(
             content = resultContents,

@@ -51,12 +51,14 @@ open class PracticeSong(
             artist: String,
             album: String,
             duration: Int,
+            refLink: String? = null,
         ): PracticeSong =
             PracticeSong(
                 title = title,
                 artist = artist,
                 album = album,
                 duration = duration,
+                refLink = refLink,
             )
     }
 
@@ -66,5 +68,35 @@ open class PracticeSong(
 
     fun deleteRefLink() {
         this.refLink = null
+    }
+
+    fun updateTitle(title: String) {
+        this.title = title
+    }
+
+    fun updateArtist(artist: String) {
+        this.artist = artist
+    }
+
+    fun updateAlbum(album: String) {
+        this.album = album
+    }
+
+    fun updateDuration(duration: Int) {
+        this.duration = duration
+    }
+
+    fun updateAll(
+        title: String,
+        artist: String,
+        album: String,
+        duration: Int,
+        refLink: String?,
+    ) {
+        this.title = title
+        this.artist = artist
+        this.album = album
+        this.duration = duration
+        this.refLink = refLink
     }
 }

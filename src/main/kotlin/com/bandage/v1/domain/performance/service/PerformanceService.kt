@@ -1,9 +1,11 @@
 package com.bandage.v1.domain.performance.service
 
 import com.bandage.v1.domain.band.repository.BandMemberRepository
+import com.bandage.v1.domain.band.repository.BandRepository
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.v1.domain.performance.dto.req.PerformancePracticeAddRequest
+import com.bandage.v1.domain.performance.dto.req.PerformanceSearchQuery
 import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
@@ -36,6 +38,7 @@ class PerformanceService(
     private val performancePracticeRepository: PerformancePracticeRepository,
     private val practiceRepository: PracticeRepository,
     private val bandMemberRepository: BandMemberRepository,
+    private val bandRepository: BandRepository,
 ) {
     @Transactional
     fun createPerformance(
@@ -95,7 +98,20 @@ class PerformanceService(
         )
     }
 
-    fun getPerformanceDetail(performanceId: UUID): PerformanceDetailResponse = PerformanceDetailResponse.of(getPerformance(performanceId))
+    fun searchPerformancesByCursor(query: PerformanceSearchQuery): CursorResponse<PerformanceListResponse, UUID> {
+        val result = performanceRepository.searchByTitleAndPaging(query.keyword, query.lastId, query.pageSize)
+        return CursorResponse(
+            content = result.content.map { PerformanceListResponse.of(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
+    fun getPerformanceDetail(performanceId: UUID): PerformanceDetailResponse {
+        val performance = getPerformance(performanceId)
+        val bands = bandRepository.findAllById(performance.bands.map { it.bandId })
+        return PerformanceDetailResponse.of(performance, bands)
+    }
 
     @Transactional
     fun updatePerformance(
@@ -105,8 +121,13 @@ class PerformanceService(
     ) {
         val performance = getPerformance(performanceId)
         validateIsManager(performance, memberId)
-        performance.updateTitle(request.title)
-        performance.updateSchedule(request.startAt, request.durationMinutes)
+        request.title?.let { performance.updateTitle(it) }
+        if (request.startAt != null || request.durationMinutes != null) {
+            performance.updateSchedule(
+                startAt = request.startAt ?: performance.schedule.startAt,
+                durationMinutes = request.durationMinutes ?: performance.schedule.durationMinutes,
+            )
+        }
         request.venue?.let { performance.updateVenue(it) }
     }
 
