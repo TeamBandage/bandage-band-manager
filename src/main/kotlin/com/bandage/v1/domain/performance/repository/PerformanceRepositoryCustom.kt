@@ -15,4 +15,16 @@ interface PerformanceRepositoryCustom {
         lastId: UUID?,
         pageSize: Int,
     ): CursorResponse<Performance, UUID>
+
+    fun findAllByBandIdsAndPaging(
+        bandIds: List<UUID>,
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<Performance, UUID>
+
+    fun searchByTitleAndPaging(
+        keyword: String,
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<Performance, UUID>
 }

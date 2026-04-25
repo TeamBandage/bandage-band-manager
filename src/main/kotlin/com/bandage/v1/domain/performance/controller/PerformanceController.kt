@@ -4,6 +4,7 @@ import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.v1.domain.performance.dto.req.PerformancePracticeAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePracticeCreateRequest
+import com.bandage.v1.domain.performance.dto.req.PerformanceSearchQuery
 import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
@@ -54,6 +55,21 @@ class PerformanceController(
         } else {
             ApiResponse.success(performanceService.getPerformances(query))
         }
+
+    @GetMapping("/me")
+    @Operation(summary = "내 공연 목록 조회 API", description = "본인이 속한 밴드가 참여하는 공연 목록을 커서 기반으로 조회합니다.")
+    fun getMyPerformances(
+        @Valid query: PerformancePagingQuery,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<CursorResponse<PerformanceListResponse, UUID>> =
+        ApiResponse.success(performanceService.getMyPerformancesByCursor(memberId, query))
+
+    @GetMapping("/search")
+    @Operation(summary = "공연 검색 API", description = "공연 제목에 키워드가 포함된 공연을 커서 기반으로 조회합니다.")
+    fun searchPerformances(
+        @Valid query: PerformanceSearchQuery,
+    ): ApiResponse<CursorResponse<PerformanceListResponse, UUID>> =
+        ApiResponse.success(performanceService.searchPerformancesByCursor(query))
 
     @GetMapping("/{performanceId}")
     @Operation(summary = "공연 단건 조회 API", description = "공연 고유 식별 ID를 통해 공연 상세 정보를 조회합니다.")

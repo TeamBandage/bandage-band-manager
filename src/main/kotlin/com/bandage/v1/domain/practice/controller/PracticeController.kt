@@ -2,16 +2,20 @@ package com.bandage.v1.domain.practice.controller
 
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
+import com.bandage.v1.domain.practice.dto.req.PracticePagingQuery
 import com.bandage.v1.domain.practice.dto.req.PracticeScheduleUpdateRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeSearchQuery
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeVenueUpdateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
+import com.bandage.v1.domain.practice.dto.res.PracticeListResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeParticipantResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeSessionResponse
 import com.bandage.v1.domain.practice.service.PracticeService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
+import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.security.annotation.CurrentMemberId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -41,6 +46,16 @@ class PracticeController(
             practiceService.createPractice(request),
         )
 
+    @GetMapping
+    @Operation(
+        summary = "합주 목록 조회 API",
+        description = "합주 목록을 커서 기반으로 조회합니다. bandId 제공 시 해당 밴드 멤버가 참여 중인 합주만 조회합니다.",
+    )
+    fun getPractices(
+        @RequestParam(required = false) bandId: UUID?,
+        @Valid query: PracticePagingQuery,
+    ): ApiResponse<CursorResponse<PracticeListResponse, UUID>> = ApiResponse.success(practiceService.getPracticesByCursor(bandId, query))
+
     @GetMapping("/{practiceId}")
     @Operation(summary = "합주 조회 API", description = "합주 상세 정보를 조회합니다.")
     fun getPractice(
@@ -49,6 +64,22 @@ class PracticeController(
         ApiResponse.success(
             practiceService.getPracticeDetail(practiceId),
         )
+
+    @GetMapping("/me")
+    @Operation(summary = "내 합주 목록 조회 API", description = "본인이 참여 중인 합주 목록을 커서 기반으로 조회합니다.")
+    fun getMyPractices(
+        @Valid query: PracticePagingQuery,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<CursorResponse<PracticeListResponse, UUID>> =
+        ApiResponse.success(practiceService.getMyPracticesByCursor(memberId, query))
+
+    @GetMapping("/me/search")
+    @Operation(summary = "내 합주 검색 API", description = "본인이 참여 중인 합주 중 합주 타이틀 또는 곡 제목에 키워드가 포함된 합주를 커서 기반으로 조회합니다.")
+    fun searchMyPractices(
+        @Valid query: PracticeSearchQuery,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<CursorResponse<PracticeListResponse, UUID>> =
+        ApiResponse.success(practiceService.searchMyPracticesByCursor(memberId, query))
 
     @PostMapping("/{practiceId}/sessions")
     @Operation(summary = "합주 세션 생성 API", description = "합주에 세션을 추가합니다.")

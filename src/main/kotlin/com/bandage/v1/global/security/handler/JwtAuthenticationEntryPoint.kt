@@ -23,7 +23,7 @@ class JwtAuthenticationEntryPoint : AuthenticationEntryPoint {
         response.characterEncoding = Charsets.UTF_8.name()
         response.setHeader(HttpHeaders.WWW_AUTHENTICATE, """Bearer error="invalid_token"""")
         response.writer.write(
-            """{"success":false,"message":"${errorCode.message}","data":null,"timestamp":"${LocalDateTime.now()}"}""",
+            """{"success":false,"message":"${errorCode.message}","code":"${errorCode.name}","data":null,"timestamp":"${LocalDateTime.now()}"}""",
         )
     }
 }

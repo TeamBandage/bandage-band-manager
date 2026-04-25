@@ -20,20 +20,31 @@ open class GlobalExceptionHandler {
         val errorCode = e.errorCode
         return ResponseEntity
             .status(errorCode.status)
-            .body(ApiResponse.error(errorCode.message))
+            .body(ApiResponse.error(message = errorCode.message, code = errorCode.name))
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     protected fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ApiResponse<Nothing>> {
-        val message = e.bindingResult.fieldErrors[0].defaultMessage ?: "잘못된 요청입니다."
-        val response = ApiResponse.error(message)
+        val fieldErrors =
+            e.bindingResult.fieldErrors
+                .associate { it.field to (it.defaultMessage ?: "잘못된 입력값입니다.") }
+        val firstMessage = fieldErrors.values.firstOrNull() ?: ErrorCode.INVALID_INPUT_VALUE.message
+        val response =
+            ApiResponse.error(
+                message = firstMessage,
+                code = ErrorCode.INVALID_INPUT_VALUE.name,
+                fieldErrors = fieldErrors.takeIf { it.isNotEmpty() },
+            )
         return ResponseEntity(response, HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     protected fun handleHttpMessageNotReadableException(e: HttpMessageNotReadableException): ResponseEntity<ApiResponse<Nothing>> {
-        val message = e.message
-        val response = ApiResponse.error(message)
+        val response =
+            ApiResponse.error(
+                message = e.message,
+                code = ErrorCode.INVALID_INPUT_VALUE.name,
+            )
         return ResponseEntity(response, HttpStatus.BAD_REQUEST)
     }
 
@@ -42,7 +53,12 @@ open class GlobalExceptionHandler {
         val errorCode = ErrorCode.METHOD_NOT_ALLOWED
         return ResponseEntity
             .status(errorCode.status)
-            .body(ApiResponse.error("${errorCode.message} (요청 메서드: ${e.method})"))
+            .body(
+                ApiResponse.error(
+                    message = "${errorCode.message} (요청 메서드: ${e.method})",
+                    code = errorCode.name,
+                ),
+            )
     }
 
     @ExceptionHandler(NoResourceFoundException::class)
@@ -50,12 +66,13 @@ open class GlobalExceptionHandler {
         val errorCode = ErrorCode.RESOURCE_NOT_FOUND
         return ResponseEntity
             .status(errorCode.status)
-            .body(ApiResponse.error(errorCode.message))
+            .body(ApiResponse.error(message = errorCode.message, code = errorCode.name))
     }
 
     @ExceptionHandler(Exception::class)
     protected fun handleException(e: Exception): ResponseEntity<ApiResponse<Nothing>> {
-        val response = ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR.message)
+        val errorCode = ErrorCode.INTERNAL_SERVER_ERROR
+        val response = ApiResponse.error(message = errorCode.message, code = errorCode.name)
         return ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 }

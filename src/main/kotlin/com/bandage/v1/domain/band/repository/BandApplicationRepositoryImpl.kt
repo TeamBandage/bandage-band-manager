@@ -34,7 +34,7 @@ class BandApplicationRepositoryImpl(
 
         val resultContents = if (hasNext) contents.dropLast(1) else contents // 사이즈 확인 후 마지막 1개 항목 제외 반환
 
-        val nextCursor = resultContents.lastOrNull()?.id
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
 
         return CursorResponse(
             content = resultContents,

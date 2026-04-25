@@ -1,27 +1,28 @@
-package com.bandage.v1.domain.performance.repository
+package com.bandage.v1.domain.practice.repository
 
-import com.bandage.v1.domain.performance.model.Performance
-import com.bandage.v1.domain.performance.model.QPerformance
-import com.bandage.v1.domain.performance.model.QPerformanceBand
+import com.bandage.v1.domain.practice.model.Practice
+import com.bandage.v1.domain.practice.model.QPractice
+import com.bandage.v1.domain.practice.model.QPracticeParticipant
+import com.bandage.v1.domain.practice.model.QPracticeSong
 import com.bandage.v1.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import java.util.UUID
 
-class PerformanceRepositoryImpl(
+class PracticeRepositoryImpl(
     private val queryFactory: JPAQueryFactory,
-) : PerformanceRepositoryCustom {
+) : PracticeRepositoryCustom {
     override fun findAllByPaging(
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Performance, UUID> {
-        val qPerformance = QPerformance.performance
+    ): CursorResponse<Practice, UUID> {
+        val qPractice = QPractice.practice
 
         val contents =
             queryFactory
-                .selectFrom(qPerformance)
-                .where(ltPerformanceId(lastId))
-                .orderBy(qPerformance.id.desc())
+                .selectFrom(qPractice)
+                .where(ltPracticeId(lastId))
+                .orderBy(qPractice.id.desc())
                 .limit(pageSize.toLong() + 1)
                 .fetch()
 
@@ -36,22 +37,22 @@ class PerformanceRepositoryImpl(
         )
     }
 
-    override fun findAllByBandIdAndPaging(
-        bandId: UUID,
+    override fun findAllByMembersAndPaging(
+        memberIds: List<Long>,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Performance, UUID> {
-        val qPerformance = QPerformance.performance
-        val qPerformanceBand = QPerformanceBand.performanceBand
+    ): CursorResponse<Practice, UUID> {
+        val qPractice = QPractice.practice
+        val qParticipant = QPracticeParticipant.practiceParticipant
 
         val contents =
             queryFactory
-                .selectFrom(qPerformance)
-                .join(qPerformanceBand)
-                .on(qPerformanceBand.performance.eq(qPerformance))
-                .where(qPerformanceBand.bandId.eq(bandId))
-                .where(ltPerformanceId(lastId))
-                .orderBy(qPerformance.id.desc())
+                .selectFrom(qPractice)
+                .join(qParticipant)
+                .on(qParticipant.practice.eq(qPractice))
+                .where(qParticipant.member.`in`(memberIds))
+                .where(ltPracticeId(lastId))
+                .orderBy(qPractice.id.desc())
                 .distinct()
                 .limit(pageSize.toLong() + 1)
                 .fetch()
@@ -67,22 +68,22 @@ class PerformanceRepositoryImpl(
         )
     }
 
-    override fun findAllByBandIdsAndPaging(
-        bandIds: List<UUID>,
+    override fun findAllByMemberAndPaging(
+        memberId: Long,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Performance, UUID> {
-        val qPerformance = QPerformance.performance
-        val qPerformanceBand = QPerformanceBand.performanceBand
+    ): CursorResponse<Practice, UUID> {
+        val qPractice = QPractice.practice
+        val qParticipant = QPracticeParticipant.practiceParticipant
 
         val contents =
             queryFactory
-                .selectFrom(qPerformance)
-                .join(qPerformanceBand)
-                .on(qPerformanceBand.performance.eq(qPerformance))
-                .where(qPerformanceBand.bandId.`in`(bandIds))
-                .where(ltPerformanceId(lastId))
-                .orderBy(qPerformance.id.desc())
+                .selectFrom(qPractice)
+                .join(qParticipant)
+                .on(qParticipant.practice.eq(qPractice))
+                .where(qParticipant.member.eq(memberId))
+                .where(ltPracticeId(lastId))
+                .orderBy(qPractice.id.desc())
                 .distinct()
                 .limit(pageSize.toLong() + 1)
                 .fetch()
@@ -98,19 +99,27 @@ class PerformanceRepositoryImpl(
         )
     }
 
-    override fun searchByTitleAndPaging(
+    override fun searchByMemberAndKeywordAndPaging(
+        memberId: Long,
         keyword: String,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Performance, UUID> {
-        val qPerformance = QPerformance.performance
+    ): CursorResponse<Practice, UUID> {
+        val qPractice = QPractice.practice
+        val qParticipant = QPracticeParticipant.practiceParticipant
+        val qSong = QPracticeSong.practiceSong
 
         val contents =
             queryFactory
-                .selectFrom(qPerformance)
-                .where(qPerformance.title.containsIgnoreCase(keyword))
-                .where(ltPerformanceId(lastId))
-                .orderBy(qPerformance.id.desc())
+                .selectFrom(qPractice)
+                .join(qParticipant)
+                .on(qParticipant.practice.eq(qPractice))
+                .join(qPractice.song, qSong)
+                .where(qParticipant.member.eq(memberId))
+                .where(qPractice.title.containsIgnoreCase(keyword).or(qSong.title.containsIgnoreCase(keyword)))
+                .where(ltPracticeId(lastId))
+                .orderBy(qPractice.id.desc())
+                .distinct()
                 .limit(pageSize.toLong() + 1)
                 .fetch()
 
@@ -125,5 +134,5 @@ class PerformanceRepositoryImpl(
         )
     }
 
-    private fun ltPerformanceId(lastId: UUID?): BooleanExpression? = lastId?.let { QPerformance.performance.id.lt(it) }
+    private fun ltPracticeId(lastId: UUID?): BooleanExpression? = lastId?.let { QPractice.practice.id.lt(it) }
 }
