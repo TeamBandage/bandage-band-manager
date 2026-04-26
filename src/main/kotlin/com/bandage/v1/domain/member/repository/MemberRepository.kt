@@ -7,4 +7,9 @@ import org.springframework.stereotype.Repository
 @Repository
 interface MemberRepository : JpaRepository<Member, Long> {
     fun existsByEmail(email: String): Boolean
+
+    fun findTop20ByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+        name: String,
+        email: String,
+    ): List<Member>
 }

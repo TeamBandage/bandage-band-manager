@@ -60,4 +60,10 @@ open class BandMember(
         require(this.role == BandRole.LEADER)
         this.role = BandRole.MEMBER
     }
+
+    fun changeRole(newRole: BandRole) {
+        require(this.role != BandRole.LEADER) { "리더의 역할 변경은 위임 API 를 사용해야 합니다." }
+        require(newRole != BandRole.LEADER) { "리더로의 승격은 위임 API 를 사용해야 합니다." }
+        this.role = newRole
+    }
 }

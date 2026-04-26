@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "회원 정보 조회 응답")
 data class MemberInfoResponse(
+    @Schema(description = "회원 고유 식별자 (Long) — 프론트 호환용 alias", example = "1")
+    val id: Long,
     @Schema(description = "회원 고유 식별자 (Long)", example = "1")
     val memberId: Long,
     @Schema(description = "회원 이메일", example = "member@google.com")
@@ -13,14 +15,18 @@ data class MemberInfoResponse(
     val name: String,
     @Schema(description = "회원 연락처", example = "010-7707-5859")
     val contact: String,
+    @Schema(description = "프로필 이미지 URL (없으면 null)", example = "https://cdn/...jpg")
+    val profileImg: String? = null,
 ) {
     companion object {
         fun of(member: Member): MemberInfoResponse =
             MemberInfoResponse(
+                id = member.id,
                 memberId = member.id,
                 email = member.email,
                 name = member.name,
                 contact = member.contact,
+                profileImg = null,
             )
     }
 }

@@ -7,8 +7,11 @@ import java.util.UUID
 
 @Schema(description = "합주곡 생성 요청 (필드 직접 입력 — 자작곡 등 외부 API 연동이 필요 없는 곡 등록용)")
 data class PracticeSongCreateRequest(
-    @Schema(description = "합주 ID (1:1 바인딩 대상)", example = "550e8400-e29b-41d4-a716-446655440000")
-    val practiceId: UUID,
+    @Schema(
+        description = "합주 ID (optional, 1:1 바인딩 대상). 미제공 시 PracticeSong 만 생성하고 Practice 바인딩은 수행하지 않음.",
+        example = "550e8400-e29b-41d4-a716-446655440000",
+    )
+    val practiceId: UUID? = null,
     @field:NotBlank
     @Schema(description = "곡 제목", example = "자작곡 No.1")
     val title: String,

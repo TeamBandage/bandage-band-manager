@@ -2,11 +2,13 @@ package com.bandage.v1.domain.performance.service
 
 import com.bandage.v1.domain.band.repository.BandMemberRepository
 import com.bandage.v1.domain.band.repository.BandRepository
+import com.bandage.v1.domain.performance.dto.req.PerformanceBandAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.v1.domain.performance.dto.req.PerformancePracticeAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceSearchQuery
 import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
+import com.bandage.v1.domain.performance.dto.res.PerformanceBandResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.v1.domain.performance.dto.res.PerformancePracticeResponse
@@ -54,7 +56,7 @@ class PerformanceService(
                     venue = request.venue,
                 ),
             )
-        request.bandIds.forEach { bandId ->
+        (request.bandIds ?: emptyList()).forEach { bandId ->
             performanceBandRepository.save(PerformanceBand.create(performance = performance, bandId = bandId))
         }
         performanceManagerRepository.save(PerformanceManager.create(performance = performance, member = memberId))
@@ -162,6 +164,36 @@ class PerformanceService(
             performancePracticeRepository.findByPerformanceAndPracticeId(performance, practiceId)
                 ?: throw BusinessException(ErrorCode.PERFORMANCE_PRACTICE_NOT_FOUND)
         performancePracticeRepository.delete(performancePractice)
+    }
+
+    @Transactional
+    fun addBands(
+        performanceId: UUID,
+        request: PerformanceBandAddRequest,
+        memberId: Long,
+    ): List<PerformanceBandResponse> {
+        val performance = getPerformance(performanceId)
+        validateIsManager(performance, memberId)
+        return request.bandIds.distinct().mapNotNull { bandId ->
+            if (performanceBandRepository.existsByPerformanceAndBandId(performance, bandId)) return@mapNotNull null
+            if (!bandRepository.existsById(bandId)) throw BusinessException(ErrorCode.BAND_NOT_FOUND)
+            val pb = performanceBandRepository.save(PerformanceBand.create(performance = performance, bandId = bandId))
+            PerformanceBandResponse.of(pb)
+        }
+    }
+
+    @Transactional
+    fun removeBand(
+        performanceId: UUID,
+        bandId: UUID,
+        memberId: Long,
+    ) {
+        val performance = getPerformance(performanceId)
+        validateIsManager(performance, memberId)
+        val pb =
+            performanceBandRepository.findByPerformanceAndBandId(performance, bandId)
+                ?: throw BusinessException(ErrorCode.BAND_NOT_FOUND)
+        performanceBandRepository.delete(pb)
     }
 
     @Transactional

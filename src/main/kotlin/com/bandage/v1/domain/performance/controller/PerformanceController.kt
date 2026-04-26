@@ -1,11 +1,13 @@
 package com.bandage.v1.domain.performance.controller
 
+import com.bandage.v1.domain.performance.dto.req.PerformanceBandAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.v1.domain.performance.dto.req.PerformancePracticeAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePracticeCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceSearchQuery
 import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
+import com.bandage.v1.domain.performance.dto.res.PerformanceBandResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.v1.domain.performance.dto.res.PerformancePracticeResponse
@@ -113,6 +115,28 @@ class PerformanceController(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
         performanceService.removePractice(performanceId, practiceId, memberId)
+        return ApiResponse.success()
+    }
+
+    @PostMapping("/{performanceId}/bands/batch")
+    @Operation(
+        summary = "공연 참여 밴드 일괄 추가 API (FE-API-017)",
+        description = "공연에 참여 밴드를 append 시맨틱으로 다중 추가합니다. PerformanceManager만 가능. 이미 등록된 밴드는 응답에서 제외.",
+    )
+    fun addBands(
+        @PathVariable performanceId: UUID,
+        @Valid @RequestBody request: PerformanceBandAddRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<List<PerformanceBandResponse>> = ApiResponse.success(performanceService.addBands(performanceId, request, memberId))
+
+    @DeleteMapping("/{performanceId}/bands/{bandId}")
+    @Operation(summary = "공연 참여 밴드 단건 제거 API (FE-API-017)", description = "공연에서 특정 참여 밴드를 제거합니다. PerformanceManager만 가능.")
+    fun removeBand(
+        @PathVariable performanceId: UUID,
+        @PathVariable bandId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        performanceService.removeBand(performanceId, bandId, memberId)
         return ApiResponse.success()
     }
 
