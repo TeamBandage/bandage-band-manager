@@ -2,8 +2,8 @@ package com.bandage.v1.domain.member.dto.res
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-@Schema(description = "회원 통계 응답 (FE-API-014)")
-data class MemberStatsResponse(
+@Schema(description = "회원 메트릭 응답")
+data class MemberMetricsResponse(
     @Schema(description = "본인이 소속된 밴드 수", example = "3")
     val bandCount: Long,
     @Schema(description = "본인이 참여한 다가오는 합주 수 (startAt > now)", example = "2")

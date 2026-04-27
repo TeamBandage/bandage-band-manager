@@ -14,11 +14,11 @@ data class BandApplicationInfoResponse(
     val memberId: Long,
     @Schema(description = "가입 신청 처리 상태", example = "PENDING")
     val status: ApplicationStatus,
-    @Schema(description = "신청자 이름 (FE-API-013)", example = "홍길동")
+    @Schema(description = "신청자 이름", example = "홍길동")
     val applicantName: String? = null,
     @Schema(description = "신청자 프로필 이미지 URL", example = "https://cdn/...jpg")
     val applicantProfileImg: String? = null,
-    @Schema(description = "신청 일시 (FE-API-013)", example = "2026-04-26T12:34:56")
+    @Schema(description = "신청 일시", example = "2026-04-26T12:34:56")
     val appliedAt: LocalDateTime? = null,
 ) {
     companion object {

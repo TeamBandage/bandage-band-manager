@@ -91,7 +91,7 @@ class PerformanceController(
     }
 
     @PostMapping("/{performanceId}/practices")
-    @Operation(summary = "공연 합주곡 추가 API (신규 생성)", description = "빈 합주를 즉시 생성하여 공연에 추가합니다. PerformanceManager만 수행할 수 있습니다.")
+    @Operation(summary = "공연 합주곡 추가 API", description = "빈 합주를 즉시 생성하여 공연에 추가합니다. PerformanceManager만 수행할 수 있습니다.")
     fun addNewPractice(
         @PathVariable performanceId: UUID,
         @Valid @RequestBody request: PerformancePracticeCreateRequest,
@@ -120,7 +120,7 @@ class PerformanceController(
 
     @PostMapping("/{performanceId}/bands/batch")
     @Operation(
-        summary = "공연 참여 밴드 일괄 추가 API (FE-API-017)",
+        summary = "공연 참여 밴드 일괄 추가 API",
         description = "공연에 참여 밴드를 append 시맨틱으로 다중 추가합니다. PerformanceManager만 가능. 이미 등록된 밴드는 응답에서 제외.",
     )
     fun addBands(
@@ -130,7 +130,7 @@ class PerformanceController(
     ): ApiResponse<List<PerformanceBandResponse>> = ApiResponse.success(performanceService.addBands(performanceId, request, memberId))
 
     @DeleteMapping("/{performanceId}/bands/{bandId}")
-    @Operation(summary = "공연 참여 밴드 단건 제거 API (FE-API-017)", description = "공연에서 특정 참여 밴드를 제거합니다. PerformanceManager만 가능.")
+    @Operation(summary = "공연 참여 밴드 단건 제거 API", description = "공연에서 특정 참여 밴드를 제거합니다. PerformanceManager만 가능.")
     fun removeBand(
         @PathVariable performanceId: UUID,
         @PathVariable bandId: UUID,

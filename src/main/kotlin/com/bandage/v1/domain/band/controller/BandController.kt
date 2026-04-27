@@ -141,7 +141,7 @@ class BandController(
         summary = "밴드 멤버 역할 변경 / 리더 위임 API",
         description =
             "리더가 멤버 역할을 변경합니다. body 가 비어 있거나 role=LEADER 면 리더 권한 위임으로 동작하고, " +
-                "role=ADMIN/MEMBER 면 해당 역할로 변경합니다 (FE-API-002 / 8-2).",
+                "role=ADMIN/MEMBER 면 해당 역할로 변경합니다.",
     )
     fun delegateLeader(
         @PathVariable bandId: UUID,
@@ -159,7 +159,7 @@ class BandController(
     }
 
     @PatchMapping("/{bandId}")
-    @Operation(summary = "밴드 정보 수정 API (FE-API-022)", description = "밴드 이름/설명/프로필 이미지 부분 수정. 리더만 가능.")
+    @Operation(summary = "밴드 정보 수정 API", description = "밴드 이름/설명/프로필 이미지 부분 수정. 리더만 가능.")
     fun updateBand(
         @PathVariable bandId: UUID,
         @Valid @RequestBody request: BandUpdateRequest,
@@ -167,7 +167,7 @@ class BandController(
     ): ApiResponse<BandResponse> = ApiResponse.success(bandService.updateBand(bandId, request, memberId))
 
     @DeleteMapping("/{bandId}")
-    @Operation(summary = "밴드 삭제 API (FE-API-023)", description = "밴드를 소프트 삭제합니다. 리더만 가능.")
+    @Operation(summary = "밴드 삭제 API", description = "밴드를 소프트 삭제합니다. 리더만 가능.")
     fun deleteBand(
         @PathVariable bandId: UUID,
         @CurrentMemberId memberId: Long,
@@ -177,7 +177,7 @@ class BandController(
     }
 
     @DeleteMapping("/{bandId}/members/{bandMemberId}")
-    @Operation(summary = "밴드 멤버 강퇴 API (FE-API-002 / 8-2)", description = "리더가 특정 멤버를 강퇴합니다. 리더 자신은 강퇴 불가.")
+    @Operation(summary = "밴드 멤버 강퇴 API", description = "리더가 특정 멤버를 강퇴합니다. 리더 자신은 강퇴 불가.")
     fun kickMember(
         @PathVariable bandId: UUID,
         @PathVariable bandMemberId: UUID,

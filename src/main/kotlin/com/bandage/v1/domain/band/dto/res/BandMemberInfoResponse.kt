@@ -13,7 +13,7 @@ data class BandMemberInfoResponse(
     val memberId: Long,
     @Schema(description = "밴드 멤버 역할", example = "MEMBER")
     val role: BandRole,
-    @Schema(description = "회원 이름 (FE-API-012, 멤버 미존재 시 null)", example = "홍길동")
+    @Schema(description = "회원 이름", example = "홍길동")
     val name: String? = null,
     @Schema(description = "회원 프로필 이미지 URL", example = "https://cdn/...jpg")
     val profileImg: String? = null,
