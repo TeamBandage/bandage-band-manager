@@ -2,8 +2,10 @@ package com.bandage.v1.domain.band.service
 
 import com.bandage.v1.domain.band.dto.req.BandApplicationPagingQuery
 import com.bandage.v1.domain.band.dto.req.BandCreateRequest
+import com.bandage.v1.domain.band.dto.req.BandMemberRoleUpdateRequest
 import com.bandage.v1.domain.band.dto.req.BandPagingQuery
 import com.bandage.v1.domain.band.dto.req.BandSearchQuery
+import com.bandage.v1.domain.band.dto.req.BandUpdateRequest
 import com.bandage.v1.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandMemberInfoResponse
@@ -17,6 +19,7 @@ import com.bandage.v1.domain.band.model.enums.BandRole
 import com.bandage.v1.domain.band.repository.BandApplicationRepository
 import com.bandage.v1.domain.band.repository.BandMemberRepository
 import com.bandage.v1.domain.band.repository.BandRepository
+import com.bandage.v1.domain.member.repository.MemberRepository
 import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
@@ -31,6 +34,7 @@ class BandService(
     private val bandRepository: BandRepository,
     private val applicationRepository: BandApplicationRepository,
     private val bandMemberRepository: BandMemberRepository,
+    private val memberRepository: MemberRepository,
 ) {
     // TODO: profileImg multi-part 처리 구현
     @Transactional
@@ -105,10 +109,11 @@ class BandService(
         )
     }
 
-    fun getOnlyOneBandMember(bandMemberId: UUID): BandMemberInfoResponse =
-        BandMemberInfoResponse.of(
-            getBandMemberById(bandMemberId),
-        )
+    fun getOnlyOneBandMember(bandMemberId: UUID): BandMemberInfoResponse {
+        val bm = getBandMemberById(bandMemberId)
+        val member = memberRepository.findById(bm.member).orElse(null)
+        return BandMemberInfoResponse.of(bm, member?.name, null)
+    }
 
     fun getBandMembersByCursor(
         query: BandPagingQuery,
@@ -116,8 +121,9 @@ class BandService(
     ): CursorResponse<BandMemberInfoResponse, UUID> {
         val band = getBand(bandId)
         val result = bandMemberRepository.findAllByPaging(query.lastId, query.pageSize, band)
+        val nameMap = memberNameMap(result.content.map { it.member })
         return CursorResponse(
-            content = result.content.map { BandMemberInfoResponse.of(it) },
+            content = result.content.map { BandMemberInfoResponse.of(it, nameMap[it.member], null) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -131,12 +137,20 @@ class BandService(
         val band = getBand(bandId)
         validateMemberIsBandLeader(band, memberId)
         val result = applicationRepository.findAllByPaging(query.lastId, query.pageSize, query.status, band)
+        val nameMap = memberNameMap(result.content.map { it.member })
         return CursorResponse(
-            content = result.content.map { BandApplicationInfoResponse.of(it) },
+            content = result.content.map { BandApplicationInfoResponse.of(it, nameMap[it.member], null) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
     }
+
+    private fun memberNameMap(memberIds: List<Long>): Map<Long, String> =
+        if (memberIds.isEmpty()) {
+            emptyMap()
+        } else {
+            memberRepository.findAllById(memberIds.distinct()).associate { it.id to it.name }
+        }
 
     @Transactional
     fun withdrawBandApplication(
@@ -184,6 +198,79 @@ class BandService(
             to = newLeader,
         )
         validateOnlyOneLeader(band)
+    }
+
+    @Transactional
+    fun updateBand(
+        bandId: UUID,
+        request: BandUpdateRequest,
+        memberId: Long,
+    ): BandResponse {
+        val band = getBand(bandId)
+        validateMemberIsBandLeader(band, memberId)
+        var changed = false
+        request.name
+            ?.takeIf { it.isNotBlank() && it != band.name }
+            ?.let {
+                if (bandRepository.existsByName(it)) throw BusinessException(ErrorCode.DUPLICATE_BAND_NAME)
+                band.updateName(it)
+                changed = true
+            }
+        request.description
+            ?.takeIf { it != band.description }
+            ?.let {
+                band.updateDescription(it)
+                changed = true
+            }
+        request.profileImg
+            ?.takeIf { it != band.profileImg }
+            ?.let {
+                band.updateImg(it)
+                changed = true
+            }
+        if (!changed) throw BusinessException(ErrorCode.NO_CHANGE)
+        return BandResponse.of(band)
+    }
+
+    @Transactional
+    fun deleteBand(
+        bandId: UUID,
+        memberId: Long,
+    ) {
+        val band = getBand(bandId)
+        validateMemberIsBandLeader(band, memberId)
+        bandMemberRepository.findAllByBand(band).forEach { it.markAsDeleted(memberId) }
+        band.markAsDeleted(memberId)
+    }
+
+    @Transactional
+    fun kickMember(
+        bandId: UUID,
+        bandMemberId: UUID,
+        leaderMemberId: Long,
+    ) {
+        val band = getBand(bandId)
+        validateMemberIsBandLeader(band, leaderMemberId)
+        val target = getBandMemberById(bandMemberId)
+        if (target.band.id != band.id) throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
+        if (target.role == BandRole.LEADER) throw BusinessException(ErrorCode.LEADER_CANNOT_LEAVE)
+        target.markAsDeleted(leaderMemberId)
+        band.decreaseMemberCnt()
+    }
+
+    @Transactional
+    fun changeMemberRole(
+        bandId: UUID,
+        bandMemberId: UUID,
+        leaderMemberId: Long,
+        request: BandMemberRoleUpdateRequest,
+    ) {
+        val band = getBand(bandId)
+        validateMemberIsBandLeader(band, leaderMemberId)
+        val target = getBandMemberById(bandMemberId)
+        if (target.band.id != band.id) throw BusinessException(ErrorCode.BAND_MEMBER_NOT_FOUND)
+        if (target.role == request.role) throw BusinessException(ErrorCode.NO_CHANGE)
+        target.changeRole(request.role)
     }
 
     @Transactional

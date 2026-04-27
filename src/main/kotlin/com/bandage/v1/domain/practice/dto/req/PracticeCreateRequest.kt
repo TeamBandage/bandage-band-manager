@@ -2,6 +2,8 @@ package com.bandage.v1.domain.practice.dto.req
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Future
+import jakarta.validation.constraints.Min
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -11,11 +13,13 @@ data class PracticeCreateRequest(
     val title: String?,
     @Schema(description = "합주곡 아이디", example = "550e8400-e29b-41d4-a716-446655440000")
     val song: UUID,
-    @Schema(description = "합주 타이틀", example = "TuNA")
+    @Schema(description = "합주 장소", example = "홍대 스튜디오")
     val venue: String?,
+    @field:Future(message = "합주 시작 시간은 현재 이후여야 합니다.")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", shape = JsonFormat.Shape.STRING, timezone = "Asia/Seoul")
-    @Schema(description = "합주 시작 시간", example = "2026-03-15 18:00")
+    @Schema(description = "합주 시작 시간 (현재 이후만 허용)", example = "2026-03-15 18:00")
     val startAt: LocalDateTime,
+    @field:Min(1)
     @Schema(description = "합주 시간 (분)", example = "60")
     val durationMinutes: Int,
 )

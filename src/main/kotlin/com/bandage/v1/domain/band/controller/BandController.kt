@@ -2,8 +2,10 @@ package com.bandage.v1.domain.band.controller
 
 import com.bandage.v1.domain.band.dto.req.BandApplicationPagingQuery
 import com.bandage.v1.domain.band.dto.req.BandCreateRequest
+import com.bandage.v1.domain.band.dto.req.BandMemberRoleUpdateRequest
 import com.bandage.v1.domain.band.dto.req.BandPagingQuery
 import com.bandage.v1.domain.band.dto.req.BandSearchQuery
+import com.bandage.v1.domain.band.dto.req.BandUpdateRequest
 import com.bandage.v1.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandInfoResponse
 import com.bandage.v1.domain.band.dto.res.BandMemberInfoResponse
@@ -135,13 +137,53 @@ class BandController(
     }
 
     @PatchMapping("/{bandId}/members/{bandMemberId}/role")
-    @Operation(summary = "밴드 리더 권한 위임 API", description = "현재 리더가 지정한 멤버에게 리더 권한을 양도합니다.")
+    @Operation(
+        summary = "밴드 멤버 역할 변경 / 리더 위임 API",
+        description =
+            "리더가 멤버 역할을 변경합니다. body 가 비어 있거나 role=LEADER 면 리더 권한 위임으로 동작하고, " +
+                "role=ADMIN/MEMBER 면 해당 역할로 변경합니다.",
+    )
     fun delegateLeader(
         @PathVariable bandId: UUID,
         @PathVariable bandMemberId: UUID,
         @CurrentMemberId memberId: Long,
+        @RequestBody(required = false) request: BandMemberRoleUpdateRequest?,
     ): ApiResponse<Unit> {
-        bandService.changeLeader(bandId, bandMemberId, memberId)
+        val targetRole = request?.role
+        if (targetRole == null || targetRole == com.bandage.v1.domain.band.model.enums.BandRole.LEADER) {
+            bandService.changeLeader(bandId, bandMemberId, memberId)
+        } else {
+            bandService.changeMemberRole(bandId, bandMemberId, memberId, BandMemberRoleUpdateRequest(targetRole))
+        }
+        return ApiResponse.success()
+    }
+
+    @PatchMapping("/{bandId}")
+    @Operation(summary = "밴드 정보 수정 API", description = "밴드 이름/설명/프로필 이미지 부분 수정. 리더만 가능.")
+    fun updateBand(
+        @PathVariable bandId: UUID,
+        @Valid @RequestBody request: BandUpdateRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<BandResponse> = ApiResponse.success(bandService.updateBand(bandId, request, memberId))
+
+    @DeleteMapping("/{bandId}")
+    @Operation(summary = "밴드 삭제 API", description = "밴드를 소프트 삭제합니다. 리더만 가능.")
+    fun deleteBand(
+        @PathVariable bandId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        bandService.deleteBand(bandId, memberId)
+        return ApiResponse.success()
+    }
+
+    @DeleteMapping("/{bandId}/members/{bandMemberId}")
+    @Operation(summary = "밴드 멤버 강퇴 API", description = "리더가 특정 멤버를 강퇴합니다. 리더 자신은 강퇴 불가.")
+    fun kickMember(
+        @PathVariable bandId: UUID,
+        @PathVariable bandMemberId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        bandService.kickMember(bandId, bandMemberId, memberId)
         return ApiResponse.success()
     }
 

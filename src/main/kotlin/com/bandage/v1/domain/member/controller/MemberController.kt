@@ -2,8 +2,11 @@ package com.bandage.v1.domain.member.controller
 
 import com.bandage.v1.domain.member.dto.req.MemberInfoUpdateRequest
 import com.bandage.v1.domain.member.dto.res.MemberInfoResponse
+import com.bandage.v1.domain.member.dto.res.MemberMetricsResponse
+import com.bandage.v1.domain.member.dto.res.MemberSearchItemResponse
 import com.bandage.v1.domain.member.service.MemberService
 import com.bandage.v1.facade.MemberJoinFacade
+import com.bandage.v1.facade.MemberMetricsFacade
 import com.bandage.v1.facade.MemberWithdrawFacade
 import com.bandage.v1.facade.dto.MemberJoinRequest
 import com.bandage.v1.facade.dto.MemberResponse
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "members", description = "회원 API")
@@ -31,6 +35,7 @@ class MemberController(
     private val memberService: MemberService,
     private val memberJoinFacade: MemberJoinFacade,
     private val memberWithdrawFacade: MemberWithdrawFacade,
+    private val memberMetricsFacade: MemberMetricsFacade,
 ) {
     @PostMapping("/join")
     @Operation(summary = "회원 가입 API", description = "신규 회원을 생성합니다.")
@@ -59,6 +64,22 @@ class MemberController(
         memberService.updateMemberInfo(request, memberId)
         return ApiResponse.success()
     }
+
+    @GetMapping("/me/metrics")
+    @Operation(summary = "회원 메트릭 조회 API", description = "본인의 밴드 수, 다가오는 합주/공연 수, 합주 세션 수를 조회합니다.")
+    fun getMemberStats(
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<MemberMetricsResponse> = ApiResponse.success(memberMetricsFacade.getMemberMetrics(memberId))
+
+    @GetMapping("/search")
+    @Operation(
+        summary = "회원 검색 API",
+        description = "이름/이메일 부분 일치 검색. 최대 20건. 본인은 결과에서 제외.",
+    )
+    fun searchMembers(
+        @RequestParam(name = "q", required = false, defaultValue = "") q: String,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<List<MemberSearchItemResponse>> = ApiResponse.success(memberService.searchMembers(q, memberId))
 
     @DeleteMapping("/me")
     @Operation(summary = "회원 탈퇴 API", description = "회원 정보를 삭제하고 로그아웃 처리합니다.")

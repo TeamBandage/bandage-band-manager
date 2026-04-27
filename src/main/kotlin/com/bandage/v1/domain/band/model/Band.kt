@@ -58,7 +58,19 @@ open class Band(
         this.memberCnt++
     }
 
+    fun decreaseMemberCnt() {
+        if (this.memberCnt > 0) this.memberCnt--
+    }
+
     fun updateImg(newImg: String) {
         this.profileImg = newImg
+    }
+
+    fun updateName(newName: String) {
+        this.name = newName
+    }
+
+    fun updateDescription(newDescription: String?) {
+        this.description = newDescription
     }
 }

@@ -56,4 +56,8 @@ interface BandMemberRepository :
     ): Int
 
     fun countByBand(band: Band): Int
+
+    fun findAllByBand(band: Band): List<BandMember>
+
+    fun countByMember(member: Long): Long
 }

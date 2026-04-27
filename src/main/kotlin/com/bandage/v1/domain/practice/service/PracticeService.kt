@@ -243,10 +243,9 @@ class PracticeService(
 
     @Transactional
     fun createPracticeSong(
-        practiceId: UUID,
+        practiceId: UUID?,
         song: Song,
     ): PracticeSongResponse {
-        val practice = getPractice(practiceId)
         val newSong =
             practiceSongRepository.save(
                 PracticeSong.create(
@@ -257,13 +256,16 @@ class PracticeService(
                     refLink = song.refLink,
                 ),
             )
-        practice.updateSong(newSong)
+        practiceId?.let {
+            val practice = getPractice(it)
+            practice.updateSong(newSong)
+        }
         return PracticeSongResponse.of(newSong)
     }
 
     @Transactional
     fun createPracticeSong(
-        practiceId: UUID,
+        practiceId: UUID?,
         title: String,
         artist: String,
         album: String,

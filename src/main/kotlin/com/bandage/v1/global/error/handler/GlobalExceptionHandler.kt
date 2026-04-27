@@ -4,6 +4,9 @@ import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import com.bandage.v1.global.error.exception.Exception
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import com.fasterxml.jackson.module.kotlin.KotlinInvalidNullException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -40,13 +43,35 @@ open class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     protected fun handleHttpMessageNotReadableException(e: HttpMessageNotReadableException): ResponseEntity<ApiResponse<Nothing>> {
+        val (message, fieldErrors) =
+            when (val cause = e.cause) {
+                is KotlinInvalidNullException -> {
+                    val field = cause.kotlinPropertyName.takeIf { it != "UNKNOWN" } ?: cause.path.firstFieldName()
+                    val msg = "필수 필드가 누락되었습니다."
+                    msg to (field?.let { mapOf(it to msg) })
+                }
+                is InvalidFormatException -> {
+                    val field = cause.path.firstFieldName()
+                    val msg = "올바르지 않은 입력 형식입니다."
+                    msg to (field?.let { mapOf(it to msg) })
+                }
+                is MismatchedInputException -> {
+                    val field = cause.path.firstFieldName()
+                    val msg = ErrorCode.INVALID_INPUT_VALUE.message
+                    msg to (field?.let { mapOf(it to msg) })
+                }
+                else -> ErrorCode.INVALID_INPUT_VALUE.message to null
+            }
         val response =
             ApiResponse.error(
-                message = e.message,
+                message = message,
                 code = ErrorCode.INVALID_INPUT_VALUE.name,
+                fieldErrors = fieldErrors,
             )
         return ResponseEntity(response, HttpStatus.BAD_REQUEST)
     }
+
+    private fun List<com.fasterxml.jackson.databind.JsonMappingException.Reference>.firstFieldName(): String? = firstOrNull()?.fieldName
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     protected fun handleMethodNotSupported(e: HttpRequestMethodNotSupportedException): ResponseEntity<ApiResponse<Nothing>> {

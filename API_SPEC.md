@@ -21,9 +21,9 @@ Base URL: `/api/v1`
 
 ---
 
-## 0. 프론트 검증 리포트 대응 현황 (2026-04-25)
+## 0. 프론트 검증 리포트 대응 현황 (2026-04-26)
 
-`bandage-fe/.taskmaster/reports/` 의 5개 검증 리포트에서 제기된 이슈에 대한 처리 현황입니다.
+`bandage-fe/.taskmaster/reports/` 의 5개 검증 리포트 + `API_ISSUE_REPORT.md` (mvp-1-fix-v3 Task 8) 에서 제기된 이슈에 대한 처리 현황입니다.
 
 | # | 이슈 | 출처 | 상태 | 비고 |
 |---|---|---|---|---|
@@ -36,6 +36,10 @@ Base URL: `/api/v1`
 | 7 | `ApiResponse`에 `code` / `fieldErrors` 추가 | Auth §D | ✅ 해소 | 본 문서 상단 응답 스키마 참조. `code`는 `ErrorCode` enum 이름. 유효성 오류 시 `fieldErrors` 맵 동봉 |
 | 8 | `PerformanceDetailResponse` 요약 필드 (밴드명/합주 제목) | Performance §3-D | ✅ 해소 | `bandIds`, `practiceIds` → `bands: [{bandId, bandName}]`, `practices: [{practiceId, title, startAt}]`로 확장 (6-3 참조) |
 | 9 | `GET /bands/me` 응답에 본인 역할 (`myRole`) 포함 | Band §3-D | ✅ 해소 (옵션 9-C) | 응답 항목 타입을 `MyBandInfoResponse`로 변경, `myRole: BandRole` 필드 추가 (3-3-1 참조) |
+| 10 | `PerformanceCreateRequest.bandIds` non-null 차단 (T6) | API_ISSUE_REPORT §4-1 | ✅ 해소 | `bandIds: List<UUID>? = null` 로 변경, 미전달 시 빈 배열로 보정 (6-1 참조) |
+| 11 | Practice ↔ PracticeSong 닭-달걀 (FE-API-020) | API_ISSUE_REPORT §4-2 | ✅ 해소 (§5-2 안 채택) | PracticeSong 생성 API의 `practiceId` 옵셔널화 → FE는 PracticeSong 선행 생성 후 응답 `songId` 를 `/practices` 에 전달 (5-2/5-3/4-1 참조) |
+| 12 | 입력 검증 메시지 정제 (T3, T6) | API_ISSUE_REPORT §4-3 | ✅ 해소 | `HttpMessageNotReadableException` 핸들러가 `KotlinInvalidNullException`/`InvalidFormatException` 을 한국어 메시지 + `fieldErrors` 로 매핑 |
+| 13 | 과거 시각 startAt 검증 (T17) | API_ISSUE_REPORT §4-4 | ✅ 해소 | Practice/Performance 생성·수정·합주 일정 변경 DTO 의 `startAt` 에 `@Future` 적용 (4-1/4-8/6-1/6-4 참조) |
 
 ### 미해소 / 프론트 책임
 
@@ -349,7 +353,8 @@ Base URL: `/api/v1`
   ```
   - `title`: optional
   - `venue`: optional
-  - `startAt` 형식: `yyyy-MM-dd HH:mm` (Asia/Seoul 기준)
+  - `song`: **UUID 만 허용** (PracticeSong ID). 검색 결과의 텍스트/임시 식별자는 받지 않음.
+  - `startAt` 형식: `yyyy-MM-dd HH:mm` (Asia/Seoul 기준). **현재 이후만 허용** (`@Future`); 과거 시각은 400 + `fieldErrors.startAt`.
 - **Response**
   ```json
   {
@@ -357,6 +362,9 @@ Base URL: `/api/v1`
     "practiceTitle": "TuNA 정기공연 1주차 합주"
   }
   ```
+- **합주 시작하기 마법사 호출 시퀀스 (FE-API-020)**: PracticeSong 을 먼저 생성한 후 응답의 `songId` 를 `song` 필드로 전달. Practice 와 PracticeSong 의 1:1 바인딩은 PracticeSong 생성 시점에 `practiceId` 를 함께 전달하거나 (선바인딩), 본 API 의 `song` 으로 후바인딩.
+  1. 외부 검색 결과 사용: `POST /practice-songs/from-song` (practiceId 생략) → `songId` 획득 → `POST /practices` 의 `song` 으로 전달
+  2. 자작곡 입력: `POST /practice-songs` (practiceId 생략) → `songId` 획득 → `POST /practices` 의 `song` 으로 전달
 
 ---
 
@@ -524,7 +532,7 @@ Base URL: `/api/v1`
     "durationMinutes": 90
   }
   ```
-  - `startAt` 형식: `yyyy-MM-dd HH:mm` (Asia/Seoul 기준)
+  - `startAt` 형식: `yyyy-MM-dd HH:mm` (Asia/Seoul 기준). **현재 이후만 허용** (`@Future`).
 
 ---
 
@@ -589,6 +597,7 @@ Base URL: `/api/v1`
     "refLink": null
   }
   ```
+  - `practiceId`: **optional**. 미제공 시 PracticeSong 만 생성하고 Practice 바인딩은 수행하지 않음 (마법사 시나리오에서 응답 `songId` 를 `POST /practices` 의 `song` 으로 전달).
   - `refLink`: optional
 - **Response**: `PracticeSongResponse`
   ```json
@@ -621,8 +630,9 @@ Base URL: `/api/v1`
     }
   }
   ```
+  - `practiceId`: **optional**. 미제공 시 PracticeSong 만 생성 (5-2와 동일 마법사 시나리오 지원).
 - **Response**: `PracticeSongResponse` (5-2와 동일 구조)
-- **비고**: 외부 시스템에서 받아온 Song 객체를 그대로 사용하여 합주곡을 생성. 생성된 합주곡은 `practiceId`의 합주에 1:1 바인딩. `song` 필드는 [5-1](#5-1-합주곡-검색-song) 응답의 항목을 재가공 없이 그대로 사용 가능.
+- **비고**: 외부 시스템에서 받아온 Song 객체를 그대로 사용하여 합주곡을 생성. `practiceId` 가 있으면 해당 합주에 1:1 바인딩, 없으면 응답 `songId` 를 [4-1](#4-1-합주-생성) 의 `song` 으로 전달하여 후바인딩. `song` 필드는 [5-1](#5-1-합주곡-검색-song) 응답의 항목을 재가공 없이 그대로 사용 가능.
 
 ---
 
@@ -698,9 +708,9 @@ Base URL: `/api/v1`
     "venue": "Club FF"
   }
   ```
-  - `bandIds`: optional (기본값 빈 배열)
+  - `bandIds`: optional (미전달/`null`/빈 배열 모두 허용 — 빈 배열로 보정)
   - `venue`: optional
-  - `startAt` 형식: `yyyy-MM-dd HH:mm` (Asia/Seoul 기준)
+  - `startAt` 형식: `yyyy-MM-dd HH:mm` (Asia/Seoul 기준). **현재 이후만 허용** (`@Future`); 과거 시각은 400 + `fieldErrors.startAt`.
 - **Response**
   ```json
   {
@@ -804,6 +814,7 @@ Base URL: `/api/v1`
   }
   ```
   - 모든 필드 optional. 미전달 필드는 기존 값 유지.
+  - `startAt`: 전달 시 **현재 이후만 허용** (`@Future`).
 
 ---
 
@@ -823,6 +834,7 @@ Base URL: `/api/v1`
   ```
   - `title`: optional (미입력 시 곡 제목으로 대체)
   - `venue`: optional
+  - `startAt`: **현재 이후만 허용** (`@Future`).
 - **Response**
   ```json
   {

@@ -3,6 +3,7 @@ package com.bandage.v1.domain.band.dto.res
 import com.bandage.v1.domain.band.model.BandApplication
 import com.bandage.v1.domain.band.model.enums.ApplicationStatus
 import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Schema(description = "밴드 가입 신청 단건 조회 응답")
@@ -13,6 +14,12 @@ data class BandApplicationInfoResponse(
     val memberId: Long,
     @Schema(description = "가입 신청 처리 상태", example = "PENDING")
     val status: ApplicationStatus,
+    @Schema(description = "신청자 이름", example = "홍길동")
+    val applicantName: String? = null,
+    @Schema(description = "신청자 프로필 이미지 URL", example = "https://cdn/...jpg")
+    val applicantProfileImg: String? = null,
+    @Schema(description = "신청 일시", example = "2026-04-26T12:34:56")
+    val appliedAt: LocalDateTime? = null,
 ) {
     companion object {
         fun of(application: BandApplication): BandApplicationInfoResponse =
@@ -20,6 +27,21 @@ data class BandApplicationInfoResponse(
                 bandApplicationId = application.id,
                 memberId = application.member,
                 status = application.status,
+                appliedAt = application.createdAt,
+            )
+
+        fun of(
+            application: BandApplication,
+            applicantName: String?,
+            applicantProfileImg: String?,
+        ): BandApplicationInfoResponse =
+            BandApplicationInfoResponse(
+                bandApplicationId = application.id,
+                memberId = application.member,
+                status = application.status,
+                applicantName = applicantName,
+                applicantProfileImg = applicantProfileImg,
+                appliedAt = application.createdAt,
             )
     }
 }
