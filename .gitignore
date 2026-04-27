@@ -41,4 +41,7 @@ out/
 
 ### custom ###
 .env
+.claude
 .DS_Store
+set-env.sh
+API_*.md
