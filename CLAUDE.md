@@ -86,32 +86,32 @@ Default active profile is `local` (set via `PROFILE_ACTIVE` env var). Profile gr
 
 When writing a PR description, always follow `.github/PULL_REQUEST_TEMPLATE.md` and write all content in valid Markdown syntax.
 
-## Commit Convention
-
+Commit Convention
 Always use this format for every commit message:
 
-```
-{type}: {summary}
+Plaintext
+[{issue-key}] {type}: {summary}
 - {detail 1}
 - {detail 2}
 - {detail n}
 
-#{issue-number}
-```
+{smart-commit-commands}
+Types: chore, feat, ai, test, refactor, fix
 
-**Types**: `chore`, `feat`, `ai`, `test`, `refactor`, `fix`
+[{issue-key}] — REQUIRED when working on a branch tied to a Jira issue (e.g., branch feat/BAND-12-practice-crud → [BAND-12]). Always place at the very beginning of the first line. Omit only if there is genuinely no related issue.
 
-- `{summary}` — concise description of the change
-- bullet list — one line per meaningful change (omit if only one trivial change)
-- `#{issue-number}` — GitHub issue number (omit if no related issue)
-- `#{issue-number}` — **REQUIRED** when working on a branch tied to a GitHub issue (e.g. `feat/#12-practice-crud` → `#12`). Always place on its own line at the very end, after a blank line. Omit only if there is genuinely no related issue.
+{summary} — concise description of the change
 
-**Example:**
-```
-feat: 합주 생성 API 구현
+bullet list — one line per meaningful change (omit if only one trivial change)
+
+{smart-commit-commands} — OPTIONAL. Jira Smart Commit commands to transition states, log time, or add comments (e.g., #done, #time 1h 30m, #comment API 구현 완료). Always place on its own line at the very end, after a blank line.
+
+### Examples
+```plaintext
+[BAND-12] feat: 합주 생성 API 구현
 - PracticeCreateRequest, PracticeResponse DTO 추가
 - PracticeService.createPractice 구현
 - POST /practices 엔드포인트 추가
 
-#12
+#done #time 2h
 ```
