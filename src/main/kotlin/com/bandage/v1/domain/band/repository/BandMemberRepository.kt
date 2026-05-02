@@ -23,6 +23,11 @@ interface BandMemberRepository :
         @Param("bandId") bandId: UUID,
     ): List<Long>
 
+    @Query("SELECT bm FROM BandMember bm JOIN FETCH bm.band WHERE bm.band.id IN :bandIds")
+    fun findAllByBandIdIn(
+        @Param("bandIds") bandIds: Collection<UUID>,
+    ): List<BandMember>
+
     fun existsBandMemberByBandAndMember(
         band: Band,
         member: Long,
