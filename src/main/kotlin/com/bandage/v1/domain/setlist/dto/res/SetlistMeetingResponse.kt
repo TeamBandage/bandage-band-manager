@@ -1,5 +1,6 @@
 package com.bandage.v1.domain.setlist.dto.res
 
+import com.bandage.v1.domain.setlist.dto.PracticeWindowDto
 import com.bandage.v1.domain.setlist.model.SetlistMeeting
 import com.bandage.v1.domain.setlist.model.enums.MeetingPurpose
 import io.swagger.v3.oas.annotations.media.Schema
@@ -14,6 +15,7 @@ data class SetlistMeetingResponse(
     val purpose: MeetingPurpose,
     val performanceId: UUID?,
     val managerId: Long,
+    val practiceWindow: PracticeWindowDto,
     val lockedAt: LocalDateTime?,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
@@ -27,6 +29,7 @@ data class SetlistMeetingResponse(
                 purpose = m.purpose,
                 performanceId = m.performanceId,
                 managerId = m.managerId,
+                practiceWindow = PracticeWindowDto.of(m.practiceWindow),
                 lockedAt = m.lockedAt,
                 createdAt = m.createdAt,
                 updatedAt = m.lastModifiedAt,
