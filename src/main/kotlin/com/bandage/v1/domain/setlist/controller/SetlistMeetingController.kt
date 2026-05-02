@@ -8,6 +8,7 @@ import com.bandage.v1.domain.setlist.dto.req.SetlistItemUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingCreateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingPagingQuery
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingUpdateRequest
+import com.bandage.v1.domain.setlist.dto.req.SetlistParticipantsUpdateRequest
 import com.bandage.v1.domain.setlist.dto.res.SetlistChatMessageResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistItemResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistLockResponse
@@ -78,6 +79,15 @@ class SetlistMeetingController(
         setlistMeetingService.deleteMeeting(meetingId, memberId)
         return ApiResponse.success()
     }
+
+    @PatchMapping("/{meetingId}/participants")
+    @Operation(summary = "선곡 회의 참여자 변경", description = "매니저가 참여자를 추가/제거합니다. remove 멤버의 세션 지원/확정은 cascade 정리됩니다.")
+    fun updateParticipants(
+        @PathVariable meetingId: UUID,
+        @CurrentMemberId memberId: Long,
+        @Valid @RequestBody request: SetlistParticipantsUpdateRequest,
+    ): ApiResponse<SetlistMeetingDetailResponse> =
+        ApiResponse.success(setlistMeetingService.updateParticipants(meetingId, memberId, request))
 
     // -------- items --------
     @GetMapping("/{meetingId}/items")
