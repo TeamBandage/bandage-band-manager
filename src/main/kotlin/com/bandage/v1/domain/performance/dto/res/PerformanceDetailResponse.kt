@@ -1,6 +1,5 @@
 package com.bandage.v1.domain.performance.dto.res
 
-import com.bandage.v1.domain.band.model.Band
 import com.bandage.v1.domain.performance.model.Performance
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
@@ -20,21 +19,13 @@ data class PerformanceDetailResponse(
     val durationMinutes: Int,
     @Schema(description = "공연 장소", example = "Club FF")
     val venue: String?,
-    @Schema(description = "참여 밴드 요약 목록")
-    val bands: List<BandSummary>,
+    @Schema(description = "참여 밴드 + 소속 멤버 목록")
+    val bands: List<PerformanceBandSummary>,
     @Schema(description = "매니저 멤버 아이디 목록")
     val managerIds: List<Long>,
     @Schema(description = "연결된 합주 요약 목록")
     val practices: List<PracticeSummary>,
 ) {
-    @Schema(description = "공연 참여 밴드 요약")
-    data class BandSummary(
-        @Schema(description = "밴드 고유 식별자", example = "550e8400-e29b-41d4-a716-446655440000")
-        val bandId: UUID,
-        @Schema(description = "밴드 이름", example = "TuNA")
-        val bandName: String,
-    )
-
     @Schema(description = "공연 연결 합주 요약")
     data class PracticeSummary(
         @Schema(description = "합주 고유 식별자", example = "550e8400-e29b-41d4-a716-446655440000")
@@ -49,19 +40,15 @@ data class PerformanceDetailResponse(
     companion object {
         fun of(
             performance: Performance,
-            bands: List<Band>,
-        ): PerformanceDetailResponse {
-            val bandById = bands.associateBy { it.id }
-            return PerformanceDetailResponse(
+            bandSummariesByBandId: Map<UUID, PerformanceBandSummary>,
+        ): PerformanceDetailResponse =
+            PerformanceDetailResponse(
                 performanceId = performance.id,
                 title = performance.title,
                 startAt = performance.schedule.startAt,
                 durationMinutes = performance.schedule.durationMinutes,
                 venue = performance.schedule.venue,
-                bands =
-                    performance.bands.mapNotNull { pb ->
-                        bandById[pb.bandId]?.let { BandSummary(bandId = it.id, bandName = it.name) }
-                    },
+                bands = performance.bands.mapNotNull { pb -> bandSummariesByBandId[pb.bandId] },
                 managerIds = performance.managers.map { it.member },
                 practices =
                     performance.practices.map { pp ->
@@ -72,6 +59,5 @@ data class PerformanceDetailResponse(
                         )
                     },
             )
-        }
     }
 }

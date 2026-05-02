@@ -2,13 +2,16 @@ package com.bandage.v1.domain.performance.service
 
 import com.bandage.v1.domain.band.repository.BandMemberRepository
 import com.bandage.v1.domain.band.repository.BandRepository
+import com.bandage.v1.domain.member.repository.MemberRepository
 import com.bandage.v1.domain.performance.dto.req.PerformanceBandAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.v1.domain.performance.dto.req.PerformancePracticeAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceSearchQuery
 import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
+import com.bandage.v1.domain.performance.dto.res.PerformanceBandMemberSummary
 import com.bandage.v1.domain.performance.dto.res.PerformanceBandResponse
+import com.bandage.v1.domain.performance.dto.res.PerformanceBandSummary
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.v1.domain.performance.dto.res.PerformancePracticeResponse
@@ -41,6 +44,7 @@ class PerformanceService(
     private val practiceRepository: PracticeRepository,
     private val bandMemberRepository: BandMemberRepository,
     private val bandRepository: BandRepository,
+    private val memberRepository: MemberRepository,
 ) {
     @Transactional
     fun createPerformance(
@@ -65,8 +69,9 @@ class PerformanceService(
 
     fun getPerformances(query: PerformancePagingQuery): CursorResponse<PerformanceListResponse, UUID> {
         val result = performanceRepository.findAllByPaging(query.lastId, query.pageSize)
+        val bandSummaries = buildBandSummaries(result.content.flatMap { p -> p.bands.map { it.bandId } })
         return CursorResponse(
-            content = result.content.map { PerformanceListResponse.of(it) },
+            content = result.content.map { PerformanceListResponse.of(it, bandSummaries) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -77,8 +82,9 @@ class PerformanceService(
         query: PerformancePagingQuery,
     ): CursorResponse<PerformanceListResponse, UUID> {
         val result = performanceRepository.findAllByBandIdAndPaging(bandId, query.lastId, query.pageSize)
+        val bandSummaries = buildBandSummaries(result.content.flatMap { p -> p.bands.map { it.bandId } })
         return CursorResponse(
-            content = result.content.map { PerformanceListResponse.of(it) },
+            content = result.content.map { PerformanceListResponse.of(it, bandSummaries) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -93,8 +99,9 @@ class PerformanceService(
             return CursorResponse(content = emptyList(), nextCursor = null, hasNext = false)
         }
         val result = performanceRepository.findAllByBandIdsAndPaging(bandIds, query.lastId, query.pageSize)
+        val bandSummaries = buildBandSummaries(result.content.flatMap { p -> p.bands.map { it.bandId } })
         return CursorResponse(
-            content = result.content.map { PerformanceListResponse.of(it) },
+            content = result.content.map { PerformanceListResponse.of(it, bandSummaries) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -102,8 +109,9 @@ class PerformanceService(
 
     fun searchPerformancesByCursor(query: PerformanceSearchQuery): CursorResponse<PerformanceListResponse, UUID> {
         val result = performanceRepository.searchByTitleAndPaging(query.keyword, query.lastId, query.pageSize)
+        val bandSummaries = buildBandSummaries(result.content.flatMap { p -> p.bands.map { it.bandId } })
         return CursorResponse(
-            content = result.content.map { PerformanceListResponse.of(it) },
+            content = result.content.map { PerformanceListResponse.of(it, bandSummaries) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -111,8 +119,35 @@ class PerformanceService(
 
     fun getPerformanceDetail(performanceId: UUID): PerformanceDetailResponse {
         val performance = getPerformance(performanceId)
-        val bands = bandRepository.findAllById(performance.bands.map { it.bandId })
-        return PerformanceDetailResponse.of(performance, bands)
+        val bandSummaries = buildBandSummaries(performance.bands.map { it.bandId })
+        return PerformanceDetailResponse.of(performance, bandSummaries)
+    }
+
+    private fun buildBandSummaries(bandIds: Collection<UUID>): Map<UUID, PerformanceBandSummary> {
+        if (bandIds.isEmpty()) return emptyMap()
+        val distinctBandIds = bandIds.toSet()
+        val bands = bandRepository.findAllById(distinctBandIds)
+        val bandMembers = bandMemberRepository.findAllByBandIdIn(distinctBandIds)
+        val members = memberRepository.findAllById(bandMembers.map { it.member }.toSet()).associateBy { it.id }
+        val membersByBandId = bandMembers.groupBy { it.band.id }
+        return bands.associate { band ->
+            band.id to
+                PerformanceBandSummary(
+                    bandId = band.id,
+                    bandName = band.name,
+                    members =
+                        membersByBandId[band.id].orEmpty().mapNotNull { bm ->
+                            members[bm.member]?.let {
+                                PerformanceBandMemberSummary(
+                                    userId = it.id,
+                                    name = it.name,
+                                    profileImg = null,
+                                    role = bm.role,
+                                )
+                            }
+                        },
+                )
+        }
     }
 
     @Transactional
