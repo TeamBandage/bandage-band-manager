@@ -1,7 +1,9 @@
 package com.bandage.v1.domain.setlist.dto.req
 
+import com.bandage.v1.domain.setlist.dto.PracticeWindowDto
 import com.bandage.v1.domain.setlist.model.enums.MeetingPurpose
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import java.util.UUID
@@ -24,4 +26,11 @@ data class SetlistMeetingCreateRequest(
     val managerId: Long,
     @Schema(description = "참여자 회원 ID 목록 (매니저 포함)")
     val participantUserIds: List<Long> = emptyList(),
+    @field:Valid
+    @Schema(
+        description =
+            "합주 가능 기간. purpose=GENERAL 일 때 필수, " +
+                "purpose=PERFORMANCE 일 때는 무시(BE가 today~performance.startAt-1d 로 자동 산출)",
+    )
+    val practiceWindow: PracticeWindowDto? = null,
 )

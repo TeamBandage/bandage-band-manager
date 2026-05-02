@@ -3,6 +3,7 @@ package com.bandage.v1.domain.setlist.model
 import com.bandage.v1.domain.setlist.model.enums.MeetingPurpose
 import com.bandage.v1.global.common.domain.BaseEntity
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -22,6 +23,7 @@ open class SetlistMeeting(
     purpose: MeetingPurpose,
     performanceId: UUID?,
     managerId: Long,
+    practiceWindow: PracticeWindow,
 ) : BaseEntity() {
     @Id
     @Column(name = "meeting_id")
@@ -50,6 +52,10 @@ open class SetlistMeeting(
     var managerId: Long = managerId
         protected set
 
+    @Embedded
+    var practiceWindow: PracticeWindow = practiceWindow
+        protected set
+
     @Column(name = "locked_at", nullable = true)
     var lockedAt: LocalDateTime? = null
         protected set
@@ -63,6 +69,7 @@ open class SetlistMeeting(
             purpose: MeetingPurpose,
             performanceId: UUID?,
             managerId: Long,
+            practiceWindow: PracticeWindow,
         ): SetlistMeeting =
             SetlistMeeting(
                 bandId = bandId,
@@ -70,6 +77,7 @@ open class SetlistMeeting(
                 purpose = purpose,
                 performanceId = performanceId,
                 managerId = managerId,
+                practiceWindow = practiceWindow,
             )
     }
 

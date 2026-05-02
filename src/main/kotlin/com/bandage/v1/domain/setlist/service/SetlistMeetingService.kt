@@ -1,5 +1,6 @@
 package com.bandage.v1.domain.setlist.service
 
+import com.bandage.v1.domain.performance.repository.PerformanceRepository
 import com.bandage.v1.domain.setlist.dto.req.SetlistChatMessageCreateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistConfirmationUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistItemCreateRequest
@@ -15,6 +16,7 @@ import com.bandage.v1.domain.setlist.dto.res.SetlistLockResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistLockSongMapping
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingDetailResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingResponse
+import com.bandage.v1.domain.setlist.model.PracticeWindow
 import com.bandage.v1.domain.setlist.model.SetlistItem
 import com.bandage.v1.domain.setlist.model.SetlistItemApplicant
 import com.bandage.v1.domain.setlist.model.SetlistItemChatMessage
@@ -34,6 +36,7 @@ import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.util.UUID
 
 @Service
@@ -45,18 +48,14 @@ class SetlistMeetingService(
     private val applicantRepository: SetlistItemApplicantRepository,
     private val confirmationRepository: SetlistItemConfirmationRepository,
     private val chatMessageRepository: SetlistItemChatMessageRepository,
+    private val performanceRepository: PerformanceRepository,
 ) {
     @Transactional
     fun createMeeting(
         memberId: Long,
         request: SetlistMeetingCreateRequest,
     ): SetlistMeetingResponse {
-        if (request.purpose == MeetingPurpose.PERFORMANCE) {
-            if (request.performanceId == null) throw BusinessException(ErrorCode.SETLIST_PERFORMANCE_REQUIRED)
-            if (meetingRepository.existsByPerformanceIdAndLockedAtIsNull(request.performanceId)) {
-                throw BusinessException(ErrorCode.SETLIST_PERFORMANCE_HAS_ACTIVE_MEETING)
-            }
-        }
+        val practiceWindow = resolvePracticeWindow(request)
         val participantIds = (request.participantUserIds + request.managerId + memberId).toSet()
         if (request.managerId !in participantIds) {
             throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
@@ -70,6 +69,7 @@ class SetlistMeetingService(
                     purpose = request.purpose,
                     performanceId = request.performanceId,
                     managerId = request.managerId,
+                    practiceWindow = practiceWindow,
                 ),
             )
         participantIds.forEach { uid ->
@@ -481,5 +481,31 @@ class SetlistMeetingService(
         if (item.sessions.none { it.sessionId == sessionId }) {
             throw BusinessException(ErrorCode.SETLIST_ITEM_SESSION_NOT_FOUND)
         }
+    }
+
+    private fun resolvePracticeWindow(request: SetlistMeetingCreateRequest): PracticeWindow {
+        if (request.purpose == MeetingPurpose.PERFORMANCE) {
+            if (request.performanceId == null) throw BusinessException(ErrorCode.SETLIST_PERFORMANCE_REQUIRED)
+            if (meetingRepository.existsByPerformanceIdAndLockedAtIsNull(request.performanceId)) {
+                throw BusinessException(ErrorCode.SETLIST_PERFORMANCE_HAS_ACTIVE_MEETING)
+            }
+            val performance =
+                performanceRepository.findByIdOrNull(request.performanceId)
+                    ?: throw BusinessException(ErrorCode.PERFORMANCE_NOT_FOUND)
+            val from = LocalDate.now()
+            val to =
+                performance.schedule.startAt
+                    .toLocalDate()
+                    .minusDays(1)
+            if (from.isAfter(to)) throw BusinessException(ErrorCode.SETLIST_PRACTICE_WINDOW_INVALID)
+            return PracticeWindow(from = from, to = to)
+        }
+        val window =
+            request.practiceWindow
+                ?: throw BusinessException(ErrorCode.SETLIST_PRACTICE_WINDOW_REQUIRED)
+        if (window.from.isAfter(window.to)) {
+            throw BusinessException(ErrorCode.SETLIST_PRACTICE_WINDOW_INVALID)
+        }
+        return window.toEntity()
     }
 }
