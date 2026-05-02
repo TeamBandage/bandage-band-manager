@@ -12,8 +12,6 @@ import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistParticipantsUpdateRequest
 import com.bandage.v1.domain.setlist.dto.res.SetlistChatMessageResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistItemResponse
-import com.bandage.v1.domain.setlist.dto.res.SetlistLockResponse
-import com.bandage.v1.domain.setlist.dto.res.SetlistLockSongMapping
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingDetailResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingResponse
 import com.bandage.v1.domain.setlist.model.PracticeWindow
@@ -400,23 +398,8 @@ class SetlistMeetingService(
         return SetlistChatMessageResponse.of(msg)
     }
 
-    // -------- lock / unlock --------
-    @Transactional
-    fun lockMeeting(
-        meetingId: UUID,
-        memberId: Long,
-    ): SetlistLockResponse {
-        val meeting = getMeetingOrThrow(meetingId)
-        validateManager(meeting, memberId)
-        if (meeting.isLocked) throw BusinessException(ErrorCode.SETLIST_MEETING_LOCKED)
-        meeting.lock()
-        // TODO: PracticeSong 벌크 생성 + Performance.setlist 자동 등록 (cross-domain)
-        val items = itemRepository.findAllByMeeting(meeting)
-        return SetlistLockResponse(
-            lockedAt = meeting.lockedAt!!,
-            songs = items.map { SetlistLockSongMapping(setlistItemId = it.id, practiceSongId = it.practiceSongId) },
-        )
-    }
+    // -------- unlock --------
+    // (lock 동작은 cross-domain 트랜잭션이 필요하여 com.bandage.v1.facade.SetlistLockFacade 로 이관됨)
 
     @Transactional
     fun unlockMeeting(

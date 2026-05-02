@@ -15,6 +15,7 @@ import com.bandage.v1.domain.setlist.dto.res.SetlistLockResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingDetailResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingResponse
 import com.bandage.v1.domain.setlist.service.SetlistMeetingService
+import com.bandage.v1.facade.SetlistLockFacade
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.common.response.CursorResponse
@@ -40,6 +41,7 @@ import java.util.UUID
 @RequestMapping("$PREFIX/setlist-meetings")
 class SetlistMeetingController(
     private val setlistMeetingService: SetlistMeetingService,
+    private val setlistLockFacade: SetlistLockFacade,
 ) {
     @PostMapping
     @Operation(summary = "선곡 회의 생성", description = "선곡 회의를 생성합니다.")
@@ -196,11 +198,14 @@ class SetlistMeetingController(
 
     // -------- lock / unlock --------
     @PostMapping("/{meetingId}/lock")
-    @Operation(summary = "선곡 회의 잠금", description = "매니저가 선곡 회의를 잠금 처리합니다.")
+    @Operation(
+        summary = "선곡 회의 잠금",
+        description = "매니저가 선곡 회의를 잠금 처리합니다. 잠금 시 PracticeSong 을 항목별로 일괄 생성/갱신합니다.",
+    )
     fun lockMeeting(
         @PathVariable meetingId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<SetlistLockResponse> = ApiResponse.success(setlistMeetingService.lockMeeting(meetingId, memberId))
+    ): ApiResponse<SetlistLockResponse> = ApiResponse.success(setlistLockFacade.lockMeeting(meetingId, memberId))
 
     @PostMapping("/{meetingId}/unlock")
     @Operation(summary = "선곡 회의 잠금 해제")
