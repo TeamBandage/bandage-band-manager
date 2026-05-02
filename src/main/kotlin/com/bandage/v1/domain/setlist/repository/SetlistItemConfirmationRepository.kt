@@ -22,4 +22,9 @@ interface SetlistItemConfirmationRepository : JpaRepository<SetlistItemConfirmat
         item: SetlistItem,
         sessionId: String,
     ): Long
+
+    fun deleteAllByItemInAndMemberId(
+        items: List<SetlistItem>,
+        memberId: Long,
+    )
 }

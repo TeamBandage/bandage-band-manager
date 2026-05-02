@@ -23,4 +23,9 @@ interface SetlistItemApplicantRepository : JpaRepository<SetlistItemApplicant, U
         sessionId: String,
         memberId: Long,
     ): Boolean
+
+    fun deleteAllByItemInAndMemberId(
+        items: List<SetlistItem>,
+        memberId: Long,
+    )
 }

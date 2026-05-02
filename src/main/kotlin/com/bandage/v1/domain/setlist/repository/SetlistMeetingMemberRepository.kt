@@ -18,4 +18,9 @@ interface SetlistMeetingMemberRepository : JpaRepository<SetlistMeetingMember, U
     ): Boolean
 
     fun deleteByMeeting(meeting: SetlistMeeting)
+
+    fun findByMeetingAndMemberId(
+        meeting: SetlistMeeting,
+        memberId: Long,
+    ): SetlistMeetingMember?
 }

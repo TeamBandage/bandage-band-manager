@@ -8,6 +8,7 @@ import com.bandage.v1.domain.setlist.dto.req.SetlistItemUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingCreateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingPagingQuery
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingUpdateRequest
+import com.bandage.v1.domain.setlist.dto.req.SetlistParticipantsUpdateRequest
 import com.bandage.v1.domain.setlist.dto.res.SetlistChatMessageResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistItemResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistLockResponse
@@ -126,6 +127,47 @@ class SetlistMeetingService(
         val meeting = getMeetingOrThrow(meetingId)
         validateManager(meeting, memberId)
         meeting.markAsDeleted(memberId)
+    }
+
+    @Transactional
+    fun updateParticipants(
+        meetingId: UUID,
+        memberId: Long,
+        request: SetlistParticipantsUpdateRequest,
+    ): SetlistMeetingDetailResponse {
+        val meeting = getMeetingOrThrow(meetingId)
+        validateManager(meeting, memberId)
+
+        val addIds = request.add.toSet()
+        val removeIds = request.remove.toSet()
+        if (meeting.managerId in removeIds) {
+            throw BusinessException(ErrorCode.SETLIST_CANNOT_REMOVE_MANAGER)
+        }
+        val intersection = addIds intersect removeIds
+        if (intersection.isNotEmpty()) {
+            throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
+        }
+
+        // remove cascade: applicants/confirmations
+        if (removeIds.isNotEmpty()) {
+            val items = itemRepository.findAllByMeeting(meeting)
+            removeIds.forEach { uid ->
+                meetingMemberRepository.findByMeetingAndMemberId(meeting, uid)?.let { meetingMemberRepository.delete(it) }
+                if (items.isNotEmpty()) {
+                    applicantRepository.deleteAllByItemInAndMemberId(items, uid)
+                    confirmationRepository.deleteAllByItemInAndMemberId(items, uid)
+                }
+            }
+        }
+        // add (idempotent)
+        addIds.forEach { uid ->
+            if (!meetingMemberRepository.existsByMeetingAndMemberId(meeting, uid)) {
+                meetingMemberRepository.save(SetlistMeetingMember.create(meeting = meeting, memberId = uid))
+            }
+        }
+
+        val members = meetingMemberRepository.findAllByMeeting(meeting)
+        return SetlistMeetingDetailResponse.of(meeting, members.map { it.memberId })
     }
 
     // -------- items --------
