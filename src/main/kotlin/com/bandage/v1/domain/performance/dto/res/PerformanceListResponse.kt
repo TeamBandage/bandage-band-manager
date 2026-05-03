@@ -30,9 +30,9 @@ data class PerformanceListResponse(
             PerformanceListResponse(
                 performanceId = performance.id,
                 title = performance.title,
-                startAt = performance.schedule.startAt,
-                durationMinutes = performance.schedule.durationMinutes,
-                venue = performance.schedule.venue,
+                startAt = performance.timeInfo.startAt,
+                durationMinutes = performance.timeInfo.durationMinutes,
+                venue = performance.timeInfo.venue,
                 bands = performance.bands.mapNotNull { pb -> bandSummariesByBandId[pb.bandId] },
             )
     }

@@ -23,7 +23,7 @@ interface PracticeParticipantRepository : JpaRepository<PracticeParticipant, UUI
 
     @Query(
         "SELECT COUNT(pp) FROM PracticeParticipant pp " +
-            "WHERE pp.member = :memberId AND pp.practice.schedule.startAt > :now",
+            "WHERE pp.member = :memberId AND pp.practice.timeInfo.startAt > :now",
     )
     fun countUpcomingPracticesByMember(
         @Param("memberId") memberId: Long,

@@ -14,7 +14,7 @@ interface PerformanceRepository :
     PerformanceRepositoryCustom {
     @Query(
         "SELECT COUNT(DISTINCT pb.performance.id) FROM PerformanceBand pb " +
-            "WHERE pb.bandId IN :bandIds AND pb.performance.schedule.startAt > :now " +
+            "WHERE pb.bandId IN :bandIds AND pb.performance.timeInfo.startAt > :now " +
             "AND pb.performance.deletedAt IS NULL",
     )
     fun countUpcomingByBandIds(

@@ -45,9 +45,9 @@ data class PerformanceDetailResponse(
             PerformanceDetailResponse(
                 performanceId = performance.id,
                 title = performance.title,
-                startAt = performance.schedule.startAt,
-                durationMinutes = performance.schedule.durationMinutes,
-                venue = performance.schedule.venue,
+                startAt = performance.timeInfo.startAt,
+                durationMinutes = performance.timeInfo.durationMinutes,
+                venue = performance.timeInfo.venue,
                 bands = performance.bands.mapNotNull { pb -> bandSummariesByBandId[pb.bandId] },
                 managerIds = performance.managers.map { it.member },
                 practices =
@@ -55,7 +55,7 @@ data class PerformanceDetailResponse(
                         PracticeSummary(
                             practiceId = pp.practice.id,
                             title = pp.practice.title,
-                            startAt = pp.practice.schedule.startAt,
+                            startAt = pp.practice.timeInfo.startAt,
                         )
                     },
             )

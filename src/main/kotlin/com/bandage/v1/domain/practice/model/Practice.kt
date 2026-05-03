@@ -2,7 +2,7 @@ package com.bandage.v1.domain.practice.model
 
 import com.bandage.v1.domain.practice.model.enums.SessionType
 import com.bandage.v1.global.common.domain.BaseEntity
-import com.bandage.v1.global.common.domain.ScheduleUnit
+import com.bandage.v1.global.common.domain.TimeInfoUnit
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -24,7 +24,7 @@ import java.util.UUID
 open class Practice(
     title: String,
     song: PracticeSong,
-    schedule: ScheduleUnit,
+    timeInfo: TimeInfoUnit,
 ) : BaseEntity() {
     @Id
     @Column(name = "practice_id")
@@ -42,7 +42,7 @@ open class Practice(
         protected set
 
     @Embedded
-    var schedule: ScheduleUnit = schedule
+    var timeInfo: TimeInfoUnit = timeInfo
         protected set
 
     @OneToMany(mappedBy = "practice", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
@@ -65,7 +65,7 @@ open class Practice(
             Practice(
                 title = title,
                 song = song,
-                schedule = ScheduleUnit(startAt = startAt, durationMinutes = durationMinutes, venue = venue),
+                timeInfo = TimeInfoUnit(startAt = startAt, durationMinutes = durationMinutes, venue = venue),
             )
 
         fun createWithBasicSessions(
@@ -77,7 +77,7 @@ open class Practice(
             Practice(
                 title = title,
                 song = song,
-                schedule = ScheduleUnit(startAt = startAt, venue = venue),
+                timeInfo = TimeInfoUnit(startAt = startAt, venue = venue),
             ).apply {
                 listOf(SessionType.VOCAL, SessionType.GUITAR, SessionType.BASS, SessionType.DRUM)
                     .forEach { addDefaultSession(it) }
@@ -92,15 +92,15 @@ open class Practice(
         this.song = song
     }
 
-    fun updateSchedule(
+    fun updateTimeInfo(
         startAt: LocalDateTime,
         durationMinutes: Int,
     ) {
-        schedule.updateSchedule(startAt, durationMinutes)
+        timeInfo.updateTimeInfo(startAt, durationMinutes)
     }
 
     fun updateVenue(newVenue: String) {
-        schedule.updateVenue(newVenue)
+        timeInfo.updateVenue(newVenue)
     }
 
     fun addParticipant(member: Long) {

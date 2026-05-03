@@ -1,7 +1,7 @@
 package com.bandage.v1.domain.performance.model
 
 import com.bandage.v1.global.common.domain.BaseEntity
-import com.bandage.v1.global.common.domain.ScheduleUnit
+import com.bandage.v1.global.common.domain.TimeInfoUnit
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -20,7 +20,7 @@ import java.util.UUID
 @SQLRestriction("deleted_at IS NULL")
 open class Performance(
     title: String,
-    schedule: ScheduleUnit,
+    timeInfo: TimeInfoUnit,
 ) : BaseEntity() {
     @Id
     @Column(name = "performance_id")
@@ -33,7 +33,7 @@ open class Performance(
         protected set
 
     @Embedded
-    var schedule: ScheduleUnit = schedule
+    var timeInfo: TimeInfoUnit = timeInfo
         protected set
 
     @OneToMany(mappedBy = "performance", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
@@ -58,7 +58,7 @@ open class Performance(
         ): Performance =
             Performance(
                 title = title,
-                schedule = ScheduleUnit(startAt = startAt, durationMinutes = durationMinutes, venue = venue),
+                timeInfo = TimeInfoUnit(startAt = startAt, durationMinutes = durationMinutes, venue = venue),
             )
     }
 
@@ -66,15 +66,15 @@ open class Performance(
         this.title = newTitle
     }
 
-    fun updateSchedule(
+    fun updateTimeInfo(
         startAt: LocalDateTime,
         durationMinutes: Int,
     ) {
-        schedule.updateSchedule(startAt, durationMinutes)
+        timeInfo.updateTimeInfo(startAt, durationMinutes)
     }
 
     fun updateVenue(newVenue: String) {
-        schedule.updateVenue(newVenue)
+        timeInfo.updateVenue(newVenue)
     }
 
     fun addBand(band: PerformanceBand) {

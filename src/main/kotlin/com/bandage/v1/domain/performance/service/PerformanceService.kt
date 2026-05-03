@@ -160,9 +160,9 @@ class PerformanceService(
         validateIsManager(performance, memberId)
         request.title?.let { performance.updateTitle(it) }
         if (request.startAt != null || request.durationMinutes != null) {
-            performance.updateSchedule(
-                startAt = request.startAt ?: performance.schedule.startAt,
-                durationMinutes = request.durationMinutes ?: performance.schedule.durationMinutes,
+            performance.updateTimeInfo(
+                startAt = request.startAt ?: performance.timeInfo.startAt,
+                durationMinutes = request.durationMinutes ?: performance.timeInfo.durationMinutes,
             )
         }
         request.venue?.let { performance.updateVenue(it) }
