@@ -69,4 +69,16 @@ enum class ErrorCode(
     SETLIST_CANNOT_REMOVE_MANAGER(HttpStatus.BAD_REQUEST, "매니저는 회의 참여자에서 제거할 수 없습니다."),
     SETLIST_PRACTICE_WINDOW_REQUIRED(HttpStatus.BAD_REQUEST, "purpose=GENERAL 인 회의는 practiceWindow 가 필수입니다."),
     SETLIST_PRACTICE_WINDOW_INVALID(HttpStatus.BAD_REQUEST, "practiceWindow.from 은 to 보다 같거나 이전이어야 합니다."),
+    SETLIST_NOT_LOCKED(HttpStatus.BAD_REQUEST, "선곡 회의가 lock 상태가 아닙니다. 시안 확정 전 회의를 lock 해주세요."),
+
+    // schedule
+    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 스케줄 정보를 찾을 수 없습니다."),
+    SCHEDULE_BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 시간표 시안을 찾을 수 없습니다."),
+    SCHEDULE_BLOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 스케줄 블록을 찾을 수 없습니다."),
+    SCHEDULE_BOARD_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "회의당 시간표 시안은 최대 5개까지 생성할 수 있습니다."),
+    SCHEDULE_BOARD_ALREADY_CONFIRMED(HttpStatus.CONFLICT, "이미 확정된 시안이 존재합니다. 기존 시안을 unconfirm 후 진행하세요."),
+    SCHEDULE_BOARD_NOT_CONFIRMED(HttpStatus.BAD_REQUEST, "확정되지 않은 시안입니다."),
+    SCHEDULE_DATES_OVERLAP(HttpStatus.BAD_REQUEST, "availableDates와 unavailableDates에 중복된 날짜가 있습니다."),
+    SCHEDULE_DATE_OUT_OF_WINDOW(HttpStatus.BAD_REQUEST, "선택한 날짜가 practiceWindow 범위를 벗어났습니다."),
+    SCHEDULE_SLOT_INVALID(HttpStatus.BAD_REQUEST, "startSlot + durationSlots는 48을 초과할 수 없습니다."),
 }
