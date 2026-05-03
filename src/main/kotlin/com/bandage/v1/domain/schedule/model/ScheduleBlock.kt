@@ -1,6 +1,7 @@
 package com.bandage.v1.domain.schedule.model
 
 import com.bandage.v1.global.common.domain.BaseEntity
+import com.github.f4b6a3.uuid.UuidCreator
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -11,7 +12,6 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import org.hibernate.annotations.SQLRestriction
-import org.hibernate.annotations.UuidGenerator
 import java.time.LocalDate
 import java.util.UUID
 
@@ -19,6 +19,7 @@ import java.util.UUID
 @Table(name = "p_schedule_block")
 @SQLRestriction("deleted_at IS NULL")
 open class ScheduleBlock(
+    id: UUID,
     board: ScheduleBoard,
     songId: UUID,
     date: LocalDate,
@@ -30,9 +31,7 @@ open class ScheduleBlock(
 ) : BaseEntity() {
     @Id
     @Column(name = "schedule_block_id")
-    @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
-    lateinit var id: UUID
-        protected set
+    val id: UUID = id
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_board_id", nullable = false)
@@ -82,6 +81,7 @@ open class ScheduleBlock(
             paletteIndex: Int? = null,
             songTitleOverride: String? = null,
             note: String? = null,
+            id: UUID = UuidCreator.getTimeOrderedEpoch(),
         ): ScheduleBlock {
             require(startSlot in 0 until SLOTS_PER_DAY) {
                 "startSlot must be in 0..${SLOTS_PER_DAY - 1}, was $startSlot"
@@ -93,6 +93,7 @@ open class ScheduleBlock(
                 "startSlot + durationSlots must be <= $SLOTS_PER_DAY (got ${startSlot + durationSlots})"
             }
             return ScheduleBlock(
+                id = id,
                 board = board,
                 songId = songId,
                 date = date,
