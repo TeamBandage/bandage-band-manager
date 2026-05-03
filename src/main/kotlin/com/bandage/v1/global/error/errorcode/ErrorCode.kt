@@ -81,4 +81,5 @@ enum class ErrorCode(
     SCHEDULE_DATES_OVERLAP(HttpStatus.BAD_REQUEST, "availableDates와 unavailableDates에 중복된 날짜가 있습니다."),
     SCHEDULE_DATE_OUT_OF_WINDOW(HttpStatus.BAD_REQUEST, "선택한 날짜가 practiceWindow 범위를 벗어났습니다."),
     SCHEDULE_SLOT_INVALID(HttpStatus.BAD_REQUEST, "startSlot + durationSlots는 48을 초과할 수 없습니다."),
+    SCHEDULE_BOARD_VERSION_CONFLICT(HttpStatus.CONFLICT, "다른 사용자가 시안을 먼저 수정했습니다. 새로고침 후 다시 시도해주세요."),
 }
