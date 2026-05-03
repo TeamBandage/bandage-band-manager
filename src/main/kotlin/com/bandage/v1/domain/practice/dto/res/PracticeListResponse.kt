@@ -25,9 +25,9 @@ data class PracticeListResponse(
             PracticeListResponse(
                 practiceId = practice.id,
                 title = practice.title,
-                startAt = practice.schedule.startAt,
-                durationMinutes = practice.schedule.durationMinutes,
-                venue = practice.schedule.venue,
+                startAt = practice.timeInfo.startAt,
+                durationMinutes = practice.timeInfo.durationMinutes,
+                venue = practice.timeInfo.venue,
             )
     }
 }

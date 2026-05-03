@@ -5,7 +5,7 @@ import jakarta.persistence.Embeddable
 import java.time.LocalDateTime
 
 @Embeddable
-class ScheduleUnit(
+class TimeInfoUnit(
     startAt: LocalDateTime,
     durationMinutes: Int = 60,
     venue: String? = null,
@@ -22,7 +22,7 @@ class ScheduleUnit(
     var venue: String? = venue
         protected set
 
-    fun updateSchedule(
+    fun updateTimeInfo(
         startAt: LocalDateTime,
         durationMinutes: Int,
     ) {

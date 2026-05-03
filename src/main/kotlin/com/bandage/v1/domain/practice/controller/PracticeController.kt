@@ -3,9 +3,9 @@ package com.bandage.v1.domain.practice.controller
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
 import com.bandage.v1.domain.practice.dto.req.PracticePagingQuery
-import com.bandage.v1.domain.practice.dto.req.PracticeScheduleUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSearchQuery
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeTimeInfoUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeVenueUpdateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeListResponse
@@ -136,14 +136,14 @@ class PracticeController(
         return ApiResponse.success()
     }
 
-    @PatchMapping("/{practiceId}/schedule")
+    @PatchMapping("/{practiceId}/time-info")
     @Operation(summary = "합주 일정 변경 API", description = "합주 일정(시작 시간, 소요 시간)을 변경합니다.")
-    fun updateSchedule(
+    fun updateTimeInfo(
         @PathVariable practiceId: UUID,
-        @Valid @RequestBody request: PracticeScheduleUpdateRequest,
+        @Valid @RequestBody request: PracticeTimeInfoUpdateRequest,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
-        practiceService.updateSchedule(practiceId, request)
+        practiceService.updateTimeInfo(practiceId, request)
         return ApiResponse.success()
     }
 

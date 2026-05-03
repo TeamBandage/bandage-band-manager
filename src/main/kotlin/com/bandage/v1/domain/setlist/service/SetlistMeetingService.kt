@@ -477,7 +477,7 @@ class SetlistMeetingService(
                     ?: throw BusinessException(ErrorCode.PERFORMANCE_NOT_FOUND)
             val from = LocalDate.now()
             val to =
-                performance.schedule.startAt
+                performance.timeInfo.startAt
                     .toLocalDate()
                     .minusDays(1)
             if (from.isAfter(to)) throw BusinessException(ErrorCode.SETLIST_PRACTICE_WINDOW_INVALID)

@@ -5,11 +5,11 @@ import com.bandage.v1.domain.practice.dto.Song
 import com.bandage.v1.domain.practice.dto.req.PracticeCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeMemberAddRequest
 import com.bandage.v1.domain.practice.dto.req.PracticePagingQuery
-import com.bandage.v1.domain.practice.dto.req.PracticeScheduleUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSearchQuery
 import com.bandage.v1.domain.practice.dto.req.PracticeSessionCreateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSongRefLinkUpsertRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeSongUpdateRequest
+import com.bandage.v1.domain.practice.dto.req.PracticeTimeInfoUpdateRequest
 import com.bandage.v1.domain.practice.dto.req.PracticeVenueUpdateRequest
 import com.bandage.v1.domain.practice.dto.res.PracticeDetailResponse
 import com.bandage.v1.domain.practice.dto.res.PracticeListResponse
@@ -183,12 +183,12 @@ class PracticeService(
     }
 
     @Transactional
-    fun updateSchedule(
+    fun updateTimeInfo(
         practiceId: UUID,
-        request: PracticeScheduleUpdateRequest,
+        request: PracticeTimeInfoUpdateRequest,
     ) {
         val practice = getPractice(practiceId)
-        practice.updateSchedule(request.startAt, request.durationMinutes)
+        practice.updateTimeInfo(request.startAt, request.durationMinutes)
     }
 
     @Transactional

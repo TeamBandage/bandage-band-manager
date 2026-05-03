@@ -1323,3 +1323,269 @@ Base URL: `/api/v1`
 - **인증 필요** (Manager)
 - **Response**: `SetlistMeetingResponse` (`lockedAt=null`)
 - **에러**: 409 `SETLIST_MEETING_NOT_LOCKED`, 403 `SETLIST_MEETING_NOT_MANAGER`
+
+---
+
+## 8. 일정 조율 (Schedule)
+
+> Base path: `/api/v1/setlist-meetings/{meetingId}` 하위. 모든 엔드포인트 인증 필요.
+>
+> 권한 모델
+> - **참여 멤버**: `SetlistMeetingMember` 등록자 또는 매니저 (읽기/본인 가용 시간 입력)
+> - **매니저**: `SetlistMeeting.managerId` 일치 사용자 (시간표 시안 / 블록 / 확정 모든 쓰기)
+>
+> 시간 슬롯 모델
+> - 하루는 30분 단위 48 슬롯(0~47). 슬롯 0 = 00:00, 슬롯 18 = 09:00, 슬롯 44 = 22:00.
+> - 블록 길이는 `durationSlots` (>=1), `startSlot + durationSlots <= 48`.
+>
+> 공통 응답 스키마
+>
+> `MemberScheduleResponse`
+> ```json
+> {
+>   "userId": 1,
+>   "availableDates": ["2026-06-01", "2026-06-03"],
+>   "unavailableDates": ["2026-06-02"],
+>   "blocks": { "2026-06-01": "ffe000000000" },   // Map<LocalDate, 12-hex 비트맵>
+>   "note": "토요일 오전만 가능",
+>   "completed": true,
+>   "updatedAt": "2026-05-03T10:00:00|null"        // 미입력 시 null
+> }
+> ```
+>
+> `ScheduleBoardResponse`
+> ```json
+> {
+>   "boardId": "uuid",
+>   "meetingId": "uuid",
+>   "name": "시안 A — 주말 위주",
+>   "paletteSeed": 7,
+>   "confirmed": false,
+>   "constraints": {
+>     "workingHoursStart": 18,
+>     "workingHoursEnd": 44,
+>     "excludeLateNight": true,
+>     "maxConsecutiveMinutes": 240
+>   },
+>   "blocks": [ /* ScheduleBlockResponse[] */ ],
+>   "version": 0,
+>   "createdAt": "2026-05-03T10:00:00"
+> }
+> ```
+>
+> `ScheduleBlockResponse`
+> ```json
+> {
+>   "blockId": "uuid",
+>   "songId": "uuid",                  // SetlistItem.id 참조
+>   "date": "2026-06-01",
+>   "startSlot": 18,
+>   "durationSlots": 4,                // 30분 × 4 = 120분
+>   "pinned": false,
+>   "paletteIndex": 2,
+>   "songTitleOverride": null,
+>   "note": null
+> }
+> ```
+
+---
+
+### 8-1. 내 가용 시간 조회
+- **GET** `/api/v1/setlist-meetings/{meetingId}/schedules/me`
+- **인증 필요** (참여 멤버)
+- **Response**: `MemberScheduleResponse`. 미등록 상태면 `availableDates`/`unavailableDates`/`blocks` 빈 컬렉션, `note=null`, `completed=false`, `updatedAt=null`.
+- **에러**: 403 `SETLIST_MEETING_FORBIDDEN`, 404 `SETLIST_MEETING_NOT_FOUND`
+
+---
+
+### 8-2. 내 가용 시간 등록/수정
+- **PUT** `/api/v1/setlist-meetings/{meetingId}/schedules/me`
+- **인증 필요** (참여 멤버 — 본인만)
+- **Request Body**
+  ```json
+  {
+    "availableDates": ["2026-06-01"],
+    "unavailableDates": ["2026-06-02"],
+    "blocks": { "2026-06-01": "ffe000000000" },
+    "note": "토요일 오전만 가능",
+    "completed": true
+  }
+  ```
+  - 모든 필드 nullable. 부분 갱신 가능 — 단 컬렉션 필드는 전체 교체.
+  - `note` 최대 500자.
+- **Response**: 갱신된 `MemberScheduleResponse`
+- **검증**
+  - `availableDates ∩ unavailableDates ≠ ∅` → 400 `SCHEDULE_DATES_OVERLAP`
+  - 임의 날짜 ∉ `practiceWindow[from..to]` → 400 `SCHEDULE_DATE_OUT_OF_WINDOW`
+
+---
+
+### 8-3. 참여자 가용 시간 목록
+- **GET** `/api/v1/setlist-meetings/{meetingId}/schedules`
+- **인증 필요** (참여 멤버)
+- **Response**: `List<MemberScheduleResponse>` — 응답을 등록한 참여자만 포함 (미등록자 미포함)
+- **에러**: 403 `SETLIST_MEETING_FORBIDDEN`
+
+---
+
+### 8-4. 가용 시간 집계
+- **GET** `/api/v1/setlist-meetings/{meetingId}/schedules/aggregate`
+- **인증 필요** (참여 멤버)
+- **Response**
+  ```json
+  {
+    "dateAvailability": {
+      "2026-06-01": { "available": 3, "unavailable": 1, "pending": 1 }
+    },
+    "totalParticipants": 5,
+    "completedCount": 4
+  }
+  ```
+  - `dateAvailability` 는 `practiceWindow` 의 모든 일자를 포함.
+  - `pending = totalParticipants − available − unavailable` (>=0).
+
+---
+
+### 8-5. 시간표 시안 목록
+- **GET** `/api/v1/setlist-meetings/{meetingId}/schedule-boards`
+- **인증 필요** (참여 멤버)
+- **Response**: `List<ScheduleBoardResponse>` — 각 board 의 `blocks[]` 가 함께 채워짐
+
+---
+
+### 8-6. 시간표 시안 생성
+- **POST** `/api/v1/setlist-meetings/{meetingId}/schedule-boards`
+- **인증 필요** (Manager)
+- **Request Body**
+  ```json
+  {
+    "name": "시안 A — 주말 위주",
+    "paletteSeed": 7,
+    "constraints": {
+      "workingHoursStart": 18,
+      "workingHoursEnd": 44,
+      "excludeLateNight": true,
+      "maxConsecutiveMinutes": 240
+    }
+  }
+  ```
+  - `name` 필수 (최대 50자), 나머지 optional. `constraints` 미지정 시 기본값 적용.
+- **Response**: `ScheduleBoardResponse` (`blocks=[]`, `confirmed=false`, `version=0`)
+- **에러**
+  - 회의당 6번째 생성 → 400 `SCHEDULE_BOARD_LIMIT_EXCEEDED`
+  - 403 `SETLIST_MEETING_NOT_MANAGER`
+
+---
+
+### 8-7. 시간표 시안 수정
+- **PATCH** `/api/v1/setlist-meetings/{meetingId}/schedule-boards/{boardId}`
+- **인증 필요** (Manager)
+- **Request Body** — 모든 필드 nullable, 부분 갱신
+  ```json
+  { "name": "시안 A 개정", "paletteSeed": 8, "constraints": { ... } }
+  ```
+- **Response**: 갱신된 `ScheduleBoardResponse`
+- **에러**
+  - 404 `SCHEDULE_BOARD_NOT_FOUND` (boardId ↔ meetingId 불일치 포함)
+  - 409 `SCHEDULE_BOARD_ALREADY_CONFIRMED` (확정된 시안)
+  - 409 `SCHEDULE_BOARD_VERSION_CONFLICT` (`@Version` 동시 수정 충돌)
+
+---
+
+### 8-8. 시간표 시안 삭제
+- **DELETE** `/api/v1/setlist-meetings/{meetingId}/schedule-boards/{boardId}`
+- **인증 필요** (Manager)
+- **Response**: 빈 `ApiResponse.success`
+- **비고**: 소속 `ScheduleBlock` 은 DB-level CASCADE 로 함께 삭제.
+- **에러**: 404 `SCHEDULE_BOARD_NOT_FOUND`, 409 `SCHEDULE_BOARD_ALREADY_CONFIRMED`
+
+---
+
+### 8-9. 시간표 블록 등록/수정
+- **PUT** `/api/v1/setlist-meetings/{meetingId}/schedule-boards/{boardId}/blocks/{blockId}`
+- **인증 필요** (Manager)
+- **Request Body**
+  ```json
+  {
+    "songId": "uuid",
+    "date": "2026-06-01",
+    "startSlot": 18,
+    "durationSlots": 4,
+    "pinned": false,
+    "paletteIndex": 2,
+    "songTitleOverride": null,
+    "note": null
+  }
+  ```
+  - `songId` / `date` / `startSlot` / `durationSlots` 필수, 나머지 nullable.
+  - `note` 최대 200자.
+- **PUT 의미**: `blockId` 가 존재하지 않으면 신규 생성, 존재하면 갱신 (FE 가 UUIDv7 을 client-side 로 생성하여 path 에 전달).
+- **Response**: `ScheduleBlockResponse`
+- **에러**
+  - 400 `SCHEDULE_SLOT_INVALID` (`startSlot < 0` / `durationSlots < 1` / `startSlot + durationSlots > 48`)
+  - 400 `SCHEDULE_DATE_OUT_OF_WINDOW`
+  - 404 `SCHEDULE_BLOCK_NOT_FOUND` (blockId ↔ boardId 불일치)
+  - 409 `SCHEDULE_BOARD_ALREADY_CONFIRMED`
+
+---
+
+### 8-10. 시간표 블록 삭제
+- **DELETE** `/api/v1/setlist-meetings/{meetingId}/schedule-boards/{boardId}/blocks/{blockId}`
+- **인증 필요** (Manager)
+- **Response**: 빈 `ApiResponse.success`
+- **에러**: 404 `SCHEDULE_BLOCK_NOT_FOUND`, 409 `SCHEDULE_BOARD_ALREADY_CONFIRMED`
+
+---
+
+### 8-11. 시간표 블록 핀 토글
+- **PATCH** `/api/v1/setlist-meetings/{meetingId}/schedule-boards/{boardId}/blocks/{blockId}/pin`
+- **인증 필요** (Manager)
+- **Request Body**
+  ```json
+  { "pinned": true }
+  ```
+- **Response**: `ScheduleBlockResponse`
+- **에러**: 404 `SCHEDULE_BLOCK_NOT_FOUND`, 409 `SCHEDULE_BOARD_ALREADY_CONFIRMED`
+
+---
+
+### 8-12. 시간표 시안 확정
+- **POST** `/api/v1/setlist-meetings/{meetingId}/schedule-boards/{boardId}/confirm`
+- **인증 필요** (Manager)
+- **사이드 이펙트**
+  1. board 의 모든 `ScheduleBlock` 을 `Practice` 로 일괄 생성 (single transaction, 부분 실패 시 전체 롤백)
+     - `title = block.songTitleOverride ?? PracticeSong.title`
+     - `startAt = block.date.atStartOfDay() + (startSlot × 30분)`
+     - `durationMinutes = durationSlots × 30`
+     - 참여자: `SetlistMeetingMember` 전원 자동 추가
+  2. `meeting.purpose=PERFORMANCE` 이고 `performanceId != null` 이면 각 Practice 에 대해 `PerformancePractice` 링크 생성
+  3. `board.confirmed = true`
+- **Response**: `ScheduleConfirmResponse`
+  ```json
+  {
+    "confirmedAt": "2026-05-03T11:00:00",
+    "practicesCreated": [
+      { "practiceId": "uuid", "title": "Vicarious", "startAt": "2026-06-01T09:00:00", "durationMinutes": 120 }
+    ],
+    "performancePracticesLinked": [
+      { "performancePracticeId": "uuid", "performanceId": "uuid", "practiceId": "uuid" }
+    ]
+  }
+  ```
+- **에러**
+  - 400 `SETLIST_NOT_LOCKED` (회의 미잠금)
+  - 409 `SCHEDULE_BOARD_ALREADY_CONFIRMED` (같은 회의의 다른 시안이 이미 confirmed)
+  - 404 `SCHEDULE_BOARD_NOT_FOUND` / `SETLIST_ITEM_NOT_FOUND` / `PRACTICE_SONG_NOT_FOUND` / `PERFORMANCE_NOT_FOUND`
+  - 403 `SETLIST_MEETING_NOT_MANAGER`
+
+---
+
+### 8-13. 시간표 시안 확정 해제
+- **POST** `/api/v1/setlist-meetings/{meetingId}/schedule-boards/{boardId}/unconfirm`
+- **인증 필요** (Manager)
+- **Response**
+  ```json
+  { "unconfirmedAt": "2026-05-03T12:00:00" }
+  ```
+- **비고**: 8-12 에서 생성된 `Practice` / `PerformancePractice` 는 그대로 유지된다 (board.confirmed 토글만).
+- **에러**: 400 `SCHEDULE_BOARD_NOT_CONFIRMED`, 404 `SCHEDULE_BOARD_NOT_FOUND`, 403 `SETLIST_MEETING_NOT_MANAGER`
