@@ -31,6 +31,24 @@ jwt:
   refresh-token-expr: 25200
   secret: "OXCdljnxxIeLMbX/dnQIWyVSuVAdkGc6p6FYaChtCb6Zzg//p1tdUwekTL/CB7QPNf47GjGhhRvXYe2bs3UWTg=="
 
+oauth:
+  google:
+    token-info-uri: https://oauth2.googleapis.com/tokeninfo
+    client-id: test-client-id
+  kakao:
+    user-info-uri: https://kapi.kakao.com/v2/user/me
+
+aws:
+  credentials:
+    access-key: test-access-key
+    secret-key: test-secret-key
+  region:
+    static: ap-northeast-2
+  s3:
+    bucket: test-bucket
+  cloudfront:
+    domain: test.cloudfront.net
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
