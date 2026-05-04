@@ -11,6 +11,7 @@ import com.bandage.v1.domain.performance.repository.PerformanceRepository
 import com.bandage.v1.domain.practice.repository.PracticeParticipantRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
+import com.bandage.v1.global.infra.s3.CloudFrontUrlResolver
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,6 +23,7 @@ class MemberService(
     private val bandMemberRepository: BandMemberRepository,
     private val practiceParticipantRepository: PracticeParticipantRepository,
     private val performanceRepository: PerformanceRepository,
+    private val cloudFrontUrlResolver: CloudFrontUrlResolver,
 ) {
     @Transactional
     fun createMember(request: MemberCreateRequest): Member {
@@ -37,7 +39,7 @@ class MemberService(
 
     fun getMemberInfo(memberId: Long): MemberInfoResponse {
         val member = getMember(memberId)
-        return MemberInfoResponse.of(member)
+        return MemberInfoResponse.of(member, profileImageUrl(member.profileImg))
     }
 
     @Transactional
@@ -52,7 +54,7 @@ class MemberService(
         request: MemberInfoUpdateRequest,
         memberId: Long,
     ) {
-        if (request.name == null && request.contact == null) {
+        if (request.name == null && request.contact == null && request.profileImg == null) {
             throw BusinessException(ErrorCode.NO_CHANGE)
         }
         val member = getMember(memberId)
@@ -70,6 +72,12 @@ class MemberService(
                 member.updateContact(it)
                 isChanged = true
             }
+        request.profileImg
+            ?.takeIf { it != member.profileImg }
+            ?.let {
+                member.updateProfileImg(it)
+                isChanged = true
+            }
         if (!isChanged) {
             throw BusinessException(ErrorCode.NO_CHANGE)
         }
@@ -84,8 +92,10 @@ class MemberService(
         return memberRepository
             .findTop20ByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(q, q)
             .filter { excludeMemberId == null || it.id != excludeMemberId }
-            .map(MemberSearchItemResponse::of)
+            .map { MemberSearchItemResponse.of(it, profileImageUrl(it.profileImg)) }
     }
+
+    private fun profileImageUrl(key: String?): String? = cloudFrontUrlResolver.resolveOrNull(key)
 
     private fun isMemberAlreadyExists(request: MemberCreateRequest) {
         if (memberRepository.existsByEmail(request.email)) {

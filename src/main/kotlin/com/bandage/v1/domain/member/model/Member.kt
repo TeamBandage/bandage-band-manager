@@ -16,6 +16,7 @@ open class Member(
     email: String,
     name: String,
     contact: String,
+    profileImg: String? = null,
 ) : BaseTimeEntity() {
     @Id
     @Column(name = "member_id")
@@ -34,16 +35,22 @@ open class Member(
     var contact: String = contact
         protected set
 
+    @Column(name = "profile_img")
+    var profileImg: String? = profileImg
+        protected set
+
     companion object {
         fun create(
             email: String,
             name: String,
             contact: String,
+            profileImg: String? = null,
         ): Member =
             Member(
                 email = email,
                 name = name,
                 contact = contact,
+                profileImg = profileImg,
             )
     }
 
@@ -53,5 +60,9 @@ open class Member(
 
     fun updateContact(newContact: String) {
         this.contact = newContact
+    }
+
+    fun updateProfileImg(newProfileImg: String?) {
+        this.profileImg = newProfileImg
     }
 }

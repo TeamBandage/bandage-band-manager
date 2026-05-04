@@ -29,6 +29,7 @@ import com.bandage.v1.domain.practice.repository.PracticeRepository
 import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
+import com.bandage.v1.global.infra.s3.CloudFrontUrlResolver
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -45,6 +46,7 @@ class PerformanceService(
     private val bandMemberRepository: BandMemberRepository,
     private val bandRepository: BandRepository,
     private val memberRepository: MemberRepository,
+    private val cloudFrontUrlResolver: CloudFrontUrlResolver,
 ) {
     @Transactional
     fun createPerformance(
@@ -141,7 +143,7 @@ class PerformanceService(
                                 PerformanceBandMemberSummary(
                                     userId = it.id,
                                     name = it.name,
-                                    profileImg = null,
+                                    profileImg = cloudFrontUrlResolver.resolveOrNull(it.profileImg),
                                     role = bm.role,
                                 )
                             }

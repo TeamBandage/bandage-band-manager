@@ -22,12 +22,13 @@ data class MyBandInfoResponse(
         fun of(
             band: Band,
             myRole: BandRole,
+            profileImgUrl: String?,
         ): MyBandInfoResponse =
             MyBandInfoResponse(
                 bandId = band.id,
                 bandName = band.name,
                 description = band.description,
-                profileImg = band.profileImg,
+                profileImg = profileImgUrl,
                 myRole = myRole,
             )
     }
