@@ -13,9 +13,8 @@ import org.springframework.web.client.RestClientException
 @Component
 class GoogleOAuthClient(
     private val properties: GoogleOAuthProperties,
-    restClientBuilder: RestClient.Builder,
 ) {
-    private val restClient: RestClient = restClientBuilder.build()
+    private val restClient: RestClient = RestClient.create()
 
     fun fetchUserInfo(idToken: String): OAuthUserInfo {
         val tokenInfo = requestTokenInfo(idToken)

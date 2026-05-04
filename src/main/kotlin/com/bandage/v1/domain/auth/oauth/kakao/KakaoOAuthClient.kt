@@ -15,9 +15,8 @@ import org.springframework.web.client.RestClientException
 @Component
 class KakaoOAuthClient(
     private val properties: KakaoOAuthProperties,
-    restClientBuilder: RestClient.Builder,
 ) {
-    private val restClient: RestClient = restClientBuilder.build()
+    private val restClient: RestClient = RestClient.create()
 
     fun fetchUserInfo(accessToken: String): OAuthUserInfo {
         val response =
