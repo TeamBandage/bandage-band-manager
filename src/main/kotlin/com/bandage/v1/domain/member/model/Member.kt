@@ -15,7 +15,7 @@ import org.hibernate.annotations.SQLRestriction
 open class Member(
     email: String,
     name: String,
-    contact: String,
+    contact: String?,
     profileImg: String? = null,
 ) : BaseTimeEntity() {
     @Id
@@ -31,8 +31,8 @@ open class Member(
     var name: String = name
         protected set
 
-    @Column(name = "contact", nullable = false)
-    var contact: String = contact
+    @Column(name = "contact", nullable = true)
+    var contact: String? = contact
         protected set
 
     @Column(name = "profile_img")
@@ -52,13 +52,25 @@ open class Member(
                 contact = contact,
                 profileImg = profileImg,
             )
+
+        fun createOAuth(
+            email: String,
+            name: String,
+            profileImg: String? = null,
+        ): Member =
+            Member(
+                email = email,
+                name = name,
+                contact = null,
+                profileImg = profileImg,
+            )
     }
 
     fun updateName(newName: String) {
         this.name = newName
     }
 
-    fun updateContact(newContact: String) {
+    fun updateContact(newContact: String?) {
         this.contact = newContact
     }
 
