@@ -37,6 +37,9 @@ oauth:
     client-id: test-client-id
   kakao:
     user-info-uri: https://kapi.kakao.com/v2/user/me
+    token-uri: https://kauth.kakao.com/oauth/token
+    client-id: test-kakao-client-id
+    client-secret: test-kakao-client-secret
 
 aws:
   credentials:

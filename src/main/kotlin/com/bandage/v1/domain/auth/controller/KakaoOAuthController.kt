@@ -28,14 +28,19 @@ class KakaoOAuthController(
     @Operation(
         summary = "Kakao OAuth 로그인 / 회원가입 API",
         description =
-            "FE 에서 Kakao SDK 로 발급받은 access token 을 검증하고, " +
-                "신규 회원이면 가입 후 JWT 를 발급한다. 기존 회원이면 로그인 처리한다.",
+            "FE 가 전달한 authorization code 를 카카오 token endpoint 와 교환해 access token 을 받고, " +
+                "user info 검증 후 JWT 를 발급한다. 신규 회원이면 가입 처리, 기존 회원이면 로그인 처리.",
     )
     fun loginWithKakao(
         @Valid @RequestBody request: KakaoLoginRequest,
         response: HttpServletResponse,
     ): ApiResponse<OAuthLoginApiResponse> {
-        val userInfo = kakaoOAuthClient.fetchUserInfo(request.accessToken)
+        val accessToken =
+            kakaoOAuthClient.exchangeCodeForAccessToken(
+                code = request.code,
+                redirectUri = request.redirectUri,
+            )
+        val userInfo = kakaoOAuthClient.fetchUserInfo(accessToken)
         val result = oAuthLoginFacade.loginOrJoin(userInfo)
         response.setHeader(HttpHeaders.SET_COOKIE, CookieUtil.generateCookieFrom(result.refreshToken))
         return ApiResponse.success(OAuthLoginApiResponse.of(result))
