@@ -1,0 +1,75 @@
+name: Deploy to EC2 (Develop)
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: bandage-band-manager
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # ECR 접근 권한 획득
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 3. ECR 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 4. Docker 이미지 빌드 및 ECR 푸시 — 태그 이원화 (dev-<sha> + dev-latest)
+      #    - dev-<short_sha> : immutable, 롤백/추적용
+      #    - dev-latest      : mutable, docker compose pull 참조 포인트
+      - name: Build and Push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          SHA_TAG="dev-${SHORT_SHA}"
+          LATEST_TAG="dev-latest"
+          docker build \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$SHA_TAG" \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$LATEST_TAG" \
+            .
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$SHA_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$LATEST_TAG"
+
+      # 5. [핵심] EC2 접속 및 환경변수 주입, 배포 실행
+      - name: Deploy to EC2 & Inject ENV
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          # GitHub Secrets에 저장된 민감한 값들을 SSH Action 내부로 안전하게 전달
+          AWS_CDN_DOMAIN: ${{ secrets.AWS_CDN_DOMAIN }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          # 필요한 변수가 있다면 여기에 계속 추가하세요.
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: rocky
+          key: ${{ secrets.EC2_SSH_KEY }}
+          # env 항목에 정의한 변수 이름들을 쉼표(,)로 연결하여 명시합니다.
+          envs: AWS_CDN_DOMAIN,DB_PASSWORD,JWT_SECRET
+          script: |
+            cd ~/bandage
+            
+            echo "AWS_CDN_DOMAIN=$AWS_CDN_DOMAIN" > .env
+            echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> .env
+            echo "JWT_TOKEN_SECRET=$JWT_SECRET" >> .env
+            
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            
+            docker compose pull
+            docker compose up -d --remove-orphans
