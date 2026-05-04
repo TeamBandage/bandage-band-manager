@@ -15,18 +15,21 @@ data class MemberInfoResponse(
     val name: String,
     @Schema(description = "회원 연락처", example = "010-7707-5859")
     val contact: String,
-    @Schema(description = "프로필 이미지 URL (없으면 null)", example = "https://cdn/...jpg")
+    @Schema(description = "프로필 이미지 URL (CloudFront, 없으면 null)", example = "https://cdn.example.com/profile/member/1/uuid.jpg")
     val profileImg: String? = null,
 ) {
     companion object {
-        fun of(member: Member): MemberInfoResponse =
+        fun of(
+            member: Member,
+            profileImgUrl: String?,
+        ): MemberInfoResponse =
             MemberInfoResponse(
                 id = member.id,
                 memberId = member.id,
                 email = member.email,
                 name = member.name,
                 contact = member.contact,
-                profileImg = null,
+                profileImg = profileImgUrl,
             )
     }
 }

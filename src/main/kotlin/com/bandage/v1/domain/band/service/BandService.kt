@@ -23,6 +23,7 @@ import com.bandage.v1.domain.member.repository.MemberRepository
 import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
+import com.bandage.v1.global.infra.s3.CloudFrontUrlResolver
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -35,6 +36,7 @@ class BandService(
     private val applicationRepository: BandApplicationRepository,
     private val bandMemberRepository: BandMemberRepository,
     private val memberRepository: MemberRepository,
+    private val cloudFrontUrlResolver: CloudFrontUrlResolver,
 ) {
     // TODO: profileImg multi-part 처리 구현
     @Transactional
@@ -74,15 +76,15 @@ class BandService(
         )
     }
 
-    fun getOnlyOneBand(bandId: UUID): BandInfoResponse =
-        BandInfoResponse.of(
-            getBand(bandId),
-        )
+    fun getOnlyOneBand(bandId: UUID): BandInfoResponse {
+        val band = getBand(bandId)
+        return BandInfoResponse.of(band, profileImageUrl(band.profileImg))
+    }
 
     fun getBandsByCursor(query: BandPagingQuery): CursorResponse<BandInfoResponse, UUID> {
         val result = bandRepository.findAllByPaging(query.lastId, query.pageSize)
         return CursorResponse(
-            content = result.content.map { BandInfoResponse.of(it) },
+            content = result.content.map { BandInfoResponse.of(it, profileImageUrl(it.profileImg)) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -94,7 +96,7 @@ class BandService(
     ): CursorResponse<MyBandInfoResponse, UUID> {
         val result = bandRepository.findAllByMemberWithRoleAndPaging(memberId, query.lastId, query.pageSize)
         return CursorResponse(
-            content = result.content.map { MyBandInfoResponse.of(it.band, it.role) },
+            content = result.content.map { MyBandInfoResponse.of(it.band, it.role, profileImageUrl(it.band.profileImg)) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -103,16 +105,18 @@ class BandService(
     fun searchBandsByCursor(query: BandSearchQuery): CursorResponse<BandInfoResponse, UUID> {
         val result = bandRepository.searchByNameAndPaging(query.keyword, query.lastId, query.pageSize)
         return CursorResponse(
-            content = result.content.map { BandInfoResponse.of(it) },
+            content = result.content.map { BandInfoResponse.of(it, profileImageUrl(it.profileImg)) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
     }
 
+    private fun profileImageUrl(key: String?): String? = cloudFrontUrlResolver.resolveOrNull(key)
+
     fun getOnlyOneBandMember(bandMemberId: UUID): BandMemberInfoResponse {
         val bm = getBandMemberById(bandMemberId)
         val member = memberRepository.findById(bm.member).orElse(null)
-        return BandMemberInfoResponse.of(bm, member?.name, null)
+        return BandMemberInfoResponse.of(bm, member?.name, profileImageUrl(member?.profileImg))
     }
 
     fun getBandMembersByCursor(
@@ -121,9 +125,13 @@ class BandService(
     ): CursorResponse<BandMemberInfoResponse, UUID> {
         val band = getBand(bandId)
         val result = bandMemberRepository.findAllByPaging(query.lastId, query.pageSize, band)
-        val nameMap = memberNameMap(result.content.map { it.member })
+        val profileMap = memberProfileMap(result.content.map { it.member })
         return CursorResponse(
-            content = result.content.map { BandMemberInfoResponse.of(it, nameMap[it.member], null) },
+            content =
+                result.content.map {
+                    val info = profileMap[it.member]
+                    BandMemberInfoResponse.of(it, info?.name, profileImageUrl(info?.profileImg))
+                },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -137,19 +145,30 @@ class BandService(
         val band = getBand(bandId)
         validateMemberIsBandLeader(band, memberId)
         val result = applicationRepository.findAllByPaging(query.lastId, query.pageSize, query.status, band)
-        val nameMap = memberNameMap(result.content.map { it.member })
+        val profileMap = memberProfileMap(result.content.map { it.member })
         return CursorResponse(
-            content = result.content.map { BandApplicationInfoResponse.of(it, nameMap[it.member], null) },
+            content =
+                result.content.map {
+                    val info = profileMap[it.member]
+                    BandApplicationInfoResponse.of(it, info?.name, profileImageUrl(info?.profileImg))
+                },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
     }
 
-    private fun memberNameMap(memberIds: List<Long>): Map<Long, String> =
+    private data class MemberProfileInfo(
+        val name: String,
+        val profileImg: String?,
+    )
+
+    private fun memberProfileMap(memberIds: List<Long>): Map<Long, MemberProfileInfo> =
         if (memberIds.isEmpty()) {
             emptyMap()
         } else {
-            memberRepository.findAllById(memberIds.distinct()).associate { it.id to it.name }
+            memberRepository
+                .findAllById(memberIds.distinct())
+                .associate { it.id to MemberProfileInfo(it.name, it.profileImg) }
         }
 
     @Transactional

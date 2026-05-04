@@ -11,16 +11,19 @@ data class MemberSearchItemResponse(
     val name: String,
     @Schema(description = "회원 이메일", example = "user@bandage.test")
     val email: String,
-    @Schema(description = "프로필 이미지 URL", example = "https://cdn/...jpg")
+    @Schema(description = "프로필 이미지 URL (CloudFront)", example = "https://cdn.example.com/profile/member/1/uuid.jpg")
     val profileImg: String? = null,
 ) {
     companion object {
-        fun of(member: Member): MemberSearchItemResponse =
+        fun of(
+            member: Member,
+            profileImgUrl: String?,
+        ): MemberSearchItemResponse =
             MemberSearchItemResponse(
                 memberId = member.id,
                 name = member.name,
                 email = member.email,
-                profileImg = null,
+                profileImg = profileImgUrl,
             )
     }
 }

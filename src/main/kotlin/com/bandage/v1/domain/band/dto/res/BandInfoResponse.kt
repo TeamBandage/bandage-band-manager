@@ -12,16 +12,19 @@ data class BandInfoResponse(
     val bandName: String,
     @Schema(description = "밴드 상세 설명", example = "성균관대학교 문과대 락밴드 TuNA 입니다.")
     val description: String?,
-    @Schema(description = "밴드 프로필 이미지 url", example = "image_url")
+    @Schema(description = "밴드 프로필 이미지 presigned GET URL (없으면 null)", example = "https://bucket.s3.../...&X-Amz-...")
     val profileImg: String?,
 ) {
     companion object {
-        fun of(band: Band): BandInfoResponse =
+        fun of(
+            band: Band,
+            profileImgUrl: String?,
+        ): BandInfoResponse =
             BandInfoResponse(
                 bandId = band.id,
                 bandName = band.name,
                 description = band.description,
-                profileImg = band.profileImg,
+                profileImg = profileImgUrl,
             )
     }
 }

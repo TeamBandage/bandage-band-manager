@@ -69,6 +69,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     // UUIDv7
     implementation("com.github.f4b6a3:uuid-creator:6.0.0")
+    //aws s3
+    implementation("software.amazon.awssdk:s3:2.25.66")
 
 }
 

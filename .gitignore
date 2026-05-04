@@ -39,9 +39,14 @@ out/
 ### Kotlin ###
 .kotlin
 
+### log
+/logs
+
 ### custom ###
 .env
 .claude
 .DS_Store
 set-env.sh
 API_*.md
+SERVICE_SPEC.md
+.taskmaster
