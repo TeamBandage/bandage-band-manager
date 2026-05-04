@@ -47,29 +47,63 @@ jobs:
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$SHA_TAG"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$LATEST_TAG"
 
-      # 5. [핵심] EC2 접속 및 환경변수 주입, 배포 실행
+      # 5. EC2 SSH — 컨테이너 부팅에 필요한 모든 환경변수를 .env 로 일괄 주입 후 compose up
+      #    DB_HOST/REDIS_HOST 는 compose 의 service 명(고정값)이라 GH 시크릿 대상이 아니다.
+      #    AWS_REGION 은 워크플로우 레벨의 env.AWS_REGION 을 그대로 재사용한다.
       - name: Deploy to EC2 & Inject ENV
         uses: appleboy/ssh-action@v1.0.3
         env:
-          # GitHub Secrets에 저장된 민감한 값들을 SSH Action 내부로 안전하게 전달
-          AWS_CDN_DOMAIN: ${{ secrets.AWS_CDN_DOMAIN }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          # ----- Spring profile -----
+          PROFILE_ACTIVE: dev
+          # ----- DB (PostgreSQL container) -----
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          # 필요한 변수가 있다면 여기에 계속 추가하세요.
+          # ----- JWT -----
+          JWT_TOKEN_SECRET: ${{ secrets.JWT_TOKEN_SECRET }}
+          # ----- AWS (S3 + CloudFront, 앱 측) -----
+          APP_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          APP_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_CDN_DOMAIN: ${{ secrets.AWS_CDN_DOMAIN }}
+          # ----- OAuth -----
+          GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+          KAKAO_OAUTH_CLIENT_ID: ${{ secrets.KAKAO_OAUTH_CLIENT_ID }}
+          KAKAO_OAUTH_CLIENT_SECRET: ${{ secrets.KAKAO_OAUTH_CLIENT_SECRET }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: rocky
           key: ${{ secrets.EC2_SSH_KEY }}
-          # env 항목에 정의한 변수 이름들을 쉼표(,)로 연결하여 명시합니다.
-          envs: AWS_CDN_DOMAIN,DB_PASSWORD,JWT_SECRET
+          envs: ECR_REGISTRY,AWS_REGION,PROFILE_ACTIVE,DB_NAME,DB_USERNAME,DB_PASSWORD,JWT_TOKEN_SECRET,APP_AWS_ACCESS_KEY_ID,APP_AWS_SECRET_ACCESS_KEY,AWS_S3_BUCKET,AWS_CDN_DOMAIN,GOOGLE_OAUTH_CLIENT_ID,KAKAO_OAUTH_CLIENT_ID,KAKAO_OAUTH_CLIENT_SECRET
           script: |
+            set -euo pipefail
             cd ~/bandage
-            
-            echo "AWS_CDN_DOMAIN=$AWS_CDN_DOMAIN" > .env
-            echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> .env
-            echo "JWT_TOKEN_SECRET=$JWT_SECRET" >> .env
-            
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-            
+
+            umask 077
+            cat > .env <<EOF
+            PROFILE_ACTIVE=${PROFILE_ACTIVE}
+            DB_HOST=postgres
+            DB_PORT=5432
+            DB_NAME=${DB_NAME}
+            DB_USERNAME=${DB_USERNAME}
+            DB_PASSWORD=${DB_PASSWORD}
+            REDIS_HOST=redis
+            REDIS_PORT=6379
+            JWT_TOKEN_SECRET=${JWT_TOKEN_SECRET}
+            AWS_ACCESS_KEY_ID=${APP_AWS_ACCESS_KEY_ID}
+            AWS_SECRET_ACCESS_KEY=${APP_AWS_SECRET_ACCESS_KEY}
+            AWS_REGION=${AWS_REGION}
+            AWS_S3_BUCKET=${AWS_S3_BUCKET}
+            AWS_CDN_DOMAIN=${AWS_CDN_DOMAIN}
+            GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID}
+            KAKAO_OAUTH_CLIENT_ID=${KAKAO_OAUTH_CLIENT_ID}
+            KAKAO_OAUTH_CLIENT_SECRET=${KAKAO_OAUTH_CLIENT_SECRET}
+            EOF
+
+            aws ecr get-login-password --region "${AWS_REGION}" \
+              | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
+
             docker compose pull
             docker compose up -d --remove-orphans
+            docker image prune -f
