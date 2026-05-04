@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration
         JwtProperties::class,
         AwsProperties::class,
         KakaoOAuthProperties::class,
+        GoogleOAuthProperties::class,
     ],
 )
 class PropertiesConfig
