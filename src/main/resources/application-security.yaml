@@ -6,6 +6,9 @@ jwt:
 oauth:
   kakao:
     user-info-uri: ${KAKAO_USER_INFO_URI:https://kapi.kakao.com/v2/user/me}
+    token-uri: ${KAKAO_TOKEN_URI:https://kauth.kakao.com/oauth/token}
+    client-id: ${KAKAO_OAUTH_CLIENT_ID}
+    client-secret: ${KAKAO_OAUTH_CLIENT_SECRET:}
   google:
     token-info-uri: ${GOOGLE_TOKEN_INFO_URI:https://oauth2.googleapis.com/tokeninfo}
     client-id: ${GOOGLE_OAUTH_CLIENT_ID:}
