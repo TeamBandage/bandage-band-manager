@@ -7,6 +7,7 @@ object SecurityPathConstants {
         arrayOf(
             "${PathPrefix.PREFIX}/auth/login",
             "${PathPrefix.PREFIX}/auth/refresh",
+            "${PathPrefix.PREFIX}/auth/oauth/**",
             "${PathPrefix.PREFIX}/members/join",
         )
 

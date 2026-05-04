@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration
     value = [
         JwtProperties::class,
         AwsProperties::class,
+        KakaoOAuthProperties::class,
     ],
 )
 class PropertiesConfig

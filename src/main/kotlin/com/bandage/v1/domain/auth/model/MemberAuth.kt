@@ -1,6 +1,7 @@
 package com.bandage.v1.domain.auth.model
 
 import com.bandage.v1.domain.auth.model.enums.MemberRole
+import com.bandage.v1.domain.auth.model.enums.ProviderType
 import com.bandage.v1.global.common.domain.BaseTimeEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -16,8 +17,10 @@ import org.hibernate.annotations.SQLRestriction
 open class MemberAuth(
     memberId: Long,
     email: String,
-    password: String,
+    password: String?,
     role: MemberRole = MemberRole.MEMBER,
+    provider: ProviderType = ProviderType.LOCAL,
+    providerId: String? = null,
 ) : BaseTimeEntity() {
     @Id
     @Column(name = "member_id", unique = true, nullable = false)
@@ -26,12 +29,19 @@ open class MemberAuth(
     @Column(name = "email", unique = true, nullable = false)
     val email: String = email
 
-    @Column(name = "password", nullable = false)
-    var password: String = password
+    @Column(name = "password", nullable = true)
+    var password: String? = password
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     var role: MemberRole = role
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "provider", nullable = false)
+    val provider: ProviderType = provider
+
+    @Column(name = "provider_id", nullable = true)
+    val providerId: String? = providerId
 
     companion object {
         fun create(
@@ -43,6 +53,21 @@ open class MemberAuth(
                 memberId = memberId,
                 email = email,
                 password = password,
+                provider = ProviderType.LOCAL,
+            )
+
+        fun createOAuth(
+            memberId: Long,
+            email: String,
+            provider: ProviderType,
+            providerId: String,
+        ): MemberAuth =
+            MemberAuth(
+                memberId = memberId,
+                email = email,
+                password = null,
+                provider = provider,
+                providerId = providerId,
             )
     }
 

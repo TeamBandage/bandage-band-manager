@@ -25,6 +25,11 @@ enum class ErrorCode(
     MEMBER_AUTH_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 회원가입된 e-mail 입니다"),
     INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다."),
     EXPIRED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "만료된 토큰입니다."),
+    OAUTH_LOCAL_LOGIN_NOT_ALLOWED(HttpStatus.CONFLICT, "소셜 로그인으로 가입된 계정입니다. 해당 소셜 로그인을 이용해주세요."),
+    OAUTH_PASSWORD_CHANGE_NOT_ALLOWED(HttpStatus.CONFLICT, "소셜 로그인 계정은 비밀번호를 변경할 수 없습니다."),
+    OAUTH_PROVIDER_MISMATCH(HttpStatus.CONFLICT, "다른 소셜 계정으로 가입된 이메일입니다."),
+    OAUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 소셜 인증 토큰입니다."),
+    OAUTH_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY, "소셜 인증 서버와의 통신에 실패했습니다."),
 
     // band
     BAND_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 밴드 정보를 찾을 수 없습니다."),
