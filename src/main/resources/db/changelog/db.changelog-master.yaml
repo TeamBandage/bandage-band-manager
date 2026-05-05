@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-init-schema
+      author: bandage
+      comment: PostgreSQL 스키마 초기화 (pg_dump --schema-only 기준)
+      changes:
+        - sqlFile:
+            path: changes/001-init-schema.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"

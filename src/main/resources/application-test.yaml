@@ -26,6 +26,9 @@ spring:
     redis:
       host: localhost
       port: 6379
+
+  liquibase:
+    enabled: false
 jwt:
   access-token-expr: 3600
   refresh-token-expr: 25200
