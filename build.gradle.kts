@@ -103,11 +103,13 @@ spotless {
 }
 
 tasks.register<Copy>("updateGitHooks") {
+    onlyIf { file(".git").isDirectory }
     from("./scripts/pre-commit")
     into("./.git/hooks")
 }
 
 tasks.register<Exec>("makeGitHooksExecutable") {
+    onlyIf { file(".git/hooks/pre-commit").exists() }
     commandLine("chmod", "+x", "./.git/hooks/pre-commit")
     dependsOn("updateGitHooks")
 }
