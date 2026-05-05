@@ -1,0 +1,31 @@
+# VCS / IDE
+.git
+.github
+.gitignore
+.gitattributes
+.idea
+.vscode
+.kotlin
+.claude
+
+# Build artefacts (rebuilt inside image)
+.gradle
+build
+out
+
+# Local-only / sensitive
+.env
+.env.*
+set-env.sh
+*.log
+logs
+
+# OS / scratch
+.DS_Store
+
+# Docs not needed at runtime
+*.md
+.taskmaster
+
+# Tests not used in image build
+src/test
