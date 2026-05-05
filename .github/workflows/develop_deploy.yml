@@ -47,7 +47,19 @@ jobs:
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$SHA_TAG"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$LATEST_TAG"
 
-      # 5. EC2 SSH — 컨테이너 부팅에 필요한 모든 환경변수를 .env 로 일괄 주입 후 compose up
+      # 5. docker-compose.yml 을 EC2 의 ~/bandage/ 로 동기화 (repo 가 single source of truth)
+      #    SSH 단계에서 compose pull 이 동작하려면 작업 디렉토리에 compose 파일이 미리 존재해야 함
+      - name: Sync docker-compose.yml to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: rocky
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: docker-compose.yml
+          target: /home/rocky/bandage
+          overwrite: true
+
+      # 6. EC2 SSH — 컨테이너 부팅에 필요한 모든 환경변수를 .env 로 일괄 주입 후 compose up
       #    DB_HOST/REDIS_HOST 는 compose 의 service 명(고정값)이라 GH 시크릿 대상이 아니다.
       #    AWS_REGION 은 워크플로우 레벨의 env.AWS_REGION 을 그대로 재사용한다.
       - name: Deploy to EC2 & Inject ENV
