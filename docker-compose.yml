@@ -4,9 +4,6 @@ services:
   postgres:
     image: postgres:15
     container_name: bandage-postgres
-    # POSTGRES_* 는 .env 의 DB_* 와 단일 출처를 공유한다.
-    # 주의: 이미 ./db 에 데이터가 있다면 postgres 는 최초 init 시점의 자격증명을 유지하므로
-    # DB_USERNAME/DB_PASSWORD/DB_NAME 변경 시 기존 볼륨을 비우거나 수동 마이그레이션 필요.
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -28,11 +25,11 @@ services:
       - ./redis:/data
     restart: always
 
-  api-server-a:
+  bandage-band-manager:
     image: 595028889928.dkr.ecr.ap-northeast-2.amazonaws.com/bandage-band-manager:dev-latest
     container_name: bandage-band-manager
     expose:
-      - "8080"
+      - "${BAND_MANAGER_PORT}"
     env_file:
       - .env
     depends_on:
@@ -40,9 +37,9 @@ services:
       - redis
     restart: always
 
-#  api-server-b:
+#  bandage-music-metadata:
 #    image: 595028889928.dkr.ecr.ap-northeast-2.amazonaws.com/bandage-music-metadata:latest
-#    container_name: bandage-api-b
+#    container_name: bandage-music-metadata
 #    ports:
 #      - "8081:8081"
 #    env_file:
