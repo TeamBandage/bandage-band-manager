@@ -120,5 +120,5 @@ jobs:
               | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
 
             docker compose pull
-            docker compose up -d --remove-orphans
+            docker compose up -d
             docker image prune -f
