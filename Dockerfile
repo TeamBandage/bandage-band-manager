@@ -20,9 +20,10 @@ RUN ./gradlew clean bootJar -x test --no-daemon \
 RUN java -Djarmode=tools -jar /workspace/app.jar extract --destination /workspace/extracted
 
 # ============================================================
-# Runtime stage — Amazon Corretto 21 JRE (초경량 런타임 환경)
+# Runtime stage — Amazon Corretto 21 (Alpine, JDK)
+# Java 11+ 부터 alpine-jre 단독 이미지가 deprecated 되어 alpine(JDK) 사용
 # ============================================================
-FROM amazoncorretto:21-alpine-jre AS runtime
+FROM amazoncorretto:21-alpine AS runtime
 
 RUN apk add --no-cache tzdata curl \
  && cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime \
