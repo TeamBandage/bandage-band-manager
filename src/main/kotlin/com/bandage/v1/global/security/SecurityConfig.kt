@@ -59,6 +59,7 @@ class SecurityConfig(
                     listOf(
                         "http://localhost:*",
                         "http://127.0.0.1:*",
+                        "https://bandage.team",
                     )
                 allowedMethods =
                     listOf(
