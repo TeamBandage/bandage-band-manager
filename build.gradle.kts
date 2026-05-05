@@ -72,6 +72,9 @@ dependencies {
     //aws s3
     implementation("software.amazon.awssdk:s3:2.25.66")
 
+    //liquibase
+    implementation("org.springframework.boot:spring-boot-starter-liquibase")
+
 }
 
 kotlin {
