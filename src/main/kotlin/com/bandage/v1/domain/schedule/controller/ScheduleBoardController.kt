@@ -61,19 +61,10 @@ class ScheduleBoardController(
     @Operation(summary = "시간표 시안 자동 생성", description = "합주 일정 블럭 자동 배치")
     fun autoSuggestBoard(
         @PathVariable meetingID: UUID,
-        @RequestParam suggestionQty: Int,
         @CurrentMemberId memberId: Long,
+        @RequestParam suggestionQty: Int,
     ): ApiResponse<ScheduleBoardResponse> =
         ApiResponse.success(scheduleBoardArrangeFacade.setupInitialScheduleBoard(meetingID, memberId, suggestionQty))
-
-    @PatchMapping("{boardId}/auto-suggest")
-    @Operation(summary = "시간표 시안 자동 재배치", description = "합주 일정 블럭 자동 재배치(고정 블럭 제외)")
-    fun autoRescheduleBoard(
-        @PathVariable meetingId: UUID,
-        @PathVariable boardId: UUID,
-        @CurrentMemberId memberId: Long,
-    ): ApiResponse<ScheduleBoardResponse> =
-        ApiResponse.success(scheduleBoardArrangeFacade.rearrangeScheduleBoard(meetingId, boardId, memberId))
 
     @DeleteMapping("/{boardId}")
     @Operation(summary = "시간표 시안 삭제", description = "매니저 권한, confirmed=true 인 시안은 삭제 불가(409).")
