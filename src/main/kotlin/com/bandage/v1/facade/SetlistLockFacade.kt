@@ -5,8 +5,8 @@ import com.bandage.v1.domain.practice.repository.PracticeSongRepository
 import com.bandage.v1.domain.setlist.dto.res.SetlistLockDiff
 import com.bandage.v1.domain.setlist.dto.res.SetlistLockResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistLockSongMapping
-import com.bandage.v1.domain.setlist.model.SetlistItem
-import com.bandage.v1.domain.setlist.repository.SetlistItemRepository
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItem
+import com.bandage.v1.domain.setlist.repository.SetlistMeetingItemRepository
 import com.bandage.v1.domain.setlist.repository.SetlistMeetingRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
@@ -18,7 +18,7 @@ import java.util.UUID
 @Service
 class SetlistLockFacade(
     private val meetingRepository: SetlistMeetingRepository,
-    private val itemRepository: SetlistItemRepository,
+    private val itemRepository: SetlistMeetingItemRepository,
     private val practiceSongRepository: PracticeSongRepository,
 ) {
     @Transactional
@@ -41,13 +41,13 @@ class SetlistLockFacade(
             if (existingId == null) {
                 val created = practiceSongRepository.save(toPracticeSong(item))
                 item.assignPracticeSongId(created.id)
-                added += SetlistLockSongMapping(setlistItemId = item.id, practiceSongId = created.id)
+                added += SetlistLockSongMapping(setlistMeetingItemId = item.id, practiceSongId = created.id)
             } else {
                 val song = practiceSongRepository.findByIdOrNull(existingId)
                 if (song == null) {
                     val created = practiceSongRepository.save(toPracticeSong(item))
                     item.assignPracticeSongId(created.id)
-                    added += SetlistLockSongMapping(setlistItemId = item.id, practiceSongId = created.id)
+                    added += SetlistLockSongMapping(setlistMeetingItemId = item.id, practiceSongId = created.id)
                 } else if (isChanged(song, item)) {
                     song.updateAll(
                         title = item.title,
@@ -56,13 +56,13 @@ class SetlistLockFacade(
                         duration = parseDurationSeconds(item.duration),
                         refLink = song.refLink,
                     )
-                    updated += SetlistLockSongMapping(setlistItemId = item.id, practiceSongId = song.id)
+                    updated += SetlistLockSongMapping(setlistMeetingItemId = item.id, practiceSongId = song.id)
                 }
             }
         }
 
         meeting.lock()
-        val songs = items.map { SetlistLockSongMapping(setlistItemId = it.id, practiceSongId = it.practiceSongId) }
+        val songs = items.map { SetlistLockSongMapping(setlistMeetingItemId = it.id, practiceSongId = it.practiceSongId) }
         val practiceSongMap = items.mapNotNull { it.practiceSongId?.let { sid -> it.id to sid } }.toMap()
 
         return SetlistLockResponse(
@@ -73,7 +73,7 @@ class SetlistLockFacade(
         )
     }
 
-    private fun toPracticeSong(item: SetlistItem): PracticeSong =
+    private fun toPracticeSong(item: SetlistMeetingItem): PracticeSong =
         PracticeSong.create(
             title = item.title,
             artist = item.artist,
@@ -83,7 +83,7 @@ class SetlistLockFacade(
 
     private fun isChanged(
         song: PracticeSong,
-        item: SetlistItem,
+        item: SetlistMeetingItem,
     ): Boolean =
         song.title != item.title ||
             song.artist != item.artist ||
@@ -91,7 +91,7 @@ class SetlistLockFacade(
             song.duration != parseDurationSeconds(item.duration)
 
     /**
-     * SetlistItem.duration 은 String? (FE 가 "MM:SS", "M:SS", 또는 초 단위 정수 문자열을 보냄).
+     * SetlistMeetingItem.duration 은 String? (FE 가 "MM:SS", "M:SS", 또는 초 단위 정수 문자열을 보냄).
      * PracticeSong.duration 은 초 단위 Int. 파싱 실패 / null 인 경우 0 반환 — 매니저가 사후 보정.
      */
     private fun parseDurationSeconds(raw: String?): Int {

@@ -15,9 +15,9 @@ import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
 @Entity
-@Table(name = "p_setlist_item")
+@Table(name = "p_setlist_meeting_item")
 @SQLRestriction("deleted_at IS NULL")
-open class SetlistItem(
+open class SetlistMeetingItem(
     meeting: SetlistMeeting,
     title: String,
     artist: String,
@@ -27,7 +27,7 @@ open class SetlistItem(
     note: String?,
 ) : BaseEntity() {
     @Id
-    @Column(name = "setlist_item_id")
+    @Column(name = "setlist_meeting_item_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
         protected set
@@ -65,8 +65,8 @@ open class SetlistItem(
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
-        name = "p_setlist_item_session",
-        joinColumns = [JoinColumn(name = "setlist_item_id")],
+        name = "p_setlist_meeting_item_session",
+        joinColumns = [JoinColumn(name = "setlist_meeting_item_id")],
     )
     private var _sessions: MutableList<SessionDef> = mutableListOf()
 
@@ -82,8 +82,8 @@ open class SetlistItem(
             proposerId: Long,
             note: String?,
             sessions: List<SessionDef>,
-        ): SetlistItem =
-            SetlistItem(
+        ): SetlistMeetingItem =
+            SetlistMeetingItem(
                 meeting = meeting,
                 title = title,
                 artist = artist,

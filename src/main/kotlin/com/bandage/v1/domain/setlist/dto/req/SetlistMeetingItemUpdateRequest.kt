@@ -3,8 +3,8 @@ package com.bandage.v1.domain.setlist.dto.req
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
 
-@Schema(description = "선곡 항목 부분 수정 요청")
-data class SetlistItemUpdateRequest(
+@Schema(description = "선곡 회의 항목 부분 수정 요청")
+data class SetlistMeetingItemUpdateRequest(
     val title: String? = null,
     val artist: String? = null,
     val album: String? = null,

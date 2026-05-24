@@ -1,15 +1,15 @@
 package com.bandage.v1.domain.setlist.dto.res
 
-import com.bandage.v1.domain.setlist.model.SetlistItem
-import com.bandage.v1.domain.setlist.model.SetlistItemApplicant
-import com.bandage.v1.domain.setlist.model.SetlistItemConfirmation
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItem
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItemApplicant
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItemConfirmation
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 import java.util.UUID
 
-@Schema(description = "선곡 항목 응답")
-data class SetlistItemResponse(
-    val setlistItemId: UUID,
+@Schema(description = "선곡 회의 항목 응답")
+data class SetlistMeetingItemResponse(
+    val setlistMeetingItemId: UUID,
     val meetingId: UUID,
     val title: String,
     val artist: String,
@@ -24,10 +24,10 @@ data class SetlistItemResponse(
 ) {
     companion object {
         fun of(
-            item: SetlistItem,
-            applicants: List<SetlistItemApplicant>,
-            confirmations: List<SetlistItemConfirmation>,
-        ): SetlistItemResponse {
+            item: SetlistMeetingItem,
+            applicants: List<SetlistMeetingItemApplicant>,
+            confirmations: List<SetlistMeetingItemConfirmation>,
+        ): SetlistMeetingItemResponse {
             val applicantsBySession = applicants.groupBy { it.sessionId }
             val confirmedBySession = confirmations.groupBy { it.sessionId }
             val sessionResponses =
@@ -38,8 +38,8 @@ data class SetlistItemResponse(
                         confirmed = confirmedBySession[def.sessionId]?.map { it.memberId } ?: emptyList(),
                     )
                 }
-            return SetlistItemResponse(
-                setlistItemId = item.id,
+            return SetlistMeetingItemResponse(
+                setlistMeetingItemId = item.id,
                 meetingId = item.meeting.id,
                 title = item.title,
                 artist = item.artist,

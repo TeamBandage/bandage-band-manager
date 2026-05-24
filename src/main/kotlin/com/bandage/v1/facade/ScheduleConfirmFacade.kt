@@ -14,10 +14,10 @@ import com.bandage.v1.domain.schedule.model.ScheduleBoard
 import com.bandage.v1.domain.schedule.repository.ScheduleBlockRepository
 import com.bandage.v1.domain.schedule.repository.ScheduleBoardRepository
 import com.bandage.v1.domain.schedule.service.ScheduleAuthService
-import com.bandage.v1.domain.setlist.model.SetlistItem
 import com.bandage.v1.domain.setlist.model.SetlistMeeting
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItem
 import com.bandage.v1.domain.setlist.model.enums.MeetingPurpose
-import com.bandage.v1.domain.setlist.repository.SetlistItemRepository
+import com.bandage.v1.domain.setlist.repository.SetlistMeetingItemRepository
 import com.bandage.v1.domain.setlist.repository.SetlistMeetingMemberRepository
 import com.bandage.v1.domain.setlist.repository.SetlistMeetingRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
@@ -34,7 +34,7 @@ class ScheduleConfirmFacade(
     private val scheduleBlockRepository: ScheduleBlockRepository,
     private val setlistMeetingRepository: SetlistMeetingRepository,
     private val setlistMeetingMemberRepository: SetlistMeetingMemberRepository,
-    private val setlistItemRepository: SetlistItemRepository,
+    private val setlistMeetingItemRepository: SetlistMeetingItemRepository,
     private val practiceSongRepository: PracticeSongRepository,
     private val practiceRepository: PracticeRepository,
     private val performanceRepository: PerformanceRepository,
@@ -58,12 +58,12 @@ class ScheduleConfirmFacade(
         }
 
         val blocks = scheduleBlockRepository.findAllByBoardId(boardId)
-        val items = setlistItemRepository.findAllByMeeting(meeting).associateBy { it.id }
+        val items = setlistMeetingItemRepository.findAllByMeeting(meeting).associateBy { it.id }
         val participantIds = setlistMeetingMemberRepository.findAllByMeetingId(meetingId).map { it.memberId }
 
         val createdPractices =
             blocks.map { block ->
-                val item = items[block.songId] ?: throw BusinessException(ErrorCode.SETLIST_ITEM_NOT_FOUND)
+                val item = items[block.songId] ?: throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_NOT_FOUND)
                 val practiceSong = resolvePracticeSong(item)
                 val practice = buildPractice(block, practiceSong)
                 participantIds.forEach { practice.addParticipant(it) }
@@ -139,7 +139,7 @@ class ScheduleConfirmFacade(
         setlistMeetingRepository.findByIdOrNull(meetingId)
             ?: throw BusinessException(ErrorCode.SETLIST_MEETING_NOT_FOUND)
 
-    private fun resolvePracticeSong(item: SetlistItem): PracticeSong {
+    private fun resolvePracticeSong(item: SetlistMeetingItem): PracticeSong {
         val practiceSongId =
             item.practiceSongId
                 ?: throw BusinessException(ErrorCode.PRACTICE_SONG_NOT_FOUND)

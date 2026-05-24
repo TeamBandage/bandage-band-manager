@@ -1,28 +1,28 @@
 package com.bandage.v1.domain.setlist.repository
 
-import com.bandage.v1.domain.setlist.model.QSetlistItemChatMessage
-import com.bandage.v1.domain.setlist.model.SetlistItemChatMessage
+import com.bandage.v1.domain.setlist.model.QSetlistMeetingItem
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItem
 import com.bandage.v1.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import java.util.UUID
 
-class SetlistItemChatMessageRepositoryImpl(
+class SetlistMeetingItemRepositoryImpl(
     private val queryFactory: JPAQueryFactory,
-) : SetlistItemChatMessageRepositoryCustom {
-    override fun findAllByItemAndPaging(
-        itemId: UUID,
+) : SetlistMeetingItemRepositoryCustom {
+    override fun findAllByMeetingAndPaging(
+        meetingId: UUID,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<SetlistItemChatMessage, UUID> {
-        val qChat = QSetlistItemChatMessage.setlistItemChatMessage
+    ): CursorResponse<SetlistMeetingItem, UUID> {
+        val qItem = QSetlistMeetingItem.setlistMeetingItem
 
         val contents =
             queryFactory
-                .selectFrom(qChat)
-                .where(qChat.item.id.eq(itemId))
-                .where(ltChatId(lastId))
-                .orderBy(qChat.id.desc())
+                .selectFrom(qItem)
+                .where(qItem.meeting.id.eq(meetingId))
+                .where(ltItemId(lastId))
+                .orderBy(qItem.id.asc())
                 .limit(pageSize.toLong() + 1)
                 .fetch()
 
@@ -33,5 +33,5 @@ class SetlistItemChatMessageRepositoryImpl(
         return CursorResponse(content = resultContents, nextCursor = nextCursor, hasNext = hasNext)
     }
 
-    private fun ltChatId(lastId: UUID?): BooleanExpression? = lastId?.let { QSetlistItemChatMessage.setlistItemChatMessage.id.lt(it) }
+    private fun ltItemId(lastId: UUID?): BooleanExpression? = lastId?.let { QSetlistMeetingItem.setlistMeetingItem.id.gt(it) }
 }

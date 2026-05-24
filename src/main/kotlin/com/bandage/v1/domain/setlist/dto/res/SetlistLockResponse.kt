@@ -7,7 +7,7 @@ import java.util.UUID
 @Schema(description = "선곡 회의 잠금 응답")
 data class SetlistLockResponse(
     val lockedAt: LocalDateTime,
-    @Schema(description = "선곡 항목 - 합주곡 매핑 (정상 잠금된 전체 곡)")
+    @Schema(description = "선곡 회의 항목 - 합주곡 매핑 (정상 잠금된 전체 곡)")
     val songs: List<SetlistLockSongMapping>,
     @Schema(description = "곡별 itemId → practiceSongId 매핑 (편의 필드)")
     val practiceSongMap: Map<UUID, UUID>,
@@ -16,7 +16,7 @@ data class SetlistLockResponse(
 )
 
 data class SetlistLockSongMapping(
-    val setlistItemId: UUID,
+    val setlistMeetingItemId: UUID,
     val practiceSongId: UUID?,
 )
 

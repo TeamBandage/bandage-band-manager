@@ -6,7 +6,6 @@ import com.bandage.v1.domain.schedule.dto.res.ScheduleBoardResponse
 import com.bandage.v1.domain.schedule.dto.res.ScheduleConfirmResponse
 import com.bandage.v1.domain.schedule.dto.res.ScheduleUnconfirmResponse
 import com.bandage.v1.domain.schedule.service.ScheduleBoardService
-import com.bandage.v1.facade.ScheduleBoardArrangeFacade
 import com.bandage.v1.facade.ScheduleConfirmFacade
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -31,7 +29,6 @@ import java.util.UUID
 class ScheduleBoardController(
     private val scheduleBoardService: ScheduleBoardService,
     private val scheduleConfirmFacade: ScheduleConfirmFacade,
-    private val scheduleBoardArrangeFacade: ScheduleBoardArrangeFacade,
 ) {
     @GetMapping
     @Operation(summary = "시간표 시안 목록", description = "회의 참여자만 호출 가능.")
@@ -57,14 +54,14 @@ class ScheduleBoardController(
         @Valid @RequestBody request: ScheduleBoardUpdateRequest,
     ): ApiResponse<ScheduleBoardResponse> = ApiResponse.success(scheduleBoardService.updateBoard(meetingId, boardId, memberId, request))
 
-    @PostMapping("/auto-suggest")
-    @Operation(summary = "시간표 시안 자동 생성", description = "합주 일정 블럭 자동 배치")
-    fun autoSuggestBoard(
-        @PathVariable meetingID: UUID,
-        @CurrentMemberId memberId: Long,
-        @RequestParam suggestionQty: Int,
-    ): ApiResponse<ScheduleBoardResponse> =
-        ApiResponse.success(scheduleBoardArrangeFacade.setupInitialScheduleBoard(meetingID, memberId, suggestionQty))
+//    @PostMapping("/auto-suggest")
+//    @Operation(summary = "시간표 시안 자동 생성", description = "합주 일정 블럭 자동 배치")
+//    fun autoSuggestBoard(
+//        @PathVariable meetingID: UUID,
+//        @CurrentMemberId memberId: Long,
+//        @RequestParam suggestionQty: Int,
+//    ): ApiResponse<ScheduleBoardResponse> =
+//        ApiResponse.success(scheduleBoardArrangeFacade.setupInitialScheduleBoard(meetingID, memberId, suggestionQty))
 
     @DeleteMapping("/{boardId}")
     @Operation(summary = "시간표 시안 삭제", description = "매니저 권한, confirmed=true 인 시안은 삭제 불가(409).")

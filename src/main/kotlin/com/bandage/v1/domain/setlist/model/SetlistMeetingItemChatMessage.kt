@@ -13,10 +13,10 @@ import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
 @Entity
-@Table(name = "p_setlist_item_chat_message")
+@Table(name = "p_setlist_meeting_item_chat_message")
 @SQLRestriction("deleted_at IS NULL")
-open class SetlistItemChatMessage(
-    item: SetlistItem,
+open class SetlistMeetingItemChatMessage(
+    item: SetlistMeetingItem,
     memberId: Long,
     message: String,
 ) : BaseEntity() {
@@ -27,8 +27,8 @@ open class SetlistItemChatMessage(
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "setlist_item_id", nullable = false)
-    val item: SetlistItem = item
+    @JoinColumn(name = "setlist_meeting_item_id", nullable = false)
+    val item: SetlistMeetingItem = item
 
     @Column(name = "member_id", nullable = false)
     val memberId: Long = memberId
@@ -39,9 +39,9 @@ open class SetlistItemChatMessage(
 
     companion object {
         fun create(
-            item: SetlistItem,
+            item: SetlistMeetingItem,
             memberId: Long,
             message: String,
-        ): SetlistItemChatMessage = SetlistItemChatMessage(item = item, memberId = memberId, message = message)
+        ): SetlistMeetingItemChatMessage = SetlistMeetingItemChatMessage(item = item, memberId = memberId, message = message)
     }
 }

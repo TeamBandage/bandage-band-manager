@@ -15,29 +15,30 @@ import java.util.UUID
 
 @Entity
 @Table(
-    name = "p_setlist_item_applicant",
+    name = "p_setlist_meeting_item_confirmation",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "uk_setlist_item_applicant",
-            columnNames = ["setlist_item_id", "session_id", "member_id"],
+            name = "uk_setlist_meeting_item_confirmation",
+            columnNames = ["setlist_meeting_item_id", "session_id", "member_id"],
         ),
     ],
 )
 @SQLRestriction("deleted_at IS NULL")
-open class SetlistItemApplicant(
-    item: SetlistItem,
+open class SetlistMeetingItemConfirmation(
+    item: SetlistMeetingItem,
     sessionId: String,
     memberId: Long,
+    confirmedBy: Long,
 ) : BaseEntity() {
     @Id
-    @Column(name = "applicant_id")
+    @Column(name = "confirmation_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "setlist_item_id", nullable = false)
-    val item: SetlistItem = item
+    @JoinColumn(name = "setlist_meeting_item_id", nullable = false)
+    val item: SetlistMeetingItem = item
 
     @Column(name = "session_id", nullable = false)
     val sessionId: String = sessionId
@@ -45,11 +46,21 @@ open class SetlistItemApplicant(
     @Column(name = "member_id", nullable = false)
     val memberId: Long = memberId
 
+    @Column(name = "confirmed_by", nullable = false)
+    val confirmedBy: Long = confirmedBy
+
     companion object {
         fun create(
-            item: SetlistItem,
+            item: SetlistMeetingItem,
             sessionId: String,
             memberId: Long,
-        ): SetlistItemApplicant = SetlistItemApplicant(item = item, sessionId = sessionId, memberId = memberId)
+            confirmedBy: Long,
+        ): SetlistMeetingItemConfirmation =
+            SetlistMeetingItemConfirmation(
+                item = item,
+                sessionId = sessionId,
+                memberId = memberId,
+                confirmedBy = confirmedBy,
+            )
     }
 }

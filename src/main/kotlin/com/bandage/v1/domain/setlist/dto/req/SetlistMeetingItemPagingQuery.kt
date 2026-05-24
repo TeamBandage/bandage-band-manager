@@ -5,8 +5,8 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import java.util.UUID
 
-@Schema(description = "선곡 항목 목록 조회 쿼리")
-data class SetlistItemPagingQuery(
+@Schema(description = "선곡 회의 항목 목록 조회 쿼리")
+data class SetlistMeetingItemPagingQuery(
     val lastId: UUID?,
     @field:Min(1)
     @field:Max(200)

@@ -15,30 +15,29 @@ import java.util.UUID
 
 @Entity
 @Table(
-    name = "p_setlist_item_confirmation",
+    name = "p_setlist_meeting_item_applicant",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "uk_setlist_item_confirmation",
-            columnNames = ["setlist_item_id", "session_id", "member_id"],
+            name = "uk_setlist_meeting_item_applicant",
+            columnNames = ["setlist_meeting_item_id", "session_id", "member_id"],
         ),
     ],
 )
 @SQLRestriction("deleted_at IS NULL")
-open class SetlistItemConfirmation(
-    item: SetlistItem,
+open class SetlistMeetingItemApplicant(
+    item: SetlistMeetingItem,
     sessionId: String,
     memberId: Long,
-    confirmedBy: Long,
 ) : BaseEntity() {
     @Id
-    @Column(name = "confirmation_id")
+    @Column(name = "applicant_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "setlist_item_id", nullable = false)
-    val item: SetlistItem = item
+    @JoinColumn(name = "setlist_meeting_item_id", nullable = false)
+    val item: SetlistMeetingItem = item
 
     @Column(name = "session_id", nullable = false)
     val sessionId: String = sessionId
@@ -46,21 +45,11 @@ open class SetlistItemConfirmation(
     @Column(name = "member_id", nullable = false)
     val memberId: Long = memberId
 
-    @Column(name = "confirmed_by", nullable = false)
-    val confirmedBy: Long = confirmedBy
-
     companion object {
         fun create(
-            item: SetlistItem,
+            item: SetlistMeetingItem,
             sessionId: String,
             memberId: Long,
-            confirmedBy: Long,
-        ): SetlistItemConfirmation =
-            SetlistItemConfirmation(
-                item = item,
-                sessionId = sessionId,
-                memberId = memberId,
-                confirmedBy = confirmedBy,
-            )
+        ): SetlistMeetingItemApplicant = SetlistMeetingItemApplicant(item = item, sessionId = sessionId, memberId = memberId)
     }
 }

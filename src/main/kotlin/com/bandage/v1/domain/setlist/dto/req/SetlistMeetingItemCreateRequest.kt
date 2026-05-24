@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 
-@Schema(description = "선곡 항목 생성 요청")
-data class SetlistItemCreateRequest(
+@Schema(description = "선곡 회의 항목 생성 요청")
+data class SetlistMeetingItemCreateRequest(
     @field:NotBlank
     @Schema(description = "곡 제목")
     val title: String,

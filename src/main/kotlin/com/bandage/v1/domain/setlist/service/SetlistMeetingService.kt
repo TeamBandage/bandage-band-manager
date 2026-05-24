@@ -3,29 +3,29 @@ package com.bandage.v1.domain.setlist.service
 import com.bandage.v1.domain.performance.repository.PerformanceRepository
 import com.bandage.v1.domain.setlist.dto.req.SetlistChatMessageCreateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistConfirmationUpdateRequest
-import com.bandage.v1.domain.setlist.dto.req.SetlistItemCreateRequest
-import com.bandage.v1.domain.setlist.dto.req.SetlistItemPagingQuery
-import com.bandage.v1.domain.setlist.dto.req.SetlistItemUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingCreateRequest
+import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingItemCreateRequest
+import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingItemPagingQuery
+import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingItemUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingPagingQuery
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistParticipantsUpdateRequest
 import com.bandage.v1.domain.setlist.dto.res.SetlistChatMessageResponse
-import com.bandage.v1.domain.setlist.dto.res.SetlistItemResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingDetailResponse
+import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingItemResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingResponse
 import com.bandage.v1.domain.setlist.model.PracticeWindow
-import com.bandage.v1.domain.setlist.model.SetlistItem
-import com.bandage.v1.domain.setlist.model.SetlistItemApplicant
-import com.bandage.v1.domain.setlist.model.SetlistItemChatMessage
-import com.bandage.v1.domain.setlist.model.SetlistItemConfirmation
 import com.bandage.v1.domain.setlist.model.SetlistMeeting
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItem
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItemApplicant
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItemChatMessage
+import com.bandage.v1.domain.setlist.model.SetlistMeetingItemConfirmation
 import com.bandage.v1.domain.setlist.model.SetlistMeetingMember
 import com.bandage.v1.domain.setlist.model.enums.MeetingPurpose
-import com.bandage.v1.domain.setlist.repository.SetlistItemApplicantRepository
-import com.bandage.v1.domain.setlist.repository.SetlistItemChatMessageRepository
-import com.bandage.v1.domain.setlist.repository.SetlistItemConfirmationRepository
-import com.bandage.v1.domain.setlist.repository.SetlistItemRepository
+import com.bandage.v1.domain.setlist.repository.SetlistMeetingItemApplicantRepository
+import com.bandage.v1.domain.setlist.repository.SetlistMeetingItemChatMessageRepository
+import com.bandage.v1.domain.setlist.repository.SetlistMeetingItemConfirmationRepository
+import com.bandage.v1.domain.setlist.repository.SetlistMeetingItemRepository
 import com.bandage.v1.domain.setlist.repository.SetlistMeetingMemberRepository
 import com.bandage.v1.domain.setlist.repository.SetlistMeetingRepository
 import com.bandage.v1.global.common.response.CursorResponse
@@ -42,10 +42,10 @@ import java.util.UUID
 class SetlistMeetingService(
     private val meetingRepository: SetlistMeetingRepository,
     private val meetingMemberRepository: SetlistMeetingMemberRepository,
-    private val itemRepository: SetlistItemRepository,
-    private val applicantRepository: SetlistItemApplicantRepository,
-    private val confirmationRepository: SetlistItemConfirmationRepository,
-    private val chatMessageRepository: SetlistItemChatMessageRepository,
+    private val itemRepository: SetlistMeetingItemRepository,
+    private val applicantRepository: SetlistMeetingItemApplicantRepository,
+    private val confirmationRepository: SetlistMeetingItemConfirmationRepository,
+    private val chatMessageRepository: SetlistMeetingItemChatMessageRepository,
     private val performanceRepository: PerformanceRepository,
 ) {
     @Transactional
@@ -146,7 +146,6 @@ class SetlistMeetingService(
             throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
         }
 
-        // remove cascade: applicants/confirmations
         if (removeIds.isNotEmpty()) {
             val items = itemRepository.findAllByMeeting(meeting)
             removeIds.forEach { uid ->
@@ -157,7 +156,6 @@ class SetlistMeetingService(
                 }
             }
         }
-        // add (idempotent)
         addIds.forEach { uid ->
             if (!meetingMemberRepository.existsByMeetingAndMemberId(meeting, uid)) {
                 meetingMemberRepository.save(SetlistMeetingMember.create(meeting = meeting, memberId = uid))
@@ -173,15 +171,15 @@ class SetlistMeetingService(
     fun createItem(
         meetingId: UUID,
         memberId: Long,
-        request: SetlistItemCreateRequest,
-    ): SetlistItemResponse {
+        request: SetlistMeetingItemCreateRequest,
+    ): SetlistMeetingItemResponse {
         val meeting = getMeetingOrThrow(meetingId)
         validateAccess(meeting, memberId)
         if (meeting.isLocked) throw BusinessException(ErrorCode.SETLIST_MEETING_LOCKED)
 
         val item =
             itemRepository.save(
-                SetlistItem.create(
+                SetlistMeetingItem.create(
                     meeting = meeting,
                     title = request.title,
                     artist = request.artist,
@@ -192,14 +190,14 @@ class SetlistMeetingService(
                     sessions = request.sessions.map { it.toEntity() },
                 ),
             )
-        return SetlistItemResponse.of(item, emptyList(), emptyList())
+        return SetlistMeetingItemResponse.of(item, emptyList(), emptyList())
     }
 
     fun getItems(
         meetingId: UUID,
         memberId: Long,
-        query: SetlistItemPagingQuery,
-    ): CursorResponse<SetlistItemResponse, UUID> {
+        query: SetlistMeetingItemPagingQuery,
+    ): CursorResponse<SetlistMeetingItemResponse, UUID> {
         val meeting = getMeetingOrThrow(meetingId)
         validateAccess(meeting, memberId)
         val result = itemRepository.findAllByMeetingAndPaging(meetingId, query.lastId, query.pageSize)
@@ -210,7 +208,7 @@ class SetlistMeetingService(
         val confirmations = confirmationRepository.findAllByItemIn(result.content).groupBy { it.item.id }
         val content =
             result.content.map { item ->
-                SetlistItemResponse.of(
+                SetlistMeetingItemResponse.of(
                     item = item,
                     applicants = applicants[item.id] ?: emptyList(),
                     confirmations = confirmations[item.id] ?: emptyList(),
@@ -223,11 +221,11 @@ class SetlistMeetingService(
         meetingId: UUID,
         itemId: UUID,
         memberId: Long,
-    ): SetlistItemResponse {
+    ): SetlistMeetingItemResponse {
         val meeting = getMeetingOrThrow(meetingId)
         validateAccess(meeting, memberId)
         val item = getItemOrThrow(meeting, itemId)
-        return SetlistItemResponse.of(
+        return SetlistMeetingItemResponse.of(
             item = item,
             applicants = applicantRepository.findAllByItem(item),
             confirmations = confirmationRepository.findAllByItem(item),
@@ -239,27 +237,26 @@ class SetlistMeetingService(
         meetingId: UUID,
         itemId: UUID,
         memberId: Long,
-        request: SetlistItemUpdateRequest,
-    ): SetlistItemResponse {
+        request: SetlistMeetingItemUpdateRequest,
+    ): SetlistMeetingItemResponse {
         val meeting = getMeetingOrThrow(meetingId)
         validateAccess(meeting, memberId)
         if (meeting.isLocked) throw BusinessException(ErrorCode.SETLIST_MEETING_LOCKED)
         val item = getItemOrThrow(meeting, itemId)
         if (item.proposerId != memberId && meeting.managerId != memberId) {
-            throw BusinessException(ErrorCode.SETLIST_ITEM_FORBIDDEN)
+            throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_FORBIDDEN)
         }
         item.updateMeta(request.title, request.artist, request.album, request.duration, request.note)
         request.sessions?.let { sessions ->
             val newDefs = sessions.map { it.toEntity() }
             val newSessionIds = newDefs.map { it.sessionId }.toSet()
-            // cascade — 제거된 세션의 applicant/confirmation 정리
             val applicants = applicantRepository.findAllByItem(item)
             val confirmations = confirmationRepository.findAllByItem(item)
             applicants.filter { it.sessionId !in newSessionIds }.forEach { applicantRepository.delete(it) }
             confirmations.filter { it.sessionId !in newSessionIds }.forEach { confirmationRepository.delete(it) }
             item.replaceSessions(newDefs)
         }
-        return SetlistItemResponse.of(
+        return SetlistMeetingItemResponse.of(
             item = item,
             applicants = applicantRepository.findAllByItem(item),
             confirmations = confirmationRepository.findAllByItem(item),
@@ -277,7 +274,7 @@ class SetlistMeetingService(
         if (meeting.isLocked) throw BusinessException(ErrorCode.SETLIST_MEETING_LOCKED)
         val item = getItemOrThrow(meeting, itemId)
         if (item.proposerId != memberId && meeting.managerId != memberId) {
-            throw BusinessException(ErrorCode.SETLIST_ITEM_FORBIDDEN)
+            throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_FORBIDDEN)
         }
         item.markAsDeleted(memberId)
     }
@@ -295,7 +292,7 @@ class SetlistMeetingService(
         val item = getItemOrThrow(meeting, itemId)
         validateSessionExists(item, sessionId)
         if (applicantRepository.existsByItemAndSessionIdAndMemberId(item, sessionId, memberId)) return
-        applicantRepository.save(SetlistItemApplicant.create(item = item, sessionId = sessionId, memberId = memberId))
+        applicantRepository.save(SetlistMeetingItemApplicant.create(item = item, sessionId = sessionId, memberId = memberId))
     }
 
     @Transactional
@@ -307,7 +304,7 @@ class SetlistMeetingService(
         memberId: Long,
     ) {
         if (targetMemberId != memberId) {
-            throw BusinessException(ErrorCode.SETLIST_ITEM_FORBIDDEN)
+            throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_FORBIDDEN)
         }
         val meeting = getMeetingOrThrow(meetingId)
         validateAccess(meeting, memberId)
@@ -315,7 +312,6 @@ class SetlistMeetingService(
         applicantRepository.findByItemAndSessionIdAndMemberId(item, sessionId, memberId)?.let {
             applicantRepository.delete(it)
         }
-        // cascade — 확정도 함께 제거
         confirmationRepository.findByItemAndSessionIdAndMemberId(item, sessionId, memberId)?.let {
             confirmationRepository.delete(it)
         }
@@ -329,13 +325,13 @@ class SetlistMeetingService(
         sessionId: String,
         memberId: Long,
         request: SetlistConfirmationUpdateRequest,
-    ): SetlistItemResponse {
+    ): SetlistMeetingItemResponse {
         val meeting = getMeetingOrThrow(meetingId)
         validateManager(meeting, memberId)
         val item = getItemOrThrow(meeting, itemId)
         val sessionDef =
             item.sessions.firstOrNull { it.sessionId == sessionId }
-                ?: throw BusinessException(ErrorCode.SETLIST_ITEM_SESSION_NOT_FOUND)
+                ?: throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_SESSION_NOT_FOUND)
 
         request.unconfirm.forEach { uid ->
             confirmationRepository.findByItemAndSessionIdAndMemberId(item, sessionId, uid)?.let {
@@ -348,14 +344,14 @@ class SetlistMeetingService(
                 confirmationRepository.findByItemAndSessionIdAndMemberId(item, sessionId, uid) == null
             }
         if (currentCount + toAdd.size > sessionDef.need) {
-            throw BusinessException(ErrorCode.SETLIST_ITEM_SESSION_FULL)
+            throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_SESSION_FULL)
         }
         toAdd.forEach { uid ->
             confirmationRepository.save(
-                SetlistItemConfirmation.create(item = item, sessionId = sessionId, memberId = uid, confirmedBy = memberId),
+                SetlistMeetingItemConfirmation.create(item = item, sessionId = sessionId, memberId = uid, confirmedBy = memberId),
             )
         }
-        return SetlistItemResponse.of(
+        return SetlistMeetingItemResponse.of(
             item = item,
             applicants = applicantRepository.findAllByItem(item),
             confirmations = confirmationRepository.findAllByItem(item),
@@ -393,7 +389,7 @@ class SetlistMeetingService(
         val item = getItemOrThrow(meeting, itemId)
         val msg =
             chatMessageRepository.save(
-                SetlistItemChatMessage.create(item = item, memberId = memberId, message = request.message),
+                SetlistMeetingItemChatMessage.create(item = item, memberId = memberId, message = request.message),
             )
         return SetlistChatMessageResponse.of(msg)
     }
@@ -421,11 +417,11 @@ class SetlistMeetingService(
     private fun getItemOrThrow(
         meeting: SetlistMeeting,
         itemId: UUID,
-    ): SetlistItem {
+    ): SetlistMeetingItem {
         val item =
             itemRepository.findByIdOrNull(itemId)
-                ?: throw BusinessException(ErrorCode.SETLIST_ITEM_NOT_FOUND)
-        if (item.meeting.id != meeting.id) throw BusinessException(ErrorCode.SETLIST_ITEM_NOT_FOUND)
+                ?: throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_NOT_FOUND)
+        if (item.meeting.id != meeting.id) throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_NOT_FOUND)
         return item
     }
 
@@ -458,11 +454,11 @@ class SetlistMeetingService(
     }
 
     private fun validateSessionExists(
-        item: SetlistItem,
+        item: SetlistMeetingItem,
         sessionId: String,
     ) {
         if (item.sessions.none { it.sessionId == sessionId }) {
-            throw BusinessException(ErrorCode.SETLIST_ITEM_SESSION_NOT_FOUND)
+            throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_SESSION_NOT_FOUND)
         }
     }
 

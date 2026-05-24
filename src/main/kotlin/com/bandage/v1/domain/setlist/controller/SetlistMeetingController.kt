@@ -2,17 +2,17 @@ package com.bandage.v1.domain.setlist.controller
 
 import com.bandage.v1.domain.setlist.dto.req.SetlistChatMessageCreateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistConfirmationUpdateRequest
-import com.bandage.v1.domain.setlist.dto.req.SetlistItemCreateRequest
-import com.bandage.v1.domain.setlist.dto.req.SetlistItemPagingQuery
-import com.bandage.v1.domain.setlist.dto.req.SetlistItemUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingCreateRequest
+import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingItemCreateRequest
+import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingItemPagingQuery
+import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingItemUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingPagingQuery
 import com.bandage.v1.domain.setlist.dto.req.SetlistMeetingUpdateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistParticipantsUpdateRequest
 import com.bandage.v1.domain.setlist.dto.res.SetlistChatMessageResponse
-import com.bandage.v1.domain.setlist.dto.res.SetlistItemResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistLockResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingDetailResponse
+import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingItemResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistMeetingResponse
 import com.bandage.v1.domain.setlist.service.SetlistMeetingService
 import com.bandage.v1.facade.SetlistLockFacade
@@ -93,41 +93,41 @@ class SetlistMeetingController(
 
     // -------- items --------
     @GetMapping("/{meetingId}/items")
-    @Operation(summary = "선곡 항목 목록 조회")
+    @Operation(summary = "선곡 회의 항목 목록 조회")
     fun getItems(
         @PathVariable meetingId: UUID,
         @CurrentMemberId memberId: Long,
-        @Valid query: SetlistItemPagingQuery,
-    ): ApiResponse<CursorResponse<SetlistItemResponse, UUID>> =
+        @Valid query: SetlistMeetingItemPagingQuery,
+    ): ApiResponse<CursorResponse<SetlistMeetingItemResponse, UUID>> =
         ApiResponse.success(setlistMeetingService.getItems(meetingId, memberId, query))
 
     @GetMapping("/{meetingId}/items/{itemId}")
-    @Operation(summary = "선곡 항목 단건 조회")
+    @Operation(summary = "선곡 회의 항목 단건 조회")
     fun getItem(
         @PathVariable meetingId: UUID,
         @PathVariable itemId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<SetlistItemResponse> = ApiResponse.success(setlistMeetingService.getItem(meetingId, itemId, memberId))
+    ): ApiResponse<SetlistMeetingItemResponse> = ApiResponse.success(setlistMeetingService.getItem(meetingId, itemId, memberId))
 
     @PostMapping("/{meetingId}/items")
-    @Operation(summary = "선곡 항목 생성")
+    @Operation(summary = "선곡 회의 항목 생성")
     fun createItem(
         @PathVariable meetingId: UUID,
         @CurrentMemberId memberId: Long,
-        @Valid @RequestBody request: SetlistItemCreateRequest,
-    ): ApiResponse<SetlistItemResponse> = ApiResponse.success(setlistMeetingService.createItem(meetingId, memberId, request))
+        @Valid @RequestBody request: SetlistMeetingItemCreateRequest,
+    ): ApiResponse<SetlistMeetingItemResponse> = ApiResponse.success(setlistMeetingService.createItem(meetingId, memberId, request))
 
     @PatchMapping("/{meetingId}/items/{itemId}")
-    @Operation(summary = "선곡 항목 수정")
+    @Operation(summary = "선곡 회의 항목 수정")
     fun updateItem(
         @PathVariable meetingId: UUID,
         @PathVariable itemId: UUID,
         @CurrentMemberId memberId: Long,
-        @Valid @RequestBody request: SetlistItemUpdateRequest,
-    ): ApiResponse<SetlistItemResponse> = ApiResponse.success(setlistMeetingService.updateItem(meetingId, itemId, memberId, request))
+        @Valid @RequestBody request: SetlistMeetingItemUpdateRequest,
+    ): ApiResponse<SetlistMeetingItemResponse> = ApiResponse.success(setlistMeetingService.updateItem(meetingId, itemId, memberId, request))
 
     @DeleteMapping("/{meetingId}/items/{itemId}")
-    @Operation(summary = "선곡 항목 삭제")
+    @Operation(summary = "선곡 회의 항목 삭제")
     fun deleteItem(
         @PathVariable meetingId: UUID,
         @PathVariable itemId: UUID,
@@ -171,12 +171,12 @@ class SetlistMeetingController(
         @PathVariable sessionId: String,
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: SetlistConfirmationUpdateRequest,
-    ): ApiResponse<SetlistItemResponse> =
+    ): ApiResponse<SetlistMeetingItemResponse> =
         ApiResponse.success(setlistMeetingService.updateConfirmations(meetingId, itemId, sessionId, memberId, request))
 
     // -------- chat --------
     @GetMapping("/{meetingId}/items/{itemId}/chat")
-    @Operation(summary = "선곡 항목 채팅 조회")
+    @Operation(summary = "선곡 회의 항목 채팅 조회")
     fun getChatMessages(
         @PathVariable meetingId: UUID,
         @PathVariable itemId: UUID,
@@ -187,7 +187,7 @@ class SetlistMeetingController(
         ApiResponse.success(setlistMeetingService.getChatMessages(meetingId, itemId, memberId, lastId, pageSize))
 
     @PostMapping("/{meetingId}/items/{itemId}/chat")
-    @Operation(summary = "선곡 항목 채팅 작성")
+    @Operation(summary = "선곡 회의 항목 채팅 작성")
     fun createChatMessage(
         @PathVariable meetingId: UUID,
         @PathVariable itemId: UUID,
