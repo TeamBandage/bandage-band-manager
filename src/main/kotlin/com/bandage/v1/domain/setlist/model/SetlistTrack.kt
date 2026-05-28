@@ -1,6 +1,7 @@
 package com.bandage.v1.domain.setlist.model
 
 import com.bandage.v1.global.common.domain.BaseEntity
+import com.bandage.v1.global.common.domain.SessionDef
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
@@ -15,26 +16,25 @@ import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
 @Entity
-@Table(name = "p_setlist_meeting_item")
+@Table(name = "p_setlist_track")
 @SQLRestriction("deleted_at IS NULL")
-open class SetlistMeetingItem(
-    meeting: SetlistMeeting,
+open class SetlistTrack(
+    setlist: Setlist,
     title: String,
     artist: String,
     album: String?,
     duration: String?,
-    proposerId: Long,
     note: String?,
 ) : BaseEntity() {
     @Id
-    @Column(name = "setlist_meeting_item_id")
+    @Column(name = "setlist_track_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meeting_id", nullable = false)
-    val meeting: SetlistMeeting = meeting
+    @JoinColumn(name = "setlist_id", nullable = false)
+    val setlist: Setlist = setlist
 
     @Column(name = "title", nullable = false)
     var title: String = title
@@ -52,9 +52,6 @@ open class SetlistMeetingItem(
     var duration: String? = duration
         protected set
 
-    @Column(name = "proposer_id", nullable = false)
-    val proposerId: Long = proposerId
-
     @Column(name = "note", nullable = true, length = 1000)
     var note: String? = note
         protected set
@@ -65,8 +62,8 @@ open class SetlistMeetingItem(
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
-        name = "p_setlist_meeting_item_session",
-        joinColumns = [JoinColumn(name = "setlist_meeting_item_id")],
+        name = "p_setlist_track_session",
+        joinColumns = [JoinColumn(name = "setlist_track_id")],
     )
     private var _sessions: MutableList<SessionDef> = mutableListOf()
 
@@ -74,22 +71,20 @@ open class SetlistMeetingItem(
 
     companion object {
         fun create(
-            meeting: SetlistMeeting,
+            setlist: Setlist,
             title: String,
             artist: String,
             album: String?,
             duration: String?,
-            proposerId: Long,
             note: String?,
             sessions: List<SessionDef>,
-        ): SetlistMeetingItem =
-            SetlistMeetingItem(
-                meeting = meeting,
+        ): SetlistTrack =
+            SetlistTrack(
+                setlist = setlist,
                 title = title,
                 artist = artist,
                 album = album,
                 duration = duration,
-                proposerId = proposerId,
                 note = note,
             ).apply {
                 _sessions.addAll(sessions)

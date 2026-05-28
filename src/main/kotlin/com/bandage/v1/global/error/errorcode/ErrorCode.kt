@@ -76,6 +76,7 @@ enum class ErrorCode(
     SETLIST_PRACTICE_WINDOW_INVALID(HttpStatus.BAD_REQUEST, "practiceWindow.from 은 to 보다 같거나 이전이어야 합니다."),
     SETLIST_NOT_LOCKED(HttpStatus.BAD_REQUEST, "선곡 회의가 lock 상태가 아닙니다. 시안 확정 전 회의를 lock 해주세요."),
     SETLIST_SELECTION_INCOMPLETE_SESSION(HttpStatus.BAD_REQUEST, "모든 세션의 확정 인원이 충족되지 않았습니다."),
+    SETLIST_NO_SELECTED_TRACK(HttpStatus.BAD_REQUEST, "선택된 트랙이 없습니다. 최소 1개 이상의 트랙을 선택해주세요."),
 
     // schedule
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 스케줄 정보를 찾을 수 없습니다."),
