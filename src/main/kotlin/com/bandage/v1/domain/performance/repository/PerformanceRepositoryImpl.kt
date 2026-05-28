@@ -2,7 +2,8 @@ package com.bandage.v1.domain.performance.repository
 
 import com.bandage.v1.domain.performance.model.Performance
 import com.bandage.v1.domain.performance.model.QPerformance
-import com.bandage.v1.domain.performance.model.QPerformanceBand
+import com.bandage.v1.domain.performance.model.QPerformanceSetlist
+import com.bandage.v1.domain.setlist.model.QSetlistBand
 import com.bandage.v1.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -25,15 +26,7 @@ class PerformanceRepositoryImpl(
                 .limit(pageSize.toLong() + 1)
                 .fetch()
 
-        val hasNext = contents.size > pageSize
-        val resultContents = if (hasNext) contents.dropLast(1) else contents
-        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
-
-        return CursorResponse(
-            content = resultContents,
-            nextCursor = nextCursor,
-            hasNext = hasNext,
-        )
+        return buildCursorResponse(contents, pageSize)
     }
 
     override fun findAllByBandIdAndPaging(
@@ -42,29 +35,24 @@ class PerformanceRepositoryImpl(
         pageSize: Int,
     ): CursorResponse<Performance, UUID> {
         val qPerformance = QPerformance.performance
-        val qPerformanceBand = QPerformanceBand.performanceBand
+        val qPerformanceSetlist = QPerformanceSetlist.performanceSetlist
+        val qSetlistBand = QSetlistBand.setlistBand
 
         val contents =
             queryFactory
                 .selectFrom(qPerformance)
-                .join(qPerformanceBand)
-                .on(qPerformanceBand.performance.eq(qPerformance))
-                .where(qPerformanceBand.bandId.eq(bandId))
+                .join(qPerformanceSetlist)
+                .on(qPerformanceSetlist.performance.eq(qPerformance))
+                .join(qSetlistBand)
+                .on(qSetlistBand.setlistId.eq(qPerformanceSetlist.setlistId))
+                .where(qSetlistBand.bandId.eq(bandId))
                 .where(ltPerformanceId(lastId))
                 .orderBy(qPerformance.id.desc())
                 .distinct()
                 .limit(pageSize.toLong() + 1)
                 .fetch()
 
-        val hasNext = contents.size > pageSize
-        val resultContents = if (hasNext) contents.dropLast(1) else contents
-        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
-
-        return CursorResponse(
-            content = resultContents,
-            nextCursor = nextCursor,
-            hasNext = hasNext,
-        )
+        return buildCursorResponse(contents, pageSize)
     }
 
     override fun findAllByBandIdsAndPaging(
@@ -73,29 +61,24 @@ class PerformanceRepositoryImpl(
         pageSize: Int,
     ): CursorResponse<Performance, UUID> {
         val qPerformance = QPerformance.performance
-        val qPerformanceBand = QPerformanceBand.performanceBand
+        val qPerformanceSetlist = QPerformanceSetlist.performanceSetlist
+        val qSetlistBand = QSetlistBand.setlistBand
 
         val contents =
             queryFactory
                 .selectFrom(qPerformance)
-                .join(qPerformanceBand)
-                .on(qPerformanceBand.performance.eq(qPerformance))
-                .where(qPerformanceBand.bandId.`in`(bandIds))
+                .join(qPerformanceSetlist)
+                .on(qPerformanceSetlist.performance.eq(qPerformance))
+                .join(qSetlistBand)
+                .on(qSetlistBand.setlistId.eq(qPerformanceSetlist.setlistId))
+                .where(qSetlistBand.bandId.`in`(bandIds))
                 .where(ltPerformanceId(lastId))
                 .orderBy(qPerformance.id.desc())
                 .distinct()
                 .limit(pageSize.toLong() + 1)
                 .fetch()
 
-        val hasNext = contents.size > pageSize
-        val resultContents = if (hasNext) contents.dropLast(1) else contents
-        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
-
-        return CursorResponse(
-            content = resultContents,
-            nextCursor = nextCursor,
-            hasNext = hasNext,
-        )
+        return buildCursorResponse(contents, pageSize)
     }
 
     override fun searchByTitleAndPaging(
@@ -114,15 +97,17 @@ class PerformanceRepositoryImpl(
                 .limit(pageSize.toLong() + 1)
                 .fetch()
 
+        return buildCursorResponse(contents, pageSize)
+    }
+
+    private fun buildCursorResponse(
+        contents: List<Performance>,
+        pageSize: Int,
+    ): CursorResponse<Performance, UUID> {
         val hasNext = contents.size > pageSize
         val resultContents = if (hasNext) contents.dropLast(1) else contents
         val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
-
-        return CursorResponse(
-            content = resultContents,
-            nextCursor = nextCursor,
-            hasNext = hasNext,
-        )
+        return CursorResponse(content = resultContents, nextCursor = nextCursor, hasNext = hasNext)
     }
 
     private fun ltPerformanceId(lastId: UUID?): BooleanExpression? = lastId?.let { QPerformance.performance.id.lt(it) }

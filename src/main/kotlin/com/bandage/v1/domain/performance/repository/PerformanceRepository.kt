@@ -13,9 +13,10 @@ interface PerformanceRepository :
     JpaRepository<Performance, UUID>,
     PerformanceRepositoryCustom {
     @Query(
-        "SELECT COUNT(DISTINCT pb.performance.id) FROM PerformanceBand pb " +
-            "WHERE pb.bandId IN :bandIds AND pb.performance.timeInfo.startAt > :now " +
-            "AND pb.performance.deletedAt IS NULL",
+        "SELECT COUNT(DISTINCT ps.performance.id) FROM PerformanceSetlist ps " +
+            "JOIN SetlistBand sb ON sb.setlistId = ps.setlistId " +
+            "WHERE sb.bandId IN :bandIds AND ps.performance.timeInfo.startAt > :now " +
+            "AND ps.performance.deletedAt IS NULL",
     )
     fun countUpcomingByBandIds(
         @Param("bandIds") bandIds: Collection<UUID>,

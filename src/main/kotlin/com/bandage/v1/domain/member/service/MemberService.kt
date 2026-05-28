@@ -7,7 +7,6 @@ import com.bandage.v1.domain.member.dto.res.MemberInfoResponse
 import com.bandage.v1.domain.member.dto.res.MemberSearchItemResponse
 import com.bandage.v1.domain.member.model.Member
 import com.bandage.v1.domain.member.repository.MemberRepository
-import com.bandage.v1.domain.performance.repository.PerformanceRepository
 import com.bandage.v1.domain.practice.repository.PracticeParticipantRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
@@ -22,7 +21,6 @@ class MemberService(
     private val memberRepository: MemberRepository,
     private val bandMemberRepository: BandMemberRepository,
     private val practiceParticipantRepository: PracticeParticipantRepository,
-    private val performanceRepository: PerformanceRepository,
     private val cloudFrontUrlResolver: CloudFrontUrlResolver,
 ) {
     @Transactional

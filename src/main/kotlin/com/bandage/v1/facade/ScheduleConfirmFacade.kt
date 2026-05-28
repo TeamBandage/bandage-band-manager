@@ -1,8 +1,5 @@
 package com.bandage.v1.facade
 
-import com.bandage.v1.domain.performance.model.PerformancePractice
-import com.bandage.v1.domain.performance.repository.PerformancePracticeRepository
-import com.bandage.v1.domain.performance.repository.PerformanceRepository
 import com.bandage.v1.domain.practice.model.Practice
 import com.bandage.v1.domain.practice.model.PracticeSong
 import com.bandage.v1.domain.practice.repository.PracticeRepository
@@ -36,8 +33,6 @@ class ScheduleConfirmFacade(
     private val trackSelectionItemRepository: TrackSelectionItemRepository,
     private val practiceSongRepository: PracticeSongRepository,
     private val practiceRepository: PracticeRepository,
-    private val performanceRepository: PerformanceRepository,
-    private val performancePracticeRepository: PerformancePracticeRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     @Transactional
@@ -69,8 +64,6 @@ class ScheduleConfirmFacade(
                 practiceRepository.save(practice)
             }
 
-        val linkedPerformancePractices = emptyList<PerformancePractice>()
-
         board.confirm()
         val confirmedAt = LocalDateTime.now()
 
@@ -83,14 +76,6 @@ class ScheduleConfirmFacade(
                         title = it.title,
                         startAt = it.timeInfo.startAt,
                         durationMinutes = it.timeInfo.durationMinutes,
-                    )
-                },
-            performancePracticesLinked =
-                linkedPerformancePractices.map {
-                    ScheduleConfirmResponse.PerformancePracticeSummary(
-                        performancePracticeId = it.id,
-                        performanceId = it.performance.id,
-                        practiceId = it.practice.id,
                     )
                 },
         )

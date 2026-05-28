@@ -1,6 +1,5 @@
 package com.bandage.v1.domain.selection.service
 
-import com.bandage.v1.domain.performance.repository.PerformanceRepository
 import com.bandage.v1.domain.selection.dto.req.SetlistChatMessageCreateRequest
 import com.bandage.v1.domain.selection.dto.req.SetlistConfirmationUpdateRequest
 import com.bandage.v1.domain.selection.dto.req.SetlistParticipantsUpdateRequest
@@ -48,7 +47,6 @@ class TrackSelectionService(
     private val applicantRepository: TrackSelectionItemApplicantRepository,
     private val confirmationRepository: TrackSelectionItemConfirmationRepository,
     private val chatMessageRepository: TrackSelectionItemChatMessageRepository,
-    private val performanceRepository: PerformanceRepository,
 ) {
     @Transactional
     fun createSelection(

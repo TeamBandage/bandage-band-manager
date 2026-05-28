@@ -8,4 +8,6 @@ import java.util.UUID
 @Repository
 interface SetlistBandRepository : JpaRepository<SetlistBand, UUID> {
     fun findAllBySetlistId(setlistId: UUID): List<SetlistBand>
+
+    fun findAllBySetlistIdIn(setlistIds: Collection<UUID>): List<SetlistBand>
 }
