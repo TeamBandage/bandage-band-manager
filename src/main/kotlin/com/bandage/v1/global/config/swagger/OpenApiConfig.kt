@@ -5,8 +5,10 @@ import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.info.Info
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 
 @Configuration
+@Profile("swagger")
 class OpenApiConfig {
     @Bean
     fun bandageOpenApi(): OpenAPI =
@@ -19,8 +21,8 @@ class OpenApiConfig {
                     .contact(
                         Contact()
                             .name("Sunwoo Jung")
-                            .email("sunwoo1137@gmail.com")
-                            .url("https://github.com/willjsw/bandage"),
+                            .email("bandage2026@gmail.com")
+                            .url("https://github.com/TeamBandage"),
                     ),
             )
 }

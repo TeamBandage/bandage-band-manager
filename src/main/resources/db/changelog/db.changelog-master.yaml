@@ -26,3 +26,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 003-seed-developer-account
+      author: bandage
+      comment: |
+        개발용 기본 DEVELOPER 계정 시드
+        - developer@bandage.com / 11111111 (BCrypt cost=10)
+        - p_member, p_member_auth 양쪽 INSERT (멱등 처리)
+      changes:
+        - sqlFile:
+            path: changes/003-seed-developer-account.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
