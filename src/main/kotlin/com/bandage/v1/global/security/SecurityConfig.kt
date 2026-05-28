@@ -38,9 +38,9 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(
+                        *SecurityPathConstants.AUTH_WHITELIST,
                         *SecurityPathConstants.METRICS,
                         *SecurityPathConstants.SWAGGER_PATHS,
-                        *SecurityPathConstants.AUTH_WHITELIST,
                         *SecurityPathConstants.TMP_FOR_TEST,
                     ).permitAll()
                     .anyRequest()

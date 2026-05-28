@@ -1,10 +1,20 @@
 springdoc:
   swagger-ui:
+    enabled: true
     path: /swagger-ui.html
     groups-order: ASC
     tags-sorter: alpha # 알파벳 순서
     operations-sorter: method
   api-docs:
+    enabled: true
     path: /api-docs
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
+# 개발 환경 진단용. swagger profile (local/dev) 에서만 actuator 엔드포인트 전체 노출.
+# 운영 프로파일에서는 Spring Boot 기본값(health 만 노출)이 적용됨.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

@@ -6,3 +6,9 @@ spring:
       local: [local, default-datasource, swagger, redis, security, s3]
       dev: [dev, dev-datasource, swagger, redis, security, s3]
     active: ${PROFILE_ACTIVE:local}
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
