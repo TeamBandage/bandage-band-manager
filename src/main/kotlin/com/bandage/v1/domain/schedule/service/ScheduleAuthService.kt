@@ -1,7 +1,7 @@
 package com.bandage.v1.domain.schedule.service
 
-import com.bandage.v1.domain.setlist.repository.SetlistMeetingMemberRepository
-import com.bandage.v1.domain.setlist.repository.SetlistMeetingRepository
+import com.bandage.v1.domain.selection.repository.TrackSelectionMemberRepository
+import com.bandage.v1.domain.selection.repository.TrackSelectionRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
@@ -12,18 +12,18 @@ import java.util.UUID
 @Service
 @Transactional(readOnly = true)
 class ScheduleAuthService(
-    private val setlistMeetingRepository: SetlistMeetingRepository,
-    private val setlistMeetingMemberRepository: SetlistMeetingMemberRepository,
+    private val trackSelectionRepository: TrackSelectionRepository,
+    private val trackSelectionMemberRepository: TrackSelectionMemberRepository,
 ) {
     fun isParticipant(
         meetingId: UUID,
         memberId: Long,
     ): Boolean {
         val meeting =
-            setlistMeetingRepository.findByIdOrNull(meetingId)
+            trackSelectionRepository.findByIdOrNull(meetingId)
                 ?: throw BusinessException(ErrorCode.SETLIST_MEETING_NOT_FOUND)
         if (meeting.managerId == memberId) return true
-        return setlistMeetingMemberRepository.existsByMeetingAndMemberId(meeting, memberId)
+        return trackSelectionMemberRepository.existsBySelectionAndMemberId(meeting, memberId)
     }
 
     fun isSelf(
@@ -36,7 +36,7 @@ class ScheduleAuthService(
         memberId: Long,
     ): Boolean {
         val meeting =
-            setlistMeetingRepository.findByIdOrNull(meetingId)
+            trackSelectionRepository.findByIdOrNull(meetingId)
                 ?: throw BusinessException(ErrorCode.SETLIST_MEETING_NOT_FOUND)
         return meeting.managerId == memberId
     }

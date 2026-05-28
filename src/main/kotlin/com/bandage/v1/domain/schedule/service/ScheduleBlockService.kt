@@ -6,8 +6,8 @@ import com.bandage.v1.domain.schedule.model.ScheduleBlock
 import com.bandage.v1.domain.schedule.model.ScheduleBoard
 import com.bandage.v1.domain.schedule.repository.ScheduleBlockRepository
 import com.bandage.v1.domain.schedule.repository.ScheduleBoardRepository
-import com.bandage.v1.domain.setlist.model.PracticeWindow
-import com.bandage.v1.domain.setlist.repository.SetlistMeetingRepository
+import com.bandage.v1.domain.selection.model.PracticeWindow
+import com.bandage.v1.domain.selection.repository.TrackSelectionRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
@@ -21,7 +21,7 @@ import java.util.UUID
 class ScheduleBlockService(
     private val scheduleBoardRepository: ScheduleBoardRepository,
     private val scheduleBlockRepository: ScheduleBlockRepository,
-    private val setlistMeetingRepository: SetlistMeetingRepository,
+    private val trackSelectionRepository: TrackSelectionRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     @Transactional
@@ -147,7 +147,7 @@ class ScheduleBlockService(
 
     private fun getPracticeWindow(meetingId: UUID): PracticeWindow {
         val meeting =
-            setlistMeetingRepository.findByIdOrNull(meetingId)
+            trackSelectionRepository.findByIdOrNull(meetingId)
                 ?: throw BusinessException(ErrorCode.SETLIST_MEETING_NOT_FOUND)
         return meeting.practiceWindow
     }

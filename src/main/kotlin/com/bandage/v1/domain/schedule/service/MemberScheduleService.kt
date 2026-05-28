@@ -5,10 +5,10 @@ import com.bandage.v1.domain.schedule.dto.res.MemberScheduleAggregateResponse
 import com.bandage.v1.domain.schedule.dto.res.MemberScheduleResponse
 import com.bandage.v1.domain.schedule.model.MemberSchedule
 import com.bandage.v1.domain.schedule.repository.MemberScheduleRepository
-import com.bandage.v1.domain.setlist.model.PracticeWindow
-import com.bandage.v1.domain.setlist.model.SetlistMeeting
-import com.bandage.v1.domain.setlist.repository.SetlistMeetingMemberRepository
-import com.bandage.v1.domain.setlist.repository.SetlistMeetingRepository
+import com.bandage.v1.domain.selection.model.PracticeWindow
+import com.bandage.v1.domain.selection.model.TrackSelection
+import com.bandage.v1.domain.selection.repository.TrackSelectionMemberRepository
+import com.bandage.v1.domain.selection.repository.TrackSelectionRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
@@ -21,8 +21,8 @@ import java.util.UUID
 @Transactional(readOnly = true)
 class MemberScheduleService(
     private val memberScheduleRepository: MemberScheduleRepository,
-    private val setlistMeetingRepository: SetlistMeetingRepository,
-    private val setlistMeetingMemberRepository: SetlistMeetingMemberRepository,
+    private val trackSelectionRepository: TrackSelectionRepository,
+    private val trackSelectionMemberRepository: TrackSelectionMemberRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     fun getMySchedule(
@@ -83,7 +83,7 @@ class MemberScheduleService(
     ): MemberScheduleAggregateResponse {
         scheduleAuthService.validateParticipant(meetingId, memberId)
         val meeting = getMeetingOrThrow(meetingId)
-        val participants = setlistMeetingMemberRepository.findAllByMeetingId(meetingId)
+        val participants = trackSelectionMemberRepository.findAllBySelectionId(meetingId)
         val totalParticipants = participants.size
         val schedules = memberScheduleRepository.findAllByMeetingId(meetingId)
         val completedCount = schedules.count { it.completed }
@@ -112,8 +112,8 @@ class MemberScheduleService(
         )
     }
 
-    private fun getMeetingOrThrow(meetingId: UUID): SetlistMeeting =
-        setlistMeetingRepository.findByIdOrNull(meetingId)
+    private fun getMeetingOrThrow(meetingId: UUID): TrackSelection =
+        trackSelectionRepository.findByIdOrNull(meetingId)
             ?: throw BusinessException(ErrorCode.SETLIST_MEETING_NOT_FOUND)
 
     private fun validateRequestDates(
