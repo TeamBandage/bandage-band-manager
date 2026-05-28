@@ -19,28 +19,15 @@ data class PerformanceDetailResponse(
     val durationMinutes: Int,
     @Schema(description = "공연 장소", example = "Club FF")
     val venue: String?,
-    @Schema(description = "참여 밴드 + 소속 멤버 목록")
-    val bands: List<PerformanceBandSummary>,
+    @Schema(description = "참여 셋리스트 목록 (각 셋리스트는 참여 밴드 메타데이터를 포함)")
+    val setlists: List<PerformanceSetlistSummary>,
     @Schema(description = "매니저 멤버 아이디 목록")
     val managerIds: List<Long>,
-    @Schema(description = "연결된 합주 요약 목록")
-    val practices: List<PracticeSummary>,
 ) {
-    @Schema(description = "공연 연결 합주 요약")
-    data class PracticeSummary(
-        @Schema(description = "합주 고유 식별자", example = "550e8400-e29b-41d4-a716-446655440000")
-        val practiceId: UUID,
-        @Schema(description = "합주 제목", example = "TuNA 정기공연 1주차 합주")
-        val title: String,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm", shape = JsonFormat.Shape.STRING, timezone = "Asia/Seoul")
-        @Schema(description = "합주 시작 시간", example = "2026-06-01 18:00")
-        val startAt: LocalDateTime,
-    )
-
     companion object {
         fun of(
             performance: Performance,
-            bandSummariesByBandId: Map<UUID, PerformanceBandSummary>,
+            setlistSummariesBySetlistId: Map<UUID, PerformanceSetlistSummary>,
         ): PerformanceDetailResponse =
             PerformanceDetailResponse(
                 performanceId = performance.id,
@@ -48,16 +35,8 @@ data class PerformanceDetailResponse(
                 startAt = performance.timeInfo.startAt,
                 durationMinutes = performance.timeInfo.durationMinutes,
                 venue = performance.timeInfo.venue,
-                bands = performance.bands.mapNotNull { pb -> bandSummariesByBandId[pb.bandId] },
+                setlists = performance.setlists.mapNotNull { ps -> setlistSummariesBySetlistId[ps.setlistId] },
                 managerIds = performance.managers.map { it.member },
-                practices =
-                    performance.practices.map { pp ->
-                        PracticeSummary(
-                            practiceId = pp.practice.id,
-                            title = pp.practice.title,
-                            startAt = pp.practice.timeInfo.startAt,
-                        )
-                    },
             )
     }
 }

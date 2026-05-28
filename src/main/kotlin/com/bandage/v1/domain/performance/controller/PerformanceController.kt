@@ -1,19 +1,15 @@
 package com.bandage.v1.domain.performance.controller
 
-import com.bandage.v1.domain.performance.dto.req.PerformanceBandAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
-import com.bandage.v1.domain.performance.dto.req.PerformancePracticeAddRequest
-import com.bandage.v1.domain.performance.dto.req.PerformancePracticeCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceSearchQuery
+import com.bandage.v1.domain.performance.dto.req.PerformanceSetlistAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
-import com.bandage.v1.domain.performance.dto.res.PerformanceBandResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
-import com.bandage.v1.domain.performance.dto.res.PerformancePracticeResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceResponse
+import com.bandage.v1.domain.performance.dto.res.PerformanceSetlistResponse
 import com.bandage.v1.domain.performance.service.PerformanceService
-import com.bandage.v1.facade.PerformanceFacade
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
 import com.bandage.v1.global.common.response.CursorResponse
@@ -37,7 +33,6 @@ import java.util.UUID
 @RequestMapping("$PREFIX/performances")
 class PerformanceController(
     private val performanceService: PerformanceService,
-    private val performanceFacade: PerformanceFacade,
 ) {
     @PostMapping
     @Operation(summary = "공연 생성 API", description = "신규 공연을 생성하고 생성자를 매니저로 등록합니다.")
@@ -47,7 +42,10 @@ class PerformanceController(
     ): ApiResponse<PerformanceResponse> = ApiResponse.success(performanceService.createPerformance(request, memberId))
 
     @GetMapping
-    @Operation(summary = "공연 목록 조회 API", description = "공연 목록을 커서 기반으로 조회합니다. bandId 제공 시 해당 밴드 소속 공연만 조회합니다.")
+    @Operation(
+        summary = "공연 목록 조회 API",
+        description = "공연 목록을 커서 기반으로 조회합니다. bandId 제공 시 해당 밴드가 셋리스트로 참여하는 공연만 조회합니다.",
+    )
     fun getPerformances(
         @RequestParam(required = false) bandId: UUID?,
         @Valid query: PerformancePagingQuery,
@@ -59,7 +57,7 @@ class PerformanceController(
         }
 
     @GetMapping("/me")
-    @Operation(summary = "내 공연 목록 조회 API", description = "본인이 속한 밴드가 참여하는 공연 목록을 커서 기반으로 조회합니다.")
+    @Operation(summary = "내 공연 목록 조회 API", description = "본인이 속한 밴드가 셋리스트로 참여하는 공연 목록을 커서 기반으로 조회합니다.")
     fun getMyPerformances(
         @Valid query: PerformancePagingQuery,
         @CurrentMemberId memberId: Long,
@@ -90,58 +88,30 @@ class PerformanceController(
         return ApiResponse.success()
     }
 
-    @PostMapping("/{performanceId}/practices")
-    @Operation(summary = "공연 합주곡 추가 API", description = "빈 합주를 즉시 생성하여 공연에 추가합니다. PerformanceManager만 수행할 수 있습니다.")
-    fun addNewPractice(
-        @PathVariable performanceId: UUID,
-        @Valid @RequestBody request: PerformancePracticeCreateRequest,
-        @CurrentMemberId memberId: Long,
-    ): ApiResponse<PerformancePracticeResponse> = ApiResponse.success(performanceFacade.addNewPractice(performanceId, request, memberId))
-
-    @PostMapping("/{performanceId}/practices/batch")
-    @Operation(summary = "공연 합주곡 리스트 추가 API", description = "기존 합주 ID 목록으로 공연에 합주를 일괄 추가합니다. PerformanceManager만 수행할 수 있습니다.")
-    fun addPractices(
-        @PathVariable performanceId: UUID,
-        @Valid @RequestBody request: PerformancePracticeAddRequest,
-        @CurrentMemberId memberId: Long,
-    ): ApiResponse<List<PerformancePracticeResponse>> =
-        ApiResponse.success(performanceService.addPractices(performanceId, request, memberId))
-
-    @DeleteMapping("/{performanceId}/practices/{practiceId}")
-    @Operation(summary = "공연 합주곡 삭제 API", description = "공연에 연결된 합주를 제거합니다. PerformanceManager만 수행할 수 있습니다.")
-    fun removePractice(
-        @PathVariable performanceId: UUID,
-        @PathVariable practiceId: UUID,
-        @CurrentMemberId memberId: Long,
-    ): ApiResponse<Unit> {
-        performanceService.removePractice(performanceId, practiceId, memberId)
-        return ApiResponse.success()
-    }
-
-    @PostMapping("/{performanceId}/bands/batch")
+    @PostMapping("/{performanceId}/setlists/batch")
     @Operation(
-        summary = "공연 참여 밴드 일괄 추가 API",
-        description = "공연에 참여 밴드를 append 시맨틱으로 다중 추가합니다. PerformanceManager만 가능. 이미 등록된 밴드는 응답에서 제외.",
+        summary = "공연 참여 셋리스트 일괄 추가 API",
+        description = "공연에 참여 셋리스트를 append 시맨틱으로 다중 추가합니다. PerformanceManager만 가능. 이미 등록된 셋리스트는 응답에서 제외.",
     )
-    fun addBands(
+    fun addSetlists(
         @PathVariable performanceId: UUID,
-        @Valid @RequestBody request: PerformanceBandAddRequest,
+        @Valid @RequestBody request: PerformanceSetlistAddRequest,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<List<PerformanceBandResponse>> = ApiResponse.success(performanceService.addBands(performanceId, request, memberId))
+    ): ApiResponse<List<PerformanceSetlistResponse>> = ApiResponse.success(performanceService.addSetlists(performanceId, request, memberId))
 
-    @DeleteMapping("/{performanceId}/bands/{bandId}")
-    @Operation(summary = "공연 참여 밴드 단건 제거 API", description = "공연에서 특정 참여 밴드를 제거합니다. PerformanceManager만 가능.")
-    fun removeBand(
+    @DeleteMapping("/{performanceId}/setlists/{setlistId}")
+    @Operation(summary = "공연 참여 셋리스트 단건 제거 API", description = "공연에서 특정 참여 셋리스트를 제거합니다. PerformanceManager만 가능.")
+    fun removeSetlist(
         @PathVariable performanceId: UUID,
-        @PathVariable bandId: UUID,
+        @PathVariable setlistId: UUID,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
-        performanceService.removeBand(performanceId, bandId, memberId)
+        performanceService.removeSetlist(performanceId, setlistId, memberId)
         return ApiResponse.success()
     }
 
     @DeleteMapping("/{performanceId}")
-    @Operation(summary = "공연 삭제 API", description = "공연을 삭제합니다. PerformanceManager만 수행할 수 있으며, 연관된 합주도 함께 삭제됩니다.")
+    @Operation(summary = "공연 삭제 API", description = "공연을 삭제합니다. PerformanceManager만 수행할 수 있습니다.")
     fun deletePerformance(
         @PathVariable performanceId: UUID,
         @CurrentMemberId memberId: Long,

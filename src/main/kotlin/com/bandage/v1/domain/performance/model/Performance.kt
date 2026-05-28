@@ -37,17 +37,13 @@ open class Performance(
         protected set
 
     @OneToMany(mappedBy = "performance", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
-    private var _bands: MutableList<PerformanceBand> = mutableListOf()
+    private var _setlists: MutableList<PerformanceSetlist> = mutableListOf()
 
     @OneToMany(mappedBy = "performance", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
     private var _managers: MutableList<PerformanceManager> = mutableListOf()
 
-    @OneToMany(mappedBy = "performance", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
-    private var _practices: MutableList<PerformancePractice> = mutableListOf()
-
-    val bands: List<PerformanceBand> get() = _bands.toList()
+    val setlists: List<PerformanceSetlist> get() = _setlists.toList()
     val managers: List<PerformanceManager> get() = _managers.toList()
-    val practices: List<PerformancePractice> get() = _practices.toList()
 
     companion object {
         fun create(
@@ -77,12 +73,12 @@ open class Performance(
         timeInfo.updateVenue(newVenue)
     }
 
-    fun addBand(band: PerformanceBand) {
-        _bands.add(band)
+    fun addSetlist(setlist: PerformanceSetlist) {
+        _setlists.add(setlist)
     }
 
-    fun removeBand(band: PerformanceBand) {
-        _bands.remove(band)
+    fun removeSetlist(setlist: PerformanceSetlist) {
+        _setlists.remove(setlist)
     }
 
     fun addManager(manager: PerformanceManager) {
@@ -91,13 +87,5 @@ open class Performance(
 
     fun removeManager(manager: PerformanceManager) {
         _managers.remove(manager)
-    }
-
-    fun addPractice(performancePractice: PerformancePractice) {
-        _practices.add(performancePractice)
-    }
-
-    fun removePractice(performancePractice: PerformancePractice) {
-        _practices.remove(performancePractice)
     }
 }

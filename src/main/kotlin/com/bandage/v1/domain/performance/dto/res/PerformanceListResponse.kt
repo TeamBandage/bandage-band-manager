@@ -19,13 +19,13 @@ data class PerformanceListResponse(
     val durationMinutes: Int,
     @Schema(description = "공연 장소", example = "Club FF")
     val venue: String?,
-    @Schema(description = "참여 밴드 + 소속 멤버 목록")
-    val bands: List<PerformanceBandSummary>,
+    @Schema(description = "참여 셋리스트 목록 (각 셋리스트는 참여 밴드 메타데이터를 포함)")
+    val setlists: List<PerformanceSetlistSummary>,
 ) {
     companion object {
         fun of(
             performance: Performance,
-            bandSummariesByBandId: Map<UUID, PerformanceBandSummary>,
+            setlistSummariesBySetlistId: Map<UUID, PerformanceSetlistSummary>,
         ): PerformanceListResponse =
             PerformanceListResponse(
                 performanceId = performance.id,
@@ -33,7 +33,7 @@ data class PerformanceListResponse(
                 startAt = performance.timeInfo.startAt,
                 durationMinutes = performance.timeInfo.durationMinutes,
                 venue = performance.timeInfo.venue,
-                bands = performance.bands.mapNotNull { pb -> bandSummariesByBandId[pb.bandId] },
+                setlists = performance.setlists.mapNotNull { ps -> setlistSummariesBySetlistId[ps.setlistId] },
             )
     }
 }

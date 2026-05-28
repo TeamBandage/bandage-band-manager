@@ -55,7 +55,7 @@ enum class ErrorCode(
     // performance
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 공연 정보를 찾을 수 없습니다."),
     NOT_A_PERFORMANCE_MANAGER(HttpStatus.FORBIDDEN, "공연 매니저만 수행할 수 있는 작업입니다."),
-    PERFORMANCE_PRACTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "공연에 등록된 합주 정보를 찾을 수 없습니다."),
+    PERFORMANCE_SETLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "공연에 연결된 셋리스트 정보를 찾을 수 없습니다."),
 
     // setlist meeting
     SETLIST_MEETING_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 선곡 회의 정보를 찾을 수 없습니다."),
@@ -65,16 +65,22 @@ enum class ErrorCode(
     SETLIST_MEETING_NOT_LOCKED(HttpStatus.CONFLICT, "잠금 상태가 아닌 선곡 회의입니다."),
     SETLIST_MANAGER_NOT_PARTICIPANT(HttpStatus.BAD_REQUEST, "매니저는 참여 멤버에 포함되어야 합니다."),
     SETLIST_PERFORMANCE_REQUIRED(HttpStatus.BAD_REQUEST, "공연 모드 회의에는 performanceId가 필요합니다."),
-    SETLIST_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 선곡 항목 정보를 찾을 수 없습니다."),
-    SETLIST_ITEM_FORBIDDEN(HttpStatus.FORBIDDEN, "선곡 항목을 수정할 권한이 없습니다."),
-    SETLIST_ITEM_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 선곡 항목 세션을 찾을 수 없습니다."),
-    SETLIST_ITEM_SESSION_FULL(HttpStatus.BAD_REQUEST, "세션 정원을 초과했습니다."),
+    SETLIST_MEETING_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 선곡 회의 항목 정보를 찾을 수 없습니다."),
+    SETLIST_MEETING_ITEM_FORBIDDEN(HttpStatus.FORBIDDEN, "선곡 회의 항목을 수정할 권한이 없습니다."),
+    SETLIST_MEETING_ITEM_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 선곡 회의 항목 세션을 찾을 수 없습니다."),
+    SETLIST_MEETING_ITEM_SESSION_FULL(HttpStatus.BAD_REQUEST, "세션 정원을 초과했습니다."),
     SETLIST_CHAT_MESSAGE_TOO_LONG(HttpStatus.BAD_REQUEST, "채팅 메시지는 500자를 초과할 수 없습니다."),
     SETLIST_PERFORMANCE_HAS_ACTIVE_MEETING(HttpStatus.CONFLICT, "해당 공연에는 이미 활성 선곡 회의가 존재합니다."),
     SETLIST_CANNOT_REMOVE_MANAGER(HttpStatus.BAD_REQUEST, "매니저는 회의 참여자에서 제거할 수 없습니다."),
     SETLIST_PRACTICE_WINDOW_REQUIRED(HttpStatus.BAD_REQUEST, "purpose=GENERAL 인 회의는 practiceWindow 가 필수입니다."),
     SETLIST_PRACTICE_WINDOW_INVALID(HttpStatus.BAD_REQUEST, "practiceWindow.from 은 to 보다 같거나 이전이어야 합니다."),
     SETLIST_NOT_LOCKED(HttpStatus.BAD_REQUEST, "선곡 회의가 lock 상태가 아닙니다. 시안 확정 전 회의를 lock 해주세요."),
+    SETLIST_SELECTION_INCOMPLETE_SESSION(HttpStatus.BAD_REQUEST, "모든 세션의 확정 인원이 충족되지 않았습니다."),
+    SETLIST_NO_SELECTED_TRACK(HttpStatus.BAD_REQUEST, "선택된 트랙이 없습니다. 최소 1개 이상의 트랙을 선택해주세요."),
+    SETLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 셋리스트 정보를 찾을 수 없습니다."),
+    SETLIST_FORBIDDEN(HttpStatus.FORBIDDEN, "셋리스트에 접근할 권한이 없습니다."),
+    SETLIST_NOT_MANAGER(HttpStatus.FORBIDDEN, "셋리스트 매니저만 수행할 수 있는 작업입니다."),
+    SETLIST_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 셋리스트 트랙 정보를 찾을 수 없습니다."),
 
     // schedule
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 스케줄 정보를 찾을 수 없습니다."),
