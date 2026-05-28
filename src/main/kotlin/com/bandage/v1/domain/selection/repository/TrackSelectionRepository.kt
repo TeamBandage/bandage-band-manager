@@ -8,6 +8,4 @@ import java.util.UUID
 @Repository
 interface TrackSelectionRepository :
     JpaRepository<TrackSelection, UUID>,
-    TrackSelectionRepositoryCustom {
-    fun existsByPerformanceIdAndLockedAtIsNull(performanceId: UUID): Boolean
-}
+    TrackSelectionRepositoryCustom
