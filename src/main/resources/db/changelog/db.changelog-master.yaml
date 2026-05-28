@@ -10,3 +10,19 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 002-setlist-selection-refactor
+      author: bandage
+      comment: |
+        BD-43/BD-59 도메인 리팩토링 반영
+        - p_performance_band / p_performance_practice 제거, p_performance_setlist 신설
+        - p_setlist_meeting / p_setlist_item* → p_track_selection / p_track_selection_item* 으로 rename (PK·FK 컬럼 일괄 정리, is_selected 컬럼 추가)
+        - p_track_selection_band, p_track_selection_member_band 신설
+        - 셋리스트 확정 도메인 신설: p_setlist, p_setlist_band, p_setlist_track, p_setlist_track_session, p_setlist_track_participant
+      changes:
+        - sqlFile:
+            path: changes/002-setlist-selection-refactor.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
