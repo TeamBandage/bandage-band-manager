@@ -1,32 +1,32 @@
-package com.bandage.v1.domain.setlist.repository
+package com.bandage.v1.domain.selection.repository
 
-import com.bandage.v1.domain.setlist.model.QSetlistMeeting
-import com.bandage.v1.domain.setlist.model.QSetlistMeetingMember
-import com.bandage.v1.domain.setlist.model.SetlistMeeting
+import com.bandage.v1.domain.selection.model.QTrackSelection
+import com.bandage.v1.domain.selection.model.QTrackSelectionMember
+import com.bandage.v1.domain.selection.model.TrackSelection
 import com.bandage.v1.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import java.util.UUID
 
-class SetlistMeetingRepositoryImpl(
+class TrackSelectionRepositoryImpl(
     private val queryFactory: JPAQueryFactory,
-) : SetlistMeetingRepositoryCustom {
+) : TrackSelectionRepositoryCustom {
     override fun findAllByMemberAndPaging(
         memberId: Long,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<SetlistMeeting, UUID> {
-        val qMeeting = QSetlistMeeting.setlistMeeting
-        val qMember = QSetlistMeetingMember.setlistMeetingMember
+    ): CursorResponse<TrackSelection, UUID> {
+        val qSelection = QTrackSelection.trackSelection
+        val qMember = QTrackSelectionMember.trackSelectionMember
 
         val contents =
             queryFactory
-                .selectFrom(qMeeting)
+                .selectFrom(qSelection)
                 .join(qMember)
-                .on(qMember.meeting.eq(qMeeting))
+                .on(qMember.selection.eq(qSelection))
                 .where(qMember.memberId.eq(memberId))
-                .where(ltMeetingId(lastId))
-                .orderBy(qMeeting.id.desc())
+                .where(ltSelectionId(lastId))
+                .orderBy(qSelection.id.desc())
                 .distinct()
                 .limit(pageSize.toLong() + 1)
                 .fetch()
@@ -38,5 +38,5 @@ class SetlistMeetingRepositoryImpl(
         return CursorResponse(content = resultContents, nextCursor = nextCursor, hasNext = hasNext)
     }
 
-    private fun ltMeetingId(lastId: UUID?): BooleanExpression? = lastId?.let { QSetlistMeeting.setlistMeeting.id.lt(it) }
+    private fun ltSelectionId(lastId: UUID?): BooleanExpression? = lastId?.let { QTrackSelection.trackSelection.id.lt(it) }
 }
