@@ -11,4 +11,6 @@ interface SetlistTrackParticipantRepository : JpaRepository<SetlistTrackParticip
     fun findAllByTrack(track: SetlistTrack): List<SetlistTrackParticipant>
 
     fun findAllByTrackIn(tracks: List<SetlistTrack>): List<SetlistTrackParticipant>
+
+    fun deleteAllByTrack(track: SetlistTrack)
 }

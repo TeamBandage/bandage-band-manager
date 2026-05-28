@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-interface SetlistRepository : JpaRepository<Setlist, UUID> {
+interface SetlistRepository :
+    JpaRepository<Setlist, UUID>,
+    SetlistRepositoryCustom {
     fun findAllByTrackSelectionId(trackSelectionId: UUID): List<Setlist>
 }
