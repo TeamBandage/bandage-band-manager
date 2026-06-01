@@ -1,18 +1,22 @@
 package com.bandage.v1.domain.practice.dto.req
 
+import com.bandage.v1.domain.selection.dto.req.SessionDefDto
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Future
 import jakarta.validation.constraints.Min
 import java.time.LocalDateTime
-import java.util.UUID
 
 @Schema(description = "합주 생성 요청")
 data class PracticeCreateRequest(
-    @Schema(description = "합주 타이틀", example = "TuNA 정기공연 1주차 합주")
+    @Schema(description = "합주 타이틀 (미입력 시 곡 제목 승계)", example = "TuNA 정기공연 1주차 합주")
     val title: String?,
-    @Schema(description = "합주곡 아이디", example = "550e8400-e29b-41d4-a716-446655440000")
-    val song: UUID,
+    @field:Valid
+    @Schema(description = "곡 정보")
+    val track: TrackInfoRequest,
+    @Schema(description = "합주 메모")
+    val note: String? = null,
     @Schema(description = "합주 장소", example = "홍대 스튜디오")
     val venue: String?,
     @field:Future(message = "합주 시작 시간은 현재 이후여야 합니다.")
@@ -22,4 +26,7 @@ data class PracticeCreateRequest(
     @field:Min(1)
     @Schema(description = "합주 시간 (분)", example = "60")
     val durationMinutes: Int,
+    @field:Valid
+    @Schema(description = "세션 정의 목록")
+    val sessions: List<SessionDefDto> = emptyList(),
 )

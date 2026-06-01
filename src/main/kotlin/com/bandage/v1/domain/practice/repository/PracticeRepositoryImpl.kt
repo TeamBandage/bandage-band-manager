@@ -3,7 +3,6 @@ package com.bandage.v1.domain.practice.repository
 import com.bandage.v1.domain.practice.model.Practice
 import com.bandage.v1.domain.practice.model.QPractice
 import com.bandage.v1.domain.practice.model.QPracticeParticipant
-import com.bandage.v1.domain.practice.model.QPracticeSong
 import com.bandage.v1.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -107,16 +106,14 @@ class PracticeRepositoryImpl(
     ): CursorResponse<Practice, UUID> {
         val qPractice = QPractice.practice
         val qParticipant = QPracticeParticipant.practiceParticipant
-        val qSong = QPracticeSong.practiceSong
 
         val contents =
             queryFactory
                 .selectFrom(qPractice)
                 .join(qParticipant)
                 .on(qParticipant.practice.eq(qPractice))
-                .join(qPractice.song, qSong)
                 .where(qParticipant.member.eq(memberId))
-                .where(qPractice.title.containsIgnoreCase(keyword).or(qSong.title.containsIgnoreCase(keyword)))
+                .where(qPractice.title.containsIgnoreCase(keyword).or(qPractice.trackInfo.title.containsIgnoreCase(keyword)))
                 .where(ltPracticeId(lastId))
                 .orderBy(qPractice.id.desc())
                 .distinct()

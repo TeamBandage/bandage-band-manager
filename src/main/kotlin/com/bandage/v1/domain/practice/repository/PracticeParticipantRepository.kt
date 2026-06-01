@@ -11,13 +11,16 @@ import java.util.UUID
 
 @Repository
 interface PracticeParticipantRepository : JpaRepository<PracticeParticipant, UUID> {
-    fun findByPracticeAndMember(
+    fun findByIdAndPractice(
+        id: UUID,
         practice: Practice,
-        member: Long,
     ): PracticeParticipant?
 
-    fun existsByPracticeAndMember(
+    fun findAllByPractice(practice: Practice): List<PracticeParticipant>
+
+    fun existsByPracticeAndSessionIdAndMember(
         practice: Practice,
+        sessionId: String,
         member: Long,
     ): Boolean
 
@@ -30,10 +33,7 @@ interface PracticeParticipantRepository : JpaRepository<PracticeParticipant, UUI
         @Param("now") now: LocalDateTime,
     ): Long
 
-    @Query(
-        "SELECT COUNT(ps) FROM PracticeSession ps " +
-            "WHERE ps.participant IS NOT NULL AND ps.participant.member = :memberId",
-    )
+    @Query("SELECT COUNT(pp) FROM PracticeParticipant pp WHERE pp.member = :memberId")
     fun countSessionsByMember(
         @Param("memberId") memberId: Long,
     ): Long

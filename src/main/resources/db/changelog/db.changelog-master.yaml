@@ -26,3 +26,33 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 004-trackinfo-and-drop-practice-song
+      author: bandage
+      comment: |
+        BD-70 P1-a/b: TrackInfo 임베디드 도입 및 PracticeSong 제거
+        - p_practice: song_id FK/컬럼 제거, track_*(title/artist/album/duration:int/reference) + note 컬럼 추가
+        - p_practice_song 테이블 제거
+        - p_setlist_track / p_track_selection_item: practice_song_id 제거, duration varchar→int, reference 추가
+      changes:
+        - sqlFile:
+            path: changes/004-trackinfo-and-drop-practice-song.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
+  - changeSet:
+      id: 005-practice-participant-session-and-setlist-id
+      author: bandage
+      comment: |
+        BD-70 P1-c: 세션/참여자 모델 정합화 + setlistId
+        - p_practice.setlist_id 추가
+        - p_practice_participant.session_id 추가 + (practice_id, session_id, member_id) UK
+        - PracticeSession 엔티티 테이블 제거 후 SessionDef ElementCollection 테이블로 재생성
+      changes:
+        - sqlFile:
+            path: changes/005-practice-participant-session-and-setlist-id.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
