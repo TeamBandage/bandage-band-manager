@@ -1,7 +1,7 @@
 package com.bandage.v1.domain.setlist.controller
 
-import com.bandage.v1.domain.practice.dto.req.SetlistToPracticeRequest
-import com.bandage.v1.domain.practice.dto.res.PracticeResponse
+import com.bandage.v1.domain.jam.dto.req.SetlistToJamRequest
+import com.bandage.v1.domain.jam.dto.res.JamResponse
 import com.bandage.v1.domain.setlist.dto.req.SetlistCreateRequest
 import com.bandage.v1.domain.setlist.dto.req.SetlistPagingQuery
 import com.bandage.v1.domain.setlist.dto.req.SetlistTrackPagingQuery
@@ -11,7 +11,7 @@ import com.bandage.v1.domain.setlist.dto.res.SetlistDetailResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistResponse
 import com.bandage.v1.domain.setlist.dto.res.SetlistTrackResponse
 import com.bandage.v1.domain.setlist.service.SetlistService
-import com.bandage.v1.facade.PracticeCreateFromSetlistFacade
+import com.bandage.v1.facade.JamCreateFromSetlistFacade
 import com.bandage.v1.facade.SetlistCreateFacade
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
@@ -37,7 +37,7 @@ import java.util.UUID
 @RequestMapping("$PREFIX/setlists")
 class SetlistController(
     private val setlistCreateFacade: SetlistCreateFacade,
-    private val practiceCreateFromSetlistFacade: PracticeCreateFromSetlistFacade,
+    private val jamCreateFromSetlistFacade: JamCreateFromSetlistFacade,
     private val setlistService: SetlistService,
 ) {
     @PostMapping
@@ -76,17 +76,16 @@ class SetlistController(
         @Valid @RequestBody request: SetlistUpdateRequest,
     ): ApiResponse<SetlistDetailResponse> = ApiResponse.success(setlistService.updateSetlist(setlistId, memberId, request))
 
-    @PostMapping("/{setlistId}/practices")
+    @PostMapping("/{setlistId}/jams")
     @Operation(
         summary = "셋리스트 기반 합주 생성",
-        description = "매니저가 셋리스트의 각 트랙을 합주(Practice)로 전파 생성합니다. 트랙 1건당 합주 1건이 생성되며, 트랙 참여자가 합주 참여자로 복사됩니다.",
+        description = "매니저가 셋리스트의 각 트랙을 합주(Jam)로 전파 생성합니다. 트랙 1건당 합주 1건이 생성되며, 트랙 참여자가 합주 참여자로 복사됩니다.",
     )
-    fun createPracticesFromSetlist(
+    fun createJamsFromSetlist(
         @PathVariable setlistId: UUID,
         @CurrentMemberId memberId: Long,
-        @Valid @RequestBody request: SetlistToPracticeRequest,
-    ): ApiResponse<List<PracticeResponse>> =
-        ApiResponse.success(practiceCreateFromSetlistFacade.createPracticesFromSetlist(memberId, setlistId, request))
+        @Valid @RequestBody request: SetlistToJamRequest,
+    ): ApiResponse<List<JamResponse>> = ApiResponse.success(jamCreateFromSetlistFacade.createJamsFromSetlist(memberId, setlistId, request))
 
     // -------- tracks --------
     @GetMapping("/{setlistId}/tracks")

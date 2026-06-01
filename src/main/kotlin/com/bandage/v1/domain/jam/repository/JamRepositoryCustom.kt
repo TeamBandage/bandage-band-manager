@@ -1,31 +1,31 @@
-package com.bandage.v1.domain.practice.repository
+package com.bandage.v1.domain.jam.repository
 
-import com.bandage.v1.domain.practice.model.Practice
+import com.bandage.v1.domain.jam.model.Jam
 import com.bandage.v1.global.common.response.CursorResponse
 import java.util.UUID
 
-interface PracticeRepositoryCustom {
+interface JamRepositoryCustom {
     fun findAllByPaging(
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Practice, UUID>
+    ): CursorResponse<Jam, UUID>
 
     fun findAllByMembersAndPaging(
         memberIds: List<Long>,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Practice, UUID>
+    ): CursorResponse<Jam, UUID>
 
     fun findAllByMemberAndPaging(
         memberId: Long,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Practice, UUID>
+    ): CursorResponse<Jam, UUID>
 
     fun searchByMemberAndKeywordAndPaging(
         memberId: Long,
         keyword: String,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Practice, UUID>
+    ): CursorResponse<Jam, UUID>
 }

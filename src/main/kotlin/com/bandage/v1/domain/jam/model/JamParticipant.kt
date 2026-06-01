@@ -1,4 +1,4 @@
-package com.bandage.v1.domain.practice.model
+package com.bandage.v1.domain.jam.model
 
 import com.bandage.v1.global.common.domain.BaseEntity
 import jakarta.persistence.Column
@@ -15,29 +15,29 @@ import java.util.UUID
 
 @Entity
 @Table(
-    name = "p_practice_participant",
+    name = "p_jam_participant",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "uk_practice_participant",
-            columnNames = ["practice_id", "session_id", "member_id"],
+            name = "uk_jam_participant",
+            columnNames = ["jam_id", "session_id", "member_id"],
         ),
     ],
 )
 @SQLRestriction("deleted_at IS NULL")
-open class PracticeParticipant(
-    practice: Practice,
+open class JamParticipant(
+    jam: Jam,
     sessionId: String,
     member: Long,
 ) : BaseEntity() {
     @Id
-    @Column(name = "practice_participant_id")
+    @Column(name = "jam_participant_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "practice_id")
-    val practice: Practice = practice
+    @JoinColumn(name = "jam_id")
+    val jam: Jam = jam
 
     @Column(name = "session_id", nullable = false)
     val sessionId: String = sessionId
@@ -47,12 +47,12 @@ open class PracticeParticipant(
 
     companion object {
         fun create(
-            practice: Practice,
+            jam: Jam,
             sessionId: String,
             member: Long,
-        ): PracticeParticipant =
-            PracticeParticipant(
-                practice = practice,
+        ): JamParticipant =
+            JamParticipant(
+                jam = jam,
                 sessionId = sessionId,
                 member = member,
             )

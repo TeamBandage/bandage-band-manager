@@ -1,4 +1,4 @@
-package com.bandage.v1.domain.practice.dto.req
+package com.bandage.v1.domain.jam.dto.req
 
 import com.bandage.v1.global.common.domain.TrackInfo
 import io.swagger.v3.oas.annotations.media.Schema

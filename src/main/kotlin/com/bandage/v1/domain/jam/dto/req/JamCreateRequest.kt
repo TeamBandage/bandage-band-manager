@@ -1,4 +1,4 @@
-package com.bandage.v1.domain.practice.dto.req
+package com.bandage.v1.domain.jam.dto.req
 
 import com.bandage.v1.domain.selection.dto.req.SessionDefDto
 import com.fasterxml.jackson.annotation.JsonFormat
@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Min
 import java.time.LocalDateTime
 
 @Schema(description = "합주 생성 요청")
-data class PracticeCreateRequest(
+data class JamCreateRequest(
     @Schema(description = "합주 타이틀 (미입력 시 곡 제목 승계)", example = "TuNA 정기공연 1주차 합주")
     val title: String?,
     @field:Valid

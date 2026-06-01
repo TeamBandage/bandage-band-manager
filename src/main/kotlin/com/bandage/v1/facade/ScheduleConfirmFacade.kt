@@ -1,7 +1,7 @@
 package com.bandage.v1.facade
 
-import com.bandage.v1.domain.practice.model.Practice
-import com.bandage.v1.domain.practice.repository.PracticeRepository
+import com.bandage.v1.domain.jam.model.Jam
+import com.bandage.v1.domain.jam.repository.JamRepository
 import com.bandage.v1.domain.schedule.dto.res.ScheduleConfirmResponse
 import com.bandage.v1.domain.schedule.dto.res.ScheduleUnconfirmResponse
 import com.bandage.v1.domain.schedule.model.ScheduleBlock
@@ -31,7 +31,7 @@ class ScheduleConfirmFacade(
     private val trackSelectionRepository: TrackSelectionRepository,
     private val trackSelectionItemRepository: TrackSelectionItemRepository,
     private val confirmationRepository: TrackSelectionItemConfirmationRepository,
-    private val practiceRepository: PracticeRepository,
+    private val jamRepository: JamRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     @Transactional
@@ -53,14 +53,14 @@ class ScheduleConfirmFacade(
         val blocks = scheduleBlockRepository.findAllByBoardId(boardId)
         val items = trackSelectionItemRepository.findAllBySelection(meeting).associateBy { it.id }
 
-        val createdPractices =
+        val createdJams =
             blocks.map { block ->
                 val item = items[block.songId] ?: throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_NOT_FOUND)
-                val practice = buildPractice(block, item)
+                val jam = buildJam(block, item)
                 confirmationRepository.findAllByItem(item).forEach { conf ->
-                    practice.addParticipant(conf.sessionId, conf.memberId)
+                    jam.addParticipant(conf.sessionId, conf.memberId)
                 }
-                practiceRepository.save(practice)
+                jamRepository.save(jam)
             }
 
         board.confirm()
@@ -68,10 +68,10 @@ class ScheduleConfirmFacade(
 
         return ScheduleConfirmResponse(
             confirmedAt = confirmedAt,
-            practicesCreated =
-                createdPractices.map {
-                    ScheduleConfirmResponse.PracticeCreatedSummary(
-                        practiceId = it.id,
+            jamsCreated =
+                createdJams.map {
+                    ScheduleConfirmResponse.JamCreatedSummary(
+                        jamId = it.id,
                         title = it.title,
                         startAt = it.timeInfo.startAt,
                         durationMinutes = it.timeInfo.durationMinutes,
@@ -112,14 +112,14 @@ class ScheduleConfirmFacade(
         trackSelectionRepository.findByIdOrNull(meetingId)
             ?: throw BusinessException(ErrorCode.SETLIST_MEETING_NOT_FOUND)
 
-    private fun buildPractice(
+    private fun buildJam(
         block: ScheduleBlock,
         item: TrackSelectionItem,
-    ): Practice {
+    ): Jam {
         val startAt = block.date.atStartOfDay().plusMinutes(block.startSlot.toLong() * MINUTES_PER_SLOT)
         val durationMinutes = block.durationSlots * MINUTES_PER_SLOT
         val title = block.songTitleOverride?.takeIf { it.isNotBlank() } ?: item.trackInfo.title
-        return Practice.create(
+        return Jam.create(
             title = title,
             trackInfo =
                 TrackInfo(

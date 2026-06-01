@@ -1,4 +1,4 @@
-package com.bandage.v1.domain.practice.dto.req
+package com.bandage.v1.domain.jam.dto.req
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Max
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank
 import java.util.UUID
 
 @Schema(description = "합주 검색 쿼리")
-data class PracticeSearchQuery(
+data class JamSearchQuery(
     @field:NotBlank
     @Schema(description = "검색 키워드 (합주 타이틀 또는 곡 제목)", example = "Stairway")
     val keyword: String,

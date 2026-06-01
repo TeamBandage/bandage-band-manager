@@ -1,10 +1,10 @@
-package com.bandage.v1.domain.practice.dto.res
+package com.bandage.v1.domain.jam.dto.res
 
 import com.bandage.v1.global.common.domain.SessionDef
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "합주 세션 응답")
-data class PracticeSessionResponse(
+data class JamSessionResponse(
     @Schema(description = "세션 토큰", example = "G")
     val sessionId: String,
     @Schema(description = "세션 이름", example = "기타")
@@ -22,8 +22,8 @@ data class PracticeSessionResponse(
         fun of(
             def: SessionDef,
             participants: List<Long>,
-        ): PracticeSessionResponse =
-            PracticeSessionResponse(
+        ): JamSessionResponse =
+            JamSessionResponse(
                 sessionId = def.sessionId,
                 label = def.label,
                 short = def.short,

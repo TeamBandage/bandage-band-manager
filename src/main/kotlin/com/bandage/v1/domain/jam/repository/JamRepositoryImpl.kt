@@ -1,27 +1,27 @@
-package com.bandage.v1.domain.practice.repository
+package com.bandage.v1.domain.jam.repository
 
-import com.bandage.v1.domain.practice.model.Practice
-import com.bandage.v1.domain.practice.model.QPractice
-import com.bandage.v1.domain.practice.model.QPracticeParticipant
+import com.bandage.v1.domain.jam.model.Jam
+import com.bandage.v1.domain.jam.model.QJam
+import com.bandage.v1.domain.jam.model.QJamParticipant
 import com.bandage.v1.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import java.util.UUID
 
-class PracticeRepositoryImpl(
+class JamRepositoryImpl(
     private val queryFactory: JPAQueryFactory,
-) : PracticeRepositoryCustom {
+) : JamRepositoryCustom {
     override fun findAllByPaging(
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Practice, UUID> {
-        val qPractice = QPractice.practice
+    ): CursorResponse<Jam, UUID> {
+        val qJam = QJam.jam
 
         val contents =
             queryFactory
-                .selectFrom(qPractice)
-                .where(ltPracticeId(lastId))
-                .orderBy(qPractice.id.desc())
+                .selectFrom(qJam)
+                .where(ltJamId(lastId))
+                .orderBy(qJam.id.desc())
                 .limit(pageSize.toLong() + 1)
                 .fetch()
 
@@ -40,18 +40,18 @@ class PracticeRepositoryImpl(
         memberIds: List<Long>,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Practice, UUID> {
-        val qPractice = QPractice.practice
-        val qParticipant = QPracticeParticipant.practiceParticipant
+    ): CursorResponse<Jam, UUID> {
+        val qJam = QJam.jam
+        val qParticipant = QJamParticipant.jamParticipant
 
         val contents =
             queryFactory
-                .selectFrom(qPractice)
+                .selectFrom(qJam)
                 .join(qParticipant)
-                .on(qParticipant.practice.eq(qPractice))
+                .on(qParticipant.jam.eq(qJam))
                 .where(qParticipant.member.`in`(memberIds))
-                .where(ltPracticeId(lastId))
-                .orderBy(qPractice.id.desc())
+                .where(ltJamId(lastId))
+                .orderBy(qJam.id.desc())
                 .distinct()
                 .limit(pageSize.toLong() + 1)
                 .fetch()
@@ -71,18 +71,18 @@ class PracticeRepositoryImpl(
         memberId: Long,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Practice, UUID> {
-        val qPractice = QPractice.practice
-        val qParticipant = QPracticeParticipant.practiceParticipant
+    ): CursorResponse<Jam, UUID> {
+        val qJam = QJam.jam
+        val qParticipant = QJamParticipant.jamParticipant
 
         val contents =
             queryFactory
-                .selectFrom(qPractice)
+                .selectFrom(qJam)
                 .join(qParticipant)
-                .on(qParticipant.practice.eq(qPractice))
+                .on(qParticipant.jam.eq(qJam))
                 .where(qParticipant.member.eq(memberId))
-                .where(ltPracticeId(lastId))
-                .orderBy(qPractice.id.desc())
+                .where(ltJamId(lastId))
+                .orderBy(qJam.id.desc())
                 .distinct()
                 .limit(pageSize.toLong() + 1)
                 .fetch()
@@ -103,19 +103,19 @@ class PracticeRepositoryImpl(
         keyword: String,
         lastId: UUID?,
         pageSize: Int,
-    ): CursorResponse<Practice, UUID> {
-        val qPractice = QPractice.practice
-        val qParticipant = QPracticeParticipant.practiceParticipant
+    ): CursorResponse<Jam, UUID> {
+        val qJam = QJam.jam
+        val qParticipant = QJamParticipant.jamParticipant
 
         val contents =
             queryFactory
-                .selectFrom(qPractice)
+                .selectFrom(qJam)
                 .join(qParticipant)
-                .on(qParticipant.practice.eq(qPractice))
+                .on(qParticipant.jam.eq(qJam))
                 .where(qParticipant.member.eq(memberId))
-                .where(qPractice.title.containsIgnoreCase(keyword).or(qPractice.trackInfo.title.containsIgnoreCase(keyword)))
-                .where(ltPracticeId(lastId))
-                .orderBy(qPractice.id.desc())
+                .where(qJam.title.containsIgnoreCase(keyword).or(qJam.trackInfo.title.containsIgnoreCase(keyword)))
+                .where(ltJamId(lastId))
+                .orderBy(qJam.id.desc())
                 .distinct()
                 .limit(pageSize.toLong() + 1)
                 .fetch()
@@ -131,5 +131,5 @@ class PracticeRepositoryImpl(
         )
     }
 
-    private fun ltPracticeId(lastId: UUID?): BooleanExpression? = lastId?.let { QPractice.practice.id.lt(it) }
+    private fun ltJamId(lastId: UUID?): BooleanExpression? = lastId?.let { QJam.jam.id.lt(it) }
 }

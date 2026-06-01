@@ -1,9 +1,9 @@
 package com.bandage.v1.facade
 
-import com.bandage.v1.domain.practice.dto.req.SetlistToPracticeRequest
-import com.bandage.v1.domain.practice.dto.res.PracticeResponse
-import com.bandage.v1.domain.practice.model.Practice
-import com.bandage.v1.domain.practice.repository.PracticeRepository
+import com.bandage.v1.domain.jam.dto.req.SetlistToJamRequest
+import com.bandage.v1.domain.jam.dto.res.JamResponse
+import com.bandage.v1.domain.jam.model.Jam
+import com.bandage.v1.domain.jam.repository.JamRepository
 import com.bandage.v1.domain.setlist.repository.SetlistRepository
 import com.bandage.v1.domain.setlist.repository.SetlistTrackParticipantRepository
 import com.bandage.v1.domain.setlist.repository.SetlistTrackRepository
@@ -17,23 +17,23 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 /**
- * 확정된 Setlist를 합주(Practice)로 전파한다.
- * SetlistTrack 1건 → Practice 1건, SetlistTrackParticipant(sessionId, memberId) → PracticeParticipant 로 복사하며,
- * 생성된 Practice 의 setlistId 에 출처 Setlist 를 기록한다.
+ * 확정된 Setlist를 합주(Jam)로 전파한다.
+ * SetlistTrack 1건 → Jam 1건, SetlistTrackParticipant(sessionId, memberId) → JamParticipant 로 복사하며,
+ * 생성된 Jam 의 setlistId 에 출처 Setlist 를 기록한다.
  */
 @Service
-class PracticeCreateFromSetlistFacade(
+class JamCreateFromSetlistFacade(
     private val setlistRepository: SetlistRepository,
     private val setlistTrackRepository: SetlistTrackRepository,
     private val setlistTrackParticipantRepository: SetlistTrackParticipantRepository,
-    private val practiceRepository: PracticeRepository,
+    private val jamRepository: JamRepository,
 ) {
     @Transactional
-    fun createPracticesFromSetlist(
+    fun createJamsFromSetlist(
         memberId: Long,
         setlistId: UUID,
-        request: SetlistToPracticeRequest,
-    ): List<PracticeResponse> {
+        request: SetlistToJamRequest,
+    ): List<JamResponse> {
         val setlist =
             setlistRepository.findByIdOrNull(setlistId)
                 ?: throw BusinessException(ErrorCode.SETLIST_NOT_FOUND)
@@ -48,8 +48,8 @@ class PracticeCreateFromSetlistFacade(
         val participantsByTrack = setlistTrackParticipantRepository.findAllByTrackIn(tracks).groupBy { it.track.id }
 
         return tracks.map { track ->
-            val practice =
-                Practice.create(
+            val jam =
+                Jam.create(
                     title = track.trackInfo.title,
                     trackInfo =
                         TrackInfo(
@@ -76,10 +76,10 @@ class PracticeCreateFromSetlistFacade(
                         },
                 )
             participantsByTrack[track.id]?.forEach { participant ->
-                practice.addParticipant(participant.sessionId, participant.memberId)
+                jam.addParticipant(participant.sessionId, participant.memberId)
             }
-            practiceRepository.save(practice)
-            PracticeResponse.of(practice)
+            jamRepository.save(jam)
+            JamResponse.of(jam)
         }
     }
 }

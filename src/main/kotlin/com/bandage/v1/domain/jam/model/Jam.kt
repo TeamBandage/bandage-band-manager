@@ -1,4 +1,4 @@
-package com.bandage.v1.domain.practice.model
+package com.bandage.v1.domain.jam.model
 
 import com.bandage.v1.global.common.domain.BaseEntity
 import com.bandage.v1.global.common.domain.SessionDef
@@ -23,9 +23,9 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
-@Table(name = "p_practice")
+@Table(name = "p_jam")
 @SQLRestriction("deleted_at IS NULL")
-open class Practice(
+open class Jam(
     title: String,
     trackInfo: TrackInfo,
     timeInfo: TimeInfoUnit,
@@ -33,7 +33,7 @@ open class Practice(
     setlistId: UUID? = null,
 ) : BaseEntity() {
     @Id
-    @Column(name = "practice_id")
+    @Column(name = "jam_id")
     @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
     lateinit var id: UUID
         protected set
@@ -42,7 +42,7 @@ open class Practice(
     var title: String = title
         protected set
 
-    // 곡 정보. Practice.title(합주명)과의 컬럼 충돌을 피하기 위해 track_* 로 매핑.
+    // 곡 정보. Jam.title(합주명)과의 컬럼 충돌을 피하기 위해 track_* 로 매핑.
     @Embedded
     @AttributeOverrides(
         AttributeOverride(name = "title", column = Column(name = "track_title", nullable = false)),
@@ -67,17 +67,17 @@ open class Practice(
     var setlistId: UUID? = setlistId
         protected set
 
-    @OneToMany(mappedBy = "practice", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
-    private var _participants: MutableList<PracticeParticipant> = mutableListOf()
+    @OneToMany(mappedBy = "jam", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    private var _participants: MutableList<JamParticipant> = mutableListOf()
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
-        name = "p_practice_session",
-        joinColumns = [JoinColumn(name = "practice_id")],
+        name = "p_jam_session",
+        joinColumns = [JoinColumn(name = "jam_id")],
     )
     private var _sessions: MutableList<SessionDef> = mutableListOf()
 
-    val participants: List<PracticeParticipant> get() = _participants.toList()
+    val participants: List<JamParticipant> get() = _participants.toList()
     val sessions: List<SessionDef> get() = _sessions.toList()
 
     companion object {
@@ -90,8 +90,8 @@ open class Practice(
             note: String? = null,
             setlistId: UUID? = null,
             sessions: List<SessionDef> = emptyList(),
-        ): Practice =
-            Practice(
+        ): Jam =
+            Jam(
                 title = title,
                 trackInfo = trackInfo,
                 timeInfo = TimeInfoUnit(startAt = startAt, durationMinutes = durationMinutes, venue = venue),
@@ -139,11 +139,11 @@ open class Practice(
     fun addParticipant(
         sessionId: String,
         member: Long,
-    ): PracticeParticipant? {
+    ): JamParticipant? {
         if (this._participants.any { it.sessionId == sessionId && it.member == member }) return null
         val participant =
-            PracticeParticipant(
-                practice = this,
+            JamParticipant(
+                jam = this,
                 sessionId = sessionId,
                 member = member,
             )
@@ -151,7 +151,7 @@ open class Practice(
         return participant
     }
 
-    fun deleteParticipant(participant: PracticeParticipant) {
+    fun deleteParticipant(participant: JamParticipant) {
         this._participants.remove(participant)
     }
 }

@@ -1,11 +1,11 @@
-package com.bandage.v1.domain.practice.dto.res
+package com.bandage.v1.domain.jam.dto.res
 
-import com.bandage.v1.domain.practice.model.PracticeParticipant
+import com.bandage.v1.domain.jam.model.JamParticipant
 import io.swagger.v3.oas.annotations.media.Schema
 import java.util.UUID
 
 @Schema(description = "합주 참여자 응답")
-data class PracticeParticipantResponse(
+data class JamParticipantResponse(
     @Schema(description = "참여자 고유 식별자 (UUID)", example = "550e8400-e29b-41d4-a716-446655440000")
     val participantId: UUID,
     @Schema(description = "세션 토큰(SessionDef.sessionId)", example = "G")
@@ -14,8 +14,8 @@ data class PracticeParticipantResponse(
     val memberId: Long,
 ) {
     companion object {
-        fun of(participant: PracticeParticipant): PracticeParticipantResponse =
-            PracticeParticipantResponse(
+        fun of(participant: JamParticipant): JamParticipantResponse =
+            JamParticipantResponse(
                 participantId = participant.id,
                 sessionId = participant.sessionId,
                 memberId = participant.member,

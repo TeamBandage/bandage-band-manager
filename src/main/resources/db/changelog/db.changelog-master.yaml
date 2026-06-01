@@ -56,3 +56,18 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 006-rename-practice-to-jam
+      author: bandage
+      comment: |
+        BD-70 P2: Practice → Jam 도메인 리네이밍
+        - p_practice → p_jam, p_practice_participant → p_jam_participant, p_practice_session → p_jam_session
+        - practice_id → jam_id, practice_participant_id → jam_participant_id 컬럼 rename
+        - PK/UK/FK 제약명 정리
+      changes:
+        - sqlFile:
+            path: changes/006-rename-practice-to-jam.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"

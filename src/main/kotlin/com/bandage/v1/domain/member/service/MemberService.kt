@@ -1,13 +1,13 @@
 package com.bandage.v1.domain.member.service
 
 import com.bandage.v1.domain.band.repository.BandMemberRepository
+import com.bandage.v1.domain.jam.repository.JamParticipantRepository
 import com.bandage.v1.domain.member.dto.req.MemberCreateRequest
 import com.bandage.v1.domain.member.dto.req.MemberInfoUpdateRequest
 import com.bandage.v1.domain.member.dto.res.MemberInfoResponse
 import com.bandage.v1.domain.member.dto.res.MemberSearchItemResponse
 import com.bandage.v1.domain.member.model.Member
 import com.bandage.v1.domain.member.repository.MemberRepository
-import com.bandage.v1.domain.practice.repository.PracticeParticipantRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import com.bandage.v1.global.infra.s3.CloudFrontUrlResolver
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 class MemberService(
     private val memberRepository: MemberRepository,
     private val bandMemberRepository: BandMemberRepository,
-    private val practiceParticipantRepository: PracticeParticipantRepository,
+    private val jamParticipantRepository: JamParticipantRepository,
     private val cloudFrontUrlResolver: CloudFrontUrlResolver,
 ) {
     @Transactional
