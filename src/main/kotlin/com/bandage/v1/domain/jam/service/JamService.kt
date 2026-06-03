@@ -30,6 +30,7 @@ class JamService(
     private val jamRepository: JamRepository,
     private val jamParticipantRepository: JamParticipantRepository,
     private val bandMemberRepository: BandMemberRepository,
+    private val jamReservationSyncService: JamReservationSyncService,
 ) {
     @Transactional
     fun createJam(request: JamCreateRequest): JamResponse {
@@ -46,6 +47,7 @@ class JamService(
                     sessions = request.sessions.map { it.toEntity() },
                 ),
             )
+        jamReservationSyncService.sync(jam)
         return JamResponse.of(jam)
     }
 
@@ -115,6 +117,7 @@ class JamService(
             .filter { it.sessionId !in newSessionIds }
             .forEach { jamParticipantRepository.delete(it) }
         jam.replaceSessions(newDefs)
+        jamReservationSyncService.sync(jam)
         return JamDetailResponse.of(jam)
     }
 
@@ -134,6 +137,7 @@ class JamService(
                     member = request.memberId,
                 ),
             )
+        jamReservationSyncService.sync(jam)
         return JamParticipantResponse.of(participant)
     }
 
@@ -148,6 +152,7 @@ class JamService(
             jamParticipantRepository.findByIdAndJam(participantId, jam)
                 ?: throw BusinessException(ErrorCode.JAM_PARTICIPANT_NOT_FOUND)
         participant.markAsDeleted(memberId)
+        jamReservationSyncService.sync(jam)
     }
 
     @Transactional
@@ -157,6 +162,7 @@ class JamService(
     ) {
         val jam = getJam(jamId)
         jam.updateTimeInfo(request.startAt, request.durationMinutes)
+        jamReservationSyncService.sync(jam)
     }
 
     @Transactional
@@ -175,6 +181,7 @@ class JamService(
     ) {
         val jam = getJam(jamId)
         jam.markAsDeleted(memberId)
+        jamReservationSyncService.sync(jam)
     }
 
     // --- 내부 유틸리티 메서드 ---
