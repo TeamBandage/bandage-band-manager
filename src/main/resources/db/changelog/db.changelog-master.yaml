@@ -85,3 +85,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 008-member-availability
+      author: bandage
+      comment: |
+        BD-33 (PRD-2 Task 2): MemberAvailability 도메인 테이블 신설
+        - p_member_availability (member_id PK)
+        - p_member_availability_weekly_rules / p_member_availability_exceptions (ElementCollection)
+      changes:
+        - sqlFile:
+            path: changes/008-member-availability.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
