@@ -99,6 +99,8 @@ enum class ErrorCode(
     SCHEDULE_PERFORMANCE_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 공연 일정에 접근할 권한이 없습니다."),
     SCHEDULE_BLOCK_TRACK_REQUIRED(HttpStatus.BAD_REQUEST, "블록에는 최소 1개 이상의 트랙이 필요합니다."),
     SCHEDULE_BLOCK_TRACK_NOT_IN_PERFORMANCE(HttpStatus.BAD_REQUEST, "공연의 셋리스트에 속하지 않은 트랙입니다."),
+    SCHEDULE_WINDOW_REQUIRED(HttpStatus.BAD_REQUEST, "자동 배치를 위해서는 연습 가능 기간(window)이 필요합니다."),
+    SCHEDULE_NO_PLACEABLE_TRACK(HttpStatus.BAD_REQUEST, "배치할 트랙이 없습니다. 공연 셋리스트를 확인하세요."),
 
     // upload
     INVALID_FILE_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 타입입니다."),

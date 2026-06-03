@@ -24,4 +24,6 @@ data class PlacementContext(
     val items: List<PlaceableItem>,
     val strategy: StrategyComposition,
     val availabilityContext: AvailabilityContext,
+    // replan 시 고정(anchor/pinned)된 블록. 새 배치가 이들과 겹치지 않도록 pending 으로 선점한다.
+    val anchored: List<PendingBlock> = emptyList(),
 )

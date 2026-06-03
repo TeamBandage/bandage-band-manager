@@ -30,7 +30,8 @@ class AutoPlacer(
 
         val placed = mutableListOf<ProposedBlock>()
         val unplaced = mutableListOf<UnplacedItem>()
-        val pending = mutableListOf<PendingBlock>()
+        // 고정(anchored) 블록을 pending 으로 선점하여 새 배치가 겹치지 않도록 한다.
+        val pending = context.anchored.toMutableList()
 
         // 참여자가 많아 배치가 어려운 항목부터, 그리고 세션 수만큼 demand 전개
         val demands =
