@@ -12,12 +12,12 @@ class ScheduleBoardArrangeFacade {
         meetingId: UUID,
         memberId: Long,
         suggestionQty: Int,
-    ): ScheduleBoardResponse = ScheduleBoardResponse.of()
+    ): ScheduleBoardResponse = TODO("Task 13(스케줄 보드 자동배치 API)에서 구현")
 
     @Transactional
     fun rearrangeScheduleBoard(
         meetingId: UUID,
         boardId: UUID,
         memberId: Long,
-    ): ScheduleBoardResponse = ScheduleBoardResponse.of()
+    ): ScheduleBoardResponse = TODO("Task 13(스케줄 보드 재배치 API)에서 구현")
 }
