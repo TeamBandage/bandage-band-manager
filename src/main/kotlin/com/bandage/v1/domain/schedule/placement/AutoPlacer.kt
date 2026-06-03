@@ -42,7 +42,7 @@ class AutoPlacer(
         demands.forEach { item ->
             val env = ScoringEnv(context.windowFrom, context.windowTo, pending.toList())
             val candidates = evaluateCandidates(context, item, duration, dates, pending.toList())
-            val feasible = candidates.filter { context.strategy.passesHardConstraints(it) }
+            val feasible = candidates.filter { context.strategy.passesHardConstraints(it, env) }
             val best = feasible.maxByOrNull { context.strategy.totalScore(it, env) }
 
             if (best != null) {
@@ -94,7 +94,7 @@ class AutoPlacer(
             val candidates = evaluateCandidates(context, item, duration, dates, others)
             val best =
                 candidates
-                    .filter { context.strategy.passesHardConstraints(it) }
+                    .filter { context.strategy.passesHardConstraints(it, env) }
                     .maxByOrNull { context.strategy.totalScore(it, env) }
                     ?: continue
 
@@ -122,7 +122,7 @@ class AutoPlacer(
                 others,
             )
         val candidate = PlacementCandidate(block.date, block.startSlot, block.durationSlots, feas)
-        return if (context.strategy.passesHardConstraints(candidate)) {
+        return if (context.strategy.passesHardConstraints(candidate, env)) {
             context.strategy.totalScore(candidate, env)
         } else {
             Double.NEGATIVE_INFINITY

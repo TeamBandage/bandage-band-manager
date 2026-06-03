@@ -14,4 +14,7 @@ interface MemberScheduleRepository : JpaRepository<MemberSchedule, MemberSchedul
     ): MemberSchedule?
 
     fun findAllByMeetingId(meetingId: UUID): List<MemberSchedule>
+
+    // T15: MemberSchedule → MemberAvailability 마이그레이션용
+    fun findAllByUserId(userId: Long): List<MemberSchedule>
 }

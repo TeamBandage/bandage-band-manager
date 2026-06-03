@@ -18,7 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
-@Tag(name = "schedule-member", description = "선곡 회의 멤버 가용 시간 API")
+@Tag(
+    name = "schedule-member",
+    description = "[DEPRECATED] 선곡 회의 멤버 가용 시간 API. 글로벌 가용성 API(/me/availability)로 대체 예정.",
+)
+@Deprecated(
+    message = "회의 단위 MemberSchedule 은 글로벌 MemberAvailability(/me/availability)로 대체됩니다. 신규 연동 금지.",
+    replaceWith = ReplaceWith("MemberAvailabilityController"),
+)
 @RestController
 @RequestMapping("$PREFIX/setlist-meetings/{meetingId}/schedules")
 class MemberScheduleController(

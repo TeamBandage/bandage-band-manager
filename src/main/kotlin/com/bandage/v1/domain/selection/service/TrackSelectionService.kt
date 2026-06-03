@@ -316,7 +316,7 @@ class TrackSelectionService(
         if (selection.isLocked) throw BusinessException(ErrorCode.SETLIST_MEETING_LOCKED)
 
         val item = getItemOrThrow(selection, itemId)
-        if (request.isSelected) {
+        if (request.selected) {
             validateAllSessionsConfirmed(item)
             item.select()
         } else {
