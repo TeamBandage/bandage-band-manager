@@ -92,6 +92,9 @@ enum class ErrorCode(
     SCHEDULE_SLOT_INVALID(HttpStatus.BAD_REQUEST, "startSlot + durationSlots는 48을 초과할 수 없습니다."),
     SCHEDULE_BOARD_VERSION_CONFLICT(HttpStatus.CONFLICT, "다른 사용자가 시안을 먼저 수정했습니다. 새로고침 후 다시 시도해주세요."),
 
+    // availability
+    AVAILABILITY_INVALID(HttpStatus.BAD_REQUEST, "가용성 정보가 올바르지 않습니다."),
+
     // upload
     INVALID_FILE_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 타입입니다."),
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다."),
