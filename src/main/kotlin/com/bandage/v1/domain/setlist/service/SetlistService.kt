@@ -115,7 +115,7 @@ class SetlistService(
         validateManager(setlist, memberId)
         val track = getTrackOrThrow(setlist, trackId)
 
-        track.updateMeta(request.title, request.artist, request.album, request.duration, request.note)
+        track.updateMeta(request.title, request.artist, request.album, request.duration, request.reference, request.note)
         request.sessions?.let { sessions ->
             val newDefs = sessions.map { it.toEntity() }
             val newSessionIds = newDefs.map { it.sessionId }.toSet()

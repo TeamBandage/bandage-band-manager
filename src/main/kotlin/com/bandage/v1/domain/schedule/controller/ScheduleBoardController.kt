@@ -79,7 +79,7 @@ class ScheduleBoardController(
         summary = "시간표 시안 확정",
         description =
             "매니저 권한. setlist meeting 이 lock 상태여야 하며, 같은 회의에 confirmed 시안이 이미 있으면 409. " +
-                "확정 시 모든 ScheduleBlock 을 Practice 로 일괄 생성하고 (purpose=PERFORMANCE 면) PerformancePractice 링크 생성.",
+                "확정 시 모든 ScheduleBlock 을 Jam 으로 일괄 생성.",
     )
     fun confirmBoard(
         @PathVariable meetingId: UUID,
@@ -90,7 +90,7 @@ class ScheduleBoardController(
     @PostMapping("/{boardId}/unconfirm")
     @Operation(
         summary = "시간표 시안 확정 해제",
-        description = "매니저 권한. 이미 생성된 Practice 는 유지되고 board.confirmed 만 false 로 토글.",
+        description = "매니저 권한. 이미 생성된 Jam 은 유지되고 board.confirmed 만 false 로 토글.",
     )
     fun unconfirmBoard(
         @PathVariable meetingId: UUID,

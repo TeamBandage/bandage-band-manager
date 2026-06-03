@@ -44,13 +44,11 @@ enum class ErrorCode(
     ABNORMAL_LEADER_COUNT(HttpStatus.INTERNAL_SERVER_ERROR, "밴드 리더 양도 처리 중 오류가 발생했습니다"),
     LEADER_CANNOT_LEAVE(HttpStatus.BAD_REQUEST, "해당 밴드에 대한 가입 신청이 아닙니다"),
 
-    // practice
-    PRACTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 합주 정보를 찾을 수 없습니다."),
-    PRACTICE_SONG_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 합주 곡 정보를 찾을 수 없습니다."),
-    PRACTICE_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 합주 세션 정보를 찾을 수 없습니다."),
-    PRACTICE_PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "합주 참여자 정보를 찾을 수 없습니다."),
-    PRACTICE_PARTICIPANT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 합주에 참여 중인 멤버입니다."),
-    PRACTICE_SESSION_ALREADY_ASSIGNED(HttpStatus.CONFLICT, "이미 배정된 세션입니다."),
+    // jam
+    JAM_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 합주 정보를 찾을 수 없습니다."),
+    JAM_SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 합주 세션 정보를 찾을 수 없습니다."),
+    JAM_PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "합주 참여자 정보를 찾을 수 없습니다."),
+    JAM_PARTICIPANT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 합주에 참여 중인 멤버입니다."),
 
     // performance
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 공연 정보를 찾을 수 없습니다."),
@@ -93,6 +91,9 @@ enum class ErrorCode(
     SCHEDULE_DATE_OUT_OF_WINDOW(HttpStatus.BAD_REQUEST, "선택한 날짜가 practiceWindow 범위를 벗어났습니다."),
     SCHEDULE_SLOT_INVALID(HttpStatus.BAD_REQUEST, "startSlot + durationSlots는 48을 초과할 수 없습니다."),
     SCHEDULE_BOARD_VERSION_CONFLICT(HttpStatus.CONFLICT, "다른 사용자가 시안을 먼저 수정했습니다. 새로고침 후 다시 시도해주세요."),
+
+    // availability
+    AVAILABILITY_INVALID(HttpStatus.BAD_REQUEST, "가용성 정보가 올바르지 않습니다."),
 
     // upload
     INVALID_FILE_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 타입입니다."),
