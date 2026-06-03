@@ -112,3 +112,52 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 010-schedule-board-performance
+      author: bandage
+      comment: |
+        BD-33 (PRD-2 Task 5): ScheduleBoard 스코프 meeting → performance 이전
+        - performance_id 추가(NOT NULL), meeting_id nullable 화, window_from/to 추가
+      changes:
+        - sqlFile:
+            path: changes/010-schedule-board-performance.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
+  - changeSet:
+      id: 011-schedule-block-track
+      author: bandage
+      comment: |
+        BD-33 (PRD-2 Task 6): ScheduleBlock↔SetlistTrack N:M 매핑 테이블 신설
+      changes:
+        - sqlFile:
+            path: changes/011-schedule-block-track.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
+  - changeSet:
+      id: 012-schedule-block-recurrence
+      author: bandage
+      comment: |
+        BD-33 (PRD-2 Task 6/7): ScheduleBlock song_id 제거 + 반복/배치 메타데이터 추가
+      changes:
+        - sqlFile:
+            path: changes/012-schedule-block-recurrence.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
+  - changeSet:
+      id: 013-schedule-block-jam
+      author: bandage
+      comment: |
+        BD-33 (PRD-2 Task 8): ScheduleBlock → 확정 Jam 추적 매핑 테이블 신설
+      changes:
+        - sqlFile:
+            path: changes/013-schedule-block-jam.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"

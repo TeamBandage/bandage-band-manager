@@ -6,6 +6,7 @@ import com.bandage.v1.domain.schedule.dto.res.ScheduleBoardResponse
 import com.bandage.v1.domain.schedule.model.ScheduleBoard
 import com.bandage.v1.domain.schedule.model.ScheduleBoardConstraints
 import com.bandage.v1.domain.schedule.repository.ScheduleBlockRepository
+import com.bandage.v1.domain.schedule.repository.ScheduleBlockTrackRepository
 import com.bandage.v1.domain.schedule.repository.ScheduleBoardRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
@@ -20,41 +21,45 @@ import java.util.UUID
 class ScheduleBoardService(
     private val scheduleBoardRepository: ScheduleBoardRepository,
     private val scheduleBlockRepository: ScheduleBlockRepository,
+    private val scheduleBlockTrackRepository: ScheduleBlockTrackRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     fun getBoards(
-        meetingId: UUID,
+        performanceId: UUID,
         memberId: Long,
     ): List<ScheduleBoardResponse> {
-        scheduleAuthService.validateParticipant(meetingId, memberId)
-        val boards = scheduleBoardRepository.findAllByMeetingId(meetingId)
+        scheduleAuthService.validatePerformanceParticipant(performanceId, memberId)
+        val boards = scheduleBoardRepository.findAllByPerformanceId(performanceId)
         if (boards.isEmpty()) return emptyList()
-        val boardIds = boards.map { it.id }
-        val blocksByBoard =
-            boardIds
-                .associateWith { scheduleBlockRepository.findAllByBoardId(it) }
-        return boards.map { ScheduleBoardResponse.of(it, blocksByBoard[it.id].orEmpty()) }
+        val blocksByBoard = boards.associate { it.id to scheduleBlockRepository.findAllByBoardId(it.id) }
+        val allBlockIds = blocksByBoard.values.flatten().map { it.id }
+        val trackIdsByBlock = trackIdsByBlock(allBlockIds)
+        return boards.map { board ->
+            ScheduleBoardResponse.of(board, blocksByBoard[board.id].orEmpty(), trackIdsByBlock)
+        }
     }
 
     @Transactional
     fun createBoard(
-        meetingId: UUID,
+        performanceId: UUID,
         memberId: Long,
         request: ScheduleBoardCreateRequest,
     ): ScheduleBoardResponse {
-        scheduleAuthService.validateManager(meetingId, memberId)
-        val existingCount = scheduleBoardRepository.findAllByMeetingId(meetingId).size
-        if (existingCount >= MAX_BOARDS_PER_MEETING) {
+        scheduleAuthService.validatePerformanceManager(performanceId, memberId)
+        val existingCount = scheduleBoardRepository.findAllByPerformanceId(performanceId).size
+        if (existingCount >= MAX_BOARDS_PER_PERFORMANCE) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_LIMIT_EXCEEDED)
         }
         val constraints = request.constraints?.toEntity() ?: ScheduleBoardConstraints()
         val board =
             scheduleBoardRepository.save(
                 ScheduleBoard.create(
-                    meetingId = meetingId,
+                    performanceId = performanceId,
                     name = request.name,
                     paletteSeed = request.paletteSeed,
                     constraints = constraints,
+                    windowFrom = request.windowFrom,
+                    windowTo = request.windowTo,
                 ),
             )
         return ScheduleBoardResponse.of(board, emptyList())
@@ -62,18 +67,21 @@ class ScheduleBoardService(
 
     @Transactional
     fun updateBoard(
-        meetingId: UUID,
+        performanceId: UUID,
         boardId: UUID,
         memberId: Long,
         request: ScheduleBoardUpdateRequest,
     ): ScheduleBoardResponse {
-        scheduleAuthService.validateManager(meetingId, memberId)
-        val board = getBoardOrThrow(meetingId, boardId)
+        scheduleAuthService.validatePerformanceManager(performanceId, memberId)
+        val board = getBoardOrThrow(performanceId, boardId)
         if (board.confirmed) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_ALREADY_CONFIRMED)
         }
         request.name?.let { board.rename(it) }
         if (request.paletteSeed != null) board.updatePaletteSeed(request.paletteSeed)
+        if (request.windowFrom != null || request.windowTo != null) {
+            board.updateWindow(request.windowFrom ?: board.windowFrom, request.windowTo ?: board.windowTo)
+        }
         request.constraints?.let { dto ->
             board.constraints.update(
                 workingHoursStart = dto.workingHoursStart,
@@ -89,37 +97,46 @@ class ScheduleBoardService(
                 throw BusinessException(ErrorCode.SCHEDULE_BOARD_VERSION_CONFLICT)
             }
         val blocks = scheduleBlockRepository.findAllByBoardId(saved.id)
-        return ScheduleBoardResponse.of(saved, blocks)
+        val trackIdsByBlock = trackIdsByBlock(blocks.map { it.id })
+        return ScheduleBoardResponse.of(saved, blocks, trackIdsByBlock)
     }
 
     @Transactional
     fun deleteBoard(
-        meetingId: UUID,
+        performanceId: UUID,
         boardId: UUID,
         memberId: Long,
     ) {
-        scheduleAuthService.validateManager(meetingId, memberId)
-        val board = getBoardOrThrow(meetingId, boardId)
+        scheduleAuthService.validatePerformanceManager(performanceId, memberId)
+        val board = getBoardOrThrow(performanceId, boardId)
         if (board.confirmed) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_ALREADY_CONFIRMED)
         }
         scheduleBoardRepository.delete(board)
     }
 
+    private fun trackIdsByBlock(blockIds: List<UUID>): Map<UUID, List<UUID>> {
+        if (blockIds.isEmpty()) return emptyMap()
+        return scheduleBlockTrackRepository
+            .findAllByBlockIdIn(blockIds)
+            .sortedBy { it.ordinal }
+            .groupBy({ it.block.id }, { it.setlistTrackId })
+    }
+
     private fun getBoardOrThrow(
-        meetingId: UUID,
+        performanceId: UUID,
         boardId: UUID,
     ): ScheduleBoard {
         val board =
             scheduleBoardRepository.findByIdOrNull(boardId)
                 ?: throw BusinessException(ErrorCode.SCHEDULE_BOARD_NOT_FOUND)
-        if (board.meetingId != meetingId) {
+        if (board.performanceId != performanceId) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_NOT_FOUND)
         }
         return board
     }
 
     companion object {
-        const val MAX_BOARDS_PER_MEETING = 5
+        const val MAX_BOARDS_PER_PERFORMANCE = 5
     }
 }

@@ -95,6 +95,11 @@ enum class ErrorCode(
     // availability
     AVAILABILITY_INVALID(HttpStatus.BAD_REQUEST, "가용성 정보가 올바르지 않습니다."),
 
+    // schedule (performance scope)
+    SCHEDULE_PERFORMANCE_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 공연 일정에 접근할 권한이 없습니다."),
+    SCHEDULE_BLOCK_TRACK_REQUIRED(HttpStatus.BAD_REQUEST, "블록에는 최소 1개 이상의 트랙이 필요합니다."),
+    SCHEDULE_BLOCK_TRACK_NOT_IN_PERFORMANCE(HttpStatus.BAD_REQUEST, "공연의 셋리스트에 속하지 않은 트랙입니다."),
+
     // upload
     INVALID_FILE_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 타입입니다."),
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다."),

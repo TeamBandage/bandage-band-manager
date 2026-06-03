@@ -3,7 +3,10 @@ package com.bandage.v1.domain.schedule.model
 import com.bandage.v1.global.common.domain.BaseEntity
 import com.github.f4b6a3.uuid.UuidCreator
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
@@ -15,19 +18,27 @@ import org.hibernate.annotations.SQLRestriction
 import java.time.LocalDate
 import java.util.UUID
 
+/**
+ * 시간표 블록(하나의 연습 시간 구간).
+ *
+ * PRD-2 변경점:
+ * - 단일 songId 제거 → SetlistTrack 과 N:M([ScheduleBlockTrack])
+ * - 반복 배치 규칙(recurrenceRule) 및 배치 출처(placementOrigin) 메타데이터 추가
+ */
 @Entity
 @Table(name = "p_schedule_block")
 @SQLRestriction("deleted_at IS NULL")
 open class ScheduleBlock(
     id: UUID,
     board: ScheduleBoard,
-    songId: UUID,
     date: LocalDate,
     startSlot: Int,
     durationSlots: Int,
     paletteIndex: Int?,
-    songTitleOverride: String?,
+    titleOverride: String?,
     note: String?,
+    recurrenceRule: RecurrenceRule,
+    placementOrigin: PlacementOrigin,
 ) : BaseEntity() {
     @Id
     @Column(name = "schedule_block_id")
@@ -37,9 +48,6 @@ open class ScheduleBlock(
     @JoinColumn(name = "schedule_board_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     val board: ScheduleBoard = board
-
-    @Column(name = "song_id", nullable = false)
-    val songId: UUID = songId
 
     @Column(name = "block_date", nullable = false)
     var date: LocalDate = date
@@ -61,12 +69,21 @@ open class ScheduleBlock(
     var paletteIndex: Int? = paletteIndex
         protected set
 
-    @Column(name = "song_title_override", nullable = true)
-    var songTitleOverride: String? = songTitleOverride
+    @Column(name = "title_override", nullable = true)
+    var titleOverride: String? = titleOverride
         protected set
 
     @Column(name = "note", nullable = true, length = 200)
     var note: String? = note
+        protected set
+
+    @Embedded
+    var recurrenceRule: RecurrenceRule = recurrenceRule
+        protected set
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "placement_origin", nullable = false)
+    var placementOrigin: PlacementOrigin = placementOrigin
         protected set
 
     companion object {
@@ -74,15 +91,35 @@ open class ScheduleBlock(
 
         fun create(
             board: ScheduleBoard,
-            songId: UUID,
             date: LocalDate,
             startSlot: Int,
             durationSlots: Int,
             paletteIndex: Int? = null,
-            songTitleOverride: String? = null,
+            titleOverride: String? = null,
             note: String? = null,
+            recurrenceRule: RecurrenceRule = RecurrenceRule.none(),
+            placementOrigin: PlacementOrigin = PlacementOrigin.MANUAL,
             id: UUID = UuidCreator.getTimeOrderedEpoch(),
         ): ScheduleBlock {
+            validateSlot(startSlot, durationSlots)
+            return ScheduleBlock(
+                id = id,
+                board = board,
+                date = date,
+                startSlot = startSlot,
+                durationSlots = durationSlots,
+                paletteIndex = paletteIndex,
+                titleOverride = titleOverride,
+                note = note,
+                recurrenceRule = recurrenceRule,
+                placementOrigin = placementOrigin,
+            )
+        }
+
+        private fun validateSlot(
+            startSlot: Int,
+            durationSlots: Int,
+        ) {
             require(startSlot in 0 until SLOTS_PER_DAY) {
                 "startSlot must be in 0..${SLOTS_PER_DAY - 1}, was $startSlot"
             }
@@ -92,17 +129,6 @@ open class ScheduleBlock(
             require(startSlot + durationSlots <= SLOTS_PER_DAY) {
                 "startSlot + durationSlots must be <= $SLOTS_PER_DAY (got ${startSlot + durationSlots})"
             }
-            return ScheduleBlock(
-                id = id,
-                board = board,
-                songId = songId,
-                date = date,
-                startSlot = startSlot,
-                durationSlots = durationSlots,
-                paletteIndex = paletteIndex,
-                songTitleOverride = songTitleOverride,
-                note = note,
-            )
         }
     }
 
@@ -111,15 +137,7 @@ open class ScheduleBlock(
         startSlot: Int,
         durationSlots: Int,
     ) {
-        require(startSlot in 0 until SLOTS_PER_DAY) {
-            "startSlot must be in 0..${SLOTS_PER_DAY - 1}, was $startSlot"
-        }
-        require(durationSlots >= 1) {
-            "durationSlots must be >= 1, was $durationSlots"
-        }
-        require(startSlot + durationSlots <= SLOTS_PER_DAY) {
-            "startSlot + durationSlots must be <= $SLOTS_PER_DAY (got ${startSlot + durationSlots})"
-        }
+        validateSlot(startSlot, durationSlots)
         this.date = date
         this.startSlot = startSlot
         this.durationSlots = durationSlots
@@ -137,11 +155,19 @@ open class ScheduleBlock(
         this.paletteIndex = index
     }
 
-    fun updateSongTitleOverride(title: String?) {
-        this.songTitleOverride = title
+    fun updateTitleOverride(title: String?) {
+        this.titleOverride = title
     }
 
     fun updateNote(note: String?) {
         this.note = note
+    }
+
+    fun updateRecurrenceRule(rule: RecurrenceRule) {
+        this.recurrenceRule = rule
+    }
+
+    fun updatePlacementOrigin(origin: PlacementOrigin) {
+        this.placementOrigin = origin
     }
 }
