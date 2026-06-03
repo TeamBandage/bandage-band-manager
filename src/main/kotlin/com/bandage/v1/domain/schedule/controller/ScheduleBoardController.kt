@@ -23,78 +23,67 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
-@Tag(name = "schedule-boards", description = "시간표 시안 API")
+@Tag(name = "schedule-boards", description = "시간표 시안 API (공연 단위)")
 @RestController
-@RequestMapping("$PREFIX/setlist-meetings/{meetingId}/schedule-boards")
+@RequestMapping("$PREFIX/performances/{performanceId}/schedule-boards")
 class ScheduleBoardController(
     private val scheduleBoardService: ScheduleBoardService,
     private val scheduleConfirmFacade: ScheduleConfirmFacade,
 ) {
     @GetMapping
-    @Operation(summary = "시간표 시안 목록", description = "회의 참여자만 호출 가능.")
+    @Operation(summary = "시간표 시안 목록", description = "공연 참여자만 호출 가능.")
     fun getBoards(
-        @PathVariable meetingId: UUID,
+        @PathVariable performanceId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<List<ScheduleBoardResponse>> = ApiResponse.success(scheduleBoardService.getBoards(meetingId, memberId))
+    ): ApiResponse<List<ScheduleBoardResponse>> = ApiResponse.success(scheduleBoardService.getBoards(performanceId, memberId))
 
     @PostMapping
-    @Operation(summary = "시간표 시안 생성", description = "매니저 권한, 회의당 최대 5개.")
+    @Operation(summary = "시간표 시안 생성", description = "공연 매니저 권한, 공연당 최대 5개.")
     fun createBoard(
-        @PathVariable meetingId: UUID,
+        @PathVariable performanceId: UUID,
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: ScheduleBoardCreateRequest,
-    ): ApiResponse<ScheduleBoardResponse> = ApiResponse.success(scheduleBoardService.createBoard(meetingId, memberId, request))
+    ): ApiResponse<ScheduleBoardResponse> = ApiResponse.success(scheduleBoardService.createBoard(performanceId, memberId, request))
 
     @PatchMapping("/{boardId}")
-    @Operation(summary = "시간표 시안 수정", description = "매니저 권한, confirmed=true 인 시안은 수정 불가(409).")
+    @Operation(summary = "시간표 시안 수정", description = "공연 매니저 권한, confirmed=true 인 시안은 수정 불가(409).")
     fun updateBoard(
-        @PathVariable meetingId: UUID,
+        @PathVariable performanceId: UUID,
         @PathVariable boardId: UUID,
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: ScheduleBoardUpdateRequest,
-    ): ApiResponse<ScheduleBoardResponse> = ApiResponse.success(scheduleBoardService.updateBoard(meetingId, boardId, memberId, request))
-
-//    @PostMapping("/auto-suggest")
-//    @Operation(summary = "시간표 시안 자동 생성", description = "합주 일정 블럭 자동 배치")
-//    fun autoSuggestBoard(
-//        @PathVariable meetingID: UUID,
-//        @CurrentMemberId memberId: Long,
-//        @RequestParam suggestionQty: Int,
-//    ): ApiResponse<ScheduleBoardResponse> =
-//        ApiResponse.success(scheduleBoardArrangeFacade.setupInitialScheduleBoard(meetingID, memberId, suggestionQty))
+    ): ApiResponse<ScheduleBoardResponse> = ApiResponse.success(scheduleBoardService.updateBoard(performanceId, boardId, memberId, request))
 
     @DeleteMapping("/{boardId}")
-    @Operation(summary = "시간표 시안 삭제", description = "매니저 권한, confirmed=true 인 시안은 삭제 불가(409).")
+    @Operation(summary = "시간표 시안 삭제", description = "공연 매니저 권한, confirmed=true 인 시안은 삭제 불가(409).")
     fun deleteBoard(
-        @PathVariable meetingId: UUID,
+        @PathVariable performanceId: UUID,
         @PathVariable boardId: UUID,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
-        scheduleBoardService.deleteBoard(meetingId, boardId, memberId)
+        scheduleBoardService.deleteBoard(performanceId, boardId, memberId)
         return ApiResponse.success()
     }
 
     @PostMapping("/{boardId}/confirm")
     @Operation(
         summary = "시간표 시안 확정",
-        description =
-            "매니저 권한. setlist meeting 이 lock 상태여야 하며, 같은 회의에 confirmed 시안이 이미 있으면 409. " +
-                "확정 시 모든 ScheduleBlock 을 Jam 으로 일괄 생성.",
+        description = "공연 매니저 권한. 같은 공연에 confirmed 시안이 이미 있으면 409. 확정 시 모든 ScheduleBlock 을 Jam 으로 일괄 생성.",
     )
     fun confirmBoard(
-        @PathVariable meetingId: UUID,
+        @PathVariable performanceId: UUID,
         @PathVariable boardId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<ScheduleConfirmResponse> = ApiResponse.success(scheduleConfirmFacade.confirmBoard(meetingId, boardId, memberId))
+    ): ApiResponse<ScheduleConfirmResponse> = ApiResponse.success(scheduleConfirmFacade.confirmBoard(performanceId, boardId, memberId))
 
     @PostMapping("/{boardId}/unconfirm")
     @Operation(
         summary = "시간표 시안 확정 해제",
-        description = "매니저 권한. 이미 생성된 Jam 은 유지되고 board.confirmed 만 false 로 토글.",
+        description = "공연 매니저 권한. 생성된 Jam 은 정리(soft-delete)되고 board.confirmed 가 false 로 토글.",
     )
     fun unconfirmBoard(
-        @PathVariable meetingId: UUID,
+        @PathVariable performanceId: UUID,
         @PathVariable boardId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<ScheduleUnconfirmResponse> = ApiResponse.success(scheduleConfirmFacade.unconfirmBoard(meetingId, boardId, memberId))
+    ): ApiResponse<ScheduleUnconfirmResponse> = ApiResponse.success(scheduleConfirmFacade.unconfirmBoard(performanceId, boardId, memberId))
 }

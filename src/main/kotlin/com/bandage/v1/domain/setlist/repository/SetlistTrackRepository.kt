@@ -11,4 +11,6 @@ interface SetlistTrackRepository :
     JpaRepository<SetlistTrack, UUID>,
     SetlistTrackRepositoryCustom {
     fun findAllBySetlist(setlist: Setlist): List<SetlistTrack>
+
+    fun findAllBySetlistIdIn(setlistIds: Collection<UUID>): List<SetlistTrack>
 }

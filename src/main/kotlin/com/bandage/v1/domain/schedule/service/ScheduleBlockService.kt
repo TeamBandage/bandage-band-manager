@@ -1,13 +1,17 @@
 package com.bandage.v1.domain.schedule.service
 
+import com.bandage.v1.domain.performance.repository.PerformanceRepository
 import com.bandage.v1.domain.schedule.dto.req.ScheduleBlockUpsertRequest
 import com.bandage.v1.domain.schedule.dto.res.ScheduleBlockResponse
+import com.bandage.v1.domain.schedule.model.RecurrenceRule
 import com.bandage.v1.domain.schedule.model.ScheduleBlock
+import com.bandage.v1.domain.schedule.model.ScheduleBlockTrack
 import com.bandage.v1.domain.schedule.model.ScheduleBoard
 import com.bandage.v1.domain.schedule.repository.ScheduleBlockRepository
+import com.bandage.v1.domain.schedule.repository.ScheduleBlockTrackRepository
 import com.bandage.v1.domain.schedule.repository.ScheduleBoardRepository
 import com.bandage.v1.domain.selection.model.PracticeWindow
-import com.bandage.v1.domain.selection.repository.TrackSelectionRepository
+import com.bandage.v1.domain.setlist.repository.SetlistTrackRepository
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
@@ -21,24 +25,27 @@ import java.util.UUID
 class ScheduleBlockService(
     private val scheduleBoardRepository: ScheduleBoardRepository,
     private val scheduleBlockRepository: ScheduleBlockRepository,
-    private val trackSelectionRepository: TrackSelectionRepository,
+    private val scheduleBlockTrackRepository: ScheduleBlockTrackRepository,
+    private val performanceRepository: PerformanceRepository,
+    private val setlistTrackRepository: SetlistTrackRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     @Transactional
     fun upsertBlock(
-        meetingId: UUID,
+        performanceId: UUID,
         boardId: UUID,
         blockId: UUID,
         memberId: Long,
         request: ScheduleBlockUpsertRequest,
     ): ScheduleBlockResponse {
-        scheduleAuthService.validateManager(meetingId, memberId)
-        val board = getBoardOrThrow(meetingId, boardId)
+        scheduleAuthService.validatePerformanceManager(performanceId, memberId)
+        val board = getBoardOrThrow(performanceId, boardId)
         ensureBoardEditable(board)
         validateSlot(request.startSlot, request.durationSlots)
-        val window = getPracticeWindow(meetingId)
-        validateDateInWindow(request.date, window)
+        board.practiceWindowOrNull()?.let { validateDateInWindow(request.date, it) }
+        validateTracksInPerformance(performanceId, request.trackIds)
 
+        val recurrence = toRecurrenceRule(request)
         val existing = scheduleBlockRepository.findByIdOrNull(blockId)
         val block =
             if (existing != null) {
@@ -47,8 +54,9 @@ class ScheduleBlockService(
                 }
                 existing.reposition(request.date, request.startSlot, request.durationSlots)
                 existing.updatePaletteIndex(request.paletteIndex)
-                existing.updateSongTitleOverride(request.songTitleOverride)
+                existing.updateTitleOverride(request.titleOverride)
                 existing.updateNote(request.note)
+                existing.updateRecurrenceRule(recurrence)
                 request.pinned?.let { if (it) existing.pin() else existing.unpin() }
                 existing
             } else {
@@ -56,59 +64,110 @@ class ScheduleBlockService(
                     .create(
                         id = blockId,
                         board = board,
-                        songId = request.songId,
                         date = request.date,
                         startSlot = request.startSlot,
                         durationSlots = request.durationSlots,
                         paletteIndex = request.paletteIndex,
-                        songTitleOverride = request.songTitleOverride,
+                        titleOverride = request.titleOverride,
                         note = request.note,
+                        recurrenceRule = recurrence,
                     ).apply {
                         request.pinned?.let { if (it) pin() }
                     }
             }
         val saved = scheduleBlockRepository.save(block)
-        return ScheduleBlockResponse.from(saved)
+        val trackIds = replaceBlockTracks(saved, request.trackIds)
+        return ScheduleBlockResponse.from(saved, trackIds)
     }
 
     @Transactional
     fun deleteBlock(
-        meetingId: UUID,
+        performanceId: UUID,
         boardId: UUID,
         blockId: UUID,
         memberId: Long,
     ) {
-        scheduleAuthService.validateManager(meetingId, memberId)
-        val board = getBoardOrThrow(meetingId, boardId)
+        scheduleAuthService.validatePerformanceManager(performanceId, memberId)
+        val board = getBoardOrThrow(performanceId, boardId)
         ensureBoardEditable(board)
         val block = getBlockOrThrow(boardId, blockId)
+        scheduleBlockTrackRepository.deleteAllByBlockId(block.id)
         scheduleBlockRepository.delete(block)
     }
 
     @Transactional
     fun setPin(
-        meetingId: UUID,
+        performanceId: UUID,
         boardId: UUID,
         blockId: UUID,
         memberId: Long,
         pinned: Boolean,
     ): ScheduleBlockResponse {
-        scheduleAuthService.validateManager(meetingId, memberId)
-        val board = getBoardOrThrow(meetingId, boardId)
+        scheduleAuthService.validatePerformanceManager(performanceId, memberId)
+        val board = getBoardOrThrow(performanceId, boardId)
         ensureBoardEditable(board)
         val block = getBlockOrThrow(boardId, blockId)
         if (pinned) block.pin() else block.unpin()
-        return ScheduleBlockResponse.from(block)
+        val trackIds =
+            scheduleBlockTrackRepository
+                .findAllByBlockIdOrderByOrdinalAsc(block.id)
+                .map { it.setlistTrackId }
+        return ScheduleBlockResponse.from(block, trackIds)
+    }
+
+    /** 블록의 트랙 매핑을 전체 교체하고, 적용된 trackId 목록을 순서대로 반환한다. */
+    private fun replaceBlockTracks(
+        block: ScheduleBlock,
+        trackIds: List<UUID>,
+    ): List<UUID> {
+        scheduleBlockTrackRepository.deleteAllByBlockId(block.id)
+        val distinct = trackIds.distinct()
+        distinct.forEachIndexed { index, trackId ->
+            scheduleBlockTrackRepository.save(
+                ScheduleBlockTrack.create(block = block, setlistTrackId = trackId, ordinal = index),
+            )
+        }
+        return distinct
+    }
+
+    private fun validateTracksInPerformance(
+        performanceId: UUID,
+        trackIds: List<UUID>,
+    ) {
+        if (trackIds.isEmpty()) throw BusinessException(ErrorCode.SCHEDULE_BLOCK_TRACK_REQUIRED)
+        val candidateTrackIds = candidateTrackIds(performanceId)
+        if (!candidateTrackIds.containsAll(trackIds.toSet())) {
+            throw BusinessException(ErrorCode.SCHEDULE_BLOCK_TRACK_NOT_IN_PERFORMANCE)
+        }
+    }
+
+    private fun candidateTrackIds(performanceId: UUID): Set<UUID> {
+        val performance =
+            performanceRepository.findByIdOrNull(performanceId)
+                ?: throw BusinessException(ErrorCode.PERFORMANCE_NOT_FOUND)
+        val setlistIds = performance.setlists.map { it.setlistId }
+        if (setlistIds.isEmpty()) return emptySet()
+        return setlistTrackRepository.findAllBySetlistIdIn(setlistIds).map { it.id }.toSet()
+    }
+
+    private fun toRecurrenceRule(request: ScheduleBlockUpsertRequest): RecurrenceRule {
+        val r = request.recurrence ?: return RecurrenceRule.none()
+        return RecurrenceRule(
+            freq = r.freq,
+            interval = r.interval,
+            until = r.until,
+            count = r.count,
+        )
     }
 
     private fun getBoardOrThrow(
-        meetingId: UUID,
+        performanceId: UUID,
         boardId: UUID,
     ): ScheduleBoard {
         val board =
             scheduleBoardRepository.findByIdOrNull(boardId)
                 ?: throw BusinessException(ErrorCode.SCHEDULE_BOARD_NOT_FOUND)
-        if (board.meetingId != meetingId) {
+        if (board.performanceId != performanceId) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_NOT_FOUND)
         }
         return board
@@ -143,13 +202,6 @@ class ScheduleBlockService(
         ) {
             throw BusinessException(ErrorCode.SCHEDULE_SLOT_INVALID)
         }
-    }
-
-    private fun getPracticeWindow(meetingId: UUID): PracticeWindow {
-        val meeting =
-            trackSelectionRepository.findByIdOrNull(meetingId)
-                ?: throw BusinessException(ErrorCode.SETLIST_MEETING_NOT_FOUND)
-        return meeting.practiceWindow
     }
 
     private fun validateDateInWindow(

@@ -1,32 +1,54 @@
 package com.bandage.v1.domain.schedule.dto.res
 
+import com.bandage.v1.domain.schedule.model.PlacementOrigin
+import com.bandage.v1.domain.schedule.model.RecurrenceFreq
 import com.bandage.v1.domain.schedule.model.ScheduleBlock
 import java.time.LocalDate
 import java.util.UUID
 
 data class ScheduleBlockResponse(
     val blockId: UUID,
-    val songId: UUID,
+    val trackIds: List<UUID>,
     val date: LocalDate,
     val startSlot: Int,
     val durationSlots: Int,
     val pinned: Boolean,
     val paletteIndex: Int?,
-    val songTitleOverride: String?,
+    val titleOverride: String?,
     val note: String?,
+    val recurrence: RecurrenceDto,
+    val placementOrigin: PlacementOrigin,
 ) {
+    data class RecurrenceDto(
+        val freq: RecurrenceFreq,
+        val interval: Int,
+        val until: LocalDate?,
+        val count: Int?,
+    )
+
     companion object {
-        fun from(block: ScheduleBlock): ScheduleBlockResponse =
+        fun from(
+            block: ScheduleBlock,
+            trackIds: List<UUID>,
+        ): ScheduleBlockResponse =
             ScheduleBlockResponse(
                 blockId = block.id,
-                songId = block.songId,
+                trackIds = trackIds,
                 date = block.date,
                 startSlot = block.startSlot,
                 durationSlots = block.durationSlots,
                 pinned = block.pinned,
                 paletteIndex = block.paletteIndex,
-                songTitleOverride = block.songTitleOverride,
+                titleOverride = block.titleOverride,
                 note = block.note,
+                recurrence =
+                    RecurrenceDto(
+                        freq = block.recurrenceRule.freq,
+                        interval = block.recurrenceRule.interval,
+                        until = block.recurrenceRule.until,
+                        count = block.recurrenceRule.count,
+                    ),
+                placementOrigin = block.placementOrigin,
             )
     }
 }
