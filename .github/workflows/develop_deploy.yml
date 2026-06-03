@@ -9,6 +9,14 @@ env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: bandage-band-manager
 
+# 동일 EC2 에 대한 배포를 직렬화한다.
+# develop 에 push 가 연속 발생하면 여러 배포가 같은 호스트에서 docker compose recreate 를
+# 동시에 실행해 컨테이너 rename/삭제 레이스("No such container: <hex>_bandage-band-manager")가 난다.
+# 진행 중 배포는 끊지 않고(cancel-in-progress: false) 큐잉하여 한 번에 하나씩만 배포한다.
+concurrency:
+  group: deploy-develop-ec2
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -120,5 +128,9 @@ jobs:
               | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
 
             docker compose pull
+            # 이전 배포가 비정상 종료되어 남은(이름 충돌) app 컨테이너 정리
+            #  - 정상 컨테이너 'bandage-band-manager' 및 rename 잔여 '<hex>_bandage-band-manager' 모두 포함
+            #  - 정리 후 compose up 이 깨끗하게 재생성하므로 'No such container' 재발 방지
+            docker ps -aq --filter "name=bandage-band-manager" | xargs -r docker rm -f || true
             docker compose up -d
             docker image prune -f
