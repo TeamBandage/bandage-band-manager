@@ -28,7 +28,10 @@ data class StrategyComposition(
     val blockShape: BlockShape = BlockShape(),
     val coverageGoal: CoverageGoal = CoverageGoal(),
 ) {
-    fun passesHardConstraints(candidate: PlacementCandidate): Boolean = hardConstraints.all { it.isSatisfied(candidate) }
+    fun passesHardConstraints(
+        candidate: PlacementCandidate,
+        env: ScoringEnv,
+    ): Boolean = hardConstraints.all { it.isSatisfied(candidate, env) }
 
     fun totalScore(
         candidate: PlacementCandidate,
@@ -51,6 +54,7 @@ enum class StrategyPreset {
                     listOf(
                         HardConstraint.WorkingHours(startSlot = 18, endSlot = 46),
                         HardConstraint.MinAvailabilityRatio(minRatio = 0.5),
+                        HardConstraint.MaxBlocksPerDay(maxPerDay = 2),
                     ),
                 softScorers =
                     listOf(
@@ -94,6 +98,7 @@ enum class StrategyPreset {
                         HardConstraint.WorkingHours(startSlot = 20, endSlot = 44),
                         HardConstraint.NoLateNight(boundarySlot = 44),
                         HardConstraint.MinAvailabilityRatio(minRatio = 0.5),
+                        HardConstraint.MaxBlocksPerDay(maxPerDay = 2),
                     ),
                 softScorers =
                     listOf(

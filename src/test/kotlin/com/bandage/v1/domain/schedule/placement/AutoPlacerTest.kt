@@ -86,6 +86,27 @@ class AutoPlacerTest {
     }
 
     @Test
+    fun `MaxBlocksPerDay 제약이 있으면 블록이 여러 날에 분산된다`() {
+        val strat =
+            strategy(
+                hard =
+                    listOf(
+                        HardConstraint.WorkingHours(18, 46),
+                        HardConstraint.RequireAllAvailable(),
+                        HardConstraint.MaxBlocksPerDay(maxPerDay = 1),
+                    ),
+            )
+        // 같은 멤버가 4회 연습 → maxPerDay=1 이면 최소 4일에 분산되어야 함
+        val item = PlaceableItem(UUID.randomUUID(), setOf(1L), sessionsNeeded = 4)
+
+        val proposal = sut.propose(context(listOf(item), strat))
+
+        assertThat(proposal.placedCount).isEqualTo(4)
+        val distinctDates = proposal.blocks.map { it.date }.toSet()
+        assertThat(distinctDates).hasSize(4) // 하루 1개 제약 → 4개 서로 다른 날
+    }
+
+    @Test
     fun `coverageGoal sessionsNeeded 만큼 블록이 배치된다`() {
         val item = PlaceableItem(UUID.randomUUID(), setOf(1L), sessionsNeeded = 3)
 

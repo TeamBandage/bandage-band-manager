@@ -1,5 +1,6 @@
 package com.bandage.v1.domain.schedule.placement.strategy
 
+import com.bandage.v1.domain.schedule.placement.PendingBlock
 import com.bandage.v1.domain.schedule.placement.PlacementCandidate
 import com.bandage.v1.domain.schedule.placement.ScoringEnv
 import com.bandage.v1.domain.schedule.placement.SlotFeasibility
@@ -67,13 +68,35 @@ class StrategyCompositionTest {
     @Test
     fun `WorkingHours 와 MinAvailabilityRatio HardConstraint 가 동작한다`() {
         val date = LocalDate.of(2026, 6, 10)
+        val env = ScoringEnv(date, date, emptyList())
         val within = candidate(date, startSlot = 20, durationSlots = 4, ratio = 1.0)
         val outside = candidate(date, startSlot = 4, durationSlots = 4, ratio = 1.0)
         val lowRatio = candidate(date, startSlot = 20, durationSlots = 4, ratio = 0.25)
 
-        assertThat(HardConstraint.WorkingHours(18, 46).isSatisfied(within)).isTrue()
-        assertThat(HardConstraint.WorkingHours(18, 46).isSatisfied(outside)).isFalse()
-        assertThat(HardConstraint.MinAvailabilityRatio(0.5).isSatisfied(lowRatio)).isFalse()
+        assertThat(HardConstraint.WorkingHours(18, 46).isSatisfied(within, env)).isTrue()
+        assertThat(HardConstraint.WorkingHours(18, 46).isSatisfied(outside, env)).isFalse()
+        assertThat(HardConstraint.MinAvailabilityRatio(0.5).isSatisfied(lowRatio, env)).isFalse()
+    }
+
+    @Test
+    fun `MaxBlocksPerDay 는 같은 날 pending 이 상한 이상이면 탈락시킨다`() {
+        val date = LocalDate.of(2026, 6, 10)
+        val c = candidate(date, startSlot = 20, durationSlots = 4, ratio = 1.0)
+        val constraint = HardConstraint.MaxBlocksPerDay(maxPerDay = 2)
+
+        fun pend(n: Int) = ScoringEnv(date, date, (1..n).map { PendingBlock(date, it * 2, 1, setOf(1L)) })
+
+        assertThat(constraint.isSatisfied(c, pend(0))).isTrue()
+        assertThat(constraint.isSatisfied(c, pend(1))).isTrue()
+        assertThat(constraint.isSatisfied(c, pend(2))).isFalse() // 이미 2개 → 3번째 불가
+        // 다른 날짜의 pending 은 카운트에 영향 없음
+        val otherDay =
+            ScoringEnv(
+                date,
+                date,
+                listOf(PendingBlock(date.plusDays(1), 20, 4, setOf(1L)), PendingBlock(date.plusDays(1), 24, 4, setOf(1L))),
+            )
+        assertThat(constraint.isSatisfied(c, otherDay)).isTrue()
     }
 
     @Test
