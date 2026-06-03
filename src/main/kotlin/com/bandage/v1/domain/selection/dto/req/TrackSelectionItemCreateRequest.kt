@@ -14,8 +14,10 @@ data class TrackSelectionItemCreateRequest(
     val artist: String,
     @Schema(description = "앨범")
     val album: String?,
-    @Schema(description = "재생 시간(mm:ss)")
-    val duration: String?,
+    @Schema(description = "곡 길이(초 단위). 분/초(mm:ss) 표시 변환은 클라이언트에서 처리")
+    val duration: Int?,
+    @Schema(description = "참고 링크(예: YouTube)")
+    val reference: String?,
     @Schema(description = "추천자 의견")
     val note: String?,
     @field:Valid

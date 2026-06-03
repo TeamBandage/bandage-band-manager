@@ -29,6 +29,7 @@ import com.bandage.v1.domain.selection.repository.TrackSelectionItemConfirmation
 import com.bandage.v1.domain.selection.repository.TrackSelectionItemRepository
 import com.bandage.v1.domain.selection.repository.TrackSelectionMemberRepository
 import com.bandage.v1.domain.selection.repository.TrackSelectionRepository
+import com.bandage.v1.global.common.domain.TrackInfo
 import com.bandage.v1.global.common.response.CursorResponse
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
@@ -201,10 +202,14 @@ class TrackSelectionService(
             itemRepository.save(
                 TrackSelectionItem.create(
                     selection = selection,
-                    title = request.title,
-                    artist = request.artist,
-                    album = request.album,
-                    duration = request.duration,
+                    trackInfo =
+                        TrackInfo(
+                            title = request.title,
+                            artist = request.artist,
+                            album = request.album,
+                            duration = request.duration,
+                            reference = request.reference,
+                        ),
                     proposerId = memberId,
                     note = request.note,
                     sessions = request.sessions.map { it.toEntity() },
@@ -266,7 +271,7 @@ class TrackSelectionService(
         if (item.proposerId != memberId && selection.managerId != memberId) {
             throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_FORBIDDEN)
         }
-        item.updateMeta(request.title, request.artist, request.album, request.duration, request.note)
+        item.updateMeta(request.title, request.artist, request.album, request.duration, request.reference, request.note)
         request.sessions?.let { sessions ->
             val newDefs = sessions.map { it.toEntity() }
             val newSessionIds = newDefs.map { it.sessionId }.toSet()

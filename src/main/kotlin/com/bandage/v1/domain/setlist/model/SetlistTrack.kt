@@ -2,9 +2,11 @@ package com.bandage.v1.domain.setlist.model
 
 import com.bandage.v1.global.common.domain.BaseEntity
 import com.bandage.v1.global.common.domain.SessionDef
+import com.bandage.v1.global.common.domain.TrackInfo
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
@@ -20,10 +22,7 @@ import java.util.UUID
 @SQLRestriction("deleted_at IS NULL")
 open class SetlistTrack(
     setlist: Setlist,
-    title: String,
-    artist: String,
-    album: String?,
-    duration: String?,
+    trackInfo: TrackInfo,
     note: String?,
 ) : BaseEntity() {
     @Id
@@ -36,28 +35,12 @@ open class SetlistTrack(
     @JoinColumn(name = "setlist_id", nullable = false)
     val setlist: Setlist = setlist
 
-    @Column(name = "title", nullable = false)
-    var title: String = title
-        protected set
-
-    @Column(name = "artist", nullable = false)
-    var artist: String = artist
-        protected set
-
-    @Column(name = "album", nullable = true)
-    var album: String? = album
-        protected set
-
-    @Column(name = "duration", nullable = true)
-    var duration: String? = duration
+    @Embedded
+    var trackInfo: TrackInfo = trackInfo
         protected set
 
     @Column(name = "note", nullable = true, length = 1000)
     var note: String? = note
-        protected set
-
-    @Column(name = "practice_song_id", nullable = true)
-    var practiceSongId: UUID? = null
         protected set
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -72,19 +55,13 @@ open class SetlistTrack(
     companion object {
         fun create(
             setlist: Setlist,
-            title: String,
-            artist: String,
-            album: String?,
-            duration: String?,
+            trackInfo: TrackInfo,
             note: String?,
             sessions: List<SessionDef>,
         ): SetlistTrack =
             SetlistTrack(
                 setlist = setlist,
-                title = title,
-                artist = artist,
-                album = album,
-                duration = duration,
+                trackInfo = trackInfo,
                 note = note,
             ).apply {
                 _sessions.addAll(sessions)
@@ -95,22 +72,16 @@ open class SetlistTrack(
         title: String?,
         artist: String?,
         album: String?,
-        duration: String?,
+        duration: Int?,
+        reference: String?,
         note: String?,
     ) {
-        title?.let { this.title = it }
-        artist?.let { this.artist = it }
-        album?.let { this.album = it }
-        duration?.let { this.duration = it }
+        trackInfo.update(title, artist, album, duration, reference)
         note?.let { this.note = it }
     }
 
     fun replaceSessions(newSessions: List<SessionDef>) {
         this._sessions.clear()
         this._sessions.addAll(newSessions)
-    }
-
-    fun assignPracticeSongId(practiceSongId: UUID) {
-        this.practiceSongId = practiceSongId
     }
 }

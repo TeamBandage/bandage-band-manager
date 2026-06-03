@@ -14,6 +14,7 @@ import com.bandage.v1.domain.setlist.repository.SetlistBandRepository
 import com.bandage.v1.domain.setlist.repository.SetlistRepository
 import com.bandage.v1.domain.setlist.repository.SetlistTrackParticipantRepository
 import com.bandage.v1.domain.setlist.repository.SetlistTrackRepository
+import com.bandage.v1.global.common.domain.TrackInfo
 import com.bandage.v1.global.error.errorcode.ErrorCode
 import com.bandage.v1.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
@@ -69,10 +70,14 @@ class SetlistCreateFacade(
                 setlistTrackRepository.save(
                     SetlistTrack.create(
                         setlist = setlist,
-                        title = item.title,
-                        artist = item.artist,
-                        album = item.album,
-                        duration = item.duration,
+                        trackInfo =
+                            TrackInfo(
+                                title = item.trackInfo.title,
+                                artist = item.trackInfo.artist,
+                                album = item.trackInfo.album,
+                                duration = item.trackInfo.duration,
+                                reference = item.trackInfo.reference,
+                            ),
                         note = item.note,
                         sessions = item.sessions,
                     ),
