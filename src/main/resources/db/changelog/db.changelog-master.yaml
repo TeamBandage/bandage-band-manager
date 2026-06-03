@@ -99,3 +99,16 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 009-jam-reservation
+      author: bandage
+      comment: |
+        BD-33 (PRD-2 Task 3): JamReservation 추적 테이블 신설
+        - p_jam_reservation (멤버별 Jam 점유 시간 구간, delete-reinsert 동기화)
+      changes:
+        - sqlFile:
+            path: changes/009-jam-reservation.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
