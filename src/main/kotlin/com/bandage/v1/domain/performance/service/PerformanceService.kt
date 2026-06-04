@@ -4,6 +4,7 @@ import com.bandage.v1.domain.band.repository.BandMemberRepository
 import com.bandage.v1.domain.band.repository.BandRepository
 import com.bandage.v1.domain.member.repository.MemberRepository
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
+import com.bandage.v1.domain.performance.dto.req.PerformanceInvitationCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.v1.domain.performance.dto.req.PerformanceSearchQuery
 import com.bandage.v1.domain.performance.dto.req.PerformanceSetlistAddRequest
@@ -11,13 +12,17 @@ import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
 import com.bandage.v1.domain.performance.dto.res.PerformanceBandMemberSummary
 import com.bandage.v1.domain.performance.dto.res.PerformanceBandSummary
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
+import com.bandage.v1.domain.performance.dto.res.PerformanceInvitationResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceSetlistResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceSetlistSummary
 import com.bandage.v1.domain.performance.model.Performance
+import com.bandage.v1.domain.performance.model.PerformanceInvitation
 import com.bandage.v1.domain.performance.model.PerformanceManager
 import com.bandage.v1.domain.performance.model.PerformanceSetlist
+import com.bandage.v1.domain.performance.model.enums.PerformanceInvitationStatus
+import com.bandage.v1.domain.performance.repository.PerformanceInvitationRepository
 import com.bandage.v1.domain.performance.repository.PerformanceManagerRepository
 import com.bandage.v1.domain.performance.repository.PerformanceRepository
 import com.bandage.v1.domain.performance.repository.PerformanceSetlistRepository
@@ -39,6 +44,7 @@ class PerformanceService(
     private val performanceRepository: PerformanceRepository,
     private val performanceSetlistRepository: PerformanceSetlistRepository,
     private val performanceManagerRepository: PerformanceManagerRepository,
+    private val performanceInvitationRepository: PerformanceInvitationRepository,
     private val setlistRepository: SetlistRepository,
     private val setlistBandRepository: SetlistBandRepository,
     private val bandRepository: BandRepository,
@@ -62,9 +68,10 @@ class PerformanceService(
             )
         (request.setlistIds ?: emptyList()).distinct().forEach { setlistId ->
             requireSetlist(setlistId)
+            validateSetlistAccessible(setlistId, memberId)
             performanceSetlistRepository.save(PerformanceSetlist.create(performance = performance, setlistId = setlistId))
         }
-        performanceManagerRepository.save(PerformanceManager.create(performance = performance, member = memberId))
+        performanceManagerRepository.save(PerformanceManager.createOwner(performance = performance, member = memberId))
         return PerformanceResponse.of(performance)
     }
 
@@ -131,7 +138,7 @@ class PerformanceService(
         memberId: Long,
     ) {
         val performance = getPerformance(performanceId)
-        validateIsManager(performance, memberId)
+        validateParticipant(performance, memberId)
         request.title?.let { performance.updateTitle(it) }
         if (request.startAt != null || request.durationMinutes != null) {
             performance.updateTimeInfo(
@@ -149,10 +156,11 @@ class PerformanceService(
         memberId: Long,
     ): List<PerformanceSetlistResponse> {
         val performance = getPerformance(performanceId)
-        validateIsManager(performance, memberId)
+        validateParticipant(performance, memberId)
         return request.setlistIds.distinct().mapNotNull { setlistId ->
             if (performanceSetlistRepository.existsByPerformanceAndSetlistId(performance, setlistId)) return@mapNotNull null
             requireSetlist(setlistId)
+            validateSetlistAccessible(setlistId, memberId)
             val saved = performanceSetlistRepository.save(PerformanceSetlist.create(performance = performance, setlistId = setlistId))
             PerformanceSetlistResponse.of(saved)
         }
@@ -165,10 +173,14 @@ class PerformanceService(
         memberId: Long,
     ) {
         val performance = getPerformance(performanceId)
-        validateIsManager(performance, memberId)
+        val participant = requireParticipant(performance, memberId)
         val ps =
             performanceSetlistRepository.findByPerformanceAndSetlistId(performance, setlistId)
                 ?: throw BusinessException(ErrorCode.PERFORMANCE_SETLIST_NOT_FOUND)
+        // OWNER 는 공연 내 모든 셋리스트를 제거할 수 있고, MANAGER 는 본인이 접근 가능한 셋리스트만 제거할 수 있다.
+        if (!participant.isOwner()) {
+            validateSetlistAccessible(setlistId, memberId)
+        }
         performanceSetlistRepository.delete(ps)
     }
 
@@ -178,8 +190,92 @@ class PerformanceService(
         memberId: Long,
     ) {
         val performance = getPerformance(performanceId)
-        validateIsManager(performance, memberId)
+        validateOwner(performance, memberId)
         performance.markAsDeleted(memberId)
+    }
+
+    @Transactional
+    fun sendInvitation(
+        performanceId: UUID,
+        request: PerformanceInvitationCreateRequest,
+        ownerId: Long,
+    ): PerformanceInvitationResponse {
+        val performance = getPerformance(performanceId)
+        validateOwner(performance, ownerId)
+        val invitedMemberId = request.memberId
+        if (!memberRepository.existsById(invitedMemberId)) {
+            throw BusinessException(ErrorCode.MEMBER_NOT_FOUND)
+        }
+        if (performanceManagerRepository.existsByPerformanceAndMember(performance, invitedMemberId)) {
+            throw BusinessException(ErrorCode.ALREADY_PERFORMANCE_MANAGER)
+        }
+        if (performanceInvitationRepository.existsByPerformanceAndInvitedMemberAndStatus(
+                performance,
+                invitedMemberId,
+                PerformanceInvitationStatus.PENDING,
+            )
+        ) {
+            throw BusinessException(ErrorCode.PERFORMANCE_INVITATION_ALREADY_EXISTS)
+        }
+        val saved =
+            performanceInvitationRepository.save(
+                PerformanceInvitation.create(
+                    performance = performance,
+                    invitedMember = invitedMemberId,
+                    invitedBy = ownerId,
+                ),
+            )
+        return toInvitationResponses(listOf(saved)).first()
+    }
+
+    fun getInvitations(
+        performanceId: UUID,
+        ownerId: Long,
+    ): List<PerformanceInvitationResponse> {
+        val performance = getPerformance(performanceId)
+        validateOwner(performance, ownerId)
+        return toInvitationResponses(performanceInvitationRepository.findAllByPerformanceOrderByCreatedAtDesc(performance))
+    }
+
+    fun getMyInvitations(memberId: Long): List<PerformanceInvitationResponse> =
+        toInvitationResponses(
+            performanceInvitationRepository.findAllByInvitedMemberAndStatusOrderByCreatedAtDesc(
+                memberId,
+                PerformanceInvitationStatus.PENDING,
+            ),
+        )
+
+    @Transactional
+    fun respondInvitation(
+        performanceId: UUID,
+        invitationId: UUID,
+        memberId: Long,
+        status: PerformanceInvitationStatus,
+    ) {
+        val performance = getPerformance(performanceId)
+        val invitation =
+            performanceInvitationRepository.findByIdAndStatus(invitationId, PerformanceInvitationStatus.PENDING)
+                ?: throw BusinessException(ErrorCode.PERFORMANCE_INVITATION_NOT_FOUND)
+        if (invitation.performance.id != performance.id) {
+            throw BusinessException(ErrorCode.PERFORMANCE_INVITATION_NOT_FOUND)
+        }
+        if (invitation.invitedMember != memberId) {
+            throw BusinessException(ErrorCode.PERFORMANCE_INVITATION_FORBIDDEN)
+        }
+        when (status) {
+            PerformanceInvitationStatus.ACCEPTED -> {
+                invitation.updateStatus(PerformanceInvitationStatus.ACCEPTED)
+                invitation.markProcessedBy(memberId)
+                if (!performanceManagerRepository.existsByPerformanceAndMember(performance, memberId)) {
+                    performanceManagerRepository.save(PerformanceManager.createManager(performance = performance, member = memberId))
+                }
+            }
+            PerformanceInvitationStatus.REJECTED -> {
+                invitation.updateStatus(PerformanceInvitationStatus.REJECTED)
+                invitation.markProcessedBy(memberId)
+            }
+            else -> throw BusinessException(ErrorCode.INVALID_INPUT_VALUE)
+        }
     }
 
     private fun buildSetlistSummaries(setlistIds: Collection<UUID>): Map<UUID, PerformanceSetlistSummary> {
@@ -229,6 +325,19 @@ class PerformanceService(
         }
     }
 
+    private fun toInvitationResponses(invitations: List<PerformanceInvitation>): List<PerformanceInvitationResponse> {
+        if (invitations.isEmpty()) return emptyList()
+        val members = memberRepository.findAllById(invitations.map { it.invitedMember }.toSet()).associateBy { it.id }
+        return invitations.map { invitation ->
+            val member = members[invitation.invitedMember]
+            PerformanceInvitationResponse.of(
+                invitation = invitation,
+                invitedMemberName = member?.name,
+                invitedMemberProfileImg = cloudFrontUrlResolver.resolveOrNull(member?.profileImg),
+            )
+        }
+    }
+
     fun getPerformance(performanceId: UUID): Performance =
         performanceRepository.findByIdOrNull(performanceId)
             ?: throw BusinessException(ErrorCode.PERFORMANCE_NOT_FOUND)
@@ -237,12 +346,35 @@ class PerformanceService(
         setlistRepository.findByIdOrNull(setlistId)
             ?: throw BusinessException(ErrorCode.SETLIST_NOT_FOUND)
 
-    fun validateIsManager(
+    private fun validateSetlistAccessible(
+        setlistId: UUID,
+        memberId: Long,
+    ) {
+        if (!setlistRepository.isAccessibleMember(setlistId, memberId)) {
+            throw BusinessException(ErrorCode.SETLIST_FORBIDDEN)
+        }
+    }
+
+    private fun requireParticipant(
+        performance: Performance,
+        memberId: Long,
+    ): PerformanceManager =
+        performanceManagerRepository.findByPerformanceAndMember(performance, memberId)
+            ?: throw BusinessException(ErrorCode.NOT_A_PERFORMANCE_MANAGER)
+
+    private fun validateParticipant(
         performance: Performance,
         memberId: Long,
     ) {
-        if (!performanceManagerRepository.existsByPerformanceAndMember(performance, memberId)) {
-            throw BusinessException(ErrorCode.NOT_A_PERFORMANCE_MANAGER)
+        requireParticipant(performance, memberId)
+    }
+
+    private fun validateOwner(
+        performance: Performance,
+        memberId: Long,
+    ) {
+        if (!requireParticipant(performance, memberId).isOwner()) {
+            throw BusinessException(ErrorCode.NOT_A_PERFORMANCE_OWNER)
         }
     }
 }
