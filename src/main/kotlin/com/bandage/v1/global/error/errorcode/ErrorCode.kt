@@ -53,7 +53,12 @@ enum class ErrorCode(
     // performance
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 공연 정보를 찾을 수 없습니다."),
     NOT_A_PERFORMANCE_MANAGER(HttpStatus.FORBIDDEN, "공연 매니저만 수행할 수 있는 작업입니다."),
+    NOT_A_PERFORMANCE_OWNER(HttpStatus.FORBIDDEN, "공연 소유자(OWNER)만 수행할 수 있는 작업입니다."),
     PERFORMANCE_SETLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "공연에 연결된 셋리스트 정보를 찾을 수 없습니다."),
+    ALREADY_PERFORMANCE_MANAGER(HttpStatus.CONFLICT, "이미 공연에 참여 중인 멤버입니다."),
+    PERFORMANCE_INVITATION_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 공연 초대 정보를 찾을 수 없습니다."),
+    PERFORMANCE_INVITATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 발송되어 대기 중인 초대입니다."),
+    PERFORMANCE_INVITATION_FORBIDDEN(HttpStatus.FORBIDDEN, "공연 초대를 처리할 권한이 없습니다."),
 
     // setlist meeting
     SETLIST_MEETING_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 선곡 회의 정보를 찾을 수 없습니다."),

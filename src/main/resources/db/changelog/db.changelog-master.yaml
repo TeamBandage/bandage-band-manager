@@ -161,3 +161,15 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 014-performance-manager-role-and-invitation
+      author: bandage
+      comment: |
+        BD-78: 공연 매니저 역할(OWNER/MANAGER) 컬럼 추가 + 공연 초대 테이블 신설
+      changes:
+        - sqlFile:
+            path: changes/014-performance-manager-role-and-invitation.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"

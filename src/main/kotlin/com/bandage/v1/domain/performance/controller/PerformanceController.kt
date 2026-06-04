@@ -1,14 +1,17 @@
 package com.bandage.v1.domain.performance.controller
 
 import com.bandage.v1.domain.performance.dto.req.PerformanceCreateRequest
+import com.bandage.v1.domain.performance.dto.req.PerformanceInvitationCreateRequest
 import com.bandage.v1.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.v1.domain.performance.dto.req.PerformanceSearchQuery
 import com.bandage.v1.domain.performance.dto.req.PerformanceSetlistAddRequest
 import com.bandage.v1.domain.performance.dto.req.PerformanceUpdateRequest
 import com.bandage.v1.domain.performance.dto.res.PerformanceDetailResponse
+import com.bandage.v1.domain.performance.dto.res.PerformanceInvitationResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceResponse
 import com.bandage.v1.domain.performance.dto.res.PerformanceSetlistResponse
+import com.bandage.v1.domain.performance.model.enums.PerformanceInvitationStatus
 import com.bandage.v1.domain.performance.service.PerformanceService
 import com.bandage.v1.global.common.constants.PathPrefix.PREFIX
 import com.bandage.v1.global.common.response.ApiResponse
@@ -78,7 +81,7 @@ class PerformanceController(
     ): ApiResponse<PerformanceDetailResponse> = ApiResponse.success(performanceService.getPerformanceDetail(performanceId))
 
     @PatchMapping("/{performanceId}")
-    @Operation(summary = "공연 정보 수정 API", description = "공연 제목, 일정, 장소를 수정합니다. PerformanceManager만 수행할 수 있습니다.")
+    @Operation(summary = "공연 정보 수정 API", description = "공연 제목, 일정, 장소를 수정합니다. OWNER 또는 MANAGER만 수행할 수 있습니다.")
     fun updatePerformance(
         @PathVariable performanceId: UUID,
         @Valid @RequestBody request: PerformanceUpdateRequest,
@@ -91,7 +94,7 @@ class PerformanceController(
     @PostMapping("/{performanceId}/setlists/batch")
     @Operation(
         summary = "공연 참여 셋리스트 일괄 추가 API",
-        description = "공연에 참여 셋리스트를 append 시맨틱으로 다중 추가합니다. PerformanceManager만 가능. 이미 등록된 셋리스트는 응답에서 제외.",
+        description = "공연에 참여 셋리스트를 append 시맨틱으로 다중 추가합니다. OWNER/MANAGER가 본인이 소유/참여한 셋리스트만 추가할 수 있습니다. 이미 등록된 셋리스트는 응답에서 제외.",
     )
     fun addSetlists(
         @PathVariable performanceId: UUID,
@@ -100,7 +103,10 @@ class PerformanceController(
     ): ApiResponse<List<PerformanceSetlistResponse>> = ApiResponse.success(performanceService.addSetlists(performanceId, request, memberId))
 
     @DeleteMapping("/{performanceId}/setlists/{setlistId}")
-    @Operation(summary = "공연 참여 셋리스트 단건 제거 API", description = "공연에서 특정 참여 셋리스트를 제거합니다. PerformanceManager만 가능.")
+    @Operation(
+        summary = "공연 참여 셋리스트 단건 제거 API",
+        description = "공연에서 특정 참여 셋리스트를 제거합니다. OWNER는 모든 셋리스트를, MANAGER는 본인이 소유/참여한 셋리스트만 제거할 수 있습니다.",
+    )
     fun removeSetlist(
         @PathVariable performanceId: UUID,
         @PathVariable setlistId: UUID,
@@ -110,8 +116,47 @@ class PerformanceController(
         return ApiResponse.success()
     }
 
+    @PostMapping("/{performanceId}/invitations")
+    @Operation(
+        summary = "공연 매니저 초대 발송 API",
+        description = "특정 멤버를 공연 MANAGER로 초대합니다. OWNER만 가능하며, 수락 시 MANAGER로 추가됩니다.",
+    )
+    fun sendInvitation(
+        @PathVariable performanceId: UUID,
+        @Valid @RequestBody request: PerformanceInvitationCreateRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<PerformanceInvitationResponse> = ApiResponse.success(performanceService.sendInvitation(performanceId, request, memberId))
+
+    @GetMapping("/{performanceId}/invitations")
+    @Operation(summary = "공연 초대 목록 조회 API", description = "공연에 발송된 초대 목록을 조회합니다. OWNER만 가능.")
+    fun getInvitations(
+        @PathVariable performanceId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<List<PerformanceInvitationResponse>> = ApiResponse.success(performanceService.getInvitations(performanceId, memberId))
+
+    @GetMapping("/invitations/me")
+    @Operation(summary = "내 공연 초대 목록 조회 API", description = "본인이 받은 대기 중(PENDING) 공연 초대 목록을 조회합니다.")
+    fun getMyInvitations(
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<List<PerformanceInvitationResponse>> = ApiResponse.success(performanceService.getMyInvitations(memberId))
+
+    @PatchMapping("/{performanceId}/invitations/{invitationId}")
+    @Operation(
+        summary = "공연 초대 수락/거절 API",
+        description = "받은 공연 초대를 수락(ACCEPTED) 또는 거절(REJECTED)합니다. 초대 수신자 본인만 가능. 수락 시 MANAGER로 추가됩니다.",
+    )
+    fun respondInvitation(
+        @PathVariable performanceId: UUID,
+        @PathVariable invitationId: UUID,
+        @RequestParam status: PerformanceInvitationStatus,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        performanceService.respondInvitation(performanceId, invitationId, memberId, status)
+        return ApiResponse.success()
+    }
+
     @DeleteMapping("/{performanceId}")
-    @Operation(summary = "공연 삭제 API", description = "공연을 삭제합니다. PerformanceManager만 수행할 수 있습니다.")
+    @Operation(summary = "공연 삭제 API", description = "공연을 삭제합니다. OWNER만 수행할 수 있습니다.")
     fun deletePerformance(
         @PathVariable performanceId: UUID,
         @CurrentMemberId memberId: Long,

@@ -12,4 +12,9 @@ interface PerformanceManagerRepository : JpaRepository<PerformanceManager, UUID>
         performance: Performance,
         member: Long,
     ): Boolean
+
+    fun findByPerformanceAndMember(
+        performance: Performance,
+        member: Long,
+    ): PerformanceManager?
 }
