@@ -44,3 +44,8 @@ jobs:
 
       - name: Run build & tests
         run: ./gradlew build
+
+      - name: Check operationId changes
+        run: |
+          chmod +x scripts/check-operation-ids.sh
+          ./scripts/check-operation-ids.sh
