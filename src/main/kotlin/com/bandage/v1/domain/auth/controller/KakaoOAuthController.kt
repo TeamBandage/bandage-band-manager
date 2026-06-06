@@ -26,6 +26,7 @@ class KakaoOAuthController(
 ) {
     @PostMapping
     @Operation(
+        operationId = "loginWithKakao",
         summary = "Kakao OAuth 로그인 / 회원가입 API",
         description =
             "FE 가 전달한 authorization code 를 카카오 token endpoint 와 교환해 access token 을 받고, " +

@@ -22,6 +22,7 @@ class ProfileImageUploadController(
 ) {
     @PostMapping("/profile-image/presigned-url")
     @Operation(
+        operationId = "issueProfileImagePresignedUrl",
         summary = "프로필 이미지 업로드용 presigned URL 발급",
         description =
             "Band/Member 프로필 이미지를 S3에 PUT 업로드하기 위한 presigned URL을 발급합니다. " +

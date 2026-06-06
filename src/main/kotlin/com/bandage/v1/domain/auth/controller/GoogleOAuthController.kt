@@ -26,6 +26,7 @@ class GoogleOAuthController(
 ) {
     @PostMapping
     @Operation(
+        operationId = "loginWithGoogle",
         summary = "Google OAuth 로그인 / 회원가입 API",
         description =
             "FE 에서 GIS 로 발급받은 ID token 을 검증하고, " +

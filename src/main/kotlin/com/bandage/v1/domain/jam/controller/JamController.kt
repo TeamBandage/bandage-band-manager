@@ -38,7 +38,7 @@ class JamController(
     private val jamService: JamService,
 ) {
     @PostMapping
-    @Operation(summary = "합주 생성 API", description = "신규 합주를 생성합니다.")
+    @Operation(operationId = "createJam", summary = "합주 생성 API", description = "신규 합주를 생성합니다.")
     fun createJam(
         @Valid @RequestBody request: JamCreateRequest,
     ): ApiResponse<JamResponse> =
@@ -48,6 +48,7 @@ class JamController(
 
     @GetMapping
     @Operation(
+        operationId = "getJams",
         summary = "합주 목록 조회 API",
         description = "합주 목록을 커서 기반으로 조회합니다. bandId 제공 시 해당 밴드 멤버가 참여 중인 합주만 조회합니다.",
     )
@@ -57,7 +58,7 @@ class JamController(
     ): ApiResponse<CursorResponse<JamListResponse, UUID>> = ApiResponse.success(jamService.getJamsByCursor(bandId, query))
 
     @GetMapping("/{jamId}")
-    @Operation(summary = "합주 조회 API", description = "합주 상세 정보를 조회합니다.")
+    @Operation(operationId = "getJam", summary = "합주 조회 API", description = "합주 상세 정보를 조회합니다.")
     fun getJam(
         @PathVariable jamId: UUID,
     ): ApiResponse<JamDetailResponse> =
@@ -66,21 +67,29 @@ class JamController(
         )
 
     @GetMapping("/me")
-    @Operation(summary = "내 합주 목록 조회 API", description = "본인이 참여 중인 합주 목록을 커서 기반으로 조회합니다.")
+    @Operation(operationId = "getMyJams", summary = "내 합주 목록 조회 API", description = "본인이 참여 중인 합주 목록을 커서 기반으로 조회합니다.")
     fun getMyJams(
         @Valid query: JamPagingQuery,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<CursorResponse<JamListResponse, UUID>> = ApiResponse.success(jamService.getMyJamsByCursor(memberId, query))
 
     @GetMapping("/me/search")
-    @Operation(summary = "내 합주 검색 API", description = "본인이 참여 중인 합주 중 합주 타이틀 또는 곡 제목에 키워드가 포함된 합주를 커서 기반으로 조회합니다.")
+    @Operation(
+        operationId = "searchMyJams",
+        summary = "내 합주 검색 API",
+        description = "본인이 참여 중인 합주 중 합주 타이틀 또는 곡 제목에 키워드가 포함된 합주를 커서 기반으로 조회합니다.",
+    )
     fun searchMyJams(
         @Valid query: JamSearchQuery,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<CursorResponse<JamListResponse, UUID>> = ApiResponse.success(jamService.searchMyJamsByCursor(memberId, query))
 
     @PutMapping("/{jamId}/sessions")
-    @Operation(summary = "합주 세션 정의 교체 API", description = "합주의 세션 정의 목록을 전체 교체합니다. 제거된 세션의 참여자 배정은 함께 삭제됩니다.")
+    @Operation(
+        operationId = "updateSessions",
+        summary = "합주 세션 정의 교체 API",
+        description = "합주의 세션 정의 목록을 전체 교체합니다. 제거된 세션의 참여자 배정은 함께 삭제됩니다.",
+    )
     fun updateSessions(
         @PathVariable jamId: UUID,
         @Valid @RequestBody request: JamSessionsUpdateRequest,
@@ -91,7 +100,7 @@ class JamController(
         )
 
     @PostMapping("/{jamId}/participants")
-    @Operation(summary = "합주 세션 참여자 추가 API", description = "합주의 특정 세션에 멤버를 배정합니다.")
+    @Operation(operationId = "addParticipant", summary = "합주 세션 참여자 추가 API", description = "합주의 특정 세션에 멤버를 배정합니다.")
     fun addParticipant(
         @PathVariable jamId: UUID,
         @Valid @RequestBody request: JamMemberAddRequest,
@@ -102,7 +111,7 @@ class JamController(
         )
 
     @DeleteMapping("/{jamId}/participants/{participantId}")
-    @Operation(summary = "합주 세션 참여자 삭제 API", description = "합주 세션 참여자 배정을 삭제합니다.")
+    @Operation(operationId = "deleteParticipant", summary = "합주 세션 참여자 삭제 API", description = "합주 세션 참여자 배정을 삭제합니다.")
     fun deleteParticipant(
         @PathVariable jamId: UUID,
         @PathVariable participantId: UUID,
@@ -113,7 +122,7 @@ class JamController(
     }
 
     @PatchMapping("/{jamId}/time-info")
-    @Operation(summary = "합주 일정 변경 API", description = "합주 일정(시작 시간, 소요 시간)을 변경합니다.")
+    @Operation(operationId = "updateTimeInfo", summary = "합주 일정 변경 API", description = "합주 일정(시작 시간, 소요 시간)을 변경합니다.")
     fun updateTimeInfo(
         @PathVariable jamId: UUID,
         @Valid @RequestBody request: JamTimeInfoUpdateRequest,
@@ -124,7 +133,7 @@ class JamController(
     }
 
     @PatchMapping("/{jamId}/venue")
-    @Operation(summary = "합주 장소 변경 API", description = "합주 장소를 변경합니다.")
+    @Operation(operationId = "updateVenue", summary = "합주 장소 변경 API", description = "합주 장소를 변경합니다.")
     fun updateVenue(
         @PathVariable jamId: UUID,
         @Valid @RequestBody request: JamVenueUpdateRequest,
@@ -135,7 +144,7 @@ class JamController(
     }
 
     @DeleteMapping("/{jamId}")
-    @Operation(summary = "합주 삭제 API", description = "합주를 삭제합니다.")
+    @Operation(operationId = "deleteJam", summary = "합주 삭제 API", description = "합주를 삭제합니다.")
     fun deleteJam(
         @PathVariable jamId: UUID,
         @CurrentMemberId memberId: Long,

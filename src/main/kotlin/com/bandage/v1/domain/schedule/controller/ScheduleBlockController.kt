@@ -26,7 +26,7 @@ class ScheduleBlockController(
     private val scheduleBlockService: ScheduleBlockService,
 ) {
     @PutMapping("/{blockId}")
-    @Operation(summary = "시간표 블록 등록/수정", description = "공연 매니저 권한, blockId 가 없으면 새로 생성, 있으면 갱신.")
+    @Operation(operationId = "upsertBlock", summary = "시간표 블록 등록/수정", description = "공연 매니저 권한, blockId 가 없으면 새로 생성, 있으면 갱신.")
     fun upsertBlock(
         @PathVariable performanceId: UUID,
         @PathVariable boardId: UUID,
@@ -37,7 +37,7 @@ class ScheduleBlockController(
         ApiResponse.success(scheduleBlockService.upsertBlock(performanceId, boardId, blockId, memberId, request))
 
     @DeleteMapping("/{blockId}")
-    @Operation(summary = "시간표 블록 삭제", description = "공연 매니저 권한, confirmed=true 인 시안의 블록은 삭제 불가.")
+    @Operation(operationId = "deleteBlock", summary = "시간표 블록 삭제", description = "공연 매니저 권한, confirmed=true 인 시안의 블록은 삭제 불가.")
     fun deleteBlock(
         @PathVariable performanceId: UUID,
         @PathVariable boardId: UUID,
@@ -49,7 +49,7 @@ class ScheduleBlockController(
     }
 
     @PatchMapping("/{blockId}/pin")
-    @Operation(summary = "시간표 블록 핀 토글", description = "공연 매니저 권한, 요청 body 의 pinned 값으로 설정.")
+    @Operation(operationId = "setPin", summary = "시간표 블록 핀 토글", description = "공연 매니저 권한, 요청 body 의 pinned 값으로 설정.")
     fun setPin(
         @PathVariable performanceId: UUID,
         @PathVariable boardId: UUID,

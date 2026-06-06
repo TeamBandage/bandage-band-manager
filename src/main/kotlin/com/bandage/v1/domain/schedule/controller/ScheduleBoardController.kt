@@ -31,14 +31,14 @@ class ScheduleBoardController(
     private val scheduleConfirmFacade: ScheduleConfirmFacade,
 ) {
     @GetMapping
-    @Operation(summary = "시간표 시안 목록", description = "공연 참여자만 호출 가능.")
+    @Operation(operationId = "getBoards", summary = "시간표 시안 목록", description = "공연 참여자만 호출 가능.")
     fun getBoards(
         @PathVariable performanceId: UUID,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<List<ScheduleBoardResponse>> = ApiResponse.success(scheduleBoardService.getBoards(performanceId, memberId))
 
     @PostMapping
-    @Operation(summary = "시간표 시안 생성", description = "공연 매니저 권한, 공연당 최대 5개.")
+    @Operation(operationId = "createBoard", summary = "시간표 시안 생성", description = "공연 매니저 권한, 공연당 최대 5개.")
     fun createBoard(
         @PathVariable performanceId: UUID,
         @CurrentMemberId memberId: Long,
@@ -46,7 +46,7 @@ class ScheduleBoardController(
     ): ApiResponse<ScheduleBoardResponse> = ApiResponse.success(scheduleBoardService.createBoard(performanceId, memberId, request))
 
     @PatchMapping("/{boardId}")
-    @Operation(summary = "시간표 시안 수정", description = "공연 매니저 권한, confirmed=true 인 시안은 수정 불가(409).")
+    @Operation(operationId = "updateBoard", summary = "시간표 시안 수정", description = "공연 매니저 권한, confirmed=true 인 시안은 수정 불가(409).")
     fun updateBoard(
         @PathVariable performanceId: UUID,
         @PathVariable boardId: UUID,
@@ -55,7 +55,7 @@ class ScheduleBoardController(
     ): ApiResponse<ScheduleBoardResponse> = ApiResponse.success(scheduleBoardService.updateBoard(performanceId, boardId, memberId, request))
 
     @DeleteMapping("/{boardId}")
-    @Operation(summary = "시간표 시안 삭제", description = "공연 매니저 권한, confirmed=true 인 시안은 삭제 불가(409).")
+    @Operation(operationId = "deleteBoard", summary = "시간표 시안 삭제", description = "공연 매니저 권한, confirmed=true 인 시안은 삭제 불가(409).")
     fun deleteBoard(
         @PathVariable performanceId: UUID,
         @PathVariable boardId: UUID,
@@ -67,6 +67,7 @@ class ScheduleBoardController(
 
     @PostMapping("/{boardId}/confirm")
     @Operation(
+        operationId = "confirmBoard",
         summary = "시간표 시안 확정",
         description = "공연 매니저 권한. 같은 공연에 confirmed 시안이 이미 있으면 409. 확정 시 모든 ScheduleBlock 을 Jam 으로 일괄 생성.",
     )
@@ -78,6 +79,7 @@ class ScheduleBoardController(
 
     @PostMapping("/{boardId}/unconfirm")
     @Operation(
+        operationId = "unconfirmBoard",
         summary = "시간표 시안 확정 해제",
         description = "공연 매니저 권한. 생성된 Jam 은 정리(soft-delete)되고 board.confirmed 가 false 로 토글.",
     )
