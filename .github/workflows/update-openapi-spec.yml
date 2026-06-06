@@ -1,0 +1,55 @@
+name: Update OpenAPI Spec
+
+# develop 배포가 성공적으로 끝나면, 가동 중인 dev 서버에서 OpenAPI 스펙을 받아
+# docs/openapi.json 을 최신 develop 베이스라인으로 갱신한다.
+#
+# 주의(분기 보호): 본 워크플로는 develop 에 직접 커밋/푸시한다.
+#   develop 에 직접 push 를 막는 브랜치 보호 규칙이 있으면 이 푸시는 실패한다.
+#   그 경우 (a) bot 계정/Actions 에 대한 예외 허용, 또는
+#   (b) push 대신 peter-evans/create-pull-request 등으로 PR 을 여는 방식으로 전환할 것.
+
+on:
+  workflow_run:
+    workflows: ["Deploy to EC2 (Develop)"]
+    types: [completed]
+    branches: [develop]
+
+jobs:
+  update-spec:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for deployment stabilization
+        run: sleep 30
+
+      - name: Fetch OpenAPI spec from dev server
+        run: |
+          curl -sf https://bandage.team/api-docs \
+            | python3 -m json.tool --sort-keys > docs/openapi.json
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet docs/openapi.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/openapi.json
+          git commit -m "[BD-103] chore: update OpenAPI spec from dev deployment"
+          git push

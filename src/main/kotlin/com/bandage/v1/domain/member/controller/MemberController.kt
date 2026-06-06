@@ -38,7 +38,7 @@ class MemberController(
     private val memberMetricsFacade: MemberMetricsFacade,
 ) {
     @PostMapping("/join")
-    @Operation(summary = "회원 가입 API", description = "신규 회원을 생성합니다.")
+    @Operation(operationId = "joinMember", summary = "회원 가입 API", description = "신규 회원을 생성합니다.")
     fun joinMember(
         @RequestBody request: MemberJoinRequest,
     ): ApiResponse<MemberResponse> =
@@ -47,7 +47,7 @@ class MemberController(
         )
 
     @GetMapping("/me")
-    @Operation(summary = "회원 정보 조회 API", description = "회원 본인의 정보를 조회합니다.")
+    @Operation(operationId = "getMemberInfo", summary = "회원 정보 조회 API", description = "회원 본인의 정보를 조회합니다.")
     fun getMemberInfo(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<MemberInfoResponse> =
@@ -56,7 +56,7 @@ class MemberController(
         )
 
     @PatchMapping("/me")
-    @Operation(summary = "회원 기본 정보 변경 API", description = "회원 본인의 정보를 조회합니다.")
+    @Operation(operationId = "updateMemberInfo", summary = "회원 기본 정보 변경 API", description = "회원 본인의 정보를 조회합니다.")
     fun updateMemberInfo(
         @Valid @RequestBody request: MemberInfoUpdateRequest,
         @CurrentMemberId memberId: Long,
@@ -66,13 +66,14 @@ class MemberController(
     }
 
     @GetMapping("/me/metrics")
-    @Operation(summary = "회원 메트릭 조회 API", description = "본인의 밴드 수, 다가오는 합주/공연 수, 합주 세션 수를 조회합니다.")
+    @Operation(operationId = "getMemberStats", summary = "회원 메트릭 조회 API", description = "본인의 밴드 수, 다가오는 합주/공연 수, 합주 세션 수를 조회합니다.")
     fun getMemberStats(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<MemberMetricsResponse> = ApiResponse.success(memberMetricsFacade.getMemberMetrics(memberId))
 
     @GetMapping("/search")
     @Operation(
+        operationId = "searchMembers",
         summary = "회원 검색 API",
         description = "이름/이메일 부분 일치 검색. 최대 20건. 본인은 결과에서 제외.",
     )
@@ -82,7 +83,7 @@ class MemberController(
     ): ApiResponse<List<MemberSearchItemResponse>> = ApiResponse.success(memberService.searchMembers(q, memberId))
 
     @DeleteMapping("/me")
-    @Operation(summary = "회원 탈퇴 API", description = "회원 정보를 삭제하고 로그아웃 처리합니다.")
+    @Operation(operationId = "withdrawMember", summary = "회원 탈퇴 API", description = "회원 정보를 삭제하고 로그아웃 처리합니다.")
     fun withdrawMember(
         response: HttpServletResponse,
         @CurrentMemberId memberId: Long,

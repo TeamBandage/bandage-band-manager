@@ -28,7 +28,7 @@ class MemberAuthController(
     private val memberAuthService: MemberAuthService,
 ) {
     @PostMapping("/login")
-    @Operation(summary = "회원 로그인 API", description = "회원 로그인을 통해 access, refresh 토큰을 발급합니다.")
+    @Operation(operationId = "login", summary = "회원 로그인 API", description = "회원 로그인을 통해 access, refresh 토큰을 발급합니다.")
     fun login(
         @RequestBody request: MemberLoginRequest,
         response: HttpServletResponse,
@@ -41,7 +41,7 @@ class MemberAuthController(
     }
 
     @DeleteMapping("/logout")
-    @Operation(summary = "회원 로그아웃 API", description = "회원 로그아웃을 진행하고 redis, 쿠키에 저장된 refresh 토큰을 만료시킵니다.")
+    @Operation(operationId = "logout", summary = "회원 로그아웃 API", description = "회원 로그아웃을 진행하고 redis, 쿠키에 저장된 refresh 토큰을 만료시킵니다.")
     fun logout(
         @CurrentMemberId memberId: Long,
         response: HttpServletResponse,
@@ -52,7 +52,7 @@ class MemberAuthController(
     }
 
     @PostMapping("/refresh")
-    @Operation(summary = "토큰 리프레시 API", description = "refresh 토큰을 검증하고, 새로운 access, refresh 토큰을 발급합니다.")
+    @Operation(operationId = "tokenRefresh", summary = "토큰 리프레시 API", description = "refresh 토큰을 검증하고, 새로운 access, refresh 토큰을 발급합니다.")
     fun tokenRefresh(
         @CookieValue refreshToken: String,
         response: HttpServletResponse,
@@ -65,7 +65,7 @@ class MemberAuthController(
     }
 
     @PatchMapping("/password")
-    @Operation(summary = "회원 비밀번호 변경 API", description = "회원 비밀번호를 변경합니다.")
+    @Operation(operationId = "changePassword", summary = "회원 비밀번호 변경 API", description = "회원 비밀번호를 변경합니다.")
     fun changePassword(
         @Valid @RequestBody request: MemberPasswordChangeRequest,
         @CurrentMemberId memberId: Long,

@@ -32,14 +32,14 @@ class MemberScheduleController(
     private val memberScheduleService: MemberScheduleService,
 ) {
     @GetMapping("/me")
-    @Operation(summary = "내 가용 시간 조회", description = "회의 참여자만 호출 가능. 미등록 시 빈 응답.")
+    @Operation(operationId = "getMySchedule", summary = "내 가용 시간 조회", description = "회의 참여자만 호출 가능. 미등록 시 빈 응답.")
     fun getMySchedule(
         @PathVariable meetingId: UUID,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<MemberScheduleResponse> = ApiResponse.success(memberScheduleService.getMySchedule(meetingId, memberId))
 
     @PutMapping("/me")
-    @Operation(summary = "내 가용 시간 등록/수정", description = "본인만 수정 가능. 날짜 중복 / practiceWindow 범위 검증.")
+    @Operation(operationId = "upsertMySchedule", summary = "내 가용 시간 등록/수정", description = "본인만 수정 가능. 날짜 중복 / practiceWindow 범위 검증.")
     fun upsertMySchedule(
         @PathVariable meetingId: UUID,
         @CurrentMemberId memberId: Long,
@@ -47,14 +47,14 @@ class MemberScheduleController(
     ): ApiResponse<MemberScheduleResponse> = ApiResponse.success(memberScheduleService.upsertMySchedule(meetingId, memberId, request))
 
     @GetMapping
-    @Operation(summary = "참여자 가용 시간 목록", description = "회의 참여자만 호출 가능.")
+    @Operation(operationId = "getAllSchedules", summary = "참여자 가용 시간 목록", description = "회의 참여자만 호출 가능.")
     fun getAllSchedules(
         @PathVariable meetingId: UUID,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<List<MemberScheduleResponse>> = ApiResponse.success(memberScheduleService.getAllSchedules(meetingId, memberId))
 
     @GetMapping("/aggregate")
-    @Operation(summary = "가용 시간 집계", description = "날짜별 가용/불가용/미응답 카운트 + 응답 완료자 수.")
+    @Operation(operationId = "getAggregatedSchedule", summary = "가용 시간 집계", description = "날짜별 가용/불가용/미응답 카운트 + 응답 완료자 수.")
     fun getAggregatedSchedule(
         @PathVariable meetingId: UUID,
         @CurrentMemberId memberId: Long,

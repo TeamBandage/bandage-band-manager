@@ -82,6 +82,42 @@ Default active profile is `local` (set via `PROFILE_ACTIVE` env var). Profile gr
 - **Docs**: SpringDoc OpenAPI (Swagger UI available in local/dev)
 - **Formatting**: Spotless + Ktlint
 
+## OpenAPI 스펙 관리
+
+API 스펙은 SpringDoc이 런타임에 생성하며, **diff 가능한 형태로 `docs/openapi.json`에 커밋**되어 관리한다. 이 파일은 BE/FE 영향평가(스펙 diff) Tool의 비교 기준점이므로, **API를 변경하는 PR은 반드시 `docs/openapi.json` 갱신을 함께 포함**해야 한다(코드-스펙 동일 PR 규약).
+
+### 스펙 갱신 방법 (로컬)
+
+```bash
+# 1. 로컬 인프라 실행 (이미 실행 중이면 생략)
+docker-compose up -d postgres redis
+
+# 2. 애플리케이션 실행 (기본 local 프로파일, swagger 포함)
+./gradlew bootRun
+
+# 3. 스펙 다운로드 + 정렬 포맷(diff 안정성)으로 저장
+curl -s http://localhost:8080/api-docs | python3 -m json.tool --sort-keys > docs/openapi.json
+
+# 4. 변경사항 확인 후 코드와 동일 PR에 포함
+git diff docs/openapi.json
+```
+
+위 3번 단계는 Gradle 태스크로도 실행할 수 있다(앱이 8080에서 실행 중이어야 함):
+
+```bash
+./gradlew dumpOpenApiSpec
+```
+
+### Breaking Change 확인
+
+`docs/openapi.json`은 OAS **3.1.0** 출력이다. diff 도구는 3.1.0을 지원하는 것을 사용해야 한다(상세: `docs/openapi-diff-tooling.md`).
+
+### API 변경 PR 리뷰 시 확인사항
+
+1. Controller/DTO 변경이 있으면 `docs/openapi.json` 변경도 같은 PR에 포함되어 있는지 확인한다.
+2. `docs/openapi.json` 변경 내용이 코드 변경과 일치하는지 검토한다.
+3. Breaking change 여부를 확인한다(필드 삭제, 타입 변경, required 추가, enum 제거, operationId 변경 등).
+
 ## Pull Request Convention
 
 When writing a PR description, always follow `.github/PULL_REQUEST_TEMPLATE.md` and write all content in valid Markdown syntax.

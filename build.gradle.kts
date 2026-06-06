@@ -91,6 +91,9 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    // docs/openapi.json 을 입력으로 등록해, 스펙 파일만 바뀌어도 OpenApiSpecGenerationTest 가
+    // up-to-date 로 건너뛰지 않고 재실행되도록 한다(코드-스펙 드리프트 가드).
+    inputs.file("docs/openapi.json").withPropertyName("openApiSpec")
 }
 
 spotless {
@@ -119,4 +122,16 @@ tasks.register<Exec>("makeGitHooksExecutable") {
 
 tasks.named("compileKotlin") {
     dependsOn("makeGitHooksExecutable")
+}
+
+// 실행 중인 로컬 앱(:8080)의 OpenAPI 스펙을 정렬 포맷으로 docs/openapi.json 에 덤프한다.
+// API 변경 시 이 산출물을 코드와 동일 PR에 포함해야 한다(코드-스펙 동일 PR 규약).
+tasks.register<Exec>("dumpOpenApiSpec") {
+    group = "documentation"
+    description = "Dump OpenAPI spec from the running local app (:8080) into docs/openapi.json"
+    commandLine(
+        "bash",
+        "-c",
+        "curl -sf http://localhost:8080/api-docs | python3 -m json.tool --sort-keys > docs/openapi.json && echo 'docs/openapi.json updated'",
+    )
 }

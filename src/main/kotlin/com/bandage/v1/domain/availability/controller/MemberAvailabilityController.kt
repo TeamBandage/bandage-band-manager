@@ -22,13 +22,13 @@ class MemberAvailabilityController(
     private val memberAvailabilityService: MemberAvailabilityService,
 ) {
     @GetMapping
-    @Operation(summary = "내 가용성 조회", description = "본인의 주간 규칙/예외 가용성 조회. 미등록 시 빈 응답.")
+    @Operation(operationId = "getMyAvailability", summary = "내 가용성 조회", description = "본인의 주간 규칙/예외 가용성 조회. 미등록 시 빈 응답.")
     fun getMyAvailability(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<MemberAvailabilityResponse> = ApiResponse.success(memberAvailabilityService.getMyAvailability(memberId))
 
     @PutMapping
-    @Operation(summary = "내 가용성 등록/수정", description = "본인만 수정 가능. weeklyRules/exceptions 전체 교체.")
+    @Operation(operationId = "updateMyAvailability", summary = "내 가용성 등록/수정", description = "본인만 수정 가능. weeklyRules/exceptions 전체 교체.")
     fun updateMyAvailability(
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: MemberAvailabilityRequest,
