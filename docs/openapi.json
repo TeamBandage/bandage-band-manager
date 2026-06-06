@@ -5265,17 +5265,6 @@
             "delete": {
                 "description": "\ud68c\uc6d0 \ub85c\uadf8\uc544\uc6c3\uc744 \uc9c4\ud589\ud558\uace0 redis, \ucfe0\ud0a4\uc5d0 \uc800\uc7a5\ub41c refresh \ud1a0\ud070\uc744 \ub9cc\ub8cc\uc2dc\ud0b5\ub2c8\ub2e4.",
                 "operationId": "logout",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -5362,17 +5351,6 @@
             "patch": {
                 "description": "\ud68c\uc6d0 \ube44\ubc00\ubc88\ud638\ub97c \ubcc0\uacbd\ud569\ub2c8\ub2e4.",
                 "operationId": "changePassword",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -5467,17 +5445,6 @@
             "post": {
                 "description": "\uc0c8\ub85c\uc6b4 \ubc34\ub4dc\ub97c \uc0dd\uc131\ud558\uace0 \ucd08\uae30 \uc124\uc815\uc744 \uc644\ub8cc\ud569\ub2c8\ub2e4.",
                 "operationId": "createBand",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -5517,15 +5484,6 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/components/schemas/BandPagingQuery"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -5592,15 +5550,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -5663,15 +5612,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -5723,15 +5663,6 @@
                         "schema": {
                             "$ref": "#/components/schemas/BandApplicationPagingQuery"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -5762,15 +5693,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -5804,15 +5726,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -5855,15 +5768,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     },
                     {
@@ -5954,15 +5858,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -6004,15 +5899,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -6095,15 +5981,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -6217,15 +6094,6 @@
                         "schema": {
                             "$ref": "#/components/schemas/JamPagingQuery"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -6257,15 +6125,6 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/components/schemas/JamSearchQuery"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -6299,15 +6158,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -6373,15 +6223,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -6434,15 +6275,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -6475,15 +6307,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -6528,15 +6351,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -6580,15 +6394,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -6623,17 +6428,6 @@
             "get": {
                 "description": "\ubcf8\uc778\uc758 \uc8fc\uac04 \uaddc\uce59/\uc608\uc678 \uac00\uc6a9\uc131 \uc870\ud68c. \ubbf8\ub4f1\ub85d \uc2dc \ube48 \uc751\ub2f5.",
                 "operationId": "getMyAvailability",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -6654,17 +6448,6 @@
             "put": {
                 "description": "\ubcf8\uc778\ub9cc \uc218\uc815 \uac00\ub2a5. weeklyRules/exceptions \uc804\uccb4 \uad50\uccb4.",
                 "operationId": "updateMyAvailability",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -6729,17 +6512,6 @@
             "delete": {
                 "description": "\ud68c\uc6d0 \uc815\ubcf4\ub97c \uc0ad\uc81c\ud558\uace0 \ub85c\uadf8\uc544\uc6c3 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
                 "operationId": "withdrawMember",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -6760,17 +6532,6 @@
             "get": {
                 "description": "\ud68c\uc6d0 \ubcf8\uc778\uc758 \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMemberInfo",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -6791,17 +6552,6 @@
             "patch": {
                 "description": "\ud68c\uc6d0 \ubcf8\uc778\uc758 \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "updateMemberInfo",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -6834,17 +6584,6 @@
             "get": {
                 "description": "\ubcf8\uc778\uc758 \ubc34\ub4dc \uc218, \ub2e4\uac00\uc624\ub294 \ud569\uc8fc/\uacf5\uc5f0 \uc218, \ud569\uc8fc \uc138\uc158 \uc218\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMemberStats",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -6875,15 +6614,6 @@
                         "schema": {
                             "default": "",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -6948,17 +6678,6 @@
             "post": {
                 "description": "\uc2e0\uaddc \uacf5\uc5f0\uc744 \uc0dd\uc131\ud558\uace0 \uc0dd\uc131\uc790\ub97c \ub9e4\ub2c8\uc800\ub85c \ub4f1\ub85d\ud569\ub2c8\ub2e4.",
                 "operationId": "createPerformance",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -6991,17 +6710,6 @@
             "get": {
                 "description": "\ubcf8\uc778\uc774 \ubc1b\uc740 \ub300\uae30 \uc911(PENDING) \uacf5\uc5f0 \ucd08\ub300 \ubaa9\ub85d\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMyInvitations",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "content": {
@@ -7031,15 +6739,6 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/components/schemas/PerformancePagingQuery"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -7106,15 +6805,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -7177,15 +6867,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -7229,15 +6910,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -7268,15 +6940,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -7344,15 +7007,6 @@
                             ],
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -7386,15 +7040,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -7425,15 +7070,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -7487,15 +7123,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -7535,15 +7162,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -7596,15 +7214,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -7667,15 +7276,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -7724,15 +7324,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -7795,15 +7386,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -7854,15 +7436,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -7916,15 +7489,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -7966,15 +7530,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -8028,15 +7583,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -8089,15 +7635,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -8130,15 +7667,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -8192,15 +7720,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -8234,15 +7753,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -8278,15 +7788,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -8321,15 +7822,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -8361,15 +7853,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -8405,17 +7888,6 @@
             "post": {
                 "description": "\uc7a0\uae08\ub41c \uc120\uace1(TrackSelection)\uc5d0\uc11c \uc120\ud0dd\ub41c \ud2b8\ub799\ub4e4\uc744 \ubaa8\uc544 \uc14b\ub9ac\uc2a4\ud2b8\ub97c \uc0dd\uc131\ud569\ub2c8\ub2e4.",
                 "operationId": "createSetlist",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -8451,15 +7923,6 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "in": "query",
                         "name": "title",
                         "required": true,
                         "schema": {
@@ -8490,15 +7953,6 @@
                 "description": "\ubcf8\uc778\uc774 \ucc38\uc5ec \uc911\uc778 \uc14b\ub9ac\uc2a4\ud2b8\ub97c \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMySetlists",
                 "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    },
                     {
                         "in": "query",
                         "name": "query",
@@ -8538,15 +7992,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -8577,15 +8022,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -8630,15 +8066,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -8680,15 +8107,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     },
                     {
@@ -8740,15 +8158,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -8787,15 +8196,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -8837,15 +8237,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -8880,17 +8271,6 @@
             "post": {
                 "description": "\uc120\uace1\uc744 \uc0dd\uc131\ud569\ub2c8\ub2e4.",
                 "operationId": "createSelection",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -8924,15 +8304,6 @@
                 "description": "\ubcf8\uc778\uc774 \ucc38\uc5ec \uc911\uc778 \uc120\uace1\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMySelections",
                 "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    },
                     {
                         "in": "query",
                         "name": "query",
@@ -8972,15 +8343,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -9011,15 +8373,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -9049,15 +8402,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -9104,15 +8448,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "in": "query",
                         "name": "query",
                         "required": true,
                         "schema": {
@@ -9147,15 +8482,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -9208,15 +8534,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -9256,15 +8573,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -9303,15 +8611,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -9363,15 +8662,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     },
                     {
@@ -9433,15 +8723,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -9493,15 +8774,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -9563,15 +8835,6 @@
                         "schema": {
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -9631,15 +8894,6 @@
                             "format": "int64",
                             "type": "integer"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -9690,15 +8944,6 @@
                         "schema": {
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "requestBody": {
@@ -9742,15 +8987,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -9783,15 +9019,6 @@
                         "schema": {
                             "format": "uuid",
                             "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
                         }
                     }
                 ],
@@ -9835,15 +9062,6 @@
                             "format": "uuid",
                             "type": "string"
                         }
-                    },
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {
@@ -9868,17 +9086,6 @@
             "post": {
                 "description": "Band/Member \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0\ub97c S3\uc5d0 PUT \uc5c5\ub85c\ub4dc\ud558\uae30 \uc704\ud55c presigned URL\uc744 \ubc1c\uae09\ud569\ub2c8\ub2e4. \uc751\ub2f5\uc758 objectKey \ub97c PATCH \uc2dc profileImg \ud544\ub4dc\uc5d0 \uadf8\ub300\ub85c \uc804\ub2ec\ud569\ub2c8\ub2e4.",
                 "operationId": "issueProfileImagePresignedUrl",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "memberId",
-                        "required": true,
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
