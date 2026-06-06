@@ -112,6 +112,12 @@ git diff docs/openapi.json
 
 `docs/openapi.json`은 OAS **3.1.0** 출력이다. diff 도구는 3.1.0을 지원하는 것을 사용해야 한다(상세: `docs/openapi-diff-tooling.md`).
 
+### API 변경 PR 리뷰 시 확인사항
+
+1. Controller/DTO 변경이 있으면 `docs/openapi.json` 변경도 같은 PR에 포함되어 있는지 확인한다.
+2. `docs/openapi.json` 변경 내용이 코드 변경과 일치하는지 검토한다.
+3. Breaking change 여부를 확인한다(필드 삭제, 타입 변경, required 추가, enum 제거, operationId 변경 등).
+
 ## Pull Request Convention
 
 When writing a PR description, always follow `.github/PULL_REQUEST_TEMPLATE.md` and write all content in valid Markdown syntax.
