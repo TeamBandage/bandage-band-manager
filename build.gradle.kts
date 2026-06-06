@@ -120,3 +120,15 @@ tasks.register<Exec>("makeGitHooksExecutable") {
 tasks.named("compileKotlin") {
     dependsOn("makeGitHooksExecutable")
 }
+
+// 실행 중인 로컬 앱(:8080)의 OpenAPI 스펙을 정렬 포맷으로 docs/openapi.json 에 덤프한다.
+// API 변경 시 이 산출물을 코드와 동일 PR에 포함해야 한다(코드-스펙 동일 PR 규약).
+tasks.register<Exec>("dumpOpenApiSpec") {
+    group = "documentation"
+    description = "Dump OpenAPI spec from the running local app (:8080) into docs/openapi.json"
+    commandLine(
+        "bash",
+        "-c",
+        "curl -sf http://localhost:8080/api-docs | python3 -m json.tool --sort-keys > docs/openapi.json && echo 'docs/openapi.json updated'",
+    )
+}
