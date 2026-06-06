@@ -91,6 +91,9 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    // docs/openapi.json 을 입력으로 등록해, 스펙 파일만 바뀌어도 OpenApiSpecGenerationTest 가
+    // up-to-date 로 건너뛰지 않고 재실행되도록 한다(코드-스펙 드리프트 가드).
+    inputs.file("docs/openapi.json").withPropertyName("openApiSpec")
 }
 
 spotless {
