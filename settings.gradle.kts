@@ -1,1 +1,1 @@
-rootProject.name = "v1"
+rootProject.name = "BandManager"
