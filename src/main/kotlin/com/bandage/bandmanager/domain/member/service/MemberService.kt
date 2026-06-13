@@ -81,6 +81,12 @@ class MemberService(
         }
     }
 
+    @Transactional
+    fun deleteProfileImage(memberId: Long) {
+        val member = getMember(memberId)
+        member.updateProfileImg(null)
+    }
+
     fun searchMembers(
         keyword: String,
         excludeMemberId: Long?,
