@@ -1,0 +1,15 @@
+package com.bandage.bandmanager.domain.member.repository
+
+import com.bandage.bandmanager.domain.member.model.Member
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
+
+@Repository
+interface MemberRepository : JpaRepository<Member, Long> {
+    fun existsByEmail(email: String): Boolean
+
+    fun findTop20ByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+        name: String,
+        email: String,
+    ): List<Member>
+}

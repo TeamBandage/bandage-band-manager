@@ -10,7 +10,7 @@ plugins {
 
 group = "com.bandage"
 version = "0.0.1-SNAPSHOT"
-description = "v1"
+description = "BandManager"
 
 java {
     toolchain {

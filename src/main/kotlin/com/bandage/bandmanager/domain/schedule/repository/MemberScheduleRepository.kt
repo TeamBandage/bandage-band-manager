@@ -1,0 +1,20 @@
+package com.bandage.bandmanager.domain.schedule.repository
+
+import com.bandage.bandmanager.domain.schedule.model.MemberSchedule
+import com.bandage.bandmanager.domain.schedule.model.MemberScheduleId
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
+import java.util.UUID
+
+@Repository
+interface MemberScheduleRepository : JpaRepository<MemberSchedule, MemberScheduleId> {
+    fun findByMeetingIdAndUserId(
+        meetingId: UUID,
+        userId: Long,
+    ): MemberSchedule?
+
+    fun findAllByMeetingId(meetingId: UUID): List<MemberSchedule>
+
+    // T15: MemberSchedule → MemberAvailability 마이그레이션용
+    fun findAllByUserId(userId: Long): List<MemberSchedule>
+}
