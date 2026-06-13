@@ -66,6 +66,10 @@ open class Band(
         this.profileImg = newImg
     }
 
+    fun deleteImg() {
+        this.profileImg = null
+    }
+
     fun updateName(newName: String) {
         this.name = newName
     }

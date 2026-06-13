@@ -252,6 +252,16 @@ class BandService(
     }
 
     @Transactional
+    fun deleteProfileImage(
+        bandId: UUID,
+        memberId: Long,
+    ) {
+        val band = getBand(bandId)
+        validateMemberIsBandLeader(band, memberId)
+        band.deleteImg()
+    }
+
+    @Transactional
     fun deleteBand(
         bandId: UUID,
         memberId: Long,
