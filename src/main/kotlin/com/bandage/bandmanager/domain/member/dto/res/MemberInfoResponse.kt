@@ -13,8 +13,6 @@ data class MemberInfoResponse(
     val email: String,
     @Schema(description = "회원 이름", example = "홍길동")
     val name: String,
-    @Schema(description = "회원 연락처 (소셜 로그인 가입 시 null)", example = "010-7707-5859")
-    val contact: String?,
     @Schema(description = "프로필 이미지 URL (CloudFront, 없으면 null)", example = "https://cdn.example.com/profile/member/1/uuid.jpg")
     val profileImg: String? = null,
 ) {
@@ -28,7 +26,6 @@ data class MemberInfoResponse(
                 memberId = member.id,
                 email = member.email,
                 name = member.name,
-                contact = member.contact,
                 profileImg = profileImgUrl,
             )
     }

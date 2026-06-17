@@ -15,7 +15,6 @@ import org.hibernate.annotations.SQLRestriction
 open class Member(
     email: String,
     name: String,
-    contact: String?,
     profileImg: String? = null,
 ) : BaseTimeEntity() {
     @Id
@@ -31,10 +30,6 @@ open class Member(
     var name: String = name
         protected set
 
-    @Column(name = "contact", nullable = true)
-    var contact: String? = contact
-        protected set
-
     @Column(name = "profile_img")
     var profileImg: String? = profileImg
         protected set
@@ -43,13 +38,11 @@ open class Member(
         fun create(
             email: String,
             name: String,
-            contact: String,
             profileImg: String? = null,
         ): Member =
             Member(
                 email = email,
                 name = name,
-                contact = contact,
                 profileImg = profileImg,
             )
 
@@ -61,17 +54,12 @@ open class Member(
             Member(
                 email = email,
                 name = name,
-                contact = null,
                 profileImg = profileImg,
             )
     }
 
     fun updateName(newName: String) {
         this.name = newName
-    }
-
-    fun updateContact(newContact: String?) {
-        this.contact = newContact
     }
 
     fun updateProfileImg(newProfileImg: String?) {
