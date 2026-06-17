@@ -65,6 +65,19 @@ class MemberController(
         return ApiResponse.success()
     }
 
+    @DeleteMapping("/me/profile-image")
+    @Operation(
+        operationId = "deleteMemberProfileImage",
+        summary = "회원 프로필 이미지 삭제 API",
+        description = "회원 본인의 프로필 이미지를 제거합니다. 이미지가 없어도 성공 처리합니다.",
+    )
+    fun deleteMemberProfileImage(
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        memberService.deleteProfileImage(memberId)
+        return ApiResponse.success()
+    }
+
     @GetMapping("/me/metrics")
     @Operation(operationId = "getMemberStats", summary = "회원 메트릭 조회 API", description = "본인의 밴드 수, 다가오는 합주/공연 수, 합주 세션 수를 조회합니다.")
     fun getMemberStats(

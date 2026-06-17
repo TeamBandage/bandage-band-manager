@@ -168,6 +168,20 @@ class BandController(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<BandResponse> = ApiResponse.success(bandService.updateBand(bandId, request, memberId))
 
+    @DeleteMapping("/{bandId}/profile-image")
+    @Operation(
+        operationId = "deleteBandProfileImage",
+        summary = "밴드 프로필 이미지 삭제 API",
+        description = "밴드 프로필 이미지를 제거합니다. 리더만 가능. 이미지가 없어도 성공 처리합니다.",
+    )
+    fun deleteBandProfileImage(
+        @PathVariable bandId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        bandService.deleteProfileImage(bandId, memberId)
+        return ApiResponse.success()
+    }
+
     @DeleteMapping("/{bandId}")
     @Operation(operationId = "deleteBand", summary = "밴드 삭제 API", description = "밴드를 소프트 삭제합니다. 리더만 가능.")
     fun deleteBand(
