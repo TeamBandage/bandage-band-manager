@@ -173,3 +173,16 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 015-drop-member-contact
+      author: bandage
+      comment: |
+        BD-84: Member contact 컬럼 제거
+        - p_member.contact 컬럼 DROP (개인정보 노출 포인트 제거, 미사용 필드)
+      changes:
+        - sqlFile:
+            path: changes/015-drop-member-contact.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
