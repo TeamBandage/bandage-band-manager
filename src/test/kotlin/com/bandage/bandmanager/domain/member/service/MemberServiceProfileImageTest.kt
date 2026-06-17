@@ -35,7 +35,6 @@ class MemberServiceProfileImageTest {
             Member.create(
                 email = "test@bandage.com",
                 name = "테스터",
-                contact = "010-0000-0000",
                 profileImg = profileImg,
             )
         `when`(memberRepository.findById(memberId)).thenReturn(Optional.of(member))

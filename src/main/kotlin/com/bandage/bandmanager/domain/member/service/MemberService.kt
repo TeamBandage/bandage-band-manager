@@ -30,7 +30,6 @@ class MemberService(
             Member.create(
                 email = request.email,
                 name = request.name,
-                contact = request.contact,
             ),
         )
     }
@@ -52,7 +51,7 @@ class MemberService(
         request: MemberInfoUpdateRequest,
         memberId: Long,
     ) {
-        if (request.name == null && request.contact == null && request.profileImg == null) {
+        if (request.name == null && request.profileImg == null) {
             throw BusinessException(ErrorCode.NO_CHANGE)
         }
         val member = getMember(memberId)
@@ -62,12 +61,6 @@ class MemberService(
             ?.takeIf { it != member.name }
             ?.let {
                 member.updateName(it)
-                isChanged = true
-            }
-        request.contact
-            ?.takeIf { it != member.contact }
-            ?.let {
-                member.updateContact(it)
                 isChanged = true
             }
         request.profileImg

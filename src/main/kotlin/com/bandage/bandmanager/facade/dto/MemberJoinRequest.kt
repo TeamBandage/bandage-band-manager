@@ -16,14 +16,11 @@ data class MemberJoinRequest(
     val password: String,
     @NotBlank @Schema(description = "회원 이름", example = "홍길동")
     val name: String,
-    @NotBlank @Schema(description = "회원 연락처", example = "010-1234-5678")
-    val contact: String,
 ) {
     fun toMemberCreateRequest(): MemberCreateRequest =
         MemberCreateRequest(
             email = this.email,
             name = this.name,
-            contact = this.contact,
         )
 
     fun toMemberAuthCreateRequest(memberId: Long): MemberAuthCreateRequest =
