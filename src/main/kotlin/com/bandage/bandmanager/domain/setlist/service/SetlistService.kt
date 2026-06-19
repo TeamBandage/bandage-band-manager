@@ -1,5 +1,7 @@
 package com.bandage.bandmanager.domain.setlist.service
 
+import com.bandage.bandmanager.domain.band.model.BandMember
+import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackUpdateRequest
@@ -8,11 +10,16 @@ import com.bandage.bandmanager.domain.setlist.dto.res.SetlistDetailResponse
 import com.bandage.bandmanager.domain.setlist.dto.res.SetlistResponse
 import com.bandage.bandmanager.domain.setlist.dto.res.SetlistTrackResponse
 import com.bandage.bandmanager.domain.setlist.model.Setlist
+import com.bandage.bandmanager.domain.setlist.model.SetlistBand
 import com.bandage.bandmanager.domain.setlist.model.SetlistTrack
+import com.bandage.bandmanager.domain.setlist.model.SetlistTrackParticipant
 import com.bandage.bandmanager.domain.setlist.repository.SetlistBandRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackParticipantRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
+import com.bandage.bandmanager.global.authority.MemberAuthorityCleanupHandler
+import com.bandage.bandmanager.global.authority.ResourceAuthorityType
+import com.bandage.bandmanager.global.authority.SuccessorSelector
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -28,7 +35,10 @@ class SetlistService(
     private val setlistBandRepository: SetlistBandRepository,
     private val setlistTrackRepository: SetlistTrackRepository,
     private val setlistTrackParticipantRepository: SetlistTrackParticipantRepository,
-) {
+    private val bandMemberRepository: BandMemberRepository,
+) : MemberAuthorityCleanupHandler {
+    override val authorityType: ResourceAuthorityType = ResourceAuthorityType.SETLIST_MANAGEMENT
+
     fun getSetlist(
         setlistId: UUID,
         memberId: Long,
@@ -176,5 +186,77 @@ class SetlistService(
         memberId: Long,
     ) {
         if (setlist.managerId != memberId) throw BusinessException(ErrorCode.SETLIST_NOT_MANAGER)
+    }
+
+    /**
+     * 회원 탈퇴 시 호출. 회원이 매니저인 모든 셋리스트의 매니저 권한을 자동 양도한다.
+     * - 티어1: 셋리스트 참여자(SetlistTrackParticipant) 중 최고참
+     * - 티어2: 연결된 밴드(SetlistBand)의 일반 멤버 중 최고참(밴드 등록 순)
+     * - 후보 전무: 셋리스트 소프트 삭제
+     * 후임 산정에 필요한 트랙/참여자/밴드/밴드멤버를 모두 일괄 조회해 추가 쿼리를 피한다.
+     */
+    @Transactional
+    override fun cleanupOnWithdrawal(memberId: Long) {
+        val managed = setlistRepository.findAllByManagerId(memberId)
+        if (managed.isEmpty()) return
+
+        val setlistIds = managed.map { it.id }
+        val tracks = setlistTrackRepository.findAllBySetlistIdIn(setlistIds)
+        val setlistIdByTrackId = tracks.associate { it.id to it.setlist.id }
+        val participantsBySetlist =
+            if (tracks.isEmpty()) {
+                emptyMap()
+            } else {
+                setlistTrackParticipantRepository
+                    .findAllByTrackIn(tracks)
+                    .groupBy { setlistIdByTrackId[it.track.id] }
+            }
+        val bandsBySetlist = setlistBandRepository.findAllBySetlistIdIn(setlistIds).groupBy { it.setlistId }
+        val allBandIds =
+            bandsBySetlist.values
+                .flatten()
+                .map { it.bandId }
+                .distinct()
+        val membersByBand =
+            if (allBandIds.isEmpty()) {
+                emptyMap()
+            } else {
+                bandMemberRepository.findAllByBandIdIn(allBandIds).groupBy { it.band.id }
+            }
+
+        managed.forEach { setlist ->
+            val successor =
+                selectSetlistSuccessor(
+                    participants = participantsBySetlist[setlist.id].orEmpty(),
+                    bands = bandsBySetlist[setlist.id].orEmpty(),
+                    membersByBand = membersByBand,
+                    leavingMemberId = memberId,
+                )
+            if (successor != null) {
+                setlist.changeManager(successor)
+            } else {
+                setlist.markAsDeleted(memberId)
+            }
+        }
+    }
+
+    private fun selectSetlistSuccessor(
+        participants: List<SetlistTrackParticipant>,
+        bands: List<SetlistBand>,
+        membersByBand: Map<UUID, List<BandMember>>,
+        leavingMemberId: Long,
+    ): Long? {
+        // 티어1: 셋리스트 참여자 중 최고참
+        SuccessorSelector
+            .oldestFromHighestTier(listOf(participants.filter { it.memberId != leavingMemberId })) { it.createdAt }
+            ?.let { return it.memberId }
+
+        // 티어2: 연결된 밴드의 일반 멤버 중 최고참(밴드 등록 순)
+        val excluded = participants.mapTo(mutableSetOf()) { it.memberId }.apply { add(leavingMemberId) }
+        val bandTiers =
+            bands.sortedBy { it.createdAt }.map { it.bandId }.distinct().map { bandId ->
+                membersByBand[bandId].orEmpty().filter { it.member !in excluded }
+            }
+        return SuccessorSelector.oldestFromHighestTier(bandTiers) { it.createdAt }?.member
     }
 }

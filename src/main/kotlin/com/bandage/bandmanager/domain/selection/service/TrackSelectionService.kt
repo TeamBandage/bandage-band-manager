@@ -1,5 +1,6 @@
 package com.bandage.bandmanager.domain.selection.service
 
+import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.selection.dto.req.SetlistChatMessageCreateRequest
 import com.bandage.bandmanager.domain.selection.dto.req.SetlistConfirmationUpdateRequest
 import com.bandage.bandmanager.domain.selection.dto.req.SetlistParticipantsUpdateRequest
@@ -29,6 +30,9 @@ import com.bandage.bandmanager.domain.selection.repository.TrackSelectionItemCon
 import com.bandage.bandmanager.domain.selection.repository.TrackSelectionItemRepository
 import com.bandage.bandmanager.domain.selection.repository.TrackSelectionMemberRepository
 import com.bandage.bandmanager.domain.selection.repository.TrackSelectionRepository
+import com.bandage.bandmanager.global.authority.MemberAuthorityCleanupHandler
+import com.bandage.bandmanager.global.authority.ResourceAuthorityType
+import com.bandage.bandmanager.global.authority.SuccessorSelector
 import com.bandage.bandmanager.global.common.domain.TrackInfo
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
@@ -48,7 +52,10 @@ class TrackSelectionService(
     private val applicantRepository: TrackSelectionItemApplicantRepository,
     private val confirmationRepository: TrackSelectionItemConfirmationRepository,
     private val chatMessageRepository: TrackSelectionItemChatMessageRepository,
-) {
+    private val bandMemberRepository: BandMemberRepository,
+) : MemberAuthorityCleanupHandler {
+    override val authorityType: ResourceAuthorityType = ResourceAuthorityType.TRACK_SELECTION_MANAGEMENT
+
     @Transactional
     fun createSelection(
         memberId: Long,
@@ -541,5 +548,61 @@ class TrackSelectionService(
             throw BusinessException(ErrorCode.SETLIST_PRACTICE_WINDOW_INVALID)
         }
         return window.toEntity()
+    }
+
+    /**
+     * 회원 탈퇴 시 호출. 회원이 매니저인 모든 선곡 회의의 매니저 권한을 자동 양도한다.
+     * - 티어1: 회의 참여자(TrackSelectionMember) 중 최고참 (이미 참여자이므로 changeManager 만으로 충분)
+     * - 티어2: 연결된 밴드(TrackSelectionBand)의 일반 멤버 중 최고참 → 신규 매니저를 참여자로도 등록
+     *          (매니저는 참여자에 포함되어야 한다는 불변식 유지)
+     * - 후보 전무: 선곡 회의 소프트 삭제 (잠긴 회의도 매니저가 사라지면 해소 불가하므로)
+     * 후임 산정에 필요한 참여자/밴드/밴드멤버를 모두 일괄 조회해 추가 쿼리를 피한다.
+     */
+    @Transactional
+    override fun cleanupOnWithdrawal(memberId: Long) {
+        val managed = selectionRepository.findAllByManagerId(memberId)
+        if (managed.isEmpty()) return
+
+        val membersBySelection = selectionMemberRepository.findAllBySelectionIn(managed).groupBy { it.selection.id }
+        val bandsBySelection = selectionBandRepository.findAllBySelectionIn(managed).groupBy { it.selection.id }
+        val allBandIds =
+            bandsBySelection.values
+                .flatten()
+                .map { it.bandId }
+                .distinct()
+        val membersByBand =
+            if (allBandIds.isEmpty()) {
+                emptyMap()
+            } else {
+                bandMemberRepository.findAllByBandIdIn(allBandIds).groupBy { it.band.id }
+            }
+
+        managed.forEach { selection ->
+            val members = membersBySelection[selection.id].orEmpty()
+
+            // 티어1: 회의 참여자 중 최고참
+            SuccessorSelector
+                .oldestFromHighestTier(listOf(members.filter { it.memberId != memberId })) { it.createdAt }
+                ?.let {
+                    selection.changeManager(it.memberId)
+                    return@forEach
+                }
+
+            // 티어2: 연결된 밴드의 일반 멤버 중 최고참(밴드 등록 순) → 참여자로도 등록
+            val excluded = members.mapTo(mutableSetOf()) { it.memberId }.apply { add(memberId) }
+            val bandTiers =
+                bandsBySelection[selection.id].orEmpty().sortedBy { it.createdAt }.map { it.bandId }.distinct().map { bandId ->
+                    membersByBand[bandId].orEmpty().filter { it.member !in excluded }
+                }
+            val bandSuccessor = SuccessorSelector.oldestFromHighestTier(bandTiers) { it.createdAt }?.member
+            if (bandSuccessor != null) {
+                selection.changeManager(bandSuccessor)
+                selectionMemberRepository.save(TrackSelectionMember.create(selection, bandSuccessor))
+                return@forEach
+            }
+
+            // 후보 전무 → 선곡 회의 소프트 삭제
+            selection.markAsDeleted(memberId)
+        }
     }
 }

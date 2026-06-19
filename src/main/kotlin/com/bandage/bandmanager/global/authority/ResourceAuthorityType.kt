@@ -7,4 +7,6 @@ package com.bandage.bandmanager.global.authority
 enum class ResourceAuthorityType {
     BAND_LEADERSHIP,
     PERFORMANCE_OWNERSHIP,
+    SETLIST_MANAGEMENT,
+    TRACK_SELECTION_MANAGEMENT,
 }
