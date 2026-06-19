@@ -20,6 +20,9 @@ import com.bandage.bandmanager.domain.band.repository.BandApplicationRepository
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.band.repository.BandRepository
 import com.bandage.bandmanager.domain.member.repository.MemberRepository
+import com.bandage.bandmanager.global.authority.MemberAuthorityCleanupHandler
+import com.bandage.bandmanager.global.authority.ResourceAuthorityType
+import com.bandage.bandmanager.global.authority.SuccessorSelector
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -37,7 +40,9 @@ class BandService(
     private val bandMemberRepository: BandMemberRepository,
     private val memberRepository: MemberRepository,
     private val cloudFrontUrlResolver: CloudFrontUrlResolver,
-) {
+) : MemberAuthorityCleanupHandler {
+    override val authorityType: ResourceAuthorityType = ResourceAuthorityType.BAND_LEADERSHIP
+
     // TODO: profileImg multi-part 처리 구현
     @Transactional
     fun createBand(
@@ -324,6 +329,49 @@ class BandService(
         processBandMemberStatusAsLeaved(bandMember, band, memberId)
         validateOnlyOneLeader(band)
     }
+
+    /**
+     * 회원 탈퇴 시 호출. 회원이 속한 모든 밴드를 정리한다(leaveBand 와 동일 정책).
+     * - 마지막 멤버였던 밴드: 밴드 소프트 삭제
+     * - 리더였던 밴드: ADMIN > MEMBER 순 최고참에게 리더 자동 양도 후 탈퇴 처리
+     * - 그 외 밴드: 탈퇴 처리
+     * 모든 밴드/멤버를 fetch join 으로 일괄 조회해 밴드별 추가 쿼리를 피한다.
+     */
+    @Transactional
+    override fun cleanupOnWithdrawal(memberId: Long) {
+        val bandIds = bandMemberRepository.findAllBandIdsByMember(memberId)
+        if (bandIds.isEmpty()) return
+
+        val membersByBand = bandMemberRepository.findAllByBandIdIn(bandIds).groupBy { it.band.id }
+
+        bandIds.forEach { bandId ->
+            val members = membersByBand[bandId] ?: return@forEach
+            val leaving = members.firstOrNull { it.member == memberId } ?: return@forEach
+            val band = leaving.band
+            val remaining = members.filter { it.member != memberId }
+
+            if (remaining.isEmpty()) {
+                processBandMemberStatusAsLeaved(leaving, band, memberId)
+                band.markAsDeleted(memberId)
+                return@forEach
+            }
+
+            if (leaving.role == BandRole.LEADER) {
+                switchLeader(from = leaving, to = selectBandSuccessor(remaining))
+            }
+            processBandMemberStatusAsLeaved(leaving, band, memberId)
+        }
+    }
+
+    private fun selectBandSuccessor(candidates: List<BandMember>): BandMember =
+        SuccessorSelector.oldestFromHighestTier(
+            tiers =
+                listOf(
+                    candidates.filter { it.role == BandRole.ADMIN },
+                    candidates.filter { it.role == BandRole.MEMBER },
+                ),
+            createdAt = { it.createdAt },
+        ) ?: candidates.minByOrNull { it.createdAt }!!
 
     // --- 내부 유틸리티 메서드 ---
     private fun createBandMember(
