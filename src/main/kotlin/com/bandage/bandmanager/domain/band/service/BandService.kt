@@ -343,6 +343,10 @@ class BandService(
         if (bandIds.isEmpty()) return
 
         val membersByBand = bandMemberRepository.findAllByBandIdIn(bandIds).groupBy { it.band.id }
+        val approvedApplicationByBand =
+            applicationRepository
+                .findAllByMemberAndStatusFetchBand(memberId, ApplicationStatus.APPROVED)
+                .associateBy { it.band.id }
 
         bandIds.forEach { bandId ->
             val members = membersByBand[bandId] ?: return@forEach
@@ -351,7 +355,7 @@ class BandService(
             val remaining = members.filter { it.member != memberId }
 
             if (remaining.isEmpty()) {
-                processBandMemberStatusAsLeaved(leaving, band, memberId)
+                markBandMemberLeaved(leaving, approvedApplicationByBand[bandId], memberId)
                 band.markAsDeleted(memberId)
                 return@forEach
             }
@@ -359,8 +363,18 @@ class BandService(
             if (leaving.role == BandRole.LEADER) {
                 switchLeader(from = leaving, to = selectBandSuccessor(remaining))
             }
-            processBandMemberStatusAsLeaved(leaving, band, memberId)
+            markBandMemberLeaved(leaving, approvedApplicationByBand[bandId], memberId)
         }
+    }
+
+    /** 사전 조회한 APPROVED 신청을 LEAVED 로 전환하고 소속을 소프트 삭제(밴드별 추가 쿼리 없음). */
+    private fun markBandMemberLeaved(
+        bandMember: BandMember,
+        approvedApplication: BandApplication?,
+        deleterId: Long,
+    ) {
+        approvedApplication?.updateStatus(ApplicationStatus.LEAVED)
+        bandMember.markAsDeleted(deleterId)
     }
 
     private fun selectBandSuccessor(candidates: List<BandMember>): BandMember =

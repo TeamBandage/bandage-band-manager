@@ -6,6 +6,14 @@ spring:
       local: [local, default-datasource, swagger, redis, security, s3]
       dev: [dev, dev-datasource, swagger, redis, security, s3]
     active: ${PROFILE_ACTIVE:local}
+  jpa:
+    properties:
+      hibernate:
+        # 회원 탈퇴 시 다수 리소스의 권한 양도(update/insert/soft-delete)를 묶어 flush
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
 
 springdoc:
   api-docs:

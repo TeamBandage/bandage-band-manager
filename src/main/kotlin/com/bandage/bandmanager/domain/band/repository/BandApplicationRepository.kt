@@ -4,6 +4,8 @@ import com.bandage.bandmanager.domain.band.model.Band
 import com.bandage.bandmanager.domain.band.model.BandApplication
 import com.bandage.bandmanager.domain.band.model.enums.ApplicationStatus
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -27,4 +29,11 @@ interface BandApplicationRepository :
         id: UUID,
         status: ApplicationStatus,
     ): BandApplication?
+
+    /** 회원의 특정 상태 가입 신청을 밴드와 함께 일괄 조회(탈퇴 시 LEAVED 처리 배치용). */
+    @Query("SELECT a FROM BandApplication a JOIN FETCH a.band WHERE a.member = :memberId AND a.status = :status")
+    fun findAllByMemberAndStatusFetchBand(
+        @Param("memberId") memberId: Long,
+        @Param("status") status: ApplicationStatus,
+    ): List<BandApplication>
 }
