@@ -194,6 +194,31 @@ class PerformanceService(
         performance.markAsDeleted(memberId)
     }
 
+    /**
+     * 공연 소유권(OWNER) 수동 양도. 현재 OWNER 가 같은 공연의 MANAGER 에게 권한을 넘긴다.
+     * 기존 OWNER 는 MANAGER 로 강등된다.
+     */
+    @Transactional
+    fun delegateOwnership(
+        performanceId: UUID,
+        targetMemberId: Long,
+        ownerId: Long,
+    ) {
+        val performance = getPerformance(performanceId)
+        val currentOwner = requireParticipant(performance, ownerId)
+        if (!currentOwner.isOwner()) {
+            throw BusinessException(ErrorCode.NOT_A_PERFORMANCE_OWNER)
+        }
+        if (targetMemberId == ownerId) {
+            throw BusinessException(ErrorCode.NO_CHANGE)
+        }
+        val target =
+            performanceManagerRepository.findByPerformanceAndMember(performance, targetMemberId)
+                ?: throw BusinessException(ErrorCode.NOT_A_PERFORMANCE_MANAGER)
+        currentOwner.demoteToManager()
+        target.promoteToOwner()
+    }
+
     @Transactional
     fun sendInvitation(
         performanceId: UUID,

@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.performance.controller
 
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceInvitationCreateRequest
+import com.bandage.bandmanager.domain.performance.dto.req.PerformanceOwnerDelegateRequest
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceSearchQuery
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceSetlistAddRequest
@@ -171,6 +172,21 @@ class PerformanceController(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
         performanceService.deletePerformance(performanceId, memberId)
+        return ApiResponse.success()
+    }
+
+    @PatchMapping("/{performanceId}/owner")
+    @Operation(
+        operationId = "delegateOwnership",
+        summary = "공연 소유권 양도 API",
+        description = "현재 OWNER가 같은 공연의 MANAGER에게 소유권(OWNER)을 양도합니다. 기존 OWNER는 MANAGER로 강등됩니다. OWNER만 수행할 수 있습니다.",
+    )
+    fun delegateOwnership(
+        @PathVariable performanceId: UUID,
+        @Valid @RequestBody request: PerformanceOwnerDelegateRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        performanceService.delegateOwnership(performanceId, request.targetMemberId, memberId)
         return ApiResponse.success()
     }
 }
