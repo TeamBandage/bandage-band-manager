@@ -249,6 +249,37 @@
                 ],
                 "type": "object"
             },
+            "ApiResponseCursorResponseNotificationResponseUUID": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/CursorResponseNotificationResponseUUID"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
             "ApiResponseCursorResponsePerformanceListResponseUUID": {
                 "properties": {
                     "code": {
@@ -1538,6 +1569,37 @@
                 ],
                 "type": "object"
             },
+            "ApiResponseUnreadCountResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/UnreadCountResponse"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
             "AutoPlaceRequest": {
                 "properties": {
                     "durationSlots": {
@@ -2093,6 +2155,29 @@
                     "content": {
                         "items": {
                             "$ref": "#/components/schemas/MyBandInfoResponse"
+                        },
+                        "type": "array"
+                    },
+                    "hasNext": {
+                        "type": "boolean"
+                    },
+                    "nextCursor": {
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "content",
+                    "hasNext"
+                ],
+                "type": "object"
+            },
+            "CursorResponseNotificationResponseUUID": {
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
+                "properties": {
+                    "content": {
+                        "items": {
+                            "$ref": "#/components/schemas/NotificationResponse"
                         },
                         "type": "array"
                     },
@@ -3161,6 +3246,92 @@
                     "durationSlots",
                     "reason",
                     "startSlot"
+                ],
+                "type": "object"
+            },
+            "NotificationPagingQuery": {
+                "description": "\uc54c\ub9bc \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
+                "properties": {
+                    "lastId": {
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \uc54c\ub9bc ID (\ucee4\uc11c)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "pageSize": {
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
+                        "example": 20,
+                        "format": "int32",
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "pageSize"
+                ],
+                "type": "object"
+            },
+            "NotificationResponse": {
+                "description": "\uc54c\ub9bc \uc751\ub2f5",
+                "properties": {
+                    "category": {
+                        "description": "\uc54c\ub9bc \uce74\ud14c\uace0\ub9ac (\ud504\ub860\ud2b8 \ud544\ud130 \ud0a4)",
+                        "enum": [
+                            "BAND_APPLICATION",
+                            "BAND_APPLICATION_RESULT",
+                            "AUTHORITY_PROMOTION",
+                            "JAM_UPCOMING"
+                        ],
+                        "example": "BAND_APPLICATION",
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "description": "\uc0dd\uc131 \uc2dc\uac01",
+                        "example": "2026-06-20 17:30",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "id": {
+                        "description": "\uc54c\ub9bc \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isRead": {
+                        "description": "\uc77d\uc74c \uc5ec\ubd80",
+                        "example": false,
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "description": "\uc54c\ub9bc \uba54\uc2dc\uc9c0",
+                        "example": "\ubc34\ub4dc\uc5d0 \uc0c8\ub85c\uc6b4 \uac00\uc785 \uc2e0\uccad\uc774 \uc811\uc218\ub418\uc5c8\uc2b5\ub2c8\ub2e4.",
+                        "type": "string"
+                    },
+                    "readAt": {
+                        "description": "\uc77d\uc740 \uc2dc\uac01",
+                        "example": "2026-06-20 18:00",
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "referenceId": {
+                        "description": "\uc5f0\uad00 \ub9ac\uc18c\uc2a4 ID (\ubc34\ub4dc/\ud569\uc8fc \ub4f1, \ub525\ub9c1\ud06c\uc6a9)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "\uc54c\ub9bc \uc81c\ubaa9",
+                        "example": "\uc0c8\ub85c\uc6b4 \uac00\uc785 \uc2e0\uccad",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "category",
+                    "createdAt",
+                    "id",
+                    "isRead",
+                    "message",
+                    "title"
                 ],
                 "type": "object"
             },
@@ -5137,6 +5308,21 @@
                 ],
                 "type": "object"
             },
+            "UnreadCountResponse": {
+                "description": "\ubbf8\ud655\uc778 \uc54c\ub9bc \uac1c\uc218 \uc751\ub2f5",
+                "properties": {
+                    "count": {
+                        "description": "\ubbf8\ud655\uc778(\uc77d\uc9c0 \uc54a\uc740) \uc54c\ub9bc \uac1c\uc218",
+                        "example": 3,
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "count"
+                ],
+                "type": "object"
+            },
             "WeeklyRuleRequest": {
                 "properties": {
                     "dayOfWeek": {
@@ -6687,6 +6873,115 @@
                 "summary": "\ud68c\uc6d0 \uac80\uc0c9 API",
                 "tags": [
                     "members"
+                ]
+            }
+        },
+        "/api/v1/notifications": {
+            "get": {
+                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc804\uccb4 \uc54c\ub9bc\uc744 \ucee4\uc11c \uae30\ubc18 \ucd5c\uc2e0\uc21c\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. \uce74\ud14c\uace0\ub9ac \ud544\ud130\ub9c1\uc740 \ud504\ub860\ud2b8\uac00 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
+                "operationId": "getMyNotifications",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NotificationPagingQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseCursorResponseNotificationResponseUUID"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub0b4 \uc54c\ub9bc \ubaa9\ub85d \uc870\ud68c API",
+                "tags": [
+                    "notifications"
+                ]
+            }
+        },
+        "/api/v1/notifications/read-all": {
+            "patch": {
+                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc77d\uc9c0 \uc54a\uc740 \ubaa8\ub4e0 \uc54c\ub9bc\uc744 \uc77c\uad04 \uc77d\uc74c \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
+                "operationId": "markAllNotificationsAsRead",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseUnit"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc804\uccb4 \uc54c\ub9bc \uc77d\uc74c \ucc98\ub9ac API",
+                "tags": [
+                    "notifications"
+                ]
+            }
+        },
+        "/api/v1/notifications/unread-count": {
+            "get": {
+                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc77d\uc9c0 \uc54a\uc740 \uc54c\ub9bc \uac1c\uc218\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "operationId": "getUnreadNotificationCount",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseUnreadCountResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ubbf8\ud655\uc778 \uc54c\ub9bc \uac1c\uc218 \uc870\ud68c API",
+                "tags": [
+                    "notifications"
+                ]
+            }
+        },
+        "/api/v1/notifications/{notificationId}/read": {
+            "patch": {
+                "description": "\ud2b9\uc815 \uc54c\ub9bc\uc744 \uc77d\uc74c \ucc98\ub9ac\ud569\ub2c8\ub2e4. \ubcf8\uc778 \uc18c\uc720 \uc54c\ub9bc\ub9cc \ucc98\ub9ac\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
+                "operationId": "markNotificationAsRead",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "notificationId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseUnit"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc54c\ub9bc \uc77d\uc74c \ucc98\ub9ac API",
+                "tags": [
+                    "notifications"
                 ]
             }
         },
@@ -9216,10 +9511,14 @@
     "servers": [
         {
             "description": "Generated server url",
-            "url": "http://bandage-band-manager:8080"
+            "url": "http://localhost:8080"
         }
     ],
     "tags": [
+        {
+            "description": "\uc54c\ub9bc API",
+            "name": "notifications"
+        },
         {
             "description": "\ud68c\uc6d0 \uc778\uc99d API",
             "name": "auth"
