@@ -1,5 +1,6 @@
 package com.bandage.bandmanager.domain.performance.service
 
+import com.bandage.bandmanager.domain.band.model.BandMember
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.band.repository.BandRepository
 import com.bandage.bandmanager.domain.member.repository.MemberRepository
@@ -22,6 +23,7 @@ import com.bandage.bandmanager.domain.performance.model.PerformanceInvitation
 import com.bandage.bandmanager.domain.performance.model.PerformanceManager
 import com.bandage.bandmanager.domain.performance.model.PerformanceSetlist
 import com.bandage.bandmanager.domain.performance.model.enums.PerformanceInvitationStatus
+import com.bandage.bandmanager.domain.performance.model.enums.PerformanceRole
 import com.bandage.bandmanager.domain.performance.repository.PerformanceInvitationRepository
 import com.bandage.bandmanager.domain.performance.repository.PerformanceManagerRepository
 import com.bandage.bandmanager.domain.performance.repository.PerformanceRepository
@@ -29,6 +31,9 @@ import com.bandage.bandmanager.domain.performance.repository.PerformanceSetlistR
 import com.bandage.bandmanager.domain.setlist.model.Setlist
 import com.bandage.bandmanager.domain.setlist.repository.SetlistBandRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistRepository
+import com.bandage.bandmanager.global.authority.MemberAuthorityCleanupHandler
+import com.bandage.bandmanager.global.authority.ResourceAuthorityType
+import com.bandage.bandmanager.global.authority.SuccessorSelector
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -51,7 +56,9 @@ class PerformanceService(
     private val bandMemberRepository: BandMemberRepository,
     private val memberRepository: MemberRepository,
     private val cloudFrontUrlResolver: CloudFrontUrlResolver,
-) {
+) : MemberAuthorityCleanupHandler {
+    override val authorityType: ResourceAuthorityType = ResourceAuthorityType.PERFORMANCE_OWNERSHIP
+
     @Transactional
     fun createPerformance(
         request: PerformanceCreateRequest,
@@ -192,6 +199,31 @@ class PerformanceService(
         val performance = getPerformance(performanceId)
         validateOwner(performance, memberId)
         performance.markAsDeleted(memberId)
+    }
+
+    /**
+     * 공연 소유권(OWNER) 수동 양도. 현재 OWNER 가 같은 공연의 MANAGER 에게 권한을 넘긴다.
+     * 기존 OWNER 는 MANAGER 로 강등된다.
+     */
+    @Transactional
+    fun delegateOwnership(
+        performanceId: UUID,
+        targetMemberId: Long,
+        ownerId: Long,
+    ) {
+        val performance = getPerformance(performanceId)
+        val currentOwner = requireParticipant(performance, ownerId)
+        if (!currentOwner.isOwner()) {
+            throw BusinessException(ErrorCode.NOT_A_PERFORMANCE_OWNER)
+        }
+        if (targetMemberId == ownerId) {
+            throw BusinessException(ErrorCode.NO_CHANGE)
+        }
+        val target =
+            performanceManagerRepository.findByPerformanceAndMember(performance, targetMemberId)
+                ?: throw BusinessException(ErrorCode.NOT_A_PERFORMANCE_MANAGER)
+        currentOwner.demoteToManager()
+        target.promoteToOwner()
     }
 
     @Transactional
@@ -375,6 +407,115 @@ class PerformanceService(
     ) {
         if (!requireParticipant(performance, memberId).isOwner()) {
             throw BusinessException(ErrorCode.NOT_A_PERFORMANCE_OWNER)
+        }
+    }
+
+    /**
+     * 회원 탈퇴 시 호출. OWNER 인 모든 공연의 소유권을 자동 양도한다.
+     * - 티어1: 같은 공연의 MANAGER 중 최고참 승격
+     * - 티어2: 셋리스트가 속한 밴드의 일반 멤버 최고참에게 OWNER 신규 부여(가장 먼저 등록된 셋리스트의 밴드 우선)
+     * - 후보 전무: 공연 소프트 삭제
+     * 마지막으로 탈퇴 회원의 모든 공연 권한 레코드를 제거한다.
+     * 후임 산정에 필요한 매니저/셋리스트/밴드멤버를 모두 일괄 조회해 공연/밴드별 추가 쿼리를 피한다.
+     */
+    @Transactional
+    override fun cleanupOnWithdrawal(memberId: Long) {
+        val memberRows = performanceManagerRepository.findAllByMemberFetchPerformance(memberId)
+        if (memberRows.isEmpty()) return
+
+        val ownedPerformances = memberRows.filter { it.isOwner() }.map { it.performance }
+        if (ownedPerformances.isNotEmpty()) {
+            val managersByPerformance =
+                performanceManagerRepository
+                    .findAllByPerformanceIn(ownedPerformances)
+                    .groupBy { it.performance.id }
+            val fallbackContext = buildOwnerFallbackContext(ownedPerformances)
+            ownedPerformances.forEach { performance ->
+                handoverOwnership(
+                    performance = performance,
+                    leavingMemberId = memberId,
+                    managers = managersByPerformance[performance.id].orEmpty(),
+                    fallbackContext = fallbackContext,
+                )
+            }
+        }
+
+        performanceManagerRepository.deleteAll(memberRows)
+    }
+
+    private fun handoverOwnership(
+        performance: Performance,
+        leavingMemberId: Long,
+        managers: List<PerformanceManager>,
+        fallbackContext: OwnerFallbackContext,
+    ) {
+        // 티어1: 같은 공연의 MANAGER 중 최고참
+        val managerCandidates = managers.filter { it.member != leavingMemberId && it.role == PerformanceRole.MANAGER }
+        val successor = SuccessorSelector.oldestFromHighestTier(listOf(managerCandidates)) { it.createdAt }
+        if (successor != null) {
+            successor.promoteToOwner()
+            return
+        }
+        // 티어2: 셋리스트 밴드의 일반 멤버 최고참
+        val excludedMemberIds = managers.mapTo(mutableSetOf()) { it.member }.apply { add(leavingMemberId) }
+        val fallbackMemberId = fallbackContext.selectFallbackOwner(performance.id, excludedMemberIds)
+        if (fallbackMemberId != null) {
+            performanceManagerRepository.save(PerformanceManager.createOwner(performance, fallbackMemberId))
+            return
+        }
+        // 후보 전무 → 공연 소프트 삭제
+        performance.markAsDeleted(leavingMemberId)
+    }
+
+    private fun buildOwnerFallbackContext(performances: List<Performance>): OwnerFallbackContext {
+        val setlistsByPerformance =
+            performanceSetlistRepository.findAllByPerformanceIn(performances).groupBy { it.performance.id }
+        val allSetlistIds =
+            setlistsByPerformance.values
+                .flatten()
+                .map { it.setlistId }
+                .distinct()
+        val bandsBySetlist =
+            if (allSetlistIds.isEmpty()) {
+                emptyMap()
+            } else {
+                setlistBandRepository.findAllBySetlistIdIn(allSetlistIds).groupBy { it.setlistId }
+            }
+        val bandIdsByPerformance =
+            performances.associate { performance ->
+                val orderedBandIds =
+                    setlistsByPerformance[performance.id]
+                        .orEmpty()
+                        .sortedBy { it.createdAt }
+                        .flatMap { setlist ->
+                            bandsBySetlist[setlist.setlistId].orEmpty().sortedBy { it.createdAt }.map { it.bandId }
+                        }.distinct()
+                performance.id to orderedBandIds
+            }
+        val allBandIds = bandIdsByPerformance.values.flatten().distinct()
+        val membersByBand =
+            if (allBandIds.isEmpty()) {
+                emptyMap()
+            } else {
+                bandMemberRepository.findAllByBandIdIn(allBandIds).groupBy { it.band.id }
+            }
+        return OwnerFallbackContext(bandIdsByPerformance, membersByBand)
+    }
+
+    private class OwnerFallbackContext(
+        private val bandIdsByPerformance: Map<UUID, List<UUID>>,
+        private val membersByBand: Map<UUID, List<BandMember>>,
+    ) {
+        /** 우선순위 밴드 순으로 후보 그룹을 만들어, 첫 유효 밴드의 최고참 memberId 를 반환. */
+        fun selectFallbackOwner(
+            performanceId: UUID,
+            excludedMemberIds: Set<Long>,
+        ): Long? {
+            val tiers =
+                bandIdsByPerformance[performanceId].orEmpty().map { bandId ->
+                    membersByBand[bandId].orEmpty().filter { it.member !in excludedMemberIds }
+                }
+            return SuccessorSelector.oldestFromHighestTier(tiers) { it.createdAt }?.member
         }
     }
 }

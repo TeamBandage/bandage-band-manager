@@ -3522,6 +3522,21 @@
                 ],
                 "type": "object"
             },
+            "PerformanceOwnerDelegateRequest": {
+                "description": "\uacf5\uc5f0 \uc18c\uc720\uad8c(OWNER) \uc591\ub3c4 \uc694\uccad",
+                "properties": {
+                    "targetMemberId": {
+                        "description": "\uc18c\uc720\uad8c\uc744 \ub118\uaca8\ubc1b\uc744 \ub300\uc0c1 \uba64\ubc84 ID (\ud574\ub2f9 \uacf5\uc5f0\uc758 MANAGER \uc5ec\uc57c \ud568)",
+                        "example": 42,
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "targetMemberId"
+                ],
+                "type": "object"
+            },
             "PerformancePagingQuery": {
                 "description": "\uacf5\uc5f0 \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
@@ -7062,6 +7077,49 @@
                     }
                 },
                 "summary": "\uacf5\uc5f0 \ucd08\ub300 \uc218\ub77d/\uac70\uc808 API",
+                "tags": [
+                    "performances"
+                ]
+            }
+        },
+        "/api/v1/performances/{performanceId}/owner": {
+            "patch": {
+                "description": "\ud604\uc7ac OWNER\uac00 \uac19\uc740 \uacf5\uc5f0\uc758 MANAGER\uc5d0\uac8c \uc18c\uc720\uad8c(OWNER)\uc744 \uc591\ub3c4\ud569\ub2c8\ub2e4. \uae30\uc874 OWNER\ub294 MANAGER\ub85c \uac15\ub4f1\ub429\ub2c8\ub2e4. OWNER\ub9cc \uc218\ud589\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
+                "operationId": "delegateOwnership",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "performanceId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformanceOwnerDelegateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseUnit"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \uc18c\uc720\uad8c \uc591\ub3c4 API",
                 "tags": [
                     "performances"
                 ]

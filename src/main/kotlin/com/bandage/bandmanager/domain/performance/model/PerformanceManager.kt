@@ -42,9 +42,20 @@ open class PerformanceManager(
     val member: Long = member
 
     @Column(name = "role", nullable = false)
-    val role: PerformanceRole = role
+    var role: PerformanceRole = role
+        protected set
 
     fun isOwner(): Boolean = role == PerformanceRole.OWNER
+
+    fun promoteToOwner() {
+        require(this.role != PerformanceRole.OWNER) { "이미 OWNER 입니다." }
+        this.role = PerformanceRole.OWNER
+    }
+
+    fun demoteToManager() {
+        require(this.role == PerformanceRole.OWNER) { "OWNER 만 MANAGER 로 강등할 수 있습니다." }
+        this.role = PerformanceRole.MANAGER
+    }
 
     companion object {
         fun createOwner(

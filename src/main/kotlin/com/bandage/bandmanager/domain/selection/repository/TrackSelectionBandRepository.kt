@@ -10,6 +10,8 @@ import java.util.UUID
 interface TrackSelectionBandRepository : JpaRepository<TrackSelectionBand, UUID> {
     fun findAllBySelection(selection: TrackSelection): List<TrackSelectionBand>
 
+    fun findAllBySelectionIn(selections: Collection<TrackSelection>): List<TrackSelectionBand>
+
     fun findAllBySelectionId(selectionId: UUID): List<TrackSelectionBand>
 
     fun existsBySelectionAndBandId(
