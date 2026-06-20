@@ -186,3 +186,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 016-notification
+      author: bandage
+      comment: |
+        BD-81: 알림(Notification) 도메인 테이블 신설
+        - p_notification (수신자별 1행, category varchar STRING, is_read/read_at 읽음 처리)
+        - 조회/멱등성 인덱스 추가
+      changes:
+        - sqlFile:
+            path: changes/016-notification.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"

@@ -75,6 +75,10 @@ dependencies {
     //liquibase
     implementation("org.springframework.boot:spring-boot-starter-liquibase")
 
+    // aop (알림 도메인 @Notify 횡단관심사 트리거)
+    // Spring Boot 4 에는 spring-boot-starter-aop 가 없어 aspectjweaver 를 직접 추가한다(버전은 BOM 관리).
+    // spring-aop 는 spring-context 의 transitive 로 이미 포함되며, AopAutoConfiguration 이 자동 활성화된다.
+    implementation("org.aspectj:aspectjweaver")
 }
 
 kotlin {

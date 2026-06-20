@@ -27,6 +27,8 @@ import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
+import com.bandage.bandmanager.global.notify.annotation.Notify
+import com.bandage.bandmanager.global.notify.annotation.NotifyCategory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -64,6 +66,7 @@ class BandService(
         return BandResponse.of(band)
     }
 
+    @Notify(NotifyCategory.BAND_APPLICATION)
     @Transactional
     fun createBandApplication(
         bandId: UUID,
@@ -186,6 +189,7 @@ class BandService(
         application.updateStatus(ApplicationStatus.WITHDRAWN)
     }
 
+    @Notify(NotifyCategory.BAND_APPLICATION_RESULT)
     @Transactional
     fun processBandApplication(
         bandId: UUID,
@@ -206,7 +210,7 @@ class BandService(
         }
     }
 
-    // TODO: 알림 이벤트 publish 구현
+    @Notify(NotifyCategory.AUTHORITY_PROMOTION)
     @Transactional
     fun changeLeader(
         bandId: UUID,

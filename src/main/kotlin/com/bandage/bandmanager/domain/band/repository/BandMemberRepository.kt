@@ -65,4 +65,11 @@ interface BandMemberRepository :
     fun findAllByBand(band: Band): List<BandMember>
 
     fun countByMember(member: Long): Long
+
+    // 알림(BAND_APPLICATION) 수신자 조회: 밴드의 특정 역할 멤버 목록
+    @Query("SELECT bm FROM BandMember bm WHERE bm.band.id = :bandId AND bm.role = :role")
+    fun findAllByBandIdAndRole(
+        @Param("bandId") bandId: UUID,
+        @Param("role") role: BandRole,
+    ): List<BandMember>
 }
