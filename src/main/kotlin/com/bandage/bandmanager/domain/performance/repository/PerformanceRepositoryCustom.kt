@@ -16,7 +16,8 @@ interface PerformanceRepositoryCustom {
         pageSize: Int,
     ): CursorResponse<Performance, UUID>
 
-    fun findAllByBandIdsAndPaging(
+    fun findMyPerformancesByCursor(
+        memberId: Long,
         bandIds: List<UUID>,
         lastId: UUID?,
         pageSize: Int,
