@@ -26,10 +26,11 @@ class MemberAvailabilityWriteTest {
     private val from = LocalDate.of(2026, 6, 13)
     private val to = LocalDate.of(2026, 7, 1)
 
-    private fun rule(
+    /** 기존(seeded) 패턴: 월 18~22h (slot 36~44). */
+    private fun seeded(
         f: LocalDate,
         t: LocalDate?,
-    ) = WeeklyRule(day, startSlot = 20, endSlot = 44, effectiveFrom = f, effectiveTo = t)
+    ) = WeeklyRule(day, startSlot = 36, endSlot = 44, effectiveFrom = f, effectiveTo = t)
 
     private fun seed(
         rules: List<WeeklyRule> = emptyList(),
@@ -45,75 +46,117 @@ class MemberAvailabilityWriteTest {
         return av
     }
 
-    private fun request(exceptions: List<AvailabilityExceptionRequest> = emptyList()) =
-        MemberAvailabilityRequest(
-            effectiveFrom = from,
-            effectiveTo = to,
-            weeklyRules = listOf(WeeklyRuleRequest(day, 20, 44)),
-            exceptions = exceptions,
-        )
+    /** 기본 신규 규칙은 기존과 다른 슬롯(20~24)이라 clip 조각과 병합되지 않아 조각이 관찰된다. */
+    private fun request(
+        startSlot: Int = 20,
+        endSlot: Int = 24,
+        exceptions: List<AvailabilityExceptionRequest> = emptyList(),
+    ) = MemberAvailabilityRequest(
+        effectiveFrom = from,
+        effectiveTo = to,
+        weeklyRules = listOf(WeeklyRuleRequest(day, startSlot, endSlot)),
+        exceptions = exceptions,
+    )
 
-    private fun ranges(av: MemberAvailability) = av.weeklyRules.map { tuple(it.effectiveFrom, it.effectiveTo) }
+    /** (startSlot, effectiveFrom, effectiveTo) — startSlot 36/20 으로 패턴 구분. */
+    private fun rows(av: MemberAvailability) = av.weeklyRules.map { tuple(it.startSlot, it.effectiveFrom, it.effectiveTo) }
+
+    // ---------- clip: 다른 패턴 신규 → 잘린 조각이 그대로 남는다 ----------
 
     @Test
-    fun `구간에 머리만 걸친 규칙은 잘리고 새 규칙이 들어간다 - 6_1~6_15 후 6_13~7_1`() {
-        val av = seed(rules = listOf(rule(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 15))))
+    fun `구간에 머리만 걸친 규칙은 잘리고 새 규칙이 들어간다`() {
+        val av = seed(rules = listOf(seeded(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 15))))
 
         sut.updateMyAvailability(1L, request())
 
-        // 6/1~6/12 보존(머리), 6/13~7/1 신규. 겹침/손실 없음
-        assertThat(ranges(av)).containsExactlyInAnyOrder(
-            tuple(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 12)),
-            tuple(from, to),
+        assertThat(rows(av)).containsExactlyInAnyOrder(
+            tuple(36, LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 12)),
+            tuple(20, from, to),
         )
     }
 
     @Test
     fun `구간이 규칙 가운데를 관통하면 머리+꼬리로 split 된다`() {
-        val av = seed(rules = listOf(rule(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 7, 31))))
+        val av = seed(rules = listOf(seeded(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 7, 31))))
 
         sut.updateMyAvailability(1L, request())
 
-        assertThat(ranges(av)).containsExactlyInAnyOrder(
-            tuple(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 12)),
-            tuple(LocalDate.of(2026, 7, 2), LocalDate.of(2026, 7, 31)),
-            tuple(from, to),
+        assertThat(rows(av)).containsExactlyInAnyOrder(
+            tuple(36, LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 12)),
+            tuple(36, LocalDate.of(2026, 7, 2), LocalDate.of(2026, 7, 31)),
+            tuple(20, from, to),
         )
     }
 
     @Test
     fun `구간에 완전히 포함된 규칙은 제거되고 새 규칙으로 대체된다`() {
-        val av = seed(rules = listOf(rule(LocalDate.of(2026, 6, 14), LocalDate.of(2026, 6, 20))))
+        val av = seed(rules = listOf(seeded(LocalDate.of(2026, 6, 14), LocalDate.of(2026, 6, 20))))
 
         sut.updateMyAvailability(1L, request())
 
-        assertThat(ranges(av)).containsExactly(tuple(from, to))
+        assertThat(rows(av)).containsExactly(tuple(20, from, to))
     }
 
     @Test
     fun `구간과 겹치지 않는 규칙은 그대로 보존된다`() {
-        val av = seed(rules = listOf(rule(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31))))
+        val av = seed(rules = listOf(seeded(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31))))
 
         sut.updateMyAvailability(1L, request())
 
-        assertThat(ranges(av)).containsExactlyInAnyOrder(
-            tuple(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31)),
-            tuple(from, to),
+        assertThat(rows(av)).containsExactlyInAnyOrder(
+            tuple(36, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31)),
+            tuple(20, from, to),
         )
     }
 
     @Test
     fun `무기한 규칙은 꼬리가 무기한으로 유지된다`() {
-        val av = seed(rules = listOf(rule(LocalDate.of(2026, 6, 1), null)))
+        val av = seed(rules = listOf(seeded(LocalDate.of(2026, 6, 1), null)))
 
         sut.updateMyAvailability(1L, request())
 
-        assertThat(ranges(av)).containsExactlyInAnyOrder(
-            tuple(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 12)),
-            tuple(LocalDate.of(2026, 7, 2), null),
-            tuple(from, to),
+        assertThat(rows(av)).containsExactlyInAnyOrder(
+            tuple(36, LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 12)),
+            tuple(36, LocalDate.of(2026, 7, 2), null),
+            tuple(20, from, to),
         )
     }
+
+    // ---------- coalesce: 같은 패턴 신규 → 맞닿은 조각이 다시 병합된다 ----------
+
+    @Test
+    fun `같은 패턴을 겹치는 구간에 다시 칠하면 하나로 병합된다`() {
+        val av = seed(rules = listOf(seeded(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 15))))
+
+        sut.updateMyAvailability(1L, request(startSlot = 36, endSlot = 44))
+
+        // 머리(6/1~6/12) + 신규(6/13~7/1) 동일 패턴 → (6/1~7/1) 한 줄
+        assertThat(rows(av)).containsExactly(tuple(36, LocalDate.of(2026, 6, 1), to))
+    }
+
+    @Test
+    fun `같은 패턴이면 split 된 무기한 규칙이 다시 무기한 한 줄로 자가치유된다`() {
+        val av = seed(rules = listOf(seeded(LocalDate.of(2026, 6, 1), null)))
+
+        sut.updateMyAvailability(1L, request(startSlot = 36, endSlot = 44))
+
+        // 머리 + 신규 + 무기한 꼬리 모두 동일 패턴·연속 → (6/1~무기한) 한 줄로 복원(저장 멱등)
+        assertThat(rows(av)).containsExactly(tuple(36, LocalDate.of(2026, 6, 1), null))
+    }
+
+    @Test
+    fun `날짜가 맞닿아도 패턴이 다르면 병합하지 않는다`() {
+        val av = seed(rules = listOf(seeded(LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 12))))
+
+        sut.updateMyAvailability(1L, request(startSlot = 20, endSlot = 24))
+
+        assertThat(rows(av)).containsExactlyInAnyOrder(
+            tuple(36, LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 12)),
+            tuple(20, from, to),
+        )
+    }
+
+    // ---------- 예외 / 검증 ----------
 
     @Test
     fun `구간 안 예외는 교체되고 구간 밖 예외는 보존된다`() {
