@@ -44,7 +44,11 @@ class MemberAvailabilityController(
     ): ApiResponse<List<ScheduleSlotResponse>> = ApiResponse.success(memberAvailabilityService.getMySlots(memberId, from, to))
 
     @PutMapping
-    @Operation(operationId = "updateMyAvailability", summary = "내 가용성 등록/수정", description = "본인만 수정 가능. weeklyRules/exceptions 전체 교체.")
+    @Operation(
+        operationId = "updateMyAvailability",
+        summary = "내 가용성 등록/수정",
+        description = "본인만 수정 가능. effectiveFrom~effectiveTo 구간만 교체하고 구간 밖(과거 포함)은 보존한다.",
+    )
     fun updateMyAvailability(
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: MemberAvailabilityRequest,
