@@ -5,11 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
+docker compose -f docker-compose-test.yml up -d   # 로컬/테스트 인프라(postgres·redis) 기동 — 이것을 사용할 것
 ./gradlew bootRun          # Run the application
 ./gradlew build            # Build (also runs tests)
 ./gradlew test             # Run tests
 ./gradlew spotlessApply    # Format code (Ktlint — must pass before commit)
 ```
+
+로컬 검증·테스트 시 인프라는 **`docker-compose-test.yml`** 로 기동한다. 이 파일은 named volume(`pgdata`/`redisdata`)을 사용해 프로젝트 루트에 `./db`·`./redis` 디렉토리를 만들지 않는다(기존 `docker-compose.yml` 의 바인드 마운트는 루트를 오염시킴). 정리는 `docker compose -f docker-compose-test.yml down`(볼륨까지 삭제하려면 `-v`). 참고: `docker-compose-test.yml` 은 `.gitignore` 대상(로컬 전용)이므로 레포 clone 직후에는 존재하지 않을 수 있다.
 
 A pre-commit hook at `scripts/pre-commit` runs `spotlessApply` automatically on commit.
 
@@ -90,7 +93,7 @@ API 스펙은 SpringDoc이 런타임에 생성하며, **diff 가능한 형태로
 
 ```bash
 # 1. 로컬 인프라 실행 (이미 실행 중이면 생략)
-docker-compose up -d postgres redis
+docker compose -f docker-compose-test.yml up -d
 
 # 2. 애플리케이션 실행 (기본 local 프로파일, swagger 포함)
 ./gradlew bootRun

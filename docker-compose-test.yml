@@ -1,0 +1,33 @@
+# 로컬 테스트용: 인프라(postgres/redis)만 named volume 으로 기동.
+# 앱은 로컬 빌드(./gradlew bootRun)로 실행하므로 app 컨테이너는 포함하지 않는다.
+# 데이터가 named volume(pgdata/redisdata)에 저장되어 프로젝트 루트에 ./db, ./redis 가 생기지 않는다.
+# 사용: docker compose -f docker-compose-test.yml up -d
+# 정리: docker compose -f docker-compose-test.yml down [-v]   (-v 는 볼륨까지 삭제)
+services:
+  postgres:
+    image: postgres:15
+    container_name: bandage-postgres
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: bandage-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    restart: always
+
+volumes:
+  pgdata:
+  redisdata:

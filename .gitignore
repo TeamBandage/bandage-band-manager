@@ -44,6 +44,7 @@ out/
 
 ### custom ###
 .env
+/db/
 .claude
 .DS_Store
 set-env.sh
