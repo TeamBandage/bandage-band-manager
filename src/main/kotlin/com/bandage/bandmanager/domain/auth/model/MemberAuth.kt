@@ -26,7 +26,8 @@ open class MemberAuth(
     @Column(name = "member_id", unique = true, nullable = false)
     val memberId: Long = memberId
 
-    @Column(name = "email", unique = true, nullable = false)
+    // 활성 계정 간 email 유일성은 partial unique index(uk_member_auth_email_active, Liquibase 017)로 관리
+    @Column(name = "email", nullable = false)
     val email: String = email
 
     @Column(name = "password", nullable = true)

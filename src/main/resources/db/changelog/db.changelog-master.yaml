@@ -200,3 +200,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 017-soft-delete-partial-unique
+      author: bandage
+      comment: |
+        BD-14: soft delete 리소스 plain UNIQUE → partial unique index 전환
+        - p_member.email / p_member_auth.email / p_band.name
+        - 활성(deleted_at IS NULL) 행만 유일성 보장, soft delete 후 동일 값 재등록 허용
+      changes:
+        - sqlFile:
+            path: changes/017-soft-delete-partial-unique.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
