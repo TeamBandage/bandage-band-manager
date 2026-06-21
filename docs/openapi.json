@@ -859,6 +859,40 @@
                 ],
                 "type": "object"
             },
+            "ApiResponseListScheduleSlotResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/ScheduleSlotResponse"
+                        },
+                        "type": "array"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
             "ApiResponseListSetlistResponse": {
                 "properties": {
                     "code": {
@@ -3008,6 +3042,18 @@
             },
             "MemberAvailabilityRequest": {
                 "properties": {
+                    "effectiveFrom": {
+                        "description": "\uad50\uccb4 \ub300\uc0c1 \uad6c\uac04 \uc2dc\uc791\uc77c",
+                        "example": "2026-06-13",
+                        "format": "date",
+                        "type": "string"
+                    },
+                    "effectiveTo": {
+                        "description": "\uad50\uccb4 \ub300\uc0c1 \uad6c\uac04 \uc885\ub8cc\uc77c(\ud3ec\ud568)",
+                        "example": "2026-07-01",
+                        "format": "date",
+                        "type": "string"
+                    },
                     "exceptions": {
                         "items": {
                             "$ref": "#/components/schemas/AvailabilityExceptionRequest"
@@ -3027,6 +3073,8 @@
                     }
                 },
                 "required": [
+                    "effectiveFrom",
+                    "effectiveTo",
                     "exceptions",
                     "weeklyRules"
                 ],
@@ -4650,6 +4698,52 @@
                 ],
                 "type": "object"
             },
+            "ScheduleSlotResponse": {
+                "description": "\uc77c\uc815 \uc2ac\ub86f (30\ubd84 48\uc2ac\ub86f, [startSlot, endSlot) \ubc18\uc5f4\ub9b0 \uad6c\uac04)",
+                "properties": {
+                    "date": {
+                        "description": "\ub0a0\uc9dc",
+                        "example": "2026-06-13",
+                        "format": "date",
+                        "type": "string"
+                    },
+                    "endSlot": {
+                        "description": "\uc885\ub8cc \uc2ac\ub86f (1~48, \ubbf8\ud3ec\ud568)",
+                        "example": 44,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "refId": {
+                        "description": "\uc5f0\uacb0 \ub9ac\uc18c\uc2a4 ID(\ud569\uc8fc/\uacf5\uc5f0 \ub4f1). \uac00\uc6a9\uc131 \uc2ac\ub86f\uc740 null",
+                        "type": "string"
+                    },
+                    "startSlot": {
+                        "description": "\uc2dc\uc791 \uc2ac\ub86f (0~47)",
+                        "example": 20,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "title": {
+                        "description": "\ud45c\uc2dc\uc6a9 \uc81c\ubaa9. \uac00\uc6a9\uc131 \uc2ac\ub86f\uc740 null",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "\uc2ac\ub86f \uc885\ub958",
+                        "enum": [
+                            "AVAILABLE"
+                        ],
+                        "example": "AVAILABLE",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "date",
+                    "endSlot",
+                    "startSlot",
+                    "type"
+                ],
+                "type": "object"
+            },
             "ScheduleUnconfirmResponse": {
                 "properties": {
                     "unconfirmedAt": {
@@ -5637,14 +5731,6 @@
                         ],
                         "type": "string"
                     },
-                    "effectiveFrom": {
-                        "format": "date",
-                        "type": "string"
-                    },
-                    "effectiveTo": {
-                        "format": "date",
-                        "type": "string"
-                    },
                     "endSlot": {
                         "format": "int32",
                         "type": "integer"
@@ -5656,7 +5742,6 @@
                 },
                 "required": [
                     "dayOfWeek",
-                    "effectiveFrom",
                     "endSlot",
                     "startSlot"
                 ],
@@ -7123,7 +7208,7 @@
                 ]
             },
             "put": {
-                "description": "\ubcf8\uc778\ub9cc \uc218\uc815 \uac00\ub2a5. weeklyRules/exceptions \uc804\uccb4 \uad50\uccb4.",
+                "description": "\ubcf8\uc778\ub9cc \uc218\uc815 \uac00\ub2a5. effectiveFrom~effectiveTo \uad6c\uac04\ub9cc \uad50\uccb4\ud558\uace0 \uad6c\uac04 \ubc16(\uacfc\uac70 \ud3ec\ud568)\uc740 \ubcf4\uc874\ud55c\ub2e4.",
                 "operationId": "updateMyAvailability",
                 "requestBody": {
                     "content": {
@@ -7148,6 +7233,48 @@
                     }
                 },
                 "summary": "\ub0b4 \uac00\uc6a9\uc131 \ub4f1\ub85d/\uc218\uc815",
+                "tags": [
+                    "member-availability"
+                ]
+            }
+        },
+        "/api/v1/me/availability/slots": {
+            "get": {
+                "description": "\uc870\ud68c \uae30\uac04(from~to, \ucd5c\ub300 366\uc77c)\uc5d0 \uc18d\ud55c \uac00\uc6a9 \uc2ac\ub86f\uc744 \ub0a0\uc9dc\ubcc4\ub85c \uc804\uac1c\ud574 \ubc18\ud658. \ud074\ub77c\uc774\uc5b8\ud2b8 \ucd94\uac00 \uacc4\uc0b0 \ubd88\ud544\uc694.",
+                "operationId": "getMyAvailabilitySlots",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "from",
+                        "required": true,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "to",
+                        "required": true,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListScheduleSlotResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub0b4 \uac00\uc6a9\uc131 \uc2ac\ub86f \uc870\ud68c",
                 "tags": [
                     "member-availability"
                 ]
@@ -10180,7 +10307,7 @@
     "servers": [
         {
             "description": "Generated server url",
-            "url": "http://bandage-band-manager:8080"
+            "url": "http://localhost:8080"
         }
     ],
     "tags": [
