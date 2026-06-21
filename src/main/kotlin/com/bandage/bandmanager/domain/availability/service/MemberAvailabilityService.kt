@@ -13,6 +13,7 @@ import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -78,6 +79,7 @@ class MemberAvailabilityService(
      * 내 가용성 등록/수정(범위 한정 교체). [effectiveFrom, effectiveTo] 구간만 교체하고 구간 밖은 보존한다.
      * - 구간에 걸치는 기존 주간 규칙은 경계에서 잘라낸다(머리/꼬리, 완전 포함이면 제거).
      * - 구간 안의 기존 예외는 제거하고 제출분으로 대체한다.
+     * - 잘린 조각/신규 규칙 중 같은 패턴이 맞닿으면 다시 병합(coalesce)해 파편화를 막는다.
      */
     @Transactional
     fun updateMyAvailability(
@@ -101,7 +103,7 @@ class MemberAvailabilityService(
         val keptRules = availability.weeklyRules.flatMap { clip(it, from, to) }
         val keptExceptions = availability.exceptions.filter { it.date.isBefore(from) || it.date.isAfter(to) }
 
-        availability.updateWeeklyRules(keptRules + newRules)
+        availability.updateWeeklyRules(coalesce(keptRules + newRules))
         availability.updateExceptions(keptExceptions + newExceptions)
         availability.updateNote(request.note)
 
@@ -134,6 +136,47 @@ class MemberAvailabilityService(
         }
         return result
     }
+
+    /**
+     * 같은 패턴(dayOfWeek, startSlot, endSlot)의 규칙들 중 날짜 구간이 맞닿거나 겹치는 것을 하나로 병합한다.
+     * 동일 패턴을 부분 구간에 다시 칠하거나 clip 으로 쪼개진 조각이 그대로 쌓이는 파편화를 막아,
+     * 저장 레벨에서도 멱등이 되게 한다. (무기한 effectiveTo == null 꼬리 포함)
+     */
+    private fun coalesce(rules: List<WeeklyRule>): List<WeeklyRule> =
+        rules
+            .groupBy { Triple(it.dayOfWeek, it.startSlot, it.endSlot) }
+            .flatMap { (pattern, group) -> mergeContiguous(pattern, group) }
+
+    private fun mergeContiguous(
+        pattern: Triple<DayOfWeek, Int, Int>,
+        group: List<WeeklyRule>,
+    ): List<WeeklyRule> {
+        val sorted = group.sortedWith(compareBy({ it.effectiveFrom }, { it.effectiveTo ?: LocalDate.MAX }))
+        val merged = mutableListOf<WeeklyRule>()
+        var from = sorted.first().effectiveFrom
+        var to: LocalDate? = sorted.first().effectiveTo
+        for (rule in sorted.drop(1)) {
+            val curTo = to
+            val ruleTo = rule.effectiveTo
+            // 무기한 꼬리(curTo == null)는 이후 전부 흡수. 그 외엔 맞닿음(curTo+1)/겹침이면 병합.
+            val contiguous = curTo == null || !rule.effectiveFrom.isAfter(curTo.plusDays(1))
+            if (contiguous) {
+                to = if (curTo == null || ruleTo == null) null else maxOf(curTo, ruleTo)
+            } else {
+                merged += ruleOf(pattern, from, curTo)
+                from = rule.effectiveFrom
+                to = ruleTo
+            }
+        }
+        merged += ruleOf(pattern, from, to)
+        return merged
+    }
+
+    private fun ruleOf(
+        pattern: Triple<DayOfWeek, Int, Int>,
+        from: LocalDate,
+        to: LocalDate?,
+    ): WeeklyRule = WeeklyRule(pattern.first, pattern.second, pattern.third, from, to)
 
     // 슬롯/기간 검증은 Embeddable init 에서 수행되므로, 생성 실패 시 BusinessException 으로 변환한다.
     private fun parseWeeklyRules(request: MemberAvailabilityRequest): List<WeeklyRule> =
