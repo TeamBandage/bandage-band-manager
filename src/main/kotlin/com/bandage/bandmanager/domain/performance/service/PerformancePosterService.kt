@@ -1,7 +1,6 @@
 package com.bandage.bandmanager.domain.performance.service
 
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterCreateRequest
-import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterPresignRequest
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterUpdateRequest
 import com.bandage.bandmanager.domain.performance.dto.res.PerformancePosterResponse
 import com.bandage.bandmanager.domain.performance.model.Performance
@@ -12,6 +11,7 @@ import com.bandage.bandmanager.domain.performance.repository.PerformanceReposito
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
+import com.bandage.bandmanager.global.infra.s3.ImagePresignRequest
 import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.infra.s3.ImagePresignSupport
 import org.springframework.data.repository.findByIdOrNull
@@ -31,14 +31,12 @@ class PerformancePosterService(
     /** 공연 포스터 업로드용 presigned URL 발급. OWNER/MANAGER만 가능. 응답 objectKey 를 포스터 등록 시 imageKey 로 전달. */
     fun issuePresignedUrl(
         performanceId: UUID,
-        request: PerformancePosterPresignRequest,
+        request: ImagePresignRequest,
         memberId: Long,
     ): ImagePresignResponse {
         val performance = requirePerformance(performanceId)
         validateParticipant(performance, memberId)
-        return imagePresignSupport.issue(request.contentType, request.ext, request.contentLength) { ext ->
-            "poster/performance/$performanceId/${UUID.randomUUID()}.$ext"
-        }
+        return imagePresignSupport.issue(request, "poster/performance/$performanceId")
     }
 
     @Transactional

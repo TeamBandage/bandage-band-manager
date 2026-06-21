@@ -1,12 +1,12 @@
-package com.bandage.bandmanager.domain.band.dto.req
+package com.bandage.bandmanager.global.infra.s3
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 
-@Schema(description = "밴드 프로필 이미지 업로드용 presigned URL 발급 요청")
-data class BandProfileImagePresignRequest(
+@Schema(description = "이미지 업로드용 presigned URL 발급 요청")
+data class ImagePresignRequest(
     @field:NotBlank
     @Schema(description = "업로드할 파일의 Content-Type", example = "image/jpeg")
     val contentType: String,

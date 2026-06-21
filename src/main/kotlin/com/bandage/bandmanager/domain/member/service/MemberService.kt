@@ -4,7 +4,6 @@ import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.jam.repository.JamParticipantRepository
 import com.bandage.bandmanager.domain.member.dto.req.MemberCreateRequest
 import com.bandage.bandmanager.domain.member.dto.req.MemberInfoUpdateRequest
-import com.bandage.bandmanager.domain.member.dto.req.MemberProfileImagePresignRequest
 import com.bandage.bandmanager.domain.member.dto.res.MemberInfoResponse
 import com.bandage.bandmanager.domain.member.dto.res.MemberSearchItemResponse
 import com.bandage.bandmanager.domain.member.model.Member
@@ -12,12 +11,12 @@ import com.bandage.bandmanager.domain.member.repository.MemberRepository
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
+import com.bandage.bandmanager.global.infra.s3.ImagePresignRequest
 import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.infra.s3.ImagePresignSupport
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
@@ -87,12 +86,9 @@ class MemberService(
 
     /** 회원 본인 프로필 이미지 업로드용 presigned URL 발급. 응답 objectKey 를 회원 정보 수정 시 profileImg 로 전달. */
     fun issueProfileImagePresignedUrl(
-        request: MemberProfileImagePresignRequest,
+        request: ImagePresignRequest,
         memberId: Long,
-    ): ImagePresignResponse =
-        imagePresignSupport.issue(request.contentType, request.ext, request.contentLength) { ext ->
-            "profile/member/$memberId/${UUID.randomUUID()}.$ext"
-        }
+    ): ImagePresignResponse = imagePresignSupport.issue(request, "profile/member/$memberId")
 
     fun searchMembers(
         keyword: String,

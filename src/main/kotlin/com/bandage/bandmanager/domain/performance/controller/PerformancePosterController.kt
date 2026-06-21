@@ -1,12 +1,12 @@
 package com.bandage.bandmanager.domain.performance.controller
 
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterCreateRequest
-import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterPresignRequest
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterUpdateRequest
 import com.bandage.bandmanager.domain.performance.dto.res.PerformancePosterResponse
 import com.bandage.bandmanager.domain.performance.service.PerformancePosterService
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
+import com.bandage.bandmanager.global.infra.s3.ImagePresignRequest
 import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.security.annotation.CurrentMemberId
 import io.swagger.v3.oas.annotations.Operation
@@ -37,7 +37,7 @@ class PerformancePosterController(
     )
     fun issuePresignedUrl(
         @RequestParam performanceId: UUID,
-        @Valid @RequestBody request: PerformancePosterPresignRequest,
+        @Valid @RequestBody request: ImagePresignRequest,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<ImagePresignResponse> = ApiResponse.success(performancePosterService.issuePresignedUrl(performanceId, request, memberId))
 
