@@ -6,10 +6,12 @@ import com.bandage.bandmanager.domain.band.dto.req.BandMemberRoleUpdateRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandPagingQuery
 import com.bandage.bandmanager.domain.band.dto.req.BandSearchQuery
 import com.bandage.bandmanager.domain.band.dto.req.BandUpdateRequest
+import com.bandage.bandmanager.domain.band.dto.req.MyBandApplicationPagingQuery
 import com.bandage.bandmanager.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.bandmanager.domain.band.dto.res.BandInfoResponse
 import com.bandage.bandmanager.domain.band.dto.res.BandMemberInfoResponse
 import com.bandage.bandmanager.domain.band.dto.res.BandResponse
+import com.bandage.bandmanager.domain.band.dto.res.MyBandApplicationInfoResponse
 import com.bandage.bandmanager.domain.band.dto.res.MyBandInfoResponse
 import com.bandage.bandmanager.domain.band.model.Band
 import com.bandage.bandmanager.domain.band.model.BandApplication
@@ -163,6 +165,29 @@ class BandService(
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
+    }
+
+    fun getMyApplicationsByCursor(
+        memberId: Long,
+        query: MyBandApplicationPagingQuery,
+    ): CursorResponse<MyBandApplicationInfoResponse, UUID> {
+        val result = applicationRepository.findAllByMemberPaging(query.lastId, query.pageSize, query.status, memberId)
+        return CursorResponse(
+            content = result.content.map { MyBandApplicationInfoResponse.of(it, profileImageUrl(it.band.profileImg)) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
+    }
+
+    fun getMyApplicationForBand(
+        bandId: UUID,
+        memberId: Long,
+    ): MyBandApplicationInfoResponse {
+        val band = getBand(bandId)
+        val application =
+            applicationRepository.findTopByBandAndMemberOrderByCreatedAtDesc(band, memberId)
+                ?: throw BusinessException(ErrorCode.BAND_APPLICATION_NOT_FOUND)
+        return MyBandApplicationInfoResponse.of(application, profileImageUrl(band.profileImg))
     }
 
     private data class MemberProfileInfo(

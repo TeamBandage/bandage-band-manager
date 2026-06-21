@@ -1,17 +1,14 @@
 package com.bandage.bandmanager.domain.band.controller
 
-import com.bandage.bandmanager.domain.band.dto.req.BandApplicationPagingQuery
 import com.bandage.bandmanager.domain.band.dto.req.BandCreateRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandMemberRoleUpdateRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandPagingQuery
 import com.bandage.bandmanager.domain.band.dto.req.BandSearchQuery
 import com.bandage.bandmanager.domain.band.dto.req.BandUpdateRequest
-import com.bandage.bandmanager.domain.band.dto.res.BandApplicationInfoResponse
 import com.bandage.bandmanager.domain.band.dto.res.BandInfoResponse
 import com.bandage.bandmanager.domain.band.dto.res.BandMemberInfoResponse
 import com.bandage.bandmanager.domain.band.dto.res.BandResponse
 import com.bandage.bandmanager.domain.band.dto.res.MyBandInfoResponse
-import com.bandage.bandmanager.domain.band.model.enums.ApplicationStatus
 import com.bandage.bandmanager.domain.band.service.BandService
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
@@ -27,7 +24,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -46,19 +42,6 @@ class BandController(
         ApiResponse.success(
             bandService.createBand(request, memberId),
         )
-
-    @PostMapping("/{bandId}/applications")
-    @Operation(operationId = "applyToJoin", summary = "밴드 가입 신청 API", description = "특정 밴드에 가입하기 위해 승인 요청을 보냅니다.")
-    fun applyToJoin(
-        @PathVariable bandId: UUID,
-        @CurrentMemberId memberId: Long,
-    ): ApiResponse<Unit> {
-        bandService.createBandApplication(
-            bandId = bandId,
-            memberId = memberId,
-        )
-        return ApiResponse.success()
-    }
 
     @GetMapping("/{bandId}")
     @Operation(operationId = "getBand", summary = "밴드 단건 조회 API", description = "밴드 고유 식별 ID를 통해 밴드 정보를 조회합니다.")
@@ -102,40 +85,6 @@ class BandController(
         @Valid query: BandPagingQuery,
         @PathVariable bandId: UUID,
     ): ApiResponse<CursorResponse<BandMemberInfoResponse, UUID>> = ApiResponse.success(bandService.getBandMembersByCursor(query, bandId))
-
-    @GetMapping("/{bandId}/applications")
-    @Operation(operationId = "getBandApplications", summary = "밴드 가입 신청 목록 조회 API", description = "필터 조건에 맞는 해당 밴드 가입 요청 목록을 확인합니다.")
-    fun getBandApplications(
-        @PathVariable bandId: UUID,
-        @Valid query: BandApplicationPagingQuery,
-        @CurrentMemberId memberId: Long,
-    ): ApiResponse<CursorResponse<BandApplicationInfoResponse, UUID>> =
-        ApiResponse.success(bandService.getBandApplicationsByCursor(bandId, query, memberId))
-
-    @PatchMapping("/{bandId}/applications/me")
-    @Operation(operationId = "withdrawApplication", summary = "밴드 가입 신청 철회 API", description = "승인 대기 중인 본인의 가입 신청을 취소합니다.")
-    fun withdrawApplication(
-        @PathVariable bandId: UUID,
-        @CurrentMemberId memberId: Long,
-    ): ApiResponse<Unit> {
-        bandService.withdrawBandApplication(
-            bandId = bandId,
-            memberId = memberId,
-        )
-        return ApiResponse.success()
-    }
-
-    @PatchMapping("/{bandId}/applications/{bandApplicationId}")
-    @Operation(operationId = "processApplication", summary = "밴드 가입 신청 승인/거절 API", description = "리더가 특정 신청 건의 상태를 승인 혹은 거절로 변경합니다.")
-    fun processApplication(
-        @PathVariable bandId: UUID,
-        @PathVariable bandApplicationId: UUID,
-        @CurrentMemberId memberId: Long,
-        @RequestParam status: ApplicationStatus,
-    ): ApiResponse<Unit> {
-        bandService.processBandApplication(bandId, bandApplicationId, memberId, status)
-        return ApiResponse.success()
-    }
 
     @PatchMapping("/{bandId}/members/{bandMemberId}/role")
     @Operation(
