@@ -1773,38 +1773,38 @@
                 "type": "object"
             },
             "BandApplicationInfoResponse": {
-                "description": "밴드 가입 신청 단건 조회 응답",
+                "description": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \ub2e8\uac74 \uc870\ud68c \uc751\ub2f5",
                 "properties": {
                     "applicantName": {
-                        "description": "신청자 이름",
-                        "example": "홍길동",
+                        "description": "\uc2e0\uccad\uc790 \uc774\ub984",
+                        "example": "\ud64d\uae38\ub3d9",
                         "type": "string"
                     },
                     "applicantProfileImg": {
-                        "description": "신청자 프로필 이미지 URL",
+                        "description": "\uc2e0\uccad\uc790 \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 URL",
                         "example": "https://cdn/...jpg",
                         "type": "string"
                     },
                     "appliedAt": {
-                        "description": "신청 일시",
+                        "description": "\uc2e0\uccad \uc77c\uc2dc",
                         "example": "2026-04-26T12:34:56",
                         "format": "date-time",
                         "type": "string"
                     },
                     "bandApplicationId": {
-                        "description": "밴드 가입 신청 고유 식별자 (UUID)",
+                        "description": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "memberId": {
-                        "description": "가입 신청 회원 고유 식별자 (Long)",
+                        "description": "\uac00\uc785 \uc2e0\uccad \ud68c\uc6d0 \uace0\uc720 \uc2dd\ubcc4\uc790 (Long)",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
                     },
                     "status": {
-                        "description": "가입 신청 처리 상태",
+                        "description": "\uac00\uc785 \uc2e0\uccad \ucc98\ub9ac \uc0c1\ud0dc",
                         "enum": [
                             "PENDING",
                             "REJECTED",
@@ -1853,22 +1853,22 @@
                 "type": "object"
             },
             "BandCreateRequest": {
-                "description": "밴드 생성 요청",
+                "description": "\ubc34\ub4dc \uc0dd\uc131 \uc694\uccad",
                 "properties": {
                     "description": {
-                        "description": "밴드 상세 설명/소개",
-                        "example": "성균관대학교 문과대 락밴드 TuNA 입니다.",
+                        "description": "\ubc34\ub4dc \uc0c1\uc138 \uc124\uba85/\uc18c\uac1c",
+                        "example": "\uc131\uade0\uad00\ub300\ud559\uad50 \ubb38\uacfc\ub300 \ub77d\ubc34\ub4dc TuNA \uc785\ub2c8\ub2e4.",
                         "minLength": 1,
                         "type": "string"
                     },
                     "name": {
-                        "description": "밴드 이름",
+                        "description": "\ubc34\ub4dc \uc774\ub984",
                         "example": "TuNA",
                         "minLength": 1,
                         "type": "string"
                     },
                     "profileImg": {
-                        "description": "밴드 프로필 이미지 Url (optional)",
+                        "description": "\ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 Url (optional)",
                         "example": "url",
                         "type": "string"
                     }
@@ -1880,26 +1880,26 @@
                 "type": "object"
             },
             "BandInfoResponse": {
-                "description": "밴드 API 상세 조회 응답",
+                "description": "\ubc34\ub4dc API \uc0c1\uc138 \uc870\ud68c \uc751\ub2f5",
                 "properties": {
                     "bandId": {
-                        "description": "밴드 고유 식별자 (UUID)",
+                        "description": "\ubc34\ub4dc \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "bandName": {
-                        "description": "밴드 이름",
+                        "description": "\ubc34\ub4dc \uc774\ub984",
                         "example": "TuNA",
                         "type": "string"
                     },
                     "description": {
-                        "description": "밴드 상세 설명",
-                        "example": "성균관대학교 문과대 락밴드 TuNA 입니다.",
+                        "description": "\ubc34\ub4dc \uc0c1\uc138 \uc124\uba85",
+                        "example": "\uc131\uade0\uad00\ub300\ud559\uad50 \ubb38\uacfc\ub300 \ub77d\ubc34\ub4dc TuNA \uc785\ub2c8\ub2e4.",
                         "type": "string"
                     },
                     "profileImg": {
-                        "description": "밴드 프로필 이미지 presigned GET URL (없으면 null)",
+                        "description": "\ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 presigned GET URL (\uc5c6\uc73c\uba74 null)",
                         "example": "https://bucket.s3.../...&X-Amz-...",
                         "type": "string"
                     }
@@ -1911,32 +1911,32 @@
                 "type": "object"
             },
             "BandMemberInfoResponse": {
-                "description": "밴드 멤버 상세 조회 응답",
+                "description": "\ubc34\ub4dc \uba64\ubc84 \uc0c1\uc138 \uc870\ud68c \uc751\ub2f5",
                 "properties": {
                     "bandMemberId": {
-                        "description": "밴드 멤버 고유 식별자 (UUID)",
+                        "description": "\ubc34\ub4dc \uba64\ubc84 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "memberId": {
-                        "description": "회원 고유 식별자 (Long)",
+                        "description": "\ud68c\uc6d0 \uace0\uc720 \uc2dd\ubcc4\uc790 (Long)",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
                     },
                     "name": {
-                        "description": "회원 이름",
-                        "example": "홍길동",
+                        "description": "\ud68c\uc6d0 \uc774\ub984",
+                        "example": "\ud64d\uae38\ub3d9",
                         "type": "string"
                     },
                     "profileImg": {
-                        "description": "회원 프로필 이미지 URL",
+                        "description": "\ud68c\uc6d0 \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 URL",
                         "example": "https://cdn/...jpg",
                         "type": "string"
                     },
                     "role": {
-                        "description": "밴드 멤버 역할",
+                        "description": "\ubc34\ub4dc \uba64\ubc84 \uc5ed\ud560",
                         "enum": [
                             "LEADER",
                             "ADMIN",
@@ -1954,10 +1954,10 @@
                 "type": "object"
             },
             "BandMemberRoleUpdateRequest": {
-                "description": "밴드 멤버 역할 변경 요청",
+                "description": "\ubc34\ub4dc \uba64\ubc84 \uc5ed\ud560 \ubcc0\uacbd \uc694\uccad",
                 "properties": {
                     "role": {
-                        "description": "변경할 역할 (ADMIN | MEMBER). LEADER 위임은 별도 API 사용",
+                        "description": "\ubcc0\uacbd\ud560 \uc5ed\ud560 (ADMIN | MEMBER). LEADER \uc704\uc784\uc740 \ubcc4\ub3c4 API \uc0ac\uc6a9",
                         "enum": [
                             "LEADER",
                             "ADMIN",
@@ -1991,16 +1991,16 @@
                 "type": "object"
             },
             "BandResponse": {
-                "description": "밴드 API 기본 응답",
+                "description": "\ubc34\ub4dc API \uae30\ubcf8 \uc751\ub2f5",
                 "properties": {
                     "bandId": {
-                        "description": "밴드 고유 식별자 (UUID)",
+                        "description": "\ubc34\ub4dc \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "bandName": {
-                        "description": "밴드 이름",
+                        "description": "\ubc34\ub4dc \uc774\ub984",
                         "example": "TuNA",
                         "type": "string"
                     }
@@ -2012,22 +2012,22 @@
                 "type": "object"
             },
             "BandSearchQuery": {
-                "description": "밴드 검색 쿼리",
+                "description": "\ubc34\ub4dc \uac80\uc0c9 \ucffc\ub9ac",
                 "properties": {
                     "keyword": {
-                        "description": "검색 키워드 (밴드 이름)",
+                        "description": "\uac80\uc0c9 \ud0a4\uc6cc\ub4dc (\ubc34\ub4dc \uc774\ub984)",
                         "example": "TuNA",
                         "minLength": 1,
                         "type": "string"
                     },
                     "lastId": {
-                        "description": "마지막으로 조회된 밴드 ID (커서)",
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \ubc34\ub4dc ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "pageSize": {
-                        "description": "페이지 크기",
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
                         "example": 10,
                         "format": "int32",
                         "maximum": 100,
@@ -2042,20 +2042,20 @@
                 "type": "object"
             },
             "BandUpdateRequest": {
-                "description": "밴드 정보 수정 요청 (부분 수정)",
+                "description": "\ubc34\ub4dc \uc815\ubcf4 \uc218\uc815 \uc694\uccad (\ubd80\ubd84 \uc218\uc815)",
                 "properties": {
                     "description": {
-                        "description": "밴드 상세 설명",
-                        "example": "성균관대학교 락밴드입니다.",
+                        "description": "\ubc34\ub4dc \uc0c1\uc138 \uc124\uba85",
+                        "example": "\uc131\uade0\uad00\ub300\ud559\uad50 \ub77d\ubc34\ub4dc\uc785\ub2c8\ub2e4.",
                         "type": "string"
                     },
                     "name": {
-                        "description": "밴드 이름",
+                        "description": "\ubc34\ub4dc \uc774\ub984",
                         "example": "TuNA",
                         "type": "string"
                     },
                     "profileImg": {
-                        "description": "프로필 이미지 URL",
+                        "description": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 URL",
                         "example": "https://cdn/...jpg",
                         "type": "string"
                     }
@@ -2120,7 +2120,7 @@
                 "type": "object"
             },
             "CursorResponseBandApplicationInfoResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2143,7 +2143,7 @@
                 "type": "object"
             },
             "CursorResponseBandInfoResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2166,7 +2166,7 @@
                 "type": "object"
             },
             "CursorResponseBandMemberInfoResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2189,7 +2189,7 @@
                 "type": "object"
             },
             "CursorResponseJamListResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2212,7 +2212,7 @@
                 "type": "object"
             },
             "CursorResponseMyBandApplicationInfoResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2235,7 +2235,7 @@
                 "type": "object"
             },
             "CursorResponseMyBandInfoResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2258,7 +2258,7 @@
                 "type": "object"
             },
             "CursorResponseNotificationResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2281,7 +2281,7 @@
                 "type": "object"
             },
             "CursorResponsePerformanceListResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2304,7 +2304,7 @@
                 "type": "object"
             },
             "CursorResponseSetlistChatMessageResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2327,7 +2327,7 @@
                 "type": "object"
             },
             "CursorResponseSetlistResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2350,7 +2350,7 @@
                 "type": "object"
             },
             "CursorResponseSetlistTrackResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2373,7 +2373,7 @@
                 "type": "object"
             },
             "CursorResponseTrackSelectionItemResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2396,7 +2396,7 @@
                 "type": "object"
             },
             "CursorResponseTrackSelectionResponseUUID": {
-                "description": "커서 기반 페이징 응답",
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
                 "properties": {
                     "content": {
                         "items": {
@@ -2419,10 +2419,10 @@
                 "type": "object"
             },
             "GoogleLoginRequest": {
-                "description": "Google OAuth 로그인 요청",
+                "description": "Google OAuth \ub85c\uadf8\uc778 \uc694\uccad",
                 "properties": {
                     "idToken": {
-                        "description": "Google OAuth ID token (FE 에서 GIS 로 발급받은 JWT 형식 토큰)",
+                        "description": "Google OAuth ID token (FE \uc5d0\uc11c GIS \ub85c \ubc1c\uae09\ubc1b\uc740 JWT \ud615\uc2dd \ud1a0\ud070)",
                         "example": "eyJhbGciOi...",
                         "minLength": 1,
                         "type": "string"
@@ -2434,44 +2434,44 @@
                 "type": "object"
             },
             "JamCreateRequest": {
-                "description": "합주 생성 요청",
+                "description": "\ud569\uc8fc \uc0dd\uc131 \uc694\uccad",
                 "properties": {
                     "durationMinutes": {
-                        "description": "합주 시간 (분)",
+                        "description": "\ud569\uc8fc \uc2dc\uac04 (\ubd84)",
                         "example": 60,
                         "format": "int32",
                         "minimum": 1,
                         "type": "integer"
                     },
                     "note": {
-                        "description": "합주 메모",
+                        "description": "\ud569\uc8fc \uba54\ubaa8",
                         "type": "string"
                     },
                     "sessions": {
-                        "description": "세션 정의 목록",
+                        "description": "\uc138\uc158 \uc815\uc758 \ubaa9\ub85d",
                         "items": {
                             "$ref": "#/components/schemas/SessionDefDto"
                         },
                         "type": "array"
                     },
                     "startAt": {
-                        "description": "합주 시작 시간 (현재 이후만 허용)",
+                        "description": "\ud569\uc8fc \uc2dc\uc791 \uc2dc\uac04 (\ud604\uc7ac \uc774\ud6c4\ub9cc \ud5c8\uc6a9)",
                         "example": "2026-03-15 18:00",
                         "format": "date-time",
                         "type": "string"
                     },
                     "title": {
-                        "description": "합주 타이틀 (미입력 시 곡 제목 승계)",
-                        "example": "TuNA 정기공연 1주차 합주",
+                        "description": "\ud569\uc8fc \ud0c0\uc774\ud2c0 (\ubbf8\uc785\ub825 \uc2dc \uace1 \uc81c\ubaa9 \uc2b9\uacc4)",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 1\uc8fc\ucc28 \ud569\uc8fc",
                         "type": "string"
                     },
                     "track": {
                         "$ref": "#/components/schemas/TrackInfoRequest",
-                        "description": "곡 정보"
+                        "description": "\uace1 \uc815\ubcf4"
                     },
                     "venue": {
-                        "description": "합주 장소",
-                        "example": "홍대 스튜디오",
+                        "description": "\ud569\uc8fc \uc7a5\uc18c",
+                        "example": "\ud64d\ub300 \uc2a4\ud29c\ub514\uc624",
                         "type": "string"
                     }
                 },
@@ -2510,60 +2510,60 @@
                 "type": "object"
             },
             "JamDetailResponse": {
-                "description": "합주 상세 조회 응답",
+                "description": "\ud569\uc8fc \uc0c1\uc138 \uc870\ud68c \uc751\ub2f5",
                 "properties": {
                     "durationMinutes": {
-                        "description": "합주 시간 (분)",
+                        "description": "\ud569\uc8fc \uc2dc\uac04 (\ubd84)",
                         "example": 60,
                         "format": "int32",
                         "type": "integer"
                     },
                     "jamId": {
-                        "description": "합주 고유 식별자 (UUID)",
+                        "description": "\ud569\uc8fc \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "note": {
-                        "description": "합주 메모",
+                        "description": "\ud569\uc8fc \uba54\ubaa8",
                         "type": "string"
                     },
                     "participants": {
-                        "description": "참여자 목록",
+                        "description": "\ucc38\uc5ec\uc790 \ubaa9\ub85d",
                         "items": {
                             "$ref": "#/components/schemas/JamParticipantResponse"
                         },
                         "type": "array"
                     },
                     "sessions": {
-                        "description": "세션 목록",
+                        "description": "\uc138\uc158 \ubaa9\ub85d",
                         "items": {
                             "$ref": "#/components/schemas/JamSessionResponse"
                         },
                         "type": "array"
                     },
                     "setlistId": {
-                        "description": "원본 셋리스트 ID (Setlist 경유 생성 시). 독립 생성 시 null",
+                        "description": "\uc6d0\ubcf8 \uc14b\ub9ac\uc2a4\ud2b8 ID (Setlist \uacbd\uc720 \uc0dd\uc131 \uc2dc). \ub3c5\ub9bd \uc0dd\uc131 \uc2dc null",
                         "format": "uuid",
                         "type": "string"
                     },
                     "startAt": {
-                        "description": "합주 시작 시간",
+                        "description": "\ud569\uc8fc \uc2dc\uc791 \uc2dc\uac04",
                         "example": "2026-03-15 18:00",
                         "format": "date-time",
                         "type": "string"
                     },
                     "title": {
-                        "description": "합주 타이틀",
-                        "example": "TuNA 정기공연 1주차 합주",
+                        "description": "\ud569\uc8fc \ud0c0\uc774\ud2c0",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 1\uc8fc\ucc28 \ud569\uc8fc",
                         "type": "string"
                     },
                     "track": {
                         "$ref": "#/components/schemas/TrackInfoResponse",
-                        "description": "곡 정보"
+                        "description": "\uace1 \uc815\ubcf4"
                     },
                     "venue": {
-                        "description": "합주 장소",
+                        "description": "\ud569\uc8fc \uc7a5\uc18c",
                         "example": "Club FF",
                         "type": "string"
                     }
@@ -2580,34 +2580,34 @@
                 "type": "object"
             },
             "JamListResponse": {
-                "description": "합주 목록 조회 응답",
+                "description": "\ud569\uc8fc \ubaa9\ub85d \uc870\ud68c \uc751\ub2f5",
                 "properties": {
                     "durationMinutes": {
-                        "description": "합주 시간 (분)",
+                        "description": "\ud569\uc8fc \uc2dc\uac04 (\ubd84)",
                         "example": 60,
                         "format": "int32",
                         "type": "integer"
                     },
                     "jamId": {
-                        "description": "합주 고유 식별자 (UUID)",
+                        "description": "\ud569\uc8fc \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "startAt": {
-                        "description": "합주 시작 시간",
+                        "description": "\ud569\uc8fc \uc2dc\uc791 \uc2dc\uac04",
                         "example": "2026-03-15 18:00",
                         "format": "date-time",
                         "type": "string"
                     },
                     "title": {
-                        "description": "합주 타이틀",
-                        "example": "TuNA 정기공연 1주차 합주",
+                        "description": "\ud569\uc8fc \ud0c0\uc774\ud2c0",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 1\uc8fc\ucc28 \ud569\uc8fc",
                         "type": "string"
                     },
                     "venue": {
-                        "description": "합주 장소",
-                        "example": "홍대 스튜디오",
+                        "description": "\ud569\uc8fc \uc7a5\uc18c",
+                        "example": "\ud64d\ub300 \uc2a4\ud29c\ub514\uc624",
                         "type": "string"
                     }
                 },
@@ -2620,16 +2620,16 @@
                 "type": "object"
             },
             "JamMemberAddRequest": {
-                "description": "합주 세션 참여자 추가 요청",
+                "description": "\ud569\uc8fc \uc138\uc158 \ucc38\uc5ec\uc790 \ucd94\uac00 \uc694\uccad",
                 "properties": {
                     "memberId": {
-                        "description": "추가할 회원 아이디",
+                        "description": "\ucd94\uac00\ud560 \ud68c\uc6d0 \uc544\uc774\ub514",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
                     },
                     "sessionId": {
-                        "description": "세션 토큰(SessionDef.sessionId)",
+                        "description": "\uc138\uc158 \ud1a0\ud070(SessionDef.sessionId)",
                         "example": "G",
                         "minLength": 1,
                         "type": "string"
@@ -2642,16 +2642,16 @@
                 "type": "object"
             },
             "JamPagingQuery": {
-                "description": "합주 목록 조회 쿼리",
+                "description": "\ud569\uc8fc \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
                     "lastId": {
-                        "description": "마지막으로 조회된 합주 ID (커서)",
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \ud569\uc8fc ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "pageSize": {
-                        "description": "페이지 크기",
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
                         "example": 10,
                         "format": "int32",
                         "maximum": 100,
@@ -2665,22 +2665,22 @@
                 "type": "object"
             },
             "JamParticipantResponse": {
-                "description": "합주 참여자 응답",
+                "description": "\ud569\uc8fc \ucc38\uc5ec\uc790 \uc751\ub2f5",
                 "properties": {
                     "memberId": {
-                        "description": "회원 고유 식별자 (Long)",
+                        "description": "\ud68c\uc6d0 \uace0\uc720 \uc2dd\ubcc4\uc790 (Long)",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
                     },
                     "participantId": {
-                        "description": "참여자 고유 식별자 (UUID)",
+                        "description": "\ucc38\uc5ec\uc790 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "sessionId": {
-                        "description": "세션 토큰(SessionDef.sessionId)",
+                        "description": "\uc138\uc158 \ud1a0\ud070(SessionDef.sessionId)",
                         "example": "G",
                         "type": "string"
                     }
@@ -2693,16 +2693,16 @@
                 "type": "object"
             },
             "JamResponse": {
-                "description": "합주 API 기본 응답",
+                "description": "\ud569\uc8fc API \uae30\ubcf8 \uc751\ub2f5",
                 "properties": {
                     "jamId": {
-                        "description": "합주 고유 식별자 (UUID)",
+                        "description": "\ud569\uc8fc \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "jamTitle": {
-                        "description": "합주 타이틀",
+                        "description": "\ud569\uc8fc \ud0c0\uc774\ud2c0",
                         "example": "TuNA",
                         "type": "string"
                     }
@@ -2714,22 +2714,22 @@
                 "type": "object"
             },
             "JamSearchQuery": {
-                "description": "합주 검색 쿼리",
+                "description": "\ud569\uc8fc \uac80\uc0c9 \ucffc\ub9ac",
                 "properties": {
                     "keyword": {
-                        "description": "검색 키워드 (합주 타이틀 또는 곡 제목)",
+                        "description": "\uac80\uc0c9 \ud0a4\uc6cc\ub4dc (\ud569\uc8fc \ud0c0\uc774\ud2c0 \ub610\ub294 \uace1 \uc81c\ubaa9)",
                         "example": "Stairway",
                         "minLength": 1,
                         "type": "string"
                     },
                     "lastId": {
-                        "description": "마지막으로 조회된 합주 ID (커서)",
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \ud569\uc8fc ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "pageSize": {
-                        "description": "페이지 크기",
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
                         "example": 10,
                         "format": "int32",
                         "maximum": 100,
@@ -2744,26 +2744,26 @@
                 "type": "object"
             },
             "JamSessionResponse": {
-                "description": "합주 세션 응답",
+                "description": "\ud569\uc8fc \uc138\uc158 \uc751\ub2f5",
                 "properties": {
                     "custom": {
-                        "description": "커스텀 세션 여부",
+                        "description": "\ucee4\uc2a4\ud140 \uc138\uc158 \uc5ec\ubd80",
                         "example": false,
                         "type": "boolean"
                     },
                     "label": {
-                        "description": "세션 이름",
-                        "example": "기타",
+                        "description": "\uc138\uc158 \uc774\ub984",
+                        "example": "\uae30\ud0c0",
                         "type": "string"
                     },
                     "need": {
-                        "description": "정원",
+                        "description": "\uc815\uc6d0",
                         "example": 1,
                         "format": "int32",
                         "type": "integer"
                     },
                     "participants": {
-                        "description": "배정된 참여자 회원 ID 목록",
+                        "description": "\ubc30\uc815\ub41c \ucc38\uc5ec\uc790 \ud68c\uc6d0 ID \ubaa9\ub85d",
                         "items": {
                             "format": "int64",
                             "type": "integer"
@@ -2771,12 +2771,12 @@
                         "type": "array"
                     },
                     "sessionId": {
-                        "description": "세션 토큰",
+                        "description": "\uc138\uc158 \ud1a0\ud070",
                         "example": "G",
                         "type": "string"
                     },
                     "short": {
-                        "description": "표시용 약어",
+                        "description": "\ud45c\uc2dc\uc6a9 \uc57d\uc5b4",
                         "example": "G",
                         "type": "string"
                     }
@@ -2792,10 +2792,10 @@
                 "type": "object"
             },
             "JamSessionsUpdateRequest": {
-                "description": "합주 세션 정의 전체 교체 요청",
+                "description": "\ud569\uc8fc \uc138\uc158 \uc815\uc758 \uc804\uccb4 \uad50\uccb4 \uc694\uccad",
                 "properties": {
                     "sessions": {
-                        "description": "세션 정의 목록 (제공된 목록으로 전체 교체)",
+                        "description": "\uc138\uc158 \uc815\uc758 \ubaa9\ub85d (\uc81c\uacf5\ub41c \ubaa9\ub85d\uc73c\ub85c \uc804\uccb4 \uad50\uccb4)",
                         "items": {
                             "$ref": "#/components/schemas/SessionDefDto"
                         },
@@ -2808,17 +2808,17 @@
                 "type": "object"
             },
             "JamTimeInfoUpdateRequest": {
-                "description": "합주 일정 변경 요청",
+                "description": "\ud569\uc8fc \uc77c\uc815 \ubcc0\uacbd \uc694\uccad",
                 "properties": {
                     "durationMinutes": {
-                        "description": "합주 시간 (분)",
+                        "description": "\ud569\uc8fc \uc2dc\uac04 (\ubd84)",
                         "example": 90,
                         "format": "int32",
                         "minimum": 1,
                         "type": "integer"
                     },
                     "startAt": {
-                        "description": "합주 시작 시간 (현재 이후만 허용)",
+                        "description": "\ud569\uc8fc \uc2dc\uc791 \uc2dc\uac04 (\ud604\uc7ac \uc774\ud6c4\ub9cc \ud5c8\uc6a9)",
                         "example": "2026-03-15 18:00",
                         "format": "date-time",
                         "type": "string"
@@ -2831,10 +2831,10 @@
                 "type": "object"
             },
             "JamVenueUpdateRequest": {
-                "description": "합주 장소 변경 요청",
+                "description": "\ud569\uc8fc \uc7a5\uc18c \ubcc0\uacbd \uc694\uccad",
                 "properties": {
                     "venue": {
-                        "description": "합주 장소",
+                        "description": "\ud569\uc8fc \uc7a5\uc18c",
                         "example": "Club FF",
                         "minLength": 1,
                         "type": "string"
@@ -2846,21 +2846,21 @@
                 "type": "object"
             },
             "KakaoLoginRequest": {
-                "description": "Kakao OAuth 로그인 요청",
+                "description": "Kakao OAuth \ub85c\uadf8\uc778 \uc694\uccad",
                 "properties": {
                     "code": {
-                        "description": "Kakao authorize 단계에서 받은 authorization code",
+                        "description": "Kakao authorize \ub2e8\uacc4\uc5d0\uc11c \ubc1b\uc740 authorization code",
                         "example": "abc123...",
                         "minLength": 1,
                         "type": "string"
                     },
                     "redirectUri": {
-                        "description": "FE 가 authorize 시 사용한 redirect URI. 카카오가 token 교환 시 동일성 검증",
+                        "description": "FE \uac00 authorize \uc2dc \uc0ac\uc6a9\ud55c redirect URI. \uce74\uce74\uc624\uac00 token \uad50\ud658 \uc2dc \ub3d9\uc77c\uc131 \uac80\uc99d",
                         "minLength": 1,
                         "type": "string"
                     },
                     "state": {
-                        "description": "(선택) FE CSRF state. BE 측 추가 검증이 필요한 경우만 사용",
+                        "description": "(\uc120\ud0dd) FE CSRF state. BE \uce21 \ucd94\uac00 \uac80\uc99d\uc774 \ud544\uc694\ud55c \uacbd\uc6b0\ub9cc \uc0ac\uc6a9",
                         "type": "string"
                     }
                 },
@@ -2930,32 +2930,32 @@
                 "type": "object"
             },
             "MemberInfoResponse": {
-                "description": "회원 정보 조회 응답",
+                "description": "\ud68c\uc6d0 \uc815\ubcf4 \uc870\ud68c \uc751\ub2f5",
                 "properties": {
                     "email": {
-                        "description": "회원 이메일",
+                        "description": "\ud68c\uc6d0 \uc774\uba54\uc77c",
                         "example": "member@google.com",
                         "type": "string"
                     },
                     "id": {
-                        "description": "회원 고유 식별자 (Long) — 프론트 호환용 alias",
+                        "description": "\ud68c\uc6d0 \uace0\uc720 \uc2dd\ubcc4\uc790 (Long) \u2014 \ud504\ub860\ud2b8 \ud638\ud658\uc6a9 alias",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
                     },
                     "memberId": {
-                        "description": "회원 고유 식별자 (Long)",
+                        "description": "\ud68c\uc6d0 \uace0\uc720 \uc2dd\ubcc4\uc790 (Long)",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
                     },
                     "name": {
-                        "description": "회원 이름",
-                        "example": "홍길동",
+                        "description": "\ud68c\uc6d0 \uc774\ub984",
+                        "example": "\ud64d\uae38\ub3d9",
                         "type": "string"
                     },
                     "profileImg": {
-                        "description": "프로필 이미지 URL (CloudFront, 없으면 null)",
+                        "description": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 URL (CloudFront, \uc5c6\uc73c\uba74 null)",
                         "example": "https://cdn.example.com/profile/member/1/uuid.jpg",
                         "type": "string"
                     }
@@ -2980,23 +2980,23 @@
                 "type": "object"
             },
             "MemberJoinRequest": {
-                "description": "회원 가입 요청",
+                "description": "\ud68c\uc6d0 \uac00\uc785 \uc694\uccad",
                 "properties": {
                     "email": {
-                        "description": "회원 이메일",
+                        "description": "\ud68c\uc6d0 \uc774\uba54\uc77c",
                         "example": "member@google.com",
                         "format": "email",
                         "minLength": 1,
                         "type": "string"
                     },
                     "name": {
-                        "description": "회원 이름",
-                        "example": "홍길동",
+                        "description": "\ud68c\uc6d0 \uc774\ub984",
+                        "example": "\ud64d\uae38\ub3d9",
                         "minLength": 1,
                         "type": "string"
                     },
                     "password": {
-                        "description": "회원 비밀번호",
+                        "description": "\ud68c\uc6d0 \ube44\ubc00\ubc88\ud638",
                         "example": "pw1234",
                         "minLength": 1,
                         "type": "string"
@@ -3010,16 +3010,16 @@
                 "type": "object"
             },
             "MemberLoginRequest": {
-                "description": "회원 로그인 요청",
+                "description": "\ud68c\uc6d0 \ub85c\uadf8\uc778 \uc694\uccad",
                 "properties": {
                     "email": {
-                        "description": "회원 이메일",
+                        "description": "\ud68c\uc6d0 \uc774\uba54\uc77c",
                         "example": "member@google.com",
                         "minLength": 1,
                         "type": "string"
                     },
                     "password": {
-                        "description": "회원 비밀번호",
+                        "description": "\ud68c\uc6d0 \ube44\ubc00\ubc88\ud638",
                         "example": "pw1234",
                         "minLength": 1,
                         "type": "string"
@@ -3032,10 +3032,10 @@
                 "type": "object"
             },
             "MemberLoginResponse": {
-                "description": "회원 로그인 응답",
+                "description": "\ud68c\uc6d0 \ub85c\uadf8\uc778 \uc751\ub2f5",
                 "properties": {
                     "accessToken": {
-                        "description": "회원 인증용 access 토큰",
+                        "description": "\ud68c\uc6d0 \uc778\uc99d\uc6a9 access \ud1a0\ud070",
                         "example": "ey1234...",
                         "type": "string"
                     }
@@ -3046,28 +3046,28 @@
                 "type": "object"
             },
             "MemberMetricsResponse": {
-                "description": "회원 메트릭 응답",
+                "description": "\ud68c\uc6d0 \uba54\ud2b8\ub9ad \uc751\ub2f5",
                 "properties": {
                     "bandCount": {
-                        "description": "본인이 소속된 밴드 수",
+                        "description": "\ubcf8\uc778\uc774 \uc18c\uc18d\ub41c \ubc34\ub4dc \uc218",
                         "example": 3,
                         "format": "int64",
                         "type": "integer"
                     },
                     "sessionCount": {
-                        "description": "본인이 참여 중인 합주 세션 수",
+                        "description": "\ubcf8\uc778\uc774 \ucc38\uc5ec \uc911\uc778 \ud569\uc8fc \uc138\uc158 \uc218",
                         "example": 5,
                         "format": "int64",
                         "type": "integer"
                     },
                     "upcomingJamCount": {
-                        "description": "본인이 참여한 다가오는 합주 수 (startAt > now)",
+                        "description": "\ubcf8\uc778\uc774 \ucc38\uc5ec\ud55c \ub2e4\uac00\uc624\ub294 \ud569\uc8fc \uc218 (startAt > now)",
                         "example": 2,
                         "format": "int64",
                         "type": "integer"
                     },
                     "upcomingPerformanceCount": {
-                        "description": "본인 밴드의 다가오는 공연 수 (startAt > now)",
+                        "description": "\ubcf8\uc778 \ubc34\ub4dc\uc758 \ub2e4\uac00\uc624\ub294 \uacf5\uc5f0 \uc218 (startAt > now)",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
@@ -3082,16 +3082,16 @@
                 "type": "object"
             },
             "MemberPasswordChangeRequest": {
-                "description": "회원 비밀번호 변경 요청",
+                "description": "\ud68c\uc6d0 \ube44\ubc00\ubc88\ud638 \ubcc0\uacbd \uc694\uccad",
                 "properties": {
                     "newPassword": {
-                        "description": "회원 이메일",
+                        "description": "\ud68c\uc6d0 \uc774\uba54\uc77c",
                         "example": "newPW123!",
                         "minLength": 1,
                         "type": "string"
                     },
                     "originalPassword": {
-                        "description": "기존 비밀번호",
+                        "description": "\uae30\uc874 \ube44\ubc00\ubc88\ud638",
                         "example": "originalPW123!",
                         "minLength": 1,
                         "type": "string"
@@ -3104,15 +3104,15 @@
                 "type": "object"
             },
             "MemberResponse": {
-                "description": "회원 API 기본 응답",
+                "description": "\ud68c\uc6d0 API \uae30\ubcf8 \uc751\ub2f5",
                 "properties": {
                     "email": {
-                        "description": "회원 이메일",
+                        "description": "\ud68c\uc6d0 \uc774\uba54\uc77c",
                         "example": "member@gmail.com",
                         "type": "string"
                     },
                     "id": {
-                        "description": "회원 아이디",
+                        "description": "\ud68c\uc6d0 \uc544\uc774\ub514",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
@@ -3232,26 +3232,26 @@
                 "type": "object"
             },
             "MemberSearchItemResponse": {
-                "description": "회원 검색 결과 아이템",
+                "description": "\ud68c\uc6d0 \uac80\uc0c9 \uacb0\uacfc \uc544\uc774\ud15c",
                 "properties": {
                     "email": {
-                        "description": "회원 이메일",
+                        "description": "\ud68c\uc6d0 \uc774\uba54\uc77c",
                         "example": "user@bandage.test",
                         "type": "string"
                     },
                     "memberId": {
-                        "description": "회원 고유 식별자 (Long)",
+                        "description": "\ud68c\uc6d0 \uace0\uc720 \uc2dd\ubcc4\uc790 (Long)",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
                     },
                     "name": {
-                        "description": "회원 이름",
-                        "example": "홍길동",
+                        "description": "\ud68c\uc6d0 \uc774\ub984",
+                        "example": "\ud64d\uae38\ub3d9",
                         "type": "string"
                     },
                     "profileImg": {
-                        "description": "프로필 이미지 URL (CloudFront)",
+                        "description": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 URL (CloudFront)",
                         "example": "https://cdn.example.com/profile/member/1/uuid.jpg",
                         "type": "string"
                     }
@@ -3264,38 +3264,38 @@
                 "type": "object"
             },
             "MyBandApplicationInfoResponse": {
-                "description": "내 밴드 가입 신청 항목 (신청 정보 + 대상 밴드 정보)",
+                "description": "\ub0b4 \ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \ud56d\ubaa9 (\uc2e0\uccad \uc815\ubcf4 + \ub300\uc0c1 \ubc34\ub4dc \uc815\ubcf4)",
                 "properties": {
                     "appliedAt": {
-                        "description": "신청 일시",
+                        "description": "\uc2e0\uccad \uc77c\uc2dc",
                         "example": "2026-04-26T12:34:56",
                         "format": "date-time",
                         "type": "string"
                     },
                     "bandApplicationId": {
-                        "description": "밴드 가입 신청 고유 식별자 (UUID)",
+                        "description": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "bandId": {
-                        "description": "신청 대상 밴드 고유 식별자 (UUID)",
+                        "description": "\uc2e0\uccad \ub300\uc0c1 \ubc34\ub4dc \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440001",
                         "format": "uuid",
                         "type": "string"
                     },
                     "bandName": {
-                        "description": "신청 대상 밴드 이름",
+                        "description": "\uc2e0\uccad \ub300\uc0c1 \ubc34\ub4dc \uc774\ub984",
                         "example": "TuNA",
                         "type": "string"
                     },
                     "bandProfileImg": {
-                        "description": "신청 대상 밴드 프로필 이미지 URL (없으면 null)",
+                        "description": "\uc2e0\uccad \ub300\uc0c1 \ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 URL (\uc5c6\uc73c\uba74 null)",
                         "example": "https://cdn/...jpg",
                         "type": "string"
                     },
                     "status": {
-                        "description": "가입 신청 처리 상태",
+                        "description": "\uac00\uc785 \uc2e0\uccad \ucc98\ub9ac \uc0c1\ud0dc",
                         "enum": [
                             "PENDING",
                             "REJECTED",
@@ -3345,25 +3345,25 @@
                 "type": "object"
             },
             "MyBandInfoResponse": {
-                "description": "내 밴드 목록 항목 (밴드 정보 + 본인 역할)",
+                "description": "\ub0b4 \ubc34\ub4dc \ubaa9\ub85d \ud56d\ubaa9 (\ubc34\ub4dc \uc815\ubcf4 + \ubcf8\uc778 \uc5ed\ud560)",
                 "properties": {
                     "bandId": {
-                        "description": "밴드 고유 식별자 (UUID)",
+                        "description": "\ubc34\ub4dc \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "bandName": {
-                        "description": "밴드 이름",
+                        "description": "\ubc34\ub4dc \uc774\ub984",
                         "example": "TuNA",
                         "type": "string"
                     },
                     "description": {
-                        "description": "밴드 상세 설명",
+                        "description": "\ubc34\ub4dc \uc0c1\uc138 \uc124\uba85",
                         "type": "string"
                     },
                     "myRole": {
-                        "description": "본인의 밴드 내 역할",
+                        "description": "\ubcf8\uc778\uc758 \ubc34\ub4dc \ub0b4 \uc5ed\ud560",
                         "enum": [
                             "LEADER",
                             "ADMIN",
@@ -3373,7 +3373,7 @@
                         "type": "string"
                     },
                     "profileImg": {
-                        "description": "밴드 프로필 이미지 url",
+                        "description": "\ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 url",
                         "type": "string"
                     }
                 },
@@ -3416,16 +3416,16 @@
                 "type": "object"
             },
             "NotificationPagingQuery": {
-                "description": "알림 목록 조회 쿼리",
+                "description": "\uc54c\ub9bc \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
                     "lastId": {
-                        "description": "마지막으로 조회된 알림 ID (커서)",
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \uc54c\ub9bc ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "pageSize": {
-                        "description": "페이지 크기",
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
                         "example": 20,
                         "format": "int32",
                         "maximum": 100,
@@ -3439,10 +3439,10 @@
                 "type": "object"
             },
             "NotificationResponse": {
-                "description": "알림 응답",
+                "description": "\uc54c\ub9bc \uc751\ub2f5",
                 "properties": {
                     "category": {
-                        "description": "알림 카테고리 (프론트 필터 키)",
+                        "description": "\uc54c\ub9bc \uce74\ud14c\uace0\ub9ac (\ud504\ub860\ud2b8 \ud544\ud130 \ud0a4)",
                         "enum": [
                             "BAND_APPLICATION",
                             "BAND_APPLICATION_RESULT",
@@ -3453,41 +3453,41 @@
                         "type": "string"
                     },
                     "createdAt": {
-                        "description": "생성 시각",
+                        "description": "\uc0dd\uc131 \uc2dc\uac01",
                         "example": "2026-06-20 17:30",
                         "format": "date-time",
                         "type": "string"
                     },
                     "id": {
-                        "description": "알림 고유 식별자 (UUID)",
+                        "description": "\uc54c\ub9bc \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "isRead": {
-                        "description": "읽음 여부",
+                        "description": "\uc77d\uc74c \uc5ec\ubd80",
                         "example": false,
                         "type": "boolean"
                     },
                     "message": {
-                        "description": "알림 메시지",
-                        "example": "밴드에 새로운 가입 신청이 접수되었습니다.",
+                        "description": "\uc54c\ub9bc \uba54\uc2dc\uc9c0",
+                        "example": "\ubc34\ub4dc\uc5d0 \uc0c8\ub85c\uc6b4 \uac00\uc785 \uc2e0\uccad\uc774 \uc811\uc218\ub418\uc5c8\uc2b5\ub2c8\ub2e4.",
                         "type": "string"
                     },
                     "readAt": {
-                        "description": "읽은 시각",
+                        "description": "\uc77d\uc740 \uc2dc\uac01",
                         "example": "2026-06-20 18:00",
                         "format": "date-time",
                         "type": "string"
                     },
                     "referenceId": {
-                        "description": "연관 리소스 ID (밴드/합주 등, 딥링크용)",
+                        "description": "\uc5f0\uad00 \ub9ac\uc18c\uc2a4 ID (\ubc34\ub4dc/\ud569\uc8fc \ub4f1, \ub525\ub9c1\ud06c\uc6a9)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "type": "string"
                     },
                     "title": {
-                        "description": "알림 제목",
-                        "example": "새로운 가입 신청",
+                        "description": "\uc54c\ub9bc \uc81c\ubaa9",
+                        "example": "\uc0c8\ub85c\uc6b4 \uac00\uc785 \uc2e0\uccad",
                         "type": "string"
                     }
                 },
@@ -3502,15 +3502,15 @@
                 "type": "object"
             },
             "OAuthLoginApiResponse": {
-                "description": "OAuth 로그인 API 응답",
+                "description": "OAuth \ub85c\uadf8\uc778 API \uc751\ub2f5",
                 "properties": {
                     "accessToken": {
-                        "description": "회원 인증용 access 토큰",
+                        "description": "\ud68c\uc6d0 \uc778\uc99d\uc6a9 access \ud1a0\ud070",
                         "example": "ey1234...",
                         "type": "string"
                     },
                     "isNewMember": {
-                        "description": "신규 가입 여부 (true: 회원가입 + 로그인, false: 기존 회원 로그인)",
+                        "description": "\uc2e0\uaddc \uac00\uc785 \uc5ec\ubd80 (true: \ud68c\uc6d0\uac00\uc785 + \ub85c\uadf8\uc778, false: \uae30\uc874 \ud68c\uc6d0 \ub85c\uadf8\uc778)",
                         "example": true,
                         "type": "boolean"
                     }
@@ -3522,10 +3522,10 @@
                 "type": "object"
             },
             "ParticipantAddDto": {
-                "description": "선곡 참여자 추가 항목",
+                "description": "\uc120\uace1 \ucc38\uc5ec\uc790 \ucd94\uac00 \ud56d\ubaa9",
                 "properties": {
                     "bandIds": {
-                        "description": "소속 밴드 ID 목록 (0..N)",
+                        "description": "\uc18c\uc18d \ubc34\ub4dc ID \ubaa9\ub85d (0..N)",
                         "items": {
                             "format": "uuid",
                             "type": "string"
@@ -3533,7 +3533,7 @@
                         "type": "array"
                     },
                     "memberId": {
-                        "description": "회원 ID",
+                        "description": "\ud68c\uc6d0 ID",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
@@ -3546,7 +3546,7 @@
                 "type": "object"
             },
             "ParticipantResponse": {
-                "description": "선곡 참여자 응답",
+                "description": "\uc120\uace1 \ucc38\uc5ec\uc790 \uc751\ub2f5",
                 "properties": {
                     "bandIds": {
                         "items": {
@@ -3567,19 +3567,19 @@
                 "type": "object"
             },
             "PerformanceBandMemberSummary": {
-                "description": "공연 응답에 포함되는 밴드 멤버 요약",
+                "description": "\uacf5\uc5f0 \uc751\ub2f5\uc5d0 \ud3ec\ud568\ub418\ub294 \ubc34\ub4dc \uba64\ubc84 \uc694\uc57d",
                 "properties": {
                     "name": {
-                        "description": "이름",
-                        "example": "홍길동",
+                        "description": "\uc774\ub984",
+                        "example": "\ud64d\uae38\ub3d9",
                         "type": "string"
                     },
                     "profileImg": {
-                        "description": "프로필 이미지 URL",
+                        "description": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 URL",
                         "type": "string"
                     },
                     "role": {
-                        "description": "밴드 내 역할",
+                        "description": "\ubc34\ub4dc \ub0b4 \uc5ed\ud560",
                         "enum": [
                             "LEADER",
                             "ADMIN",
@@ -3589,7 +3589,7 @@
                         "type": "string"
                     },
                     "userId": {
-                        "description": "회원 ID",
+                        "description": "\ud68c\uc6d0 ID",
                         "example": 1,
                         "format": "int64",
                         "type": "integer"
@@ -3603,21 +3603,21 @@
                 "type": "object"
             },
             "PerformanceBandSummary": {
-                "description": "공연 참여 밴드 + 소속 멤버 요약",
+                "description": "\uacf5\uc5f0 \ucc38\uc5ec \ubc34\ub4dc + \uc18c\uc18d \uba64\ubc84 \uc694\uc57d",
                 "properties": {
                     "bandId": {
-                        "description": "밴드 고유 식별자",
+                        "description": "\ubc34\ub4dc \uace0\uc720 \uc2dd\ubcc4\uc790",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "bandName": {
-                        "description": "밴드 이름",
+                        "description": "\ubc34\ub4dc \uc774\ub984",
                         "example": "TuNA",
                         "type": "string"
                     },
                     "members": {
-                        "description": "밴드 소속 멤버 목록",
+                        "description": "\ubc34\ub4dc \uc18c\uc18d \uba64\ubc84 \ubaa9\ub85d",
                         "items": {
                             "$ref": "#/components/schemas/PerformanceBandMemberSummary"
                         },
@@ -3632,17 +3632,17 @@
                 "type": "object"
             },
             "PerformanceCreateRequest": {
-                "description": "공연 생성 요청",
+                "description": "\uacf5\uc5f0 \uc0dd\uc131 \uc694\uccad",
                 "properties": {
                     "durationMinutes": {
-                        "description": "공연 시간 (분)",
+                        "description": "\uacf5\uc5f0 \uc2dc\uac04 (\ubd84)",
                         "example": 120,
                         "format": "int32",
                         "minimum": 1,
                         "type": "integer"
                     },
                     "setlistIds": {
-                        "description": "참여 셋리스트 아이디 목록 (optional, 미전달/null 시 빈 배열로 처리)",
+                        "description": "\ucc38\uc5ec \uc14b\ub9ac\uc2a4\ud2b8 \uc544\uc774\ub514 \ubaa9\ub85d (optional, \ubbf8\uc804\ub2ec/null \uc2dc \ube48 \ubc30\uc5f4\ub85c \ucc98\ub9ac)",
                         "example": [
                             "550e8400-e29b-41d4-a716-446655440000"
                         ],
@@ -3653,19 +3653,19 @@
                         "type": "array"
                     },
                     "startAt": {
-                        "description": "공연 시작 시간 (현재 이후만 허용)",
+                        "description": "\uacf5\uc5f0 \uc2dc\uc791 \uc2dc\uac04 (\ud604\uc7ac \uc774\ud6c4\ub9cc \ud5c8\uc6a9)",
                         "example": "2026-06-15 18:00",
                         "format": "date-time",
                         "type": "string"
                     },
                     "title": {
-                        "description": "공연 제목",
-                        "example": "TuNA 정기공연",
+                        "description": "\uacf5\uc5f0 \uc81c\ubaa9",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0",
                         "minLength": 1,
                         "type": "string"
                     },
                     "venue": {
-                        "description": "공연 장소",
+                        "description": "\uacf5\uc5f0 \uc7a5\uc18c",
                         "example": "Club FF",
                         "type": "string"
                     }
@@ -3678,16 +3678,16 @@
                 "type": "object"
             },
             "PerformanceDetailResponse": {
-                "description": "공연 상세 조회 응답",
+                "description": "\uacf5\uc5f0 \uc0c1\uc138 \uc870\ud68c \uc751\ub2f5",
                 "properties": {
                     "durationMinutes": {
-                        "description": "공연 시간 (분)",
+                        "description": "\uacf5\uc5f0 \uc2dc\uac04 (\ubd84)",
                         "example": 120,
                         "format": "int32",
                         "type": "integer"
                     },
                     "managerIds": {
-                        "description": "매니저 멤버 아이디 목록",
+                        "description": "\ub9e4\ub2c8\uc800 \uba64\ubc84 \uc544\uc774\ub514 \ubaa9\ub85d",
                         "items": {
                             "format": "int64",
                             "type": "integer"
@@ -3695,31 +3695,31 @@
                         "type": "array"
                     },
                     "performanceId": {
-                        "description": "공연 고유 식별자 (UUID)",
+                        "description": "\uacf5\uc5f0 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "setlists": {
-                        "description": "참여 셋리스트 목록 (각 셋리스트는 참여 밴드 메타데이터를 포함)",
+                        "description": "\ucc38\uc5ec \uc14b\ub9ac\uc2a4\ud2b8 \ubaa9\ub85d (\uac01 \uc14b\ub9ac\uc2a4\ud2b8\ub294 \ucc38\uc5ec \ubc34\ub4dc \uba54\ud0c0\ub370\uc774\ud130\ub97c \ud3ec\ud568)",
                         "items": {
                             "$ref": "#/components/schemas/PerformanceSetlistSummary"
                         },
                         "type": "array"
                     },
                     "startAt": {
-                        "description": "공연 시작 시간",
+                        "description": "\uacf5\uc5f0 \uc2dc\uc791 \uc2dc\uac04",
                         "example": "2026-06-15 18:00",
                         "format": "date-time",
                         "type": "string"
                     },
                     "title": {
-                        "description": "공연 제목",
-                        "example": "TuNA 정기공연",
+                        "description": "\uacf5\uc5f0 \uc81c\ubaa9",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0",
                         "type": "string"
                     },
                     "venue": {
-                        "description": "공연 장소",
+                        "description": "\uacf5\uc5f0 \uc7a5\uc18c",
                         "example": "Club FF",
                         "type": "string"
                     }
@@ -3735,10 +3735,10 @@
                 "type": "object"
             },
             "PerformanceInvitationCreateRequest": {
-                "description": "공연 매니저 초대 요청",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \ucd08\ub300 \uc694\uccad",
                 "properties": {
                     "memberId": {
-                        "description": "초대할 멤버 ID",
+                        "description": "\ucd08\ub300\ud560 \uba64\ubc84 ID",
                         "example": 42,
                         "format": "int64",
                         "type": "integer"
@@ -3750,47 +3750,47 @@
                 "type": "object"
             },
             "PerformanceInvitationResponse": {
-                "description": "공연 매니저 초대 응답",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \ucd08\ub300 \uc751\ub2f5",
                 "properties": {
                     "createdAt": {
-                        "description": "초대 생성 시각",
+                        "description": "\ucd08\ub300 \uc0dd\uc131 \uc2dc\uac01",
                         "format": "date-time",
                         "type": "string"
                     },
                     "invitationId": {
-                        "description": "초대 ID",
+                        "description": "\ucd08\ub300 ID",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "invitedMemberId": {
-                        "description": "초대받은 멤버 ID",
+                        "description": "\ucd08\ub300\ubc1b\uc740 \uba64\ubc84 ID",
                         "example": 42,
                         "format": "int64",
                         "type": "integer"
                     },
                     "invitedMemberName": {
-                        "description": "초대받은 멤버 이름",
-                        "example": "홍길동",
+                        "description": "\ucd08\ub300\ubc1b\uc740 \uba64\ubc84 \uc774\ub984",
+                        "example": "\ud64d\uae38\ub3d9",
                         "type": "string"
                     },
                     "invitedMemberProfileImg": {
-                        "description": "초대받은 멤버 프로필 이미지 URL",
+                        "description": "\ucd08\ub300\ubc1b\uc740 \uba64\ubc84 \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 URL",
                         "type": "string"
                     },
                     "performanceId": {
-                        "description": "공연 ID",
+                        "description": "\uacf5\uc5f0 ID",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "performanceTitle": {
-                        "description": "공연 제목",
-                        "example": "정기 공연 2026",
+                        "description": "\uacf5\uc5f0 \uc81c\ubaa9",
+                        "example": "\uc815\uae30 \uacf5\uc5f0 2026",
                         "type": "string"
                     },
                     "status": {
-                        "description": "초대 상태",
+                        "description": "\ucd08\ub300 \uc0c1\ud0dc",
                         "enum": [
                             "PENDING",
                             "ACCEPTED",
@@ -3812,40 +3812,40 @@
                 "type": "object"
             },
             "PerformanceListResponse": {
-                "description": "공연 목록 조회 응답",
+                "description": "\uacf5\uc5f0 \ubaa9\ub85d \uc870\ud68c \uc751\ub2f5",
                 "properties": {
                     "durationMinutes": {
-                        "description": "공연 시간 (분)",
+                        "description": "\uacf5\uc5f0 \uc2dc\uac04 (\ubd84)",
                         "example": 120,
                         "format": "int32",
                         "type": "integer"
                     },
                     "performanceId": {
-                        "description": "공연 고유 식별자 (UUID)",
+                        "description": "\uacf5\uc5f0 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "setlists": {
-                        "description": "참여 셋리스트 목록 (각 셋리스트는 참여 밴드 메타데이터를 포함)",
+                        "description": "\ucc38\uc5ec \uc14b\ub9ac\uc2a4\ud2b8 \ubaa9\ub85d (\uac01 \uc14b\ub9ac\uc2a4\ud2b8\ub294 \ucc38\uc5ec \ubc34\ub4dc \uba54\ud0c0\ub370\uc774\ud130\ub97c \ud3ec\ud568)",
                         "items": {
                             "$ref": "#/components/schemas/PerformanceSetlistSummary"
                         },
                         "type": "array"
                     },
                     "startAt": {
-                        "description": "공연 시작 시간",
+                        "description": "\uacf5\uc5f0 \uc2dc\uc791 \uc2dc\uac04",
                         "example": "2026-06-15 18:00",
                         "format": "date-time",
                         "type": "string"
                     },
                     "title": {
-                        "description": "공연 제목",
-                        "example": "TuNA 정기공연",
+                        "description": "\uacf5\uc5f0 \uc81c\ubaa9",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0",
                         "type": "string"
                     },
                     "venue": {
-                        "description": "공연 장소",
+                        "description": "\uacf5\uc5f0 \uc7a5\uc18c",
                         "example": "Club FF",
                         "type": "string"
                     }
@@ -3860,10 +3860,10 @@
                 "type": "object"
             },
             "PerformanceOwnerDelegateRequest": {
-                "description": "공연 소유권(OWNER) 양도 요청",
+                "description": "\uacf5\uc5f0 \uc18c\uc720\uad8c(OWNER) \uc591\ub3c4 \uc694\uccad",
                 "properties": {
                     "targetMemberId": {
-                        "description": "소유권을 넘겨받을 대상 멤버 ID (해당 공연의 MANAGER 여야 함)",
+                        "description": "\uc18c\uc720\uad8c\uc744 \ub118\uaca8\ubc1b\uc744 \ub300\uc0c1 \uba64\ubc84 ID (\ud574\ub2f9 \uacf5\uc5f0\uc758 MANAGER \uc5ec\uc57c \ud568)",
                         "example": 42,
                         "format": "int64",
                         "type": "integer"
@@ -3875,16 +3875,16 @@
                 "type": "object"
             },
             "PerformancePagingQuery": {
-                "description": "공연 목록 조회 쿼리",
+                "description": "\uacf5\uc5f0 \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
                     "lastId": {
-                        "description": "마지막으로 조회된 공연 ID (커서)",
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \uacf5\uc5f0 ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "pageSize": {
-                        "description": "페이지 크기",
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
                         "example": 10,
                         "format": "int32",
                         "maximum": 100,
@@ -3898,17 +3898,17 @@
                 "type": "object"
             },
             "PerformanceResponse": {
-                "description": "공연 기본 응답",
+                "description": "\uacf5\uc5f0 \uae30\ubcf8 \uc751\ub2f5",
                 "properties": {
                     "performanceId": {
-                        "description": "공연 고유 식별자 (UUID)",
+                        "description": "\uacf5\uc5f0 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "title": {
-                        "description": "공연 제목",
-                        "example": "TuNA 정기공연",
+                        "description": "\uacf5\uc5f0 \uc81c\ubaa9",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0",
                         "type": "string"
                     }
                 },
@@ -3919,22 +3919,22 @@
                 "type": "object"
             },
             "PerformanceSearchQuery": {
-                "description": "공연 검색 쿼리",
+                "description": "\uacf5\uc5f0 \uac80\uc0c9 \ucffc\ub9ac",
                 "properties": {
                     "keyword": {
-                        "description": "검색 키워드 (공연 이름)",
-                        "example": "TuNA 정기공연",
+                        "description": "\uac80\uc0c9 \ud0a4\uc6cc\ub4dc (\uacf5\uc5f0 \uc774\ub984)",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0",
                         "minLength": 1,
                         "type": "string"
                     },
                     "lastId": {
-                        "description": "마지막으로 조회된 공연 ID (커서)",
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \uacf5\uc5f0 ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "pageSize": {
-                        "description": "페이지 크기",
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
                         "example": 10,
                         "format": "int32",
                         "maximum": 100,
@@ -3949,10 +3949,10 @@
                 "type": "object"
             },
             "PerformanceSetlistAddRequest": {
-                "description": "공연 셋리스트 일괄 추가 요청",
+                "description": "\uacf5\uc5f0 \uc14b\ub9ac\uc2a4\ud2b8 \uc77c\uad04 \ucd94\uac00 \uc694\uccad",
                 "properties": {
                     "setlistIds": {
-                        "description": "추가할 셋리스트 ID 목록 (append 시맨틱)",
+                        "description": "\ucd94\uac00\ud560 \uc14b\ub9ac\uc2a4\ud2b8 ID \ubaa9\ub85d (append \uc2dc\ub9e8\ud2f1)",
                         "example": [
                             "550e8400-e29b-41d4-a716-446655440000"
                         ],
@@ -3970,10 +3970,10 @@
                 "type": "object"
             },
             "PerformanceSetlistResponse": {
-                "description": "공연 셋리스트 매핑 응답",
+                "description": "\uacf5\uc5f0 \uc14b\ub9ac\uc2a4\ud2b8 \ub9e4\ud551 \uc751\ub2f5",
                 "properties": {
                     "performanceSetlistId": {
-                        "description": "PerformanceSetlist 매핑 ID",
+                        "description": "PerformanceSetlist \ub9e4\ud551 ID",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
@@ -3992,24 +3992,24 @@
                 "type": "object"
             },
             "PerformanceSetlistSummary": {
-                "description": "공연 셋리스트 요약 (참여 밴드 메타 포함)",
+                "description": "\uacf5\uc5f0 \uc14b\ub9ac\uc2a4\ud2b8 \uc694\uc57d (\ucc38\uc5ec \ubc34\ub4dc \uba54\ud0c0 \ud3ec\ud568)",
                 "properties": {
                     "bands": {
-                        "description": "셋리스트에 참여하는 밴드 + 멤버 목록",
+                        "description": "\uc14b\ub9ac\uc2a4\ud2b8\uc5d0 \ucc38\uc5ec\ud558\ub294 \ubc34\ub4dc + \uba64\ubc84 \ubaa9\ub85d",
                         "items": {
                             "$ref": "#/components/schemas/PerformanceBandSummary"
                         },
                         "type": "array"
                     },
                     "setlistId": {
-                        "description": "셋리스트 ID",
+                        "description": "\uc14b\ub9ac\uc2a4\ud2b8 ID",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "title": {
-                        "description": "셋리스트 제목",
-                        "example": "TuNA 정기공연 셋리스트",
+                        "description": "\uc14b\ub9ac\uc2a4\ud2b8 \uc81c\ubaa9",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 \uc14b\ub9ac\uc2a4\ud2b8",
                         "type": "string"
                     }
                 },
@@ -4021,28 +4021,28 @@
                 "type": "object"
             },
             "PerformanceUpdateRequest": {
-                "description": "공연 정보 수정 요청 (모든 필드 optional, 전달된 필드만 갱신)",
+                "description": "\uacf5\uc5f0 \uc815\ubcf4 \uc218\uc815 \uc694\uccad (\ubaa8\ub4e0 \ud544\ub4dc optional, \uc804\ub2ec\ub41c \ud544\ub4dc\ub9cc \uac31\uc2e0)",
                 "properties": {
                     "durationMinutes": {
-                        "description": "공연 시간 (분)",
+                        "description": "\uacf5\uc5f0 \uc2dc\uac04 (\ubd84)",
                         "example": 90,
                         "format": "int32",
                         "minimum": 1,
                         "type": "integer"
                     },
                     "startAt": {
-                        "description": "공연 시작 시간 (현재 이후만 허용)",
+                        "description": "\uacf5\uc5f0 \uc2dc\uc791 \uc2dc\uac04 (\ud604\uc7ac \uc774\ud6c4\ub9cc \ud5c8\uc6a9)",
                         "example": "2026-06-15 19:00",
                         "format": "date-time",
                         "type": "string"
                     },
                     "title": {
-                        "description": "공연 제목",
-                        "example": "TuNA 정기공연 (수정)",
+                        "description": "\uacf5\uc5f0 \uc81c\ubaa9",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 (\uc218\uc815)",
                         "type": "string"
                     },
                     "venue": {
-                        "description": "공연 장소",
+                        "description": "\uacf5\uc5f0 \uc7a5\uc18c",
                         "example": "Club FF",
                         "type": "string"
                     }
@@ -4050,16 +4050,16 @@
                 "type": "object"
             },
             "PracticeWindowDto": {
-                "description": "선곡 합주 가능 기간",
+                "description": "\uc120\uace1 \ud569\uc8fc \uac00\ub2a5 \uae30\uac04",
                 "properties": {
                     "from": {
-                        "description": "기간 시작일",
+                        "description": "\uae30\uac04 \uc2dc\uc791\uc77c",
                         "example": "2026-05-02",
                         "format": "date",
                         "type": "string"
                     },
                     "to": {
-                        "description": "기간 종료일 (포함)",
+                        "description": "\uae30\uac04 \uc885\ub8cc\uc77c (\ud3ec\ud568)",
                         "example": "2026-05-15",
                         "format": "date",
                         "type": "string"
@@ -4072,29 +4072,29 @@
                 "type": "object"
             },
             "ProfileImagePresignRequest": {
-                "description": "프로필 이미지 업로드용 presigned URL 발급 요청",
+                "description": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc694\uccad",
                 "properties": {
                     "bandId": {
-                        "description": "domain=BAND 인 경우 필수, 권한 검증 대상 밴드 ID",
+                        "description": "domain=BAND \uc778 \uacbd\uc6b0 \ud544\uc218, \uad8c\ud55c \uac80\uc99d \ub300\uc0c1 \ubc34\ub4dc ID",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
                         "format": "uuid",
                         "type": "string"
                     },
                     "contentLength": {
-                        "description": "업로드할 파일의 정확한 바이트 크기 (최대 5MB = 5,242,880 bytes)",
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 \uc815\ud655\ud55c \ubc14\uc774\ud2b8 \ud06c\uae30 (\ucd5c\ub300 5MB = 5,242,880 bytes)",
                         "example": 1048576,
                         "format": "int64",
                         "minimum": 1,
                         "type": "integer"
                     },
                     "contentType": {
-                        "description": "업로드할 파일의 Content-Type",
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 Content-Type",
                         "example": "image/jpeg",
                         "minLength": 1,
                         "type": "string"
                     },
                     "domain": {
-                        "description": "업로드 대상 도메인",
+                        "description": "\uc5c5\ub85c\ub4dc \ub300\uc0c1 \ub3c4\uba54\uc778",
                         "enum": [
                             "BAND",
                             "MEMBER"
@@ -4103,7 +4103,7 @@
                         "type": "string"
                     },
                     "ext": {
-                        "description": "파일 확장자(점 제외, 소문자)",
+                        "description": "\ud30c\uc77c \ud655\uc7a5\uc790(\uc810 \uc81c\uc678, \uc18c\ubb38\uc790)",
                         "example": "jpg",
                         "minLength": 1,
                         "type": "string"
@@ -4118,21 +4118,21 @@
                 "type": "object"
             },
             "ProfileImagePresignResponse": {
-                "description": "프로필 이미지 업로드용 presigned URL 발급 응답",
+                "description": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc751\ub2f5",
                 "properties": {
                     "expiresInSeconds": {
-                        "description": "presigned URL 만료까지 남은 시간(초)",
+                        "description": "presigned URL \ub9cc\ub8cc\uae4c\uc9c0 \ub0a8\uc740 \uc2dc\uac04(\ucd08)",
                         "example": 300,
                         "format": "int64",
                         "type": "integer"
                     },
                     "objectKey": {
-                        "description": "업로드 후 PATCH 시 profileImg 필드에 저장할 객체 키",
+                        "description": "\uc5c5\ub85c\ub4dc \ud6c4 PATCH \uc2dc profileImg \ud544\ub4dc\uc5d0 \uc800\uc7a5\ud560 \uac1d\uccb4 \ud0a4",
                         "example": "profile/band/550e.../uuid.jpg",
                         "type": "string"
                     },
                     "uploadUrl": {
-                        "description": "PUT 업로드용 presigned URL",
+                        "description": "PUT \uc5c5\ub85c\ub4dc\uc6a9 presigned URL",
                         "example": "https://bucket.s3.ap-northeast-2.amazonaws.com/...",
                         "type": "string"
                     }
@@ -4529,34 +4529,34 @@
                 "type": "object"
             },
             "SessionDefDto": {
-                "description": "세션 정의",
+                "description": "\uc138\uc158 \uc815\uc758",
                 "properties": {
                     "custom": {
-                        "description": "커스텀 세션 여부",
+                        "description": "\ucee4\uc2a4\ud140 \uc138\uc158 \uc5ec\ubd80",
                         "example": false,
                         "type": "boolean"
                     },
                     "label": {
-                        "description": "세션 이름",
-                        "example": "기타",
+                        "description": "\uc138\uc158 \uc774\ub984",
+                        "example": "\uae30\ud0c0",
                         "minLength": 1,
                         "type": "string"
                     },
                     "need": {
-                        "description": "정원",
+                        "description": "\uc815\uc6d0",
                         "example": 1,
                         "format": "int32",
                         "minimum": 1,
                         "type": "integer"
                     },
                     "sessionId": {
-                        "description": "세션 토큰",
+                        "description": "\uc138\uc158 \ud1a0\ud070",
                         "example": "G",
                         "minLength": 1,
                         "type": "string"
                     },
                     "short": {
-                        "description": "표시용 약어",
+                        "description": "\ud45c\uc2dc\uc6a9 \uc57d\uc5b4",
                         "example": "G",
                         "minLength": 1,
                         "type": "string"
@@ -4616,10 +4616,10 @@
                 "type": "object"
             },
             "SetlistChatMessageCreateRequest": {
-                "description": "선곡 항목 채팅 메시지 작성 요청",
+                "description": "\uc120\uace1 \ud56d\ubaa9 \ucc44\ud305 \uba54\uc2dc\uc9c0 \uc791\uc131 \uc694\uccad",
                 "properties": {
                     "message": {
-                        "description": "메시지 본문 (최대 500자)",
+                        "description": "\uba54\uc2dc\uc9c0 \ubcf8\ubb38 (\ucd5c\ub300 500\uc790)",
                         "maxLength": 500,
                         "minLength": 0,
                         "type": "string"
@@ -4631,7 +4631,7 @@
                 "type": "object"
             },
             "SetlistChatMessageResponse": {
-                "description": "선곡 항목 채팅 메시지 응답",
+                "description": "\uc120\uace1 \ud56d\ubaa9 \ucc44\ud305 \uba54\uc2dc\uc9c0 \uc751\ub2f5",
                 "properties": {
                     "createdAt": {
                         "format": "date-time",
@@ -4662,10 +4662,10 @@
                 "type": "object"
             },
             "SetlistConfirmationUpdateRequest": {
-                "description": "세션 확정/해제 요청",
+                "description": "\uc138\uc158 \ud655\uc815/\ud574\uc81c \uc694\uccad",
                 "properties": {
                     "confirm": {
-                        "description": "확정할 사용자 ID",
+                        "description": "\ud655\uc815\ud560 \uc0ac\uc6a9\uc790 ID",
                         "items": {
                             "format": "int64",
                             "type": "integer"
@@ -4673,7 +4673,7 @@
                         "type": "array"
                     },
                     "unconfirm": {
-                        "description": "확정 해제할 사용자 ID",
+                        "description": "\ud655\uc815 \ud574\uc81c\ud560 \uc0ac\uc6a9\uc790 ID",
                         "items": {
                             "format": "int64",
                             "type": "integer"
@@ -4688,14 +4688,14 @@
                 "type": "object"
             },
             "SetlistCreateRequest": {
-                "description": "셋리스트 생성 요청",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \uc0dd\uc131 \uc694\uccad",
                 "properties": {
                     "title": {
-                        "description": "셋리스트 제목 (생략 시 선곡 제목을 승계)",
+                        "description": "\uc14b\ub9ac\uc2a4\ud2b8 \uc81c\ubaa9 (\uc0dd\ub7b5 \uc2dc \uc120\uace1 \uc81c\ubaa9\uc744 \uc2b9\uacc4)",
                         "type": "string"
                     },
                     "trackSelectionId": {
-                        "description": "원본 선곡(TrackSelection) ID",
+                        "description": "\uc6d0\ubcf8 \uc120\uace1(TrackSelection) ID",
                         "format": "uuid",
                         "type": "string"
                     }
@@ -4706,7 +4706,7 @@
                 "type": "object"
             },
             "SetlistDetailResponse": {
-                "description": "셋리스트 상세 응답",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \uc0c1\uc138 \uc751\ub2f5",
                 "properties": {
                     "bandIds": {
                         "items": {
@@ -4749,15 +4749,15 @@
                 "type": "object"
             },
             "SetlistPagingQuery": {
-                "description": "셋리스트 목록 조회 쿼리",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
                     "lastId": {
-                        "description": "마지막으로 조회된 셋리스트 ID (커서)",
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \uc14b\ub9ac\uc2a4\ud2b8 ID (\ucee4\uc11c)",
                         "format": "uuid",
                         "type": "string"
                     },
                     "pageSize": {
-                        "description": "페이지 크기",
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
                         "example": 20,
                         "format": "int32",
                         "maximum": 100,
@@ -4771,17 +4771,17 @@
                 "type": "object"
             },
             "SetlistParticipantsUpdateRequest": {
-                "description": "선곡 참여자 변경 요청",
+                "description": "\uc120\uace1 \ucc38\uc5ec\uc790 \ubcc0\uacbd \uc694\uccad",
                 "properties": {
                     "add": {
-                        "description": "추가할 회원 목록 (멤버ID + 밴드ID 목록)",
+                        "description": "\ucd94\uac00\ud560 \ud68c\uc6d0 \ubaa9\ub85d (\uba64\ubc84ID + \ubc34\ub4dcID \ubaa9\ub85d)",
                         "items": {
                             "$ref": "#/components/schemas/ParticipantAddDto"
                         },
                         "type": "array"
                     },
                     "remove": {
-                        "description": "제거할 회원 ID 목록",
+                        "description": "\uc81c\uac70\ud560 \ud68c\uc6d0 ID \ubaa9\ub85d",
                         "example": [
                             4,
                             5
@@ -4800,7 +4800,7 @@
                 "type": "object"
             },
             "SetlistResponse": {
-                "description": "셋리스트 응답",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \uc751\ub2f5",
                 "properties": {
                     "createdAt": {
                         "format": "date-time",
@@ -4835,24 +4835,24 @@
                 "type": "object"
             },
             "SetlistToJamRequest": {
-                "description": "셋리스트 기반 합주 생성 요청. 각 셋리스트 트랙당 합주 1건이 생성됩니다.",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \uae30\ubc18 \ud569\uc8fc \uc0dd\uc131 \uc694\uccad. \uac01 \uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799\ub2f9 \ud569\uc8fc 1\uac74\uc774 \uc0dd\uc131\ub429\ub2c8\ub2e4.",
                 "properties": {
                     "durationMinutes": {
-                        "description": "합주 시간 (분)",
+                        "description": "\ud569\uc8fc \uc2dc\uac04 (\ubd84)",
                         "example": 60,
                         "format": "int32",
                         "minimum": 1,
                         "type": "integer"
                     },
                     "startAt": {
-                        "description": "생성될 합주들의 공통 시작 시간",
+                        "description": "\uc0dd\uc131\ub420 \ud569\uc8fc\ub4e4\uc758 \uacf5\ud1b5 \uc2dc\uc791 \uc2dc\uac04",
                         "example": "2026-03-15 18:00",
                         "format": "date-time",
                         "type": "string"
                     },
                     "venue": {
-                        "description": "합주 장소",
-                        "example": "홍대 스튜디오",
+                        "description": "\ud569\uc8fc \uc7a5\uc18c",
+                        "example": "\ud64d\ub300 \uc2a4\ud29c\ub514\uc624",
                         "type": "string"
                     }
                 },
@@ -4863,7 +4863,7 @@
                 "type": "object"
             },
             "SetlistTrackPagingQuery": {
-                "description": "셋리스트 트랙 목록 조회 쿼리",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799 \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
                     "lastId": {
                         "format": "uuid",
@@ -4882,7 +4882,7 @@
                 "type": "object"
             },
             "SetlistTrackResponse": {
-                "description": "셋리스트 트랙 응답",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799 \uc751\ub2f5",
                 "properties": {
                     "album": {
                         "type": "string"
@@ -4895,7 +4895,7 @@
                         "type": "string"
                     },
                     "duration": {
-                        "description": "곡 길이(초 단위). 분/초(mm:ss) 표시 변환은 클라이언트에서 처리",
+                        "description": "\uace1 \uae38\uc774(\ucd08 \ub2e8\uc704). \ubd84/\ucd08(mm:ss) \ud45c\uc2dc \ubcc0\ud658\uc740 \ud074\ub77c\uc774\uc5b8\ud2b8\uc5d0\uc11c \ucc98\ub9ac",
                         "format": "int32",
                         "type": "integer"
                     },
@@ -4903,7 +4903,7 @@
                         "type": "string"
                     },
                     "reference": {
-                        "description": "참고 링크(예: YouTube)",
+                        "description": "\ucc38\uace0 \ub9c1\ud06c(\uc608: YouTube)",
                         "type": "string"
                     },
                     "sessions": {
@@ -4938,7 +4938,7 @@
                 "type": "object"
             },
             "SetlistTrackSessionResponse": {
-                "description": "셋리스트 트랙 세션 응답",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799 \uc138\uc158 \uc751\ub2f5",
                 "properties": {
                     "custom": {
                         "type": "boolean"
@@ -4975,7 +4975,7 @@
                 "type": "object"
             },
             "SetlistTrackUpdateRequest": {
-                "description": "셋리스트 트랙 부분 수정 요청",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799 \ubd80\ubd84 \uc218\uc815 \uc694\uccad",
                 "properties": {
                     "album": {
                         "type": "string"
@@ -4984,7 +4984,7 @@
                         "type": "string"
                     },
                     "duration": {
-                        "description": "곡 길이(초 단위). 분/초(mm:ss) 표시 변환은 클라이언트에서 처리",
+                        "description": "\uace1 \uae38\uc774(\ucd08 \ub2e8\uc704). \ubd84/\ucd08(mm:ss) \ud45c\uc2dc \ubcc0\ud658\uc740 \ud074\ub77c\uc774\uc5b8\ud2b8\uc5d0\uc11c \ucc98\ub9ac",
                         "format": "int32",
                         "type": "integer"
                     },
@@ -4992,11 +4992,11 @@
                         "type": "string"
                     },
                     "reference": {
-                        "description": "참고 링크(예: YouTube)",
+                        "description": "\ucc38\uace0 \ub9c1\ud06c(\uc608: YouTube)",
                         "type": "string"
                     },
                     "sessions": {
-                        "description": "세션 정의 목록 (제공 시 전체 교체)",
+                        "description": "\uc138\uc158 \uc815\uc758 \ubaa9\ub85d (\uc81c\uacf5 \uc2dc \uc804\uccb4 \uad50\uccb4)",
                         "items": {
                             "$ref": "#/components/schemas/SessionDefDto"
                         },
@@ -5009,10 +5009,10 @@
                 "type": "object"
             },
             "SetlistUpdateRequest": {
-                "description": "셋리스트 수정 요청",
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \uc218\uc815 \uc694\uccad",
                 "properties": {
                     "title": {
-                        "description": "변경할 셋리스트 제목",
+                        "description": "\ubcc0\uacbd\ud560 \uc14b\ub9ac\uc2a4\ud2b8 \uc81c\ubaa9",
                         "minLength": 1,
                         "type": "string"
                     }
@@ -5023,31 +5023,31 @@
                 "type": "object"
             },
             "TrackInfoRequest": {
-                "description": "곡 정보",
+                "description": "\uace1 \uc815\ubcf4",
                 "properties": {
                     "album": {
-                        "description": "앨범",
+                        "description": "\uc568\ubc94",
                         "example": "Led Zeppelin IV",
                         "type": "string"
                     },
                     "artist": {
-                        "description": "아티스트",
+                        "description": "\uc544\ud2f0\uc2a4\ud2b8",
                         "example": "Led Zeppelin",
                         "minLength": 1,
                         "type": "string"
                     },
                     "duration": {
-                        "description": "곡 길이(초 단위). 분/초(mm:ss) 표시 변환은 클라이언트에서 처리",
+                        "description": "\uace1 \uae38\uc774(\ucd08 \ub2e8\uc704). \ubd84/\ucd08(mm:ss) \ud45c\uc2dc \ubcc0\ud658\uc740 \ud074\ub77c\uc774\uc5b8\ud2b8\uc5d0\uc11c \ucc98\ub9ac",
                         "example": 482,
                         "format": "int32",
                         "type": "integer"
                     },
                     "reference": {
-                        "description": "참고 링크(예: YouTube)",
+                        "description": "\ucc38\uace0 \ub9c1\ud06c(\uc608: YouTube)",
                         "type": "string"
                     },
                     "title": {
-                        "description": "곡 제목",
+                        "description": "\uace1 \uc81c\ubaa9",
                         "example": "Stairway to Heaven",
                         "minLength": 1,
                         "type": "string"
@@ -5060,30 +5060,30 @@
                 "type": "object"
             },
             "TrackInfoResponse": {
-                "description": "곡 정보",
+                "description": "\uace1 \uc815\ubcf4",
                 "properties": {
                     "album": {
-                        "description": "앨범",
+                        "description": "\uc568\ubc94",
                         "example": "Led Zeppelin IV",
                         "type": "string"
                     },
                     "artist": {
-                        "description": "아티스트",
+                        "description": "\uc544\ud2f0\uc2a4\ud2b8",
                         "example": "Led Zeppelin",
                         "type": "string"
                     },
                     "duration": {
-                        "description": "곡 길이(초 단위). 분/초(mm:ss) 표시 변환은 클라이언트에서 처리",
+                        "description": "\uace1 \uae38\uc774(\ucd08 \ub2e8\uc704). \ubd84/\ucd08(mm:ss) \ud45c\uc2dc \ubcc0\ud658\uc740 \ud074\ub77c\uc774\uc5b8\ud2b8\uc5d0\uc11c \ucc98\ub9ac",
                         "example": 482,
                         "format": "int32",
                         "type": "integer"
                     },
                     "reference": {
-                        "description": "참고 링크(예: YouTube)",
+                        "description": "\ucc38\uace0 \ub9c1\ud06c(\uc608: YouTube)",
                         "type": "string"
                     },
                     "title": {
-                        "description": "곡 제목",
+                        "description": "\uace1 \uc81c\ubaa9",
                         "example": "Stairway to Heaven",
                         "type": "string"
                     }
@@ -5095,10 +5095,10 @@
                 "type": "object"
             },
             "TrackSelectionCreateRequest": {
-                "description": "선곡 생성 요청",
+                "description": "\uc120\uace1 \uc0dd\uc131 \uc694\uccad",
                 "properties": {
                     "bandIds": {
-                        "description": "참여 밴드 ID 목록 (1..N)",
+                        "description": "\ucc38\uc5ec \ubc34\ub4dc ID \ubaa9\ub85d (1..N)",
                         "items": {
                             "format": "uuid",
                             "type": "string"
@@ -5107,12 +5107,12 @@
                         "type": "array"
                     },
                     "managerId": {
-                        "description": "매니저 회원 ID",
+                        "description": "\ub9e4\ub2c8\uc800 \ud68c\uc6d0 ID",
                         "format": "int64",
                         "type": "integer"
                     },
                     "participantUserIds": {
-                        "description": "참여자 회원 ID 목록 (매니저 포함)",
+                        "description": "\ucc38\uc5ec\uc790 \ud68c\uc6d0 ID \ubaa9\ub85d (\ub9e4\ub2c8\uc800 \ud3ec\ud568)",
                         "items": {
                             "format": "int64",
                             "type": "integer"
@@ -5121,11 +5121,11 @@
                     },
                     "practiceWindow": {
                         "$ref": "#/components/schemas/PracticeWindowDto",
-                        "description": "합주 가능 기간"
+                        "description": "\ud569\uc8fc \uac00\ub2a5 \uae30\uac04"
                     },
                     "title": {
-                        "description": "선곡 제목",
-                        "example": "여름 페스티벌 셋리스트",
+                        "description": "\uc120\uace1 \uc81c\ubaa9",
+                        "example": "\uc5ec\ub984 \ud398\uc2a4\ud2f0\ubc8c \uc14b\ub9ac\uc2a4\ud2b8",
                         "minLength": 1,
                         "type": "string"
                     }
@@ -5139,7 +5139,7 @@
                 "type": "object"
             },
             "TrackSelectionDetailResponse": {
-                "description": "선곡 상세 응답",
+                "description": "\uc120\uace1 \uc0c1\uc138 \uc751\ub2f5",
                 "properties": {
                     "bandIds": {
                         "items": {
@@ -5161,7 +5161,7 @@
                         "type": "integer"
                     },
                     "participants": {
-                        "description": "참여자 목록 (멤버ID + 소속 밴드ID 목록)",
+                        "description": "\ucc38\uc5ec\uc790 \ubaa9\ub85d (\uba64\ubc84ID + \uc18c\uc18d \ubc34\ub4dcID \ubaa9\ub85d)",
                         "items": {
                             "$ref": "#/components/schemas/ParticipantResponse"
                         },
@@ -5193,39 +5193,39 @@
                 "type": "object"
             },
             "TrackSelectionItemCreateRequest": {
-                "description": "선곡 항목 생성 요청",
+                "description": "\uc120\uace1 \ud56d\ubaa9 \uc0dd\uc131 \uc694\uccad",
                 "properties": {
                     "album": {
-                        "description": "앨범",
+                        "description": "\uc568\ubc94",
                         "type": "string"
                     },
                     "artist": {
-                        "description": "아티스트",
+                        "description": "\uc544\ud2f0\uc2a4\ud2b8",
                         "minLength": 1,
                         "type": "string"
                     },
                     "duration": {
-                        "description": "곡 길이(초 단위). 분/초(mm:ss) 표시 변환은 클라이언트에서 처리",
+                        "description": "\uace1 \uae38\uc774(\ucd08 \ub2e8\uc704). \ubd84/\ucd08(mm:ss) \ud45c\uc2dc \ubcc0\ud658\uc740 \ud074\ub77c\uc774\uc5b8\ud2b8\uc5d0\uc11c \ucc98\ub9ac",
                         "format": "int32",
                         "type": "integer"
                     },
                     "note": {
-                        "description": "추천자 의견",
+                        "description": "\ucd94\ucc9c\uc790 \uc758\uacac",
                         "type": "string"
                     },
                     "reference": {
-                        "description": "참고 링크(예: YouTube)",
+                        "description": "\ucc38\uace0 \ub9c1\ud06c(\uc608: YouTube)",
                         "type": "string"
                     },
                     "sessions": {
-                        "description": "세션 정의 목록",
+                        "description": "\uc138\uc158 \uc815\uc758 \ubaa9\ub85d",
                         "items": {
                             "$ref": "#/components/schemas/SessionDefDto"
                         },
                         "type": "array"
                     },
                     "title": {
-                        "description": "곡 제목",
+                        "description": "\uace1 \uc81c\ubaa9",
                         "minLength": 1,
                         "type": "string"
                     }
@@ -5238,7 +5238,7 @@
                 "type": "object"
             },
             "TrackSelectionItemPagingQuery": {
-                "description": "선곡 항목 목록 조회 쿼리",
+                "description": "\uc120\uace1 \ud56d\ubaa9 \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
                     "lastId": {
                         "format": "uuid",
@@ -5257,7 +5257,7 @@
                 "type": "object"
             },
             "TrackSelectionItemResponse": {
-                "description": "선곡 항목 응답",
+                "description": "\uc120\uace1 \ud56d\ubaa9 \uc751\ub2f5",
                 "properties": {
                     "album": {
                         "type": "string"
@@ -5270,7 +5270,7 @@
                         "type": "string"
                     },
                     "duration": {
-                        "description": "곡 길이(초 단위). 분/초(mm:ss) 표시 변환은 클라이언트에서 처리",
+                        "description": "\uace1 \uae38\uc774(\ucd08 \ub2e8\uc704). \ubd84/\ucd08(mm:ss) \ud45c\uc2dc \ubcc0\ud658\uc740 \ud074\ub77c\uc774\uc5b8\ud2b8\uc5d0\uc11c \ucc98\ub9ac",
                         "format": "int32",
                         "type": "integer"
                     },
@@ -5285,7 +5285,7 @@
                         "type": "integer"
                     },
                     "reference": {
-                        "description": "참고 링크(예: YouTube)",
+                        "description": "\ucc38\uace0 \ub9c1\ud06c(\uc608: YouTube)",
                         "type": "string"
                     },
                     "selectionId": {
@@ -5322,10 +5322,10 @@
                 "type": "object"
             },
             "TrackSelectionItemSelectionRequest": {
-                "description": "선곡 항목 선택/해제 요청",
+                "description": "\uc120\uace1 \ud56d\ubaa9 \uc120\ud0dd/\ud574\uc81c \uc694\uccad",
                 "properties": {
                     "selected": {
-                        "description": "true=선택, false=해제",
+                        "description": "true=\uc120\ud0dd, false=\ud574\uc81c",
                         "type": "boolean"
                     }
                 },
@@ -5335,7 +5335,7 @@
                 "type": "object"
             },
             "TrackSelectionItemUpdateRequest": {
-                "description": "선곡 항목 부분 수정 요청",
+                "description": "\uc120\uace1 \ud56d\ubaa9 \ubd80\ubd84 \uc218\uc815 \uc694\uccad",
                 "properties": {
                     "album": {
                         "type": "string"
@@ -5344,7 +5344,7 @@
                         "type": "string"
                     },
                     "duration": {
-                        "description": "곡 길이(초 단위). 분/초(mm:ss) 표시 변환은 클라이언트에서 처리",
+                        "description": "\uace1 \uae38\uc774(\ucd08 \ub2e8\uc704). \ubd84/\ucd08(mm:ss) \ud45c\uc2dc \ubcc0\ud658\uc740 \ud074\ub77c\uc774\uc5b8\ud2b8\uc5d0\uc11c \ucc98\ub9ac",
                         "format": "int32",
                         "type": "integer"
                     },
@@ -5352,11 +5352,11 @@
                         "type": "string"
                     },
                     "reference": {
-                        "description": "참고 링크(예: YouTube)",
+                        "description": "\ucc38\uace0 \ub9c1\ud06c(\uc608: YouTube)",
                         "type": "string"
                     },
                     "sessions": {
-                        "description": "세션 정의 목록 (제공 시 전체 교체)",
+                        "description": "\uc138\uc158 \uc815\uc758 \ubaa9\ub85d (\uc81c\uacf5 \uc2dc \uc804\uccb4 \uad50\uccb4)",
                         "items": {
                             "$ref": "#/components/schemas/SessionDefDto"
                         },
@@ -5369,15 +5369,15 @@
                 "type": "object"
             },
             "TrackSelectionPagingQuery": {
-                "description": "선곡 목록 조회 쿼리",
+                "description": "\uc120\uace1 \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
                     "lastId": {
-                        "description": "마지막으로 조회된 회의 ID (커서)",
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \ud68c\uc758 ID (\ucee4\uc11c)",
                         "format": "uuid",
                         "type": "string"
                     },
                     "pageSize": {
-                        "description": "페이지 크기",
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
                         "example": 20,
                         "format": "int32",
                         "maximum": 100,
@@ -5391,7 +5391,7 @@
                 "type": "object"
             },
             "TrackSelectionResponse": {
-                "description": "선곡 응답",
+                "description": "\uc120\uace1 \uc751\ub2f5",
                 "properties": {
                     "bandIds": {
                         "items": {
@@ -5437,15 +5437,15 @@
                 "type": "object"
             },
             "TrackSelectionUpdateRequest": {
-                "description": "선곡 수정 요청",
+                "description": "\uc120\uace1 \uc218\uc815 \uc694\uccad",
                 "properties": {
                     "managerId": {
-                        "description": "변경할 매니저 회원 ID",
+                        "description": "\ubcc0\uacbd\ud560 \ub9e4\ub2c8\uc800 \ud68c\uc6d0 ID",
                         "format": "int64",
                         "type": "integer"
                     },
                     "title": {
-                        "description": "회의 제목",
+                        "description": "\ud68c\uc758 \uc81c\ubaa9",
                         "type": "string"
                     }
                 },
@@ -5475,10 +5475,10 @@
                 "type": "object"
             },
             "UnreadCountResponse": {
-                "description": "미확인 알림 개수 응답",
+                "description": "\ubbf8\ud655\uc778 \uc54c\ub9bc \uac1c\uc218 \uc751\ub2f5",
                 "properties": {
                     "count": {
-                        "description": "미확인(읽지 않은) 알림 개수",
+                        "description": "\ubbf8\ud655\uc778(\uc77d\uc9c0 \uc54a\uc740) \uc54c\ub9bc \uac1c\uc218",
                         "example": 3,
                         "format": "int64",
                         "type": "integer"
@@ -5575,7 +5575,7 @@
             "name": "Sunwoo Jung",
             "url": "https://github.com/TeamBandage"
         },
-        "description": "밴드 합주 & 공연 관리 플랫폼 Bandage API 명세서",
+        "description": "\ubc34\ub4dc \ud569\uc8fc & \uacf5\uc5f0 \uad00\ub9ac \ud50c\ub7ab\ud3fc Bandage API \uba85\uc138\uc11c",
         "title": "Bandage API",
         "version": "v1.0.0"
     },
@@ -5583,7 +5583,7 @@
     "paths": {
         "/api/v1/auth/login": {
             "post": {
-                "description": "회원 로그인을 통해 access, refresh 토큰을 발급합니다.",
+                "description": "\ud68c\uc6d0 \ub85c\uadf8\uc778\uc744 \ud1b5\ud574 access, refresh \ud1a0\ud070\uc744 \ubc1c\uae09\ud569\ub2c8\ub2e4.",
                 "operationId": "login",
                 "requestBody": {
                     "content": {
@@ -5607,7 +5607,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 로그인 API",
+                "summary": "\ud68c\uc6d0 \ub85c\uadf8\uc778 API",
                 "tags": [
                     "auth"
                 ]
@@ -5615,7 +5615,7 @@
         },
         "/api/v1/auth/logout": {
             "delete": {
-                "description": "회원 로그아웃을 진행하고 redis, 쿠키에 저장된 refresh 토큰을 만료시킵니다.",
+                "description": "\ud68c\uc6d0 \ub85c\uadf8\uc544\uc6c3\uc744 \uc9c4\ud589\ud558\uace0 redis, \ucfe0\ud0a4\uc5d0 \uc800\uc7a5\ub41c refresh \ud1a0\ud070\uc744 \ub9cc\ub8cc\uc2dc\ud0b5\ub2c8\ub2e4.",
                 "operationId": "logout",
                 "responses": {
                     "200": {
@@ -5629,7 +5629,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 로그아웃 API",
+                "summary": "\ud68c\uc6d0 \ub85c\uadf8\uc544\uc6c3 API",
                 "tags": [
                     "auth"
                 ]
@@ -5637,7 +5637,7 @@
         },
         "/api/v1/auth/oauth/google": {
             "post": {
-                "description": "FE 에서 GIS 로 발급받은 ID token 을 검증하고, 신규 회원이면 가입 후 JWT 를 발급한다. 기존 회원이면 로그인 처리한다.",
+                "description": "FE \uc5d0\uc11c GIS \ub85c \ubc1c\uae09\ubc1b\uc740 ID token \uc744 \uac80\uc99d\ud558\uace0, \uc2e0\uaddc \ud68c\uc6d0\uc774\uba74 \uac00\uc785 \ud6c4 JWT \ub97c \ubc1c\uae09\ud55c\ub2e4. \uae30\uc874 \ud68c\uc6d0\uc774\uba74 \ub85c\uadf8\uc778 \ucc98\ub9ac\ud55c\ub2e4.",
                 "operationId": "loginWithGoogle",
                 "requestBody": {
                     "content": {
@@ -5661,7 +5661,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "Google OAuth 로그인 / 회원가입 API",
+                "summary": "Google OAuth \ub85c\uadf8\uc778 / \ud68c\uc6d0\uac00\uc785 API",
                 "tags": [
                     "auth-oauth-google"
                 ]
@@ -5669,7 +5669,7 @@
         },
         "/api/v1/auth/oauth/kakao": {
             "post": {
-                "description": "FE 가 전달한 authorization code 를 카카오 token endpoint 와 교환해 access token 을 받고, user info 검증 후 JWT 를 발급한다. 신규 회원이면 가입 처리, 기존 회원이면 로그인 처리.",
+                "description": "FE \uac00 \uc804\ub2ec\ud55c authorization code \ub97c \uce74\uce74\uc624 token endpoint \uc640 \uad50\ud658\ud574 access token \uc744 \ubc1b\uace0, user info \uac80\uc99d \ud6c4 JWT \ub97c \ubc1c\uae09\ud55c\ub2e4. \uc2e0\uaddc \ud68c\uc6d0\uc774\uba74 \uac00\uc785 \ucc98\ub9ac, \uae30\uc874 \ud68c\uc6d0\uc774\uba74 \ub85c\uadf8\uc778 \ucc98\ub9ac.",
                 "operationId": "loginWithKakao",
                 "requestBody": {
                     "content": {
@@ -5693,7 +5693,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "Kakao OAuth 로그인 / 회원가입 API",
+                "summary": "Kakao OAuth \ub85c\uadf8\uc778 / \ud68c\uc6d0\uac00\uc785 API",
                 "tags": [
                     "auth-oauth-kakao"
                 ]
@@ -5701,7 +5701,7 @@
         },
         "/api/v1/auth/password": {
             "patch": {
-                "description": "회원 비밀번호를 변경합니다.",
+                "description": "\ud68c\uc6d0 \ube44\ubc00\ubc88\ud638\ub97c \ubcc0\uacbd\ud569\ub2c8\ub2e4.",
                 "operationId": "changePassword",
                 "requestBody": {
                     "content": {
@@ -5725,7 +5725,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 비밀번호 변경 API",
+                "summary": "\ud68c\uc6d0 \ube44\ubc00\ubc88\ud638 \ubcc0\uacbd API",
                 "tags": [
                     "auth"
                 ]
@@ -5733,7 +5733,7 @@
         },
         "/api/v1/auth/refresh": {
             "post": {
-                "description": "refresh 토큰을 검증하고, 새로운 access, refresh 토큰을 발급합니다.",
+                "description": "refresh \ud1a0\ud070\uc744 \uac80\uc99d\ud558\uace0, \uc0c8\ub85c\uc6b4 access, refresh \ud1a0\ud070\uc744 \ubc1c\uae09\ud569\ub2c8\ub2e4.",
                 "operationId": "tokenRefresh",
                 "parameters": [
                     {
@@ -5757,7 +5757,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "토큰 리프레시 API",
+                "summary": "\ud1a0\ud070 \ub9ac\ud504\ub808\uc2dc API",
                 "tags": [
                     "auth"
                 ]
@@ -5765,7 +5765,7 @@
         },
         "/api/v1/band-applications/me": {
             "get": {
-                "description": "본인이 신청한 가입 신청 목록을 밴드와 무관하게 커서 기반으로 조회합니다. `status` 를 지정하면 해당 상태만, 미지정 시 전체 상태를 조회합니다.",
+                "description": "\ubcf8\uc778\uc774 \uc2e0\uccad\ud55c \uac00\uc785 \uc2e0\uccad \ubaa9\ub85d\uc744 \ubc34\ub4dc\uc640 \ubb34\uad00\ud558\uac8c \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. `status` \ub97c \uc9c0\uc815\ud558\uba74 \ud574\ub2f9 \uc0c1\ud0dc\ub9cc, \ubbf8\uc9c0\uc815 \uc2dc \uc804\uccb4 \uc0c1\ud0dc\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMyApplications",
                 "parameters": [
                     {
@@ -5789,7 +5789,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 밴드 가입 신청 목록 조회 API",
+                "summary": "\ub0b4 \ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "band-applications"
                 ]
@@ -5797,7 +5797,7 @@
         },
         "/api/v1/bands": {
             "get": {
-                "description": "필터 조건에 맞는 밴드 리스트를 페이징하여 조회합니다.",
+                "description": "\ud544\ud130 \uc870\uac74\uc5d0 \ub9de\ub294 \ubc34\ub4dc \ub9ac\uc2a4\ud2b8\ub97c \ud398\uc774\uc9d5\ud558\uc5ec \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getBands",
                 "parameters": [
                     {
@@ -5821,13 +5821,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 목록 조회 API",
+                "summary": "\ubc34\ub4dc \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "bands"
                 ]
             },
             "post": {
-                "description": "새로운 밴드를 생성하고 초기 설정을 완료합니다.",
+                "description": "\uc0c8\ub85c\uc6b4 \ubc34\ub4dc\ub97c \uc0dd\uc131\ud558\uace0 \ucd08\uae30 \uc124\uc815\uc744 \uc644\ub8cc\ud569\ub2c8\ub2e4.",
                 "operationId": "createBand",
                 "requestBody": {
                     "content": {
@@ -5851,7 +5851,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 생성 API",
+                "summary": "\ubc34\ub4dc \uc0dd\uc131 API",
                 "tags": [
                     "bands"
                 ]
@@ -5859,7 +5859,7 @@
         },
         "/api/v1/bands/me": {
             "get": {
-                "description": "본인이 소속된 밴드 목록을 커서 기반으로 조회합니다. 응답에 본인의 밴드 내 역할(`myRole`)이 포함됩니다.",
+                "description": "\ubcf8\uc778\uc774 \uc18c\uc18d\ub41c \ubc34\ub4dc \ubaa9\ub85d\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. \uc751\ub2f5\uc5d0 \ubcf8\uc778\uc758 \ubc34\ub4dc \ub0b4 \uc5ed\ud560(`myRole`)\uc774 \ud3ec\ud568\ub429\ub2c8\ub2e4.",
                 "operationId": "getMyBands",
                 "parameters": [
                     {
@@ -5883,7 +5883,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 밴드 목록 조회 API",
+                "summary": "\ub0b4 \ubc34\ub4dc \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "bands"
                 ]
@@ -5891,7 +5891,7 @@
         },
         "/api/v1/bands/search": {
             "get": {
-                "description": "밴드 이름에 키워드가 포함된 밴드를 커서 기반으로 조회합니다.",
+                "description": "\ubc34\ub4dc \uc774\ub984\uc5d0 \ud0a4\uc6cc\ub4dc\uac00 \ud3ec\ud568\ub41c \ubc34\ub4dc\ub97c \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "searchBands",
                 "parameters": [
                     {
@@ -5915,7 +5915,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 검색 API",
+                "summary": "\ubc34\ub4dc \uac80\uc0c9 API",
                 "tags": [
                     "bands"
                 ]
@@ -5923,7 +5923,7 @@
         },
         "/api/v1/bands/{bandId}": {
             "delete": {
-                "description": "밴드를 소프트 삭제합니다. 리더만 가능.",
+                "description": "\ubc34\ub4dc\ub97c \uc18c\ud504\ud2b8 \uc0ad\uc81c\ud569\ub2c8\ub2e4. \ub9ac\ub354\ub9cc \uac00\ub2a5.",
                 "operationId": "deleteBand",
                 "parameters": [
                     {
@@ -5948,13 +5948,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 삭제 API",
+                "summary": "\ubc34\ub4dc \uc0ad\uc81c API",
                 "tags": [
                     "bands"
                 ]
             },
             "get": {
-                "description": "밴드 고유 식별 ID를 통해 밴드 정보를 조회합니다.",
+                "description": "\ubc34\ub4dc \uace0\uc720 \uc2dd\ubcc4 ID\ub97c \ud1b5\ud574 \ubc34\ub4dc \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getBand",
                 "parameters": [
                     {
@@ -5979,13 +5979,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 단건 조회 API",
+                "summary": "\ubc34\ub4dc \ub2e8\uac74 \uc870\ud68c API",
                 "tags": [
                     "bands"
                 ]
             },
             "patch": {
-                "description": "밴드 이름/설명/프로필 이미지 부분 수정. 리더만 가능.",
+                "description": "\ubc34\ub4dc \uc774\ub984/\uc124\uba85/\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \ubd80\ubd84 \uc218\uc815. \ub9ac\ub354\ub9cc \uac00\ub2a5.",
                 "operationId": "updateBand",
                 "parameters": [
                     {
@@ -6020,7 +6020,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 정보 수정 API",
+                "summary": "\ubc34\ub4dc \uc815\ubcf4 \uc218\uc815 API",
                 "tags": [
                     "bands"
                 ]
@@ -6028,7 +6028,7 @@
         },
         "/api/v1/bands/{bandId}/applications": {
             "get": {
-                "description": "필터 조건에 맞는 해당 밴드 가입 요청 목록을 확인합니다.",
+                "description": "\ud544\ud130 \uc870\uac74\uc5d0 \ub9de\ub294 \ud574\ub2f9 \ubc34\ub4dc \uac00\uc785 \uc694\uccad \ubaa9\ub85d\uc744 \ud655\uc778\ud569\ub2c8\ub2e4.",
                 "operationId": "getBandApplications",
                 "parameters": [
                     {
@@ -6061,13 +6061,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 가입 신청 목록 조회 API",
+                "summary": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "band-applications"
                 ]
             },
             "post": {
-                "description": "특정 밴드에 가입하기 위해 승인 요청을 보냅니다.",
+                "description": "\ud2b9\uc815 \ubc34\ub4dc\uc5d0 \uac00\uc785\ud558\uae30 \uc704\ud574 \uc2b9\uc778 \uc694\uccad\uc744 \ubcf4\ub0c5\ub2c8\ub2e4.",
                 "operationId": "applyToJoin",
                 "parameters": [
                     {
@@ -6092,7 +6092,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 가입 신청 API",
+                "summary": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad API",
                 "tags": [
                     "band-applications"
                 ]
@@ -6100,7 +6100,7 @@
         },
         "/api/v1/bands/{bandId}/applications/me": {
             "get": {
-                "description": "본인이 특정 밴드에 신청한 가장 최근 가입 신청 1건을 상태와 무관하게 조회합니다.",
+                "description": "\ubcf8\uc778\uc774 \ud2b9\uc815 \ubc34\ub4dc\uc5d0 \uc2e0\uccad\ud55c \uac00\uc7a5 \ucd5c\uadfc \uac00\uc785 \uc2e0\uccad 1\uac74\uc744 \uc0c1\ud0dc\uc640 \ubb34\uad00\ud558\uac8c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMyApplicationForBand",
                 "parameters": [
                     {
@@ -6125,13 +6125,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 밴드 가입 신청 단건 조회 API",
+                "summary": "\ub0b4 \ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \ub2e8\uac74 \uc870\ud68c API",
                 "tags": [
                     "band-applications"
                 ]
             },
             "patch": {
-                "description": "승인 대기 중인 본인의 가입 신청을 취소합니다.",
+                "description": "\uc2b9\uc778 \ub300\uae30 \uc911\uc778 \ubcf8\uc778\uc758 \uac00\uc785 \uc2e0\uccad\uc744 \ucde8\uc18c\ud569\ub2c8\ub2e4.",
                 "operationId": "withdrawApplication",
                 "parameters": [
                     {
@@ -6156,7 +6156,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 가입 신청 철회 API",
+                "summary": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \ucca0\ud68c API",
                 "tags": [
                     "band-applications"
                 ]
@@ -6164,7 +6164,7 @@
         },
         "/api/v1/bands/{bandId}/applications/{bandApplicationId}": {
             "patch": {
-                "description": "리더가 특정 신청 건의 상태를 승인 혹은 거절로 변경합니다.",
+                "description": "\ub9ac\ub354\uac00 \ud2b9\uc815 \uc2e0\uccad \uac74\uc758 \uc0c1\ud0dc\ub97c \uc2b9\uc778 \ud639\uc740 \uac70\uc808\ub85c \ubcc0\uacbd\ud569\ub2c8\ub2e4.",
                 "operationId": "processApplication",
                 "parameters": [
                     {
@@ -6213,7 +6213,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 가입 신청 승인/거절 API",
+                "summary": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \uc2b9\uc778/\uac70\uc808 API",
                 "tags": [
                     "band-applications"
                 ]
@@ -6221,7 +6221,7 @@
         },
         "/api/v1/bands/{bandId}/members": {
             "get": {
-                "description": "해당 밴드에 소속된 전체 멤버 목록을 확인합니다.",
+                "description": "\ud574\ub2f9 \ubc34\ub4dc\uc5d0 \uc18c\uc18d\ub41c \uc804\uccb4 \uba64\ubc84 \ubaa9\ub85d\uc744 \ud655\uc778\ud569\ub2c8\ub2e4.",
                 "operationId": "getBandMembers",
                 "parameters": [
                     {
@@ -6254,7 +6254,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 멤버 목록 조회 API",
+                "summary": "\ubc34\ub4dc \uba64\ubc84 \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "bands"
                 ]
@@ -6262,7 +6262,7 @@
         },
         "/api/v1/bands/{bandId}/members/me": {
             "delete": {
-                "description": "해당 밴드에서 탈퇴 처리하며 소속 정보를 삭제합니다.",
+                "description": "\ud574\ub2f9 \ubc34\ub4dc\uc5d0\uc11c \ud0c8\ud1f4 \ucc98\ub9ac\ud558\uba70 \uc18c\uc18d \uc815\ubcf4\ub97c \uc0ad\uc81c\ud569\ub2c8\ub2e4.",
                 "operationId": "leaveBand",
                 "parameters": [
                     {
@@ -6287,7 +6287,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 탈퇴 API",
+                "summary": "\ubc34\ub4dc \ud0c8\ud1f4 API",
                 "tags": [
                     "bands"
                 ]
@@ -6295,7 +6295,7 @@
         },
         "/api/v1/bands/{bandId}/members/{bandMemberId}": {
             "delete": {
-                "description": "리더가 특정 멤버를 강퇴합니다. 리더 자신은 강퇴 불가.",
+                "description": "\ub9ac\ub354\uac00 \ud2b9\uc815 \uba64\ubc84\ub97c \uac15\ud1f4\ud569\ub2c8\ub2e4. \ub9ac\ub354 \uc790\uc2e0\uc740 \uac15\ud1f4 \ubd88\uac00.",
                 "operationId": "kickMember",
                 "parameters": [
                     {
@@ -6329,13 +6329,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 멤버 강퇴 API",
+                "summary": "\ubc34\ub4dc \uba64\ubc84 \uac15\ud1f4 API",
                 "tags": [
                     "bands"
                 ]
             },
             "get": {
-                "description": "밴드 내 특정 멤버의 프로필 및 권한 정보를 조회합니다.",
+                "description": "\ubc34\ub4dc \ub0b4 \ud2b9\uc815 \uba64\ubc84\uc758 \ud504\ub85c\ud544 \ubc0f \uad8c\ud55c \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getBandMember",
                 "parameters": [
                     {
@@ -6369,7 +6369,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 멤버 단건 조회 API",
+                "summary": "\ubc34\ub4dc \uba64\ubc84 \ub2e8\uac74 \uc870\ud68c API",
                 "tags": [
                     "bands"
                 ]
@@ -6377,7 +6377,7 @@
         },
         "/api/v1/bands/{bandId}/members/{bandMemberId}/role": {
             "patch": {
-                "description": "리더가 멤버 역할을 변경합니다. body 가 비어 있거나 role=LEADER 면 리더 권한 위임으로 동작하고, role=ADMIN/MEMBER 면 해당 역할로 변경합니다.",
+                "description": "\ub9ac\ub354\uac00 \uba64\ubc84 \uc5ed\ud560\uc744 \ubcc0\uacbd\ud569\ub2c8\ub2e4. body \uac00 \ube44\uc5b4 \uc788\uac70\ub098 role=LEADER \uba74 \ub9ac\ub354 \uad8c\ud55c \uc704\uc784\uc73c\ub85c \ub3d9\uc791\ud558\uace0, role=ADMIN/MEMBER \uba74 \ud574\ub2f9 \uc5ed\ud560\ub85c \ubcc0\uacbd\ud569\ub2c8\ub2e4.",
                 "operationId": "delegateLeader",
                 "parameters": [
                     {
@@ -6420,7 +6420,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 멤버 역할 변경 / 리더 위임 API",
+                "summary": "\ubc34\ub4dc \uba64\ubc84 \uc5ed\ud560 \ubcc0\uacbd / \ub9ac\ub354 \uc704\uc784 API",
                 "tags": [
                     "bands"
                 ]
@@ -6428,7 +6428,7 @@
         },
         "/api/v1/bands/{bandId}/profile-image": {
             "delete": {
-                "description": "밴드 프로필 이미지를 제거합니다. 리더만 가능. 이미지가 없어도 성공 처리합니다.",
+                "description": "\ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0\ub97c \uc81c\uac70\ud569\ub2c8\ub2e4. \ub9ac\ub354\ub9cc \uac00\ub2a5. \uc774\ubbf8\uc9c0\uac00 \uc5c6\uc5b4\ub3c4 \uc131\uacf5 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
                 "operationId": "deleteBandProfileImage",
                 "parameters": [
                     {
@@ -6453,7 +6453,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "밴드 프로필 이미지 삭제 API",
+                "summary": "\ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc0ad\uc81c API",
                 "tags": [
                     "bands"
                 ]
@@ -6461,7 +6461,7 @@
         },
         "/api/v1/jams": {
             "get": {
-                "description": "합주 목록을 커서 기반으로 조회합니다. bandId 제공 시 해당 밴드 멤버가 참여 중인 합주만 조회합니다.",
+                "description": "\ud569\uc8fc \ubaa9\ub85d\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. bandId \uc81c\uacf5 \uc2dc \ud574\ub2f9 \ubc34\ub4dc \uba64\ubc84\uac00 \ucc38\uc5ec \uc911\uc778 \ud569\uc8fc\ub9cc \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getJams",
                 "parameters": [
                     {
@@ -6494,13 +6494,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "합주 목록 조회 API",
+                "summary": "\ud569\uc8fc \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "jams"
                 ]
             },
             "post": {
-                "description": "신규 합주를 생성합니다.",
+                "description": "\uc2e0\uaddc \ud569\uc8fc\ub97c \uc0dd\uc131\ud569\ub2c8\ub2e4.",
                 "operationId": "createJam",
                 "requestBody": {
                     "content": {
@@ -6524,7 +6524,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "합주 생성 API",
+                "summary": "\ud569\uc8fc \uc0dd\uc131 API",
                 "tags": [
                     "jams"
                 ]
@@ -6532,7 +6532,7 @@
         },
         "/api/v1/jams/me": {
             "get": {
-                "description": "본인이 참여 중인 합주 목록을 커서 기반으로 조회합니다.",
+                "description": "\ubcf8\uc778\uc774 \ucc38\uc5ec \uc911\uc778 \ud569\uc8fc \ubaa9\ub85d\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMyJams",
                 "parameters": [
                     {
@@ -6556,7 +6556,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 합주 목록 조회 API",
+                "summary": "\ub0b4 \ud569\uc8fc \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "jams"
                 ]
@@ -6564,7 +6564,7 @@
         },
         "/api/v1/jams/me/search": {
             "get": {
-                "description": "본인이 참여 중인 합주 중 합주 타이틀 또는 곡 제목에 키워드가 포함된 합주를 커서 기반으로 조회합니다.",
+                "description": "\ubcf8\uc778\uc774 \ucc38\uc5ec \uc911\uc778 \ud569\uc8fc \uc911 \ud569\uc8fc \ud0c0\uc774\ud2c0 \ub610\ub294 \uace1 \uc81c\ubaa9\uc5d0 \ud0a4\uc6cc\ub4dc\uac00 \ud3ec\ud568\ub41c \ud569\uc8fc\ub97c \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "searchMyJams",
                 "parameters": [
                     {
@@ -6588,7 +6588,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 합주 검색 API",
+                "summary": "\ub0b4 \ud569\uc8fc \uac80\uc0c9 API",
                 "tags": [
                     "jams"
                 ]
@@ -6596,7 +6596,7 @@
         },
         "/api/v1/jams/{jamId}": {
             "delete": {
-                "description": "합주를 삭제합니다.",
+                "description": "\ud569\uc8fc\ub97c \uc0ad\uc81c\ud569\ub2c8\ub2e4.",
                 "operationId": "deleteJam",
                 "parameters": [
                     {
@@ -6621,13 +6621,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "합주 삭제 API",
+                "summary": "\ud569\uc8fc \uc0ad\uc81c API",
                 "tags": [
                     "jams"
                 ]
             },
             "get": {
-                "description": "합주 상세 정보를 조회합니다.",
+                "description": "\ud569\uc8fc \uc0c1\uc138 \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getJam",
                 "parameters": [
                     {
@@ -6652,7 +6652,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "합주 조회 API",
+                "summary": "\ud569\uc8fc \uc870\ud68c API",
                 "tags": [
                     "jams"
                 ]
@@ -6660,7 +6660,7 @@
         },
         "/api/v1/jams/{jamId}/participants": {
             "post": {
-                "description": "합주의 특정 세션에 멤버를 배정합니다.",
+                "description": "\ud569\uc8fc\uc758 \ud2b9\uc815 \uc138\uc158\uc5d0 \uba64\ubc84\ub97c \ubc30\uc815\ud569\ub2c8\ub2e4.",
                 "operationId": "addParticipant",
                 "parameters": [
                     {
@@ -6695,7 +6695,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "합주 세션 참여자 추가 API",
+                "summary": "\ud569\uc8fc \uc138\uc158 \ucc38\uc5ec\uc790 \ucd94\uac00 API",
                 "tags": [
                     "jams"
                 ]
@@ -6703,7 +6703,7 @@
         },
         "/api/v1/jams/{jamId}/participants/{participantId}": {
             "delete": {
-                "description": "합주 세션 참여자 배정을 삭제합니다.",
+                "description": "\ud569\uc8fc \uc138\uc158 \ucc38\uc5ec\uc790 \ubc30\uc815\uc744 \uc0ad\uc81c\ud569\ub2c8\ub2e4.",
                 "operationId": "deleteParticipant",
                 "parameters": [
                     {
@@ -6737,7 +6737,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "합주 세션 참여자 삭제 API",
+                "summary": "\ud569\uc8fc \uc138\uc158 \ucc38\uc5ec\uc790 \uc0ad\uc81c API",
                 "tags": [
                     "jams"
                 ]
@@ -6745,7 +6745,7 @@
         },
         "/api/v1/jams/{jamId}/sessions": {
             "put": {
-                "description": "합주의 세션 정의 목록을 전체 교체합니다. 제거된 세션의 참여자 배정은 함께 삭제됩니다.",
+                "description": "\ud569\uc8fc\uc758 \uc138\uc158 \uc815\uc758 \ubaa9\ub85d\uc744 \uc804\uccb4 \uad50\uccb4\ud569\ub2c8\ub2e4. \uc81c\uac70\ub41c \uc138\uc158\uc758 \ucc38\uc5ec\uc790 \ubc30\uc815\uc740 \ud568\uaed8 \uc0ad\uc81c\ub429\ub2c8\ub2e4.",
                 "operationId": "updateSessions",
                 "parameters": [
                     {
@@ -6780,7 +6780,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "합주 세션 정의 교체 API",
+                "summary": "\ud569\uc8fc \uc138\uc158 \uc815\uc758 \uad50\uccb4 API",
                 "tags": [
                     "jams"
                 ]
@@ -6788,7 +6788,7 @@
         },
         "/api/v1/jams/{jamId}/time-info": {
             "patch": {
-                "description": "합주 일정(시작 시간, 소요 시간)을 변경합니다.",
+                "description": "\ud569\uc8fc \uc77c\uc815(\uc2dc\uc791 \uc2dc\uac04, \uc18c\uc694 \uc2dc\uac04)\uc744 \ubcc0\uacbd\ud569\ub2c8\ub2e4.",
                 "operationId": "updateTimeInfo",
                 "parameters": [
                     {
@@ -6823,7 +6823,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "합주 일정 변경 API",
+                "summary": "\ud569\uc8fc \uc77c\uc815 \ubcc0\uacbd API",
                 "tags": [
                     "jams"
                 ]
@@ -6831,7 +6831,7 @@
         },
         "/api/v1/jams/{jamId}/venue": {
             "patch": {
-                "description": "합주 장소를 변경합니다.",
+                "description": "\ud569\uc8fc \uc7a5\uc18c\ub97c \ubcc0\uacbd\ud569\ub2c8\ub2e4.",
                 "operationId": "updateVenue",
                 "parameters": [
                     {
@@ -6866,7 +6866,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "합주 장소 변경 API",
+                "summary": "\ud569\uc8fc \uc7a5\uc18c \ubcc0\uacbd API",
                 "tags": [
                     "jams"
                 ]
@@ -6874,7 +6874,7 @@
         },
         "/api/v1/me/availability": {
             "get": {
-                "description": "본인의 주간 규칙/예외 가용성 조회. 미등록 시 빈 응답.",
+                "description": "\ubcf8\uc778\uc758 \uc8fc\uac04 \uaddc\uce59/\uc608\uc678 \uac00\uc6a9\uc131 \uc870\ud68c. \ubbf8\ub4f1\ub85d \uc2dc \ube48 \uc751\ub2f5.",
                 "operationId": "getMyAvailability",
                 "responses": {
                     "200": {
@@ -6888,13 +6888,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 가용성 조회",
+                "summary": "\ub0b4 \uac00\uc6a9\uc131 \uc870\ud68c",
                 "tags": [
                     "member-availability"
                 ]
             },
             "put": {
-                "description": "본인만 수정 가능. weeklyRules/exceptions 전체 교체.",
+                "description": "\ubcf8\uc778\ub9cc \uc218\uc815 \uac00\ub2a5. weeklyRules/exceptions \uc804\uccb4 \uad50\uccb4.",
                 "operationId": "updateMyAvailability",
                 "requestBody": {
                     "content": {
@@ -6918,7 +6918,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 가용성 등록/수정",
+                "summary": "\ub0b4 \uac00\uc6a9\uc131 \ub4f1\ub85d/\uc218\uc815",
                 "tags": [
                     "member-availability"
                 ]
@@ -6926,7 +6926,7 @@
         },
         "/api/v1/members/join": {
             "post": {
-                "description": "신규 회원을 생성합니다.",
+                "description": "\uc2e0\uaddc \ud68c\uc6d0\uc744 \uc0dd\uc131\ud569\ub2c8\ub2e4.",
                 "operationId": "joinMember",
                 "requestBody": {
                     "content": {
@@ -6950,7 +6950,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 가입 API",
+                "summary": "\ud68c\uc6d0 \uac00\uc785 API",
                 "tags": [
                     "members"
                 ]
@@ -6958,7 +6958,7 @@
         },
         "/api/v1/members/me": {
             "delete": {
-                "description": "회원 정보를 삭제하고 로그아웃 처리합니다.",
+                "description": "\ud68c\uc6d0 \uc815\ubcf4\ub97c \uc0ad\uc81c\ud558\uace0 \ub85c\uadf8\uc544\uc6c3 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
                 "operationId": "withdrawMember",
                 "responses": {
                     "200": {
@@ -6972,13 +6972,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 탈퇴 API",
+                "summary": "\ud68c\uc6d0 \ud0c8\ud1f4 API",
                 "tags": [
                     "members"
                 ]
             },
             "get": {
-                "description": "회원 본인의 정보를 조회합니다.",
+                "description": "\ud68c\uc6d0 \ubcf8\uc778\uc758 \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMemberInfo",
                 "responses": {
                     "200": {
@@ -6992,13 +6992,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 정보 조회 API",
+                "summary": "\ud68c\uc6d0 \uc815\ubcf4 \uc870\ud68c API",
                 "tags": [
                     "members"
                 ]
             },
             "patch": {
-                "description": "회원 본인의 정보를 조회합니다.",
+                "description": "\ud68c\uc6d0 \ubcf8\uc778\uc758 \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "updateMemberInfo",
                 "requestBody": {
                     "content": {
@@ -7022,7 +7022,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 기본 정보 변경 API",
+                "summary": "\ud68c\uc6d0 \uae30\ubcf8 \uc815\ubcf4 \ubcc0\uacbd API",
                 "tags": [
                     "members"
                 ]
@@ -7030,7 +7030,7 @@
         },
         "/api/v1/members/me/metrics": {
             "get": {
-                "description": "본인의 밴드 수, 다가오는 합주/공연 수, 합주 세션 수를 조회합니다.",
+                "description": "\ubcf8\uc778\uc758 \ubc34\ub4dc \uc218, \ub2e4\uac00\uc624\ub294 \ud569\uc8fc/\uacf5\uc5f0 \uc218, \ud569\uc8fc \uc138\uc158 \uc218\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMemberStats",
                 "responses": {
                     "200": {
@@ -7044,7 +7044,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 메트릭 조회 API",
+                "summary": "\ud68c\uc6d0 \uba54\ud2b8\ub9ad \uc870\ud68c API",
                 "tags": [
                     "members"
                 ]
@@ -7052,7 +7052,7 @@
         },
         "/api/v1/members/me/profile-image": {
             "delete": {
-                "description": "회원 본인의 프로필 이미지를 제거합니다. 이미지가 없어도 성공 처리합니다.",
+                "description": "\ud68c\uc6d0 \ubcf8\uc778\uc758 \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0\ub97c \uc81c\uac70\ud569\ub2c8\ub2e4. \uc774\ubbf8\uc9c0\uac00 \uc5c6\uc5b4\ub3c4 \uc131\uacf5 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
                 "operationId": "deleteMemberProfileImage",
                 "responses": {
                     "200": {
@@ -7066,7 +7066,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 프로필 이미지 삭제 API",
+                "summary": "\ud68c\uc6d0 \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc0ad\uc81c API",
                 "tags": [
                     "members"
                 ]
@@ -7074,7 +7074,7 @@
         },
         "/api/v1/members/search": {
             "get": {
-                "description": "이름/이메일 부분 일치 검색. 최대 20건. 본인은 결과에서 제외.",
+                "description": "\uc774\ub984/\uc774\uba54\uc77c \ubd80\ubd84 \uc77c\uce58 \uac80\uc0c9. \ucd5c\ub300 20\uac74. \ubcf8\uc778\uc740 \uacb0\uacfc\uc5d0\uc11c \uc81c\uc678.",
                 "operationId": "searchMembers",
                 "parameters": [
                     {
@@ -7099,7 +7099,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "회원 검색 API",
+                "summary": "\ud68c\uc6d0 \uac80\uc0c9 API",
                 "tags": [
                     "members"
                 ]
@@ -7107,7 +7107,7 @@
         },
         "/api/v1/notifications": {
             "get": {
-                "description": "로그인한 회원의 전체 알림을 커서 기반 최신순으로 조회합니다. 카테고리 필터링은 프론트가 처리합니다.",
+                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc804\uccb4 \uc54c\ub9bc\uc744 \ucee4\uc11c \uae30\ubc18 \ucd5c\uc2e0\uc21c\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. \uce74\ud14c\uace0\ub9ac \ud544\ud130\ub9c1\uc740 \ud504\ub860\ud2b8\uac00 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
                 "operationId": "getMyNotifications",
                 "parameters": [
                     {
@@ -7131,7 +7131,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 알림 목록 조회 API",
+                "summary": "\ub0b4 \uc54c\ub9bc \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "notifications"
                 ]
@@ -7139,7 +7139,7 @@
         },
         "/api/v1/notifications/read-all": {
             "patch": {
-                "description": "로그인한 회원의 읽지 않은 모든 알림을 일괄 읽음 처리합니다.",
+                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc77d\uc9c0 \uc54a\uc740 \ubaa8\ub4e0 \uc54c\ub9bc\uc744 \uc77c\uad04 \uc77d\uc74c \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
                 "operationId": "markAllNotificationsAsRead",
                 "responses": {
                     "200": {
@@ -7153,7 +7153,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "전체 알림 읽음 처리 API",
+                "summary": "\uc804\uccb4 \uc54c\ub9bc \uc77d\uc74c \ucc98\ub9ac API",
                 "tags": [
                     "notifications"
                 ]
@@ -7161,7 +7161,7 @@
         },
         "/api/v1/notifications/unread-count": {
             "get": {
-                "description": "로그인한 회원의 읽지 않은 알림 개수를 조회합니다.",
+                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc77d\uc9c0 \uc54a\uc740 \uc54c\ub9bc \uac1c\uc218\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getUnreadNotificationCount",
                 "responses": {
                     "200": {
@@ -7175,7 +7175,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "미확인 알림 개수 조회 API",
+                "summary": "\ubbf8\ud655\uc778 \uc54c\ub9bc \uac1c\uc218 \uc870\ud68c API",
                 "tags": [
                     "notifications"
                 ]
@@ -7183,7 +7183,7 @@
         },
         "/api/v1/notifications/{notificationId}/read": {
             "patch": {
-                "description": "특정 알림을 읽음 처리합니다. 본인 소유 알림만 처리할 수 있습니다.",
+                "description": "\ud2b9\uc815 \uc54c\ub9bc\uc744 \uc77d\uc74c \ucc98\ub9ac\ud569\ub2c8\ub2e4. \ubcf8\uc778 \uc18c\uc720 \uc54c\ub9bc\ub9cc \ucc98\ub9ac\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
                 "operationId": "markNotificationAsRead",
                 "parameters": [
                     {
@@ -7208,7 +7208,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "알림 읽음 처리 API",
+                "summary": "\uc54c\ub9bc \uc77d\uc74c \ucc98\ub9ac API",
                 "tags": [
                     "notifications"
                 ]
@@ -7216,7 +7216,7 @@
         },
         "/api/v1/performances": {
             "get": {
-                "description": "공연 목록을 커서 기반으로 조회합니다. bandId 제공 시 해당 밴드가 셋리스트로 참여하는 공연만 조회합니다.",
+                "description": "\uacf5\uc5f0 \ubaa9\ub85d\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. bandId \uc81c\uacf5 \uc2dc \ud574\ub2f9 \ubc34\ub4dc\uac00 \uc14b\ub9ac\uc2a4\ud2b8\ub85c \ucc38\uc5ec\ud558\ub294 \uacf5\uc5f0\ub9cc \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getPerformances",
                 "parameters": [
                     {
@@ -7249,13 +7249,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 목록 조회 API",
+                "summary": "\uacf5\uc5f0 \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "performances"
                 ]
             },
             "post": {
-                "description": "신규 공연을 생성하고 생성자를 매니저로 등록합니다.",
+                "description": "\uc2e0\uaddc \uacf5\uc5f0\uc744 \uc0dd\uc131\ud558\uace0 \uc0dd\uc131\uc790\ub97c \ub9e4\ub2c8\uc800\ub85c \ub4f1\ub85d\ud569\ub2c8\ub2e4.",
                 "operationId": "createPerformance",
                 "requestBody": {
                     "content": {
@@ -7279,7 +7279,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 생성 API",
+                "summary": "\uacf5\uc5f0 \uc0dd\uc131 API",
                 "tags": [
                     "performances"
                 ]
@@ -7287,7 +7287,7 @@
         },
         "/api/v1/performances/invitations/me": {
             "get": {
-                "description": "본인이 받은 대기 중(PENDING) 공연 초대 목록을 조회합니다.",
+                "description": "\ubcf8\uc778\uc774 \ubc1b\uc740 \ub300\uae30 \uc911(PENDING) \uacf5\uc5f0 \ucd08\ub300 \ubaa9\ub85d\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMyInvitations",
                 "responses": {
                     "200": {
@@ -7301,7 +7301,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 공연 초대 목록 조회 API",
+                "summary": "\ub0b4 \uacf5\uc5f0 \ucd08\ub300 \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "performances"
                 ]
@@ -7309,7 +7309,7 @@
         },
         "/api/v1/performances/me": {
             "get": {
-                "description": "본인이 속한 밴드가 셋리스트로 참여하는 공연 목록을 커서 기반으로 조회합니다.",
+                "description": "\ubcf8\uc778\uc774 \uc18d\ud55c \ubc34\ub4dc\uac00 \uc14b\ub9ac\uc2a4\ud2b8\ub85c \ucc38\uc5ec\ud558\ub294 \uacf5\uc5f0 \ubaa9\ub85d\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMyPerformances",
                 "parameters": [
                     {
@@ -7333,7 +7333,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 공연 목록 조회 API",
+                "summary": "\ub0b4 \uacf5\uc5f0 \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "performances"
                 ]
@@ -7341,7 +7341,7 @@
         },
         "/api/v1/performances/search": {
             "get": {
-                "description": "공연 제목에 키워드가 포함된 공연을 커서 기반으로 조회합니다.",
+                "description": "\uacf5\uc5f0 \uc81c\ubaa9\uc5d0 \ud0a4\uc6cc\ub4dc\uac00 \ud3ec\ud568\ub41c \uacf5\uc5f0\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "searchPerformances",
                 "parameters": [
                     {
@@ -7365,7 +7365,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 검색 API",
+                "summary": "\uacf5\uc5f0 \uac80\uc0c9 API",
                 "tags": [
                     "performances"
                 ]
@@ -7373,7 +7373,7 @@
         },
         "/api/v1/performances/{performanceId}": {
             "delete": {
-                "description": "공연을 삭제합니다. OWNER만 수행할 수 있습니다.",
+                "description": "\uacf5\uc5f0\uc744 \uc0ad\uc81c\ud569\ub2c8\ub2e4. OWNER\ub9cc \uc218\ud589\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
                 "operationId": "deletePerformance",
                 "parameters": [
                     {
@@ -7398,13 +7398,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 삭제 API",
+                "summary": "\uacf5\uc5f0 \uc0ad\uc81c API",
                 "tags": [
                     "performances"
                 ]
             },
             "get": {
-                "description": "공연 고유 식별 ID를 통해 공연 상세 정보를 조회합니다.",
+                "description": "\uacf5\uc5f0 \uace0\uc720 \uc2dd\ubcc4 ID\ub97c \ud1b5\ud574 \uacf5\uc5f0 \uc0c1\uc138 \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getPerformance",
                 "parameters": [
                     {
@@ -7429,13 +7429,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 단건 조회 API",
+                "summary": "\uacf5\uc5f0 \ub2e8\uac74 \uc870\ud68c API",
                 "tags": [
                     "performances"
                 ]
             },
             "patch": {
-                "description": "공연 제목, 일정, 장소를 수정합니다. OWNER 또는 MANAGER만 수행할 수 있습니다.",
+                "description": "\uacf5\uc5f0 \uc81c\ubaa9, \uc77c\uc815, \uc7a5\uc18c\ub97c \uc218\uc815\ud569\ub2c8\ub2e4. OWNER \ub610\ub294 MANAGER\ub9cc \uc218\ud589\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
                 "operationId": "updatePerformance",
                 "parameters": [
                     {
@@ -7470,7 +7470,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 정보 수정 API",
+                "summary": "\uacf5\uc5f0 \uc815\ubcf4 \uc218\uc815 API",
                 "tags": [
                     "performances"
                 ]
@@ -7478,7 +7478,7 @@
         },
         "/api/v1/performances/{performanceId}/invitations": {
             "get": {
-                "description": "공연에 발송된 초대 목록을 조회합니다. OWNER만 가능.",
+                "description": "\uacf5\uc5f0\uc5d0 \ubc1c\uc1a1\ub41c \ucd08\ub300 \ubaa9\ub85d\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4. OWNER\ub9cc \uac00\ub2a5.",
                 "operationId": "getInvitations",
                 "parameters": [
                     {
@@ -7503,13 +7503,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 초대 목록 조회 API",
+                "summary": "\uacf5\uc5f0 \ucd08\ub300 \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "performances"
                 ]
             },
             "post": {
-                "description": "특정 멤버를 공연 MANAGER로 초대합니다. OWNER만 가능하며, 수락 시 MANAGER로 추가됩니다.",
+                "description": "\ud2b9\uc815 \uba64\ubc84\ub97c \uacf5\uc5f0 MANAGER\ub85c \ucd08\ub300\ud569\ub2c8\ub2e4. OWNER\ub9cc \uac00\ub2a5\ud558\uba70, \uc218\ub77d \uc2dc MANAGER\ub85c \ucd94\uac00\ub429\ub2c8\ub2e4.",
                 "operationId": "sendInvitation",
                 "parameters": [
                     {
@@ -7544,7 +7544,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 매니저 초대 발송 API",
+                "summary": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \ucd08\ub300 \ubc1c\uc1a1 API",
                 "tags": [
                     "performances"
                 ]
@@ -7552,7 +7552,7 @@
         },
         "/api/v1/performances/{performanceId}/invitations/{invitationId}": {
             "patch": {
-                "description": "받은 공연 초대를 수락(ACCEPTED) 또는 거절(REJECTED)합니다. 초대 수신자 본인만 가능. 수락 시 MANAGER로 추가됩니다.",
+                "description": "\ubc1b\uc740 \uacf5\uc5f0 \ucd08\ub300\ub97c \uc218\ub77d(ACCEPTED) \ub610\ub294 \uac70\uc808(REJECTED)\ud569\ub2c8\ub2e4. \ucd08\ub300 \uc218\uc2e0\uc790 \ubcf8\uc778\ub9cc \uac00\ub2a5. \uc218\ub77d \uc2dc MANAGER\ub85c \ucd94\uac00\ub429\ub2c8\ub2e4.",
                 "operationId": "respondInvitation",
                 "parameters": [
                     {
@@ -7600,7 +7600,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 초대 수락/거절 API",
+                "summary": "\uacf5\uc5f0 \ucd08\ub300 \uc218\ub77d/\uac70\uc808 API",
                 "tags": [
                     "performances"
                 ]
@@ -7608,7 +7608,7 @@
         },
         "/api/v1/performances/{performanceId}/owner": {
             "patch": {
-                "description": "현재 OWNER가 같은 공연의 MANAGER에게 소유권(OWNER)을 양도합니다. 기존 OWNER는 MANAGER로 강등됩니다. OWNER만 수행할 수 있습니다.",
+                "description": "\ud604\uc7ac OWNER\uac00 \uac19\uc740 \uacf5\uc5f0\uc758 MANAGER\uc5d0\uac8c \uc18c\uc720\uad8c(OWNER)\uc744 \uc591\ub3c4\ud569\ub2c8\ub2e4. \uae30\uc874 OWNER\ub294 MANAGER\ub85c \uac15\ub4f1\ub429\ub2c8\ub2e4. OWNER\ub9cc \uc218\ud589\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
                 "operationId": "delegateOwnership",
                 "parameters": [
                     {
@@ -7643,7 +7643,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 소유권 양도 API",
+                "summary": "\uacf5\uc5f0 \uc18c\uc720\uad8c \uc591\ub3c4 API",
                 "tags": [
                     "performances"
                 ]
@@ -7651,7 +7651,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards": {
             "get": {
-                "description": "공연 참여자만 호출 가능.",
+                "description": "\uacf5\uc5f0 \ucc38\uc5ec\uc790\ub9cc \ud638\ucd9c \uac00\ub2a5.",
                 "operationId": "getBoards",
                 "parameters": [
                     {
@@ -7676,13 +7676,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "시간표 시안 목록",
+                "summary": "\uc2dc\uac04\ud45c \uc2dc\uc548 \ubaa9\ub85d",
                 "tags": [
                     "schedule-boards"
                 ]
             },
             "post": {
-                "description": "공연 매니저 권한, 공연당 최대 5개.",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \uad8c\ud55c, \uacf5\uc5f0\ub2f9 \ucd5c\ub300 5\uac1c.",
                 "operationId": "createBoard",
                 "parameters": [
                     {
@@ -7717,7 +7717,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "시간표 시안 생성",
+                "summary": "\uc2dc\uac04\ud45c \uc2dc\uc548 \uc0dd\uc131",
                 "tags": [
                     "schedule-boards"
                 ]
@@ -7725,7 +7725,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards/{boardId}": {
             "delete": {
-                "description": "공연 매니저 권한, confirmed=true 인 시안은 삭제 불가(409).",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \uad8c\ud55c, confirmed=true \uc778 \uc2dc\uc548\uc740 \uc0ad\uc81c \ubd88\uac00(409).",
                 "operationId": "deleteBoard",
                 "parameters": [
                     {
@@ -7759,13 +7759,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "시간표 시안 삭제",
+                "summary": "\uc2dc\uac04\ud45c \uc2dc\uc548 \uc0ad\uc81c",
                 "tags": [
                     "schedule-boards"
                 ]
             },
             "patch": {
-                "description": "공연 매니저 권한, confirmed=true 인 시안은 수정 불가(409).",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \uad8c\ud55c, confirmed=true \uc778 \uc2dc\uc548\uc740 \uc218\uc815 \ubd88\uac00(409).",
                 "operationId": "updateBoard",
                 "parameters": [
                     {
@@ -7809,7 +7809,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "시간표 시안 수정",
+                "summary": "\uc2dc\uac04\ud45c \uc2dc\uc548 \uc218\uc815",
                 "tags": [
                     "schedule-boards"
                 ]
@@ -7817,7 +7817,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards/{boardId}/auto-place": {
             "post": {
-                "description": "공연 매니저. 비고정 블록을 제거하고 제안을 블록으로 저장.",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800. \ube44\uace0\uc815 \ube14\ub85d\uc744 \uc81c\uac70\ud558\uace0 \uc81c\uc548\uc744 \ube14\ub85d\uc73c\ub85c \uc800\uc7a5.",
                 "operationId": "autoPlace",
                 "parameters": [
                     {
@@ -7861,7 +7861,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "자동 배치 실행",
+                "summary": "\uc790\ub3d9 \ubc30\uce58 \uc2e4\ud589",
                 "tags": [
                     "schedule-auto-place"
                 ]
@@ -7869,7 +7869,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards/{boardId}/blocks/{blockId}": {
             "delete": {
-                "description": "공연 매니저 권한, confirmed=true 인 시안의 블록은 삭제 불가.",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \uad8c\ud55c, confirmed=true \uc778 \uc2dc\uc548\uc758 \ube14\ub85d\uc740 \uc0ad\uc81c \ubd88\uac00.",
                 "operationId": "deleteBlock",
                 "parameters": [
                     {
@@ -7912,13 +7912,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "시간표 블록 삭제",
+                "summary": "\uc2dc\uac04\ud45c \ube14\ub85d \uc0ad\uc81c",
                 "tags": [
                     "schedule-blocks"
                 ]
             },
             "put": {
-                "description": "공연 매니저 권한, blockId 가 없으면 새로 생성, 있으면 갱신.",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \uad8c\ud55c, blockId \uac00 \uc5c6\uc73c\uba74 \uc0c8\ub85c \uc0dd\uc131, \uc788\uc73c\uba74 \uac31\uc2e0.",
                 "operationId": "upsertBlock",
                 "parameters": [
                     {
@@ -7971,7 +7971,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "시간표 블록 등록/수정",
+                "summary": "\uc2dc\uac04\ud45c \ube14\ub85d \ub4f1\ub85d/\uc218\uc815",
                 "tags": [
                     "schedule-blocks"
                 ]
@@ -7979,7 +7979,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards/{boardId}/blocks/{blockId}/anchor": {
             "patch": {
-                "description": "공연 매니저. 블록을 고정하여 재배치 시 유지되도록 함.",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800. \ube14\ub85d\uc744 \uace0\uc815\ud558\uc5ec \uc7ac\ubc30\uce58 \uc2dc \uc720\uc9c0\ub418\ub3c4\ub85d \ud568.",
                 "operationId": "anchorBlock",
                 "parameters": [
                     {
@@ -8022,7 +8022,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "블록 고정(anchor)",
+                "summary": "\ube14\ub85d \uace0\uc815(anchor)",
                 "tags": [
                     "schedule-auto-place"
                 ]
@@ -8030,7 +8030,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards/{boardId}/blocks/{blockId}/pin": {
             "patch": {
-                "description": "공연 매니저 권한, 요청 body 의 pinned 값으로 설정.",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \uad8c\ud55c, \uc694\uccad body \uc758 pinned \uac12\uc73c\ub85c \uc124\uc815.",
                 "operationId": "setPin",
                 "parameters": [
                     {
@@ -8083,7 +8083,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "시간표 블록 핀 토글",
+                "summary": "\uc2dc\uac04\ud45c \ube14\ub85d \ud540 \ud1a0\uae00",
                 "tags": [
                     "schedule-blocks"
                 ]
@@ -8091,7 +8091,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards/{boardId}/confirm": {
             "post": {
-                "description": "공연 매니저 권한. 같은 공연에 confirmed 시안이 이미 있으면 409. 확정 시 모든 ScheduleBlock 을 Jam 으로 일괄 생성.",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \uad8c\ud55c. \uac19\uc740 \uacf5\uc5f0\uc5d0 confirmed \uc2dc\uc548\uc774 \uc774\ubbf8 \uc788\uc73c\uba74 409. \ud655\uc815 \uc2dc \ubaa8\ub4e0 ScheduleBlock \uc744 Jam \uc73c\ub85c \uc77c\uad04 \uc0dd\uc131.",
                 "operationId": "confirmBoard",
                 "parameters": [
                     {
@@ -8125,7 +8125,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "시간표 시안 확정",
+                "summary": "\uc2dc\uac04\ud45c \uc2dc\uc548 \ud655\uc815",
                 "tags": [
                     "schedule-boards"
                 ]
@@ -8133,7 +8133,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards/{boardId}/preview": {
             "post": {
-                "description": "공연 참여자. 저장하지 않고 배치 제안만 반환.",
+                "description": "\uacf5\uc5f0 \ucc38\uc5ec\uc790. \uc800\uc7a5\ud558\uc9c0 \uc54a\uace0 \ubc30\uce58 \uc81c\uc548\ub9cc \ubc18\ud658.",
                 "operationId": "preview",
                 "parameters": [
                     {
@@ -8177,7 +8177,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "자동 배치 미리보기",
+                "summary": "\uc790\ub3d9 \ubc30\uce58 \ubbf8\ub9ac\ubcf4\uae30",
                 "tags": [
                     "schedule-auto-place"
                 ]
@@ -8185,7 +8185,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards/{boardId}/replan": {
             "post": {
-                "description": "공연 매니저. 고정(pinned/anchored) 블록은 유지하고 나머지를 재배치.",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800. \uace0\uc815(pinned/anchored) \ube14\ub85d\uc740 \uc720\uc9c0\ud558\uace0 \ub098\uba38\uc9c0\ub97c \uc7ac\ubc30\uce58.",
                 "operationId": "replan",
                 "parameters": [
                     {
@@ -8229,7 +8229,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "재배치",
+                "summary": "\uc7ac\ubc30\uce58",
                 "tags": [
                     "schedule-auto-place"
                 ]
@@ -8237,7 +8237,7 @@
         },
         "/api/v1/performances/{performanceId}/schedule-boards/{boardId}/unconfirm": {
             "post": {
-                "description": "공연 매니저 권한. 생성된 Jam 은 정리(soft-delete)되고 board.confirmed 가 false 로 토글.",
+                "description": "\uacf5\uc5f0 \ub9e4\ub2c8\uc800 \uad8c\ud55c. \uc0dd\uc131\ub41c Jam \uc740 \uc815\ub9ac(soft-delete)\ub418\uace0 board.confirmed \uac00 false \ub85c \ud1a0\uae00.",
                 "operationId": "unconfirmBoard",
                 "parameters": [
                     {
@@ -8271,7 +8271,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "시간표 시안 확정 해제",
+                "summary": "\uc2dc\uac04\ud45c \uc2dc\uc548 \ud655\uc815 \ud574\uc81c",
                 "tags": [
                     "schedule-boards"
                 ]
@@ -8279,7 +8279,7 @@
         },
         "/api/v1/performances/{performanceId}/setlists/batch": {
             "post": {
-                "description": "공연에 참여 셋리스트를 append 시맨틱으로 다중 추가합니다. OWNER/MANAGER가 본인이 소유/참여한 셋리스트만 추가할 수 있습니다. 이미 등록된 셋리스트는 응답에서 제외.",
+                "description": "\uacf5\uc5f0\uc5d0 \ucc38\uc5ec \uc14b\ub9ac\uc2a4\ud2b8\ub97c append \uc2dc\ub9e8\ud2f1\uc73c\ub85c \ub2e4\uc911 \ucd94\uac00\ud569\ub2c8\ub2e4. OWNER/MANAGER\uac00 \ubcf8\uc778\uc774 \uc18c\uc720/\ucc38\uc5ec\ud55c \uc14b\ub9ac\uc2a4\ud2b8\ub9cc \ucd94\uac00\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4. \uc774\ubbf8 \ub4f1\ub85d\ub41c \uc14b\ub9ac\uc2a4\ud2b8\ub294 \uc751\ub2f5\uc5d0\uc11c \uc81c\uc678.",
                 "operationId": "addSetlists",
                 "parameters": [
                     {
@@ -8314,7 +8314,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 참여 셋리스트 일괄 추가 API",
+                "summary": "\uacf5\uc5f0 \ucc38\uc5ec \uc14b\ub9ac\uc2a4\ud2b8 \uc77c\uad04 \ucd94\uac00 API",
                 "tags": [
                     "performances"
                 ]
@@ -8322,7 +8322,7 @@
         },
         "/api/v1/performances/{performanceId}/setlists/{setlistId}": {
             "delete": {
-                "description": "공연에서 특정 참여 셋리스트를 제거합니다. OWNER는 모든 셋리스트를, MANAGER는 본인이 소유/참여한 셋리스트만 제거할 수 있습니다.",
+                "description": "\uacf5\uc5f0\uc5d0\uc11c \ud2b9\uc815 \ucc38\uc5ec \uc14b\ub9ac\uc2a4\ud2b8\ub97c \uc81c\uac70\ud569\ub2c8\ub2e4. OWNER\ub294 \ubaa8\ub4e0 \uc14b\ub9ac\uc2a4\ud2b8\ub97c, MANAGER\ub294 \ubcf8\uc778\uc774 \uc18c\uc720/\ucc38\uc5ec\ud55c \uc14b\ub9ac\uc2a4\ud2b8\ub9cc \uc81c\uac70\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
                 "operationId": "removeSetlist",
                 "parameters": [
                     {
@@ -8356,7 +8356,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "공연 참여 셋리스트 단건 제거 API",
+                "summary": "\uacf5\uc5f0 \ucc38\uc5ec \uc14b\ub9ac\uc2a4\ud2b8 \ub2e8\uac74 \uc81c\uac70 API",
                 "tags": [
                     "performances"
                 ]
@@ -8365,7 +8365,7 @@
         "/api/v1/setlist-meetings/{meetingId}/schedules": {
             "get": {
                 "deprecated": true,
-                "description": "회의 참여자만 호출 가능.",
+                "description": "\ud68c\uc758 \ucc38\uc5ec\uc790\ub9cc \ud638\ucd9c \uac00\ub2a5.",
                 "operationId": "getAllSchedules",
                 "parameters": [
                     {
@@ -8390,7 +8390,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "참여자 가용 시간 목록",
+                "summary": "\ucc38\uc5ec\uc790 \uac00\uc6a9 \uc2dc\uac04 \ubaa9\ub85d",
                 "tags": [
                     "schedule-member"
                 ]
@@ -8399,7 +8399,7 @@
         "/api/v1/setlist-meetings/{meetingId}/schedules/aggregate": {
             "get": {
                 "deprecated": true,
-                "description": "날짜별 가용/불가용/미응답 카운트 + 응답 완료자 수.",
+                "description": "\ub0a0\uc9dc\ubcc4 \uac00\uc6a9/\ubd88\uac00\uc6a9/\ubbf8\uc751\ub2f5 \uce74\uc6b4\ud2b8 + \uc751\ub2f5 \uc644\ub8cc\uc790 \uc218.",
                 "operationId": "getAggregatedSchedule",
                 "parameters": [
                     {
@@ -8424,7 +8424,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "가용 시간 집계",
+                "summary": "\uac00\uc6a9 \uc2dc\uac04 \uc9d1\uacc4",
                 "tags": [
                     "schedule-member"
                 ]
@@ -8433,7 +8433,7 @@
         "/api/v1/setlist-meetings/{meetingId}/schedules/me": {
             "get": {
                 "deprecated": true,
-                "description": "회의 참여자만 호출 가능. 미등록 시 빈 응답.",
+                "description": "\ud68c\uc758 \ucc38\uc5ec\uc790\ub9cc \ud638\ucd9c \uac00\ub2a5. \ubbf8\ub4f1\ub85d \uc2dc \ube48 \uc751\ub2f5.",
                 "operationId": "getMySchedule",
                 "parameters": [
                     {
@@ -8458,14 +8458,14 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 가용 시간 조회",
+                "summary": "\ub0b4 \uac00\uc6a9 \uc2dc\uac04 \uc870\ud68c",
                 "tags": [
                     "schedule-member"
                 ]
             },
             "put": {
                 "deprecated": true,
-                "description": "본인만 수정 가능. 날짜 중복 / practiceWindow 범위 검증.",
+                "description": "\ubcf8\uc778\ub9cc \uc218\uc815 \uac00\ub2a5. \ub0a0\uc9dc \uc911\ubcf5 / practiceWindow \ubc94\uc704 \uac80\uc99d.",
                 "operationId": "upsertMySchedule",
                 "parameters": [
                     {
@@ -8500,7 +8500,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 가용 시간 등록/수정",
+                "summary": "\ub0b4 \uac00\uc6a9 \uc2dc\uac04 \ub4f1\ub85d/\uc218\uc815",
                 "tags": [
                     "schedule-member"
                 ]
@@ -8508,7 +8508,7 @@
         },
         "/api/v1/setlists": {
             "post": {
-                "description": "잠금된 선곡(TrackSelection)에서 선택된 트랙들을 모아 셋리스트를 생성합니다.",
+                "description": "\uc7a0\uae08\ub41c \uc120\uace1(TrackSelection)\uc5d0\uc11c \uc120\ud0dd\ub41c \ud2b8\ub799\ub4e4\uc744 \ubaa8\uc544 \uc14b\ub9ac\uc2a4\ud2b8\ub97c \uc0dd\uc131\ud569\ub2c8\ub2e4.",
                 "operationId": "createSetlist",
                 "requestBody": {
                     "content": {
@@ -8532,7 +8532,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "셋리스트 생성",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \uc0dd\uc131",
                 "tags": [
                     "setlists"
                 ]
@@ -8540,7 +8540,7 @@
         },
         "/api/v1/setlists/by-title": {
             "get": {
-                "description": "본인이 접근 가능한 셋리스트 중 타이틀이 일치하는 항목을 조회합니다.",
+                "description": "\ubcf8\uc778\uc774 \uc811\uadfc \uac00\ub2a5\ud55c \uc14b\ub9ac\uc2a4\ud2b8 \uc911 \ud0c0\uc774\ud2c0\uc774 \uc77c\uce58\ud558\ub294 \ud56d\ubaa9\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getSetlistsByTitle",
                 "parameters": [
                     {
@@ -8564,7 +8564,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "셋리스트 타이틀 조회",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud0c0\uc774\ud2c0 \uc870\ud68c",
                 "tags": [
                     "setlists"
                 ]
@@ -8572,7 +8572,7 @@
         },
         "/api/v1/setlists/me": {
             "get": {
-                "description": "본인이 참여 중인 셋리스트를 커서 기반으로 조회합니다.",
+                "description": "\ubcf8\uc778\uc774 \ucc38\uc5ec \uc911\uc778 \uc14b\ub9ac\uc2a4\ud2b8\ub97c \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMySetlists",
                 "parameters": [
                     {
@@ -8596,7 +8596,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 셋리스트 목록",
+                "summary": "\ub0b4 \uc14b\ub9ac\uc2a4\ud2b8 \ubaa9\ub85d",
                 "tags": [
                     "setlists"
                 ]
@@ -8628,13 +8628,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "셋리스트 단건 조회",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ub2e8\uac74 \uc870\ud68c",
                 "tags": [
                     "setlists"
                 ]
             },
             "patch": {
-                "description": "매니저가 셋리스트 제목을 수정합니다.",
+                "description": "\ub9e4\ub2c8\uc800\uac00 \uc14b\ub9ac\uc2a4\ud2b8 \uc81c\ubaa9\uc744 \uc218\uc815\ud569\ub2c8\ub2e4.",
                 "operationId": "updateSetlist",
                 "parameters": [
                     {
@@ -8669,7 +8669,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "셋리스트 타이틀 수정",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud0c0\uc774\ud2c0 \uc218\uc815",
                 "tags": [
                     "setlists"
                 ]
@@ -8677,7 +8677,7 @@
         },
         "/api/v1/setlists/{setlistId}/jams": {
             "post": {
-                "description": "매니저가 셋리스트의 각 트랙을 합주(Jam)로 전파 생성합니다. 트랙 1건당 합주 1건이 생성되며, 트랙 참여자가 합주 참여자로 복사됩니다.",
+                "description": "\ub9e4\ub2c8\uc800\uac00 \uc14b\ub9ac\uc2a4\ud2b8\uc758 \uac01 \ud2b8\ub799\uc744 \ud569\uc8fc(Jam)\ub85c \uc804\ud30c \uc0dd\uc131\ud569\ub2c8\ub2e4. \ud2b8\ub799 1\uac74\ub2f9 \ud569\uc8fc 1\uac74\uc774 \uc0dd\uc131\ub418\uba70, \ud2b8\ub799 \ucc38\uc5ec\uc790\uac00 \ud569\uc8fc \ucc38\uc5ec\uc790\ub85c \ubcf5\uc0ac\ub429\ub2c8\ub2e4.",
                 "operationId": "createJamsFromSetlist",
                 "parameters": [
                     {
@@ -8712,7 +8712,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "셋리스트 기반 합주 생성",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \uae30\ubc18 \ud569\uc8fc \uc0dd\uc131",
                 "tags": [
                     "setlists"
                 ]
@@ -8752,7 +8752,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "셋리스트 트랙 목록 조회",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799 \ubaa9\ub85d \uc870\ud68c",
                 "tags": [
                     "setlists"
                 ]
@@ -8760,7 +8760,7 @@
         },
         "/api/v1/setlists/{setlistId}/tracks/{trackId}": {
             "delete": {
-                "description": "매니저가 셋리스트 트랙을 삭제합니다. 해당 트랙의 참여자도 함께 정리됩니다.",
+                "description": "\ub9e4\ub2c8\uc800\uac00 \uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799\uc744 \uc0ad\uc81c\ud569\ub2c8\ub2e4. \ud574\ub2f9 \ud2b8\ub799\uc758 \ucc38\uc5ec\uc790\ub3c4 \ud568\uaed8 \uc815\ub9ac\ub429\ub2c8\ub2e4.",
                 "operationId": "deleteTrack",
                 "parameters": [
                     {
@@ -8794,7 +8794,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "셋리스트 트랙 삭제",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799 \uc0ad\uc81c",
                 "tags": [
                     "setlists"
                 ]
@@ -8833,13 +8833,13 @@
                         "description": "OK"
                     }
                 },
-                "summary": "셋리스트 트랙 단건 조회",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799 \ub2e8\uac74 \uc870\ud68c",
                 "tags": [
                     "setlists"
                 ]
             },
             "patch": {
-                "description": "매니저가 셋리스트 트랙을 수정합니다. 세션 교체 시 더 이상 참여하지 않는 참여자도 함께 정리됩니다.",
+                "description": "\ub9e4\ub2c8\uc800\uac00 \uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799\uc744 \uc218\uc815\ud569\ub2c8\ub2e4. \uc138\uc158 \uad50\uccb4 \uc2dc \ub354 \uc774\uc0c1 \ucc38\uc5ec\ud558\uc9c0 \uc54a\ub294 \ucc38\uc5ec\uc790\ub3c4 \ud568\uaed8 \uc815\ub9ac\ub429\ub2c8\ub2e4.",
                 "operationId": "updateTrack",
                 "parameters": [
                     {
@@ -8883,7 +8883,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "셋리스트 트랙 수정",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799 \uc218\uc815",
                 "tags": [
                     "setlists"
                 ]
@@ -8891,7 +8891,7 @@
         },
         "/api/v1/track-selections": {
             "post": {
-                "description": "선곡을 생성합니다.",
+                "description": "\uc120\uace1\uc744 \uc0dd\uc131\ud569\ub2c8\ub2e4.",
                 "operationId": "createSelection",
                 "requestBody": {
                     "content": {
@@ -8915,7 +8915,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 생성",
+                "summary": "\uc120\uace1 \uc0dd\uc131",
                 "tags": [
                     "track-selections"
                 ]
@@ -8923,7 +8923,7 @@
         },
         "/api/v1/track-selections/me": {
             "get": {
-                "description": "본인이 참여 중인 선곡을 커서 기반으로 조회합니다.",
+                "description": "\ubcf8\uc778\uc774 \ucc38\uc5ec \uc911\uc778 \uc120\uace1\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getMySelections",
                 "parameters": [
                     {
@@ -8947,7 +8947,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "내 선곡 목록",
+                "summary": "\ub0b4 \uc120\uace1 \ubaa9\ub85d",
                 "tags": [
                     "track-selections"
                 ]
@@ -8979,7 +8979,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 삭제",
+                "summary": "\uc120\uace1 \uc0ad\uc81c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9009,7 +9009,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 단건 조회",
+                "summary": "\uc120\uace1 \ub2e8\uac74 \uc870\ud68c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9049,7 +9049,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 수정",
+                "summary": "\uc120\uace1 \uc218\uc815",
                 "tags": [
                     "track-selections"
                 ]
@@ -9089,7 +9089,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 항목 목록 조회",
+                "summary": "\uc120\uace1 \ud56d\ubaa9 \ubaa9\ub85d \uc870\ud68c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9129,7 +9129,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 항목 생성",
+                "summary": "\uc120\uace1 \ud56d\ubaa9 \uc0dd\uc131",
                 "tags": [
                     "track-selections"
                 ]
@@ -9170,7 +9170,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 항목 삭제",
+                "summary": "\uc120\uace1 \ud56d\ubaa9 \uc0ad\uc81c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9209,7 +9209,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 항목 단건 조회",
+                "summary": "\uc120\uace1 \ud56d\ubaa9 \ub2e8\uac74 \uc870\ud68c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9258,7 +9258,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 항목 수정",
+                "summary": "\uc120\uace1 \ud56d\ubaa9 \uc218\uc815",
                 "tags": [
                     "track-selections"
                 ]
@@ -9320,7 +9320,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 항목 채팅 조회",
+                "summary": "\uc120\uace1 \ud56d\ubaa9 \ucc44\ud305 \uc870\ud68c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9369,7 +9369,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 항목 채팅 작성",
+                "summary": "\uc120\uace1 \ud56d\ubaa9 \ucc44\ud305 \uc791\uc131",
                 "tags": [
                     "track-selections"
                 ]
@@ -9377,7 +9377,7 @@
         },
         "/api/v1/track-selections/{selectionId}/items/{itemId}/selection": {
             "patch": {
-                "description": "매니저가 항목의 선택 상태를 토글합니다. true 전환 시 모든 세션의 확정 인원이 충족되어야 합니다.",
+                "description": "\ub9e4\ub2c8\uc800\uac00 \ud56d\ubaa9\uc758 \uc120\ud0dd \uc0c1\ud0dc\ub97c \ud1a0\uae00\ud569\ub2c8\ub2e4. true \uc804\ud658 \uc2dc \ubaa8\ub4e0 \uc138\uc158\uc758 \ud655\uc815 \uc778\uc6d0\uc774 \ucda9\uc871\ub418\uc5b4\uc57c \ud569\ub2c8\ub2e4.",
                 "operationId": "updateItemSelection",
                 "parameters": [
                     {
@@ -9421,7 +9421,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 항목 선택/해제",
+                "summary": "\uc120\uace1 \ud56d\ubaa9 \uc120\ud0dd/\ud574\uc81c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9429,7 +9429,7 @@
         },
         "/api/v1/track-selections/{selectionId}/items/{itemId}/sessions/{sessionId}/applicants": {
             "post": {
-                "description": "본인을 세션 지원자로 등록합니다.",
+                "description": "\ubcf8\uc778\uc744 \uc138\uc158 \uc9c0\uc6d0\uc790\ub85c \ub4f1\ub85d\ud569\ub2c8\ub2e4.",
                 "operationId": "applyForSession",
                 "parameters": [
                     {
@@ -9471,7 +9471,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "세션 지원",
+                "summary": "\uc138\uc158 \uc9c0\uc6d0",
                 "tags": [
                     "track-selections"
                 ]
@@ -9479,7 +9479,7 @@
         },
         "/api/v1/track-selections/{selectionId}/items/{itemId}/sessions/{sessionId}/applicants/{userId}": {
             "delete": {
-                "description": "본인의 세션 지원을 철회합니다.",
+                "description": "\ubcf8\uc778\uc758 \uc138\uc158 \uc9c0\uc6d0\uc744 \ucca0\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "withdrawSessionApplication",
                 "parameters": [
                     {
@@ -9530,7 +9530,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "세션 지원 철회",
+                "summary": "\uc138\uc158 \uc9c0\uc6d0 \ucca0\ud68c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9538,7 +9538,7 @@
         },
         "/api/v1/track-selections/{selectionId}/items/{itemId}/sessions/{sessionId}/confirmations": {
             "patch": {
-                "description": "매니저가 세션 참여자를 확정/해제 합니다.",
+                "description": "\ub9e4\ub2c8\uc800\uac00 \uc138\uc158 \ucc38\uc5ec\uc790\ub97c \ud655\uc815/\ud574\uc81c \ud569\ub2c8\ub2e4.",
                 "operationId": "updateConfirmations",
                 "parameters": [
                     {
@@ -9590,7 +9590,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "세션 확정/해제",
+                "summary": "\uc138\uc158 \ud655\uc815/\ud574\uc81c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9598,7 +9598,7 @@
         },
         "/api/v1/track-selections/{selectionId}/lock": {
             "post": {
-                "description": "매니저가 선곡을 잠금 처리합니다.",
+                "description": "\ub9e4\ub2c8\uc800\uac00 \uc120\uace1\uc744 \uc7a0\uae08 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
                 "operationId": "lockSelection",
                 "parameters": [
                     {
@@ -9623,7 +9623,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 잠금",
+                "summary": "\uc120\uace1 \uc7a0\uae08",
                 "tags": [
                     "track-selections"
                 ]
@@ -9631,7 +9631,7 @@
         },
         "/api/v1/track-selections/{selectionId}/participants": {
             "patch": {
-                "description": "매니저가 참여자를 추가/제거합니다. remove 멤버의 세션 지원/확정은 cascade 정리됩니다.",
+                "description": "\ub9e4\ub2c8\uc800\uac00 \ucc38\uc5ec\uc790\ub97c \ucd94\uac00/\uc81c\uac70\ud569\ub2c8\ub2e4. remove \uba64\ubc84\uc758 \uc138\uc158 \uc9c0\uc6d0/\ud655\uc815\uc740 cascade \uc815\ub9ac\ub429\ub2c8\ub2e4.",
                 "operationId": "updateParticipants",
                 "parameters": [
                     {
@@ -9666,7 +9666,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 참여자 변경",
+                "summary": "\uc120\uace1 \ucc38\uc5ec\uc790 \ubcc0\uacbd",
                 "tags": [
                     "track-selections"
                 ]
@@ -9698,7 +9698,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "선곡 잠금 해제",
+                "summary": "\uc120\uace1 \uc7a0\uae08 \ud574\uc81c",
                 "tags": [
                     "track-selections"
                 ]
@@ -9706,7 +9706,7 @@
         },
         "/api/v1/uploads/profile-image/presigned-url": {
             "post": {
-                "description": "Band/Member 프로필 이미지를 S3에 PUT 업로드하기 위한 presigned URL을 발급합니다. 응답의 objectKey 를 PATCH 시 profileImg 필드에 그대로 전달합니다.",
+                "description": "Band/Member \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0\ub97c S3\uc5d0 PUT \uc5c5\ub85c\ub4dc\ud558\uae30 \uc704\ud55c presigned URL\uc744 \ubc1c\uae09\ud569\ub2c8\ub2e4. \uc751\ub2f5\uc758 objectKey \ub97c PATCH \uc2dc profileImg \ud544\ub4dc\uc5d0 \uadf8\ub300\ub85c \uc804\ub2ec\ud569\ub2c8\ub2e4.",
                 "operationId": "issueProfileImagePresignedUrl",
                 "requestBody": {
                     "content": {
@@ -9730,7 +9730,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "프로필 이미지 업로드용 presigned URL 발급",
+                "summary": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09",
                 "tags": [
                     "uploads"
                 ]
@@ -9745,35 +9745,35 @@
     ],
     "tags": [
         {
-            "description": "알림 API",
+            "description": "\uc54c\ub9bc API",
             "name": "notifications"
         },
         {
-            "description": "회원 인증 API",
+            "description": "\ud68c\uc6d0 \uc778\uc99d API",
             "name": "auth"
         },
         {
-            "description": "시간표 시안 API (공연 단위)",
+            "description": "\uc2dc\uac04\ud45c \uc2dc\uc548 API (\uacf5\uc5f0 \ub2e8\uc704)",
             "name": "schedule-boards"
         },
         {
-            "description": "시간표 블록 API (공연 단위)",
+            "description": "\uc2dc\uac04\ud45c \ube14\ub85d API (\uacf5\uc5f0 \ub2e8\uc704)",
             "name": "schedule-blocks"
         },
         {
-            "description": "밴드 가입 신청 API",
+            "description": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad API",
             "name": "band-applications"
         },
         {
-            "description": "멤버 글로벌 가용성 API",
+            "description": "\uba64\ubc84 \uae00\ub85c\ubc8c \uac00\uc6a9\uc131 API",
             "name": "member-availability"
         },
         {
-            "description": "회원 API",
+            "description": "\ud68c\uc6d0 API",
             "name": "members"
         },
         {
-            "description": "셋리스트 API",
+            "description": "\uc14b\ub9ac\uc2a4\ud2b8 API",
             "name": "setlists"
         },
         {
@@ -9781,15 +9781,15 @@
             "name": "auth-oauth-kakao"
         },
         {
-            "description": "시간표 자동 배치 API",
+            "description": "\uc2dc\uac04\ud45c \uc790\ub3d9 \ubc30\uce58 API",
             "name": "schedule-auto-place"
         },
         {
-            "description": "[DEPRECATED] 선곡 회의 멤버 가용 시간 API. 글로벌 가용성 API(/me/availability)로 대체 예정.",
+            "description": "[DEPRECATED] \uc120\uace1 \ud68c\uc758 \uba64\ubc84 \uac00\uc6a9 \uc2dc\uac04 API. \uae00\ub85c\ubc8c \uac00\uc6a9\uc131 API(/me/availability)\ub85c \ub300\uccb4 \uc608\uc815.",
             "name": "schedule-member"
         },
         {
-            "description": "밴드 API",
+            "description": "\ubc34\ub4dc API",
             "name": "bands"
         },
         {
@@ -9797,19 +9797,19 @@
             "name": "auth-oauth-google"
         },
         {
-            "description": "선곡 API",
+            "description": "\uc120\uace1 API",
             "name": "track-selections"
         },
         {
-            "description": "파일 업로드 API",
+            "description": "\ud30c\uc77c \uc5c5\ub85c\ub4dc API",
             "name": "uploads"
         },
         {
-            "description": "합주 API",
+            "description": "\ud569\uc8fc API",
             "name": "jams"
         },
         {
-            "description": "공연 API",
+            "description": "\uacf5\uc5f0 API",
             "name": "performances"
         }
     ]
