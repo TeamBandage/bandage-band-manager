@@ -214,3 +214,16 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 018-performance-poster
+      author: bandage
+      comment: |
+        공연 포스터(PerformancePoster) 도메인 테이블 신설
+        - p_performance_poster (performance_id FK, s3_url, description)
+      changes:
+        - sqlFile:
+            path: changes/018-performance-poster.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
