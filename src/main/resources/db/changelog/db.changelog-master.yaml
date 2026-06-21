@@ -240,3 +240,16 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 020-performance-manager-member-index
+      author: bandage
+      comment: |
+        BD-156: 내 공연 목록 직접 참여 경로 조회 인덱스
+        - p_performance_manager.member_id 단독 인덱스 (UK가 performance_id 선두라 member_id 단독 조회엔 미사용)
+      changes:
+        - sqlFile:
+            path: changes/020-performance-manager-member-index.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
