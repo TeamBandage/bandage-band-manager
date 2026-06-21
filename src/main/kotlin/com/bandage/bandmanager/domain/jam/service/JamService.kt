@@ -4,6 +4,7 @@ import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.jam.dto.req.JamCreateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamMemberAddRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamPagingQuery
+import com.bandage.bandmanager.domain.jam.dto.req.JamParticipantSessionUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamSearchQuery
 import com.bandage.bandmanager.domain.jam.dto.req.JamSessionsUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamTimeInfoUpdateRequest
@@ -33,7 +34,10 @@ class JamService(
     private val jamReservationSyncService: JamReservationSyncService,
 ) {
     @Transactional
-    fun createJam(request: JamCreateRequest): JamResponse {
+    fun createJam(
+        request: JamCreateRequest,
+        memberId: Long,
+    ): JamResponse {
         val trackInfo = request.track.toEntity()
         val jam =
             jamRepository.save(
@@ -47,6 +51,10 @@ class JamService(
                     sessions = request.sessions.map { it.toEntity() },
                 ),
             )
+        // 생성자를 세션 미배정(소속) 참여자로 자동 등록 → "내 합주 목록" 노출. 세션은 추후 세션 변경 API로 지정.
+        jamParticipantRepository.save(
+            JamParticipant.create(jam = jam, sessionId = null, member = memberId),
+        )
         jamReservationSyncService.sync(jam)
         return JamResponse.of(jam)
     }
@@ -138,6 +146,25 @@ class JamService(
                 ),
             )
         jamReservationSyncService.sync(jam)
+        return JamParticipantResponse.of(participant)
+    }
+
+    @Transactional
+    fun updateParticipantSession(
+        jamId: UUID,
+        participantId: UUID,
+        request: JamParticipantSessionUpdateRequest,
+    ): JamParticipantResponse {
+        val jam = getJam(jamId)
+        val participant =
+            jamParticipantRepository.findByIdAndJam(participantId, jam)
+                ?: throw BusinessException(ErrorCode.JAM_PARTICIPANT_NOT_FOUND)
+        if (participant.sessionId == request.sessionId) {
+            return JamParticipantResponse.of(participant)
+        }
+        validateSessionExists(jam, request.sessionId)
+        validateParticipantNotExists(jam, request.sessionId, participant.member)
+        participant.changeSession(request.sessionId)
         return JamParticipantResponse.of(participant)
     }
 

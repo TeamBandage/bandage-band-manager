@@ -227,3 +227,16 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 019-jam-participant-session-nullable
+      author: bandage
+      comment: |
+        BD-154: 합주 생성자 자동 참여 등록을 위해 p_jam_participant.session_id NOT NULL 해제
+        - 생성자는 createJam 시 session_id=NULL 소속 레코드로 등록되어 "내 합주 목록"에 노출
+      changes:
+        - sqlFile:
+            path: changes/019-jam-participant-session-nullable.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
