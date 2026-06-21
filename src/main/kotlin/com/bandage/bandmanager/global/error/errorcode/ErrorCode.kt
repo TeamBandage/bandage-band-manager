@@ -101,6 +101,7 @@ enum class ErrorCode(
 
     // availability
     AVAILABILITY_INVALID(HttpStatus.BAD_REQUEST, "가용성 정보가 올바르지 않습니다."),
+    AVAILABILITY_RANGE_INVALID(HttpStatus.BAD_REQUEST, "조회 기간이 올바르지 않습니다. (from <= to, 최대 366일)"),
 
     // schedule (performance scope)
     SCHEDULE_PERFORMANCE_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 공연 일정에 접근할 권한이 없습니다."),

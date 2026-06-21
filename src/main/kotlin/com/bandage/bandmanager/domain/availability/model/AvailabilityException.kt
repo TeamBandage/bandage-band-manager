@@ -50,4 +50,26 @@ open class AvailabilityException(
 
     /** 전일 적용 예외인지 여부. */
     val isAllDay: Boolean get() = startSlot == null && endSlot == null
+
+    /** 요청 구간 [reqStart, reqEnd) 와 이 예외가 겹치는지(전일 예외는 항상 겹침). */
+    fun overlaps(
+        reqStart: Int,
+        reqEnd: Int,
+    ): Boolean {
+        if (isAllDay) return true
+        val s = startSlot ?: return true
+        val e = endSlot ?: return true
+        return s < reqEnd && e > reqStart
+    }
+
+    /** 이 예외가 요청 구간 [reqStart, reqEnd) 를 완전히 포함하는지(전일 예외는 항상 포함). */
+    fun covers(
+        reqStart: Int,
+        reqEnd: Int,
+    ): Boolean {
+        if (isAllDay) return true
+        val s = startSlot ?: return true
+        val e = endSlot ?: return true
+        return s <= reqStart && reqEnd <= e
+    }
 }

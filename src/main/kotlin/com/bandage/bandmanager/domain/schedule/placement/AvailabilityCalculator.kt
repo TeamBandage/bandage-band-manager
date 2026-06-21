@@ -1,7 +1,5 @@
 package com.bandage.bandmanager.domain.schedule.placement
 
-import com.bandage.bandmanager.domain.availability.model.AvailabilityException
-import com.bandage.bandmanager.domain.availability.model.AvailabilityKind
 import com.bandage.bandmanager.domain.availability.model.MemberAvailability
 import com.bandage.bandmanager.domain.availability.repository.MemberAvailabilityRepository
 import com.bandage.bandmanager.domain.jam.model.JamReservation
@@ -77,7 +75,7 @@ class AvailabilityCalculator(
     ): ConflictReason? {
         // 1. 글로벌 가용성
         val availability = context.availabilityByMember[memberId]
-        if (availability != null && !isAvailable(availability, date, startSlot, endSlot)) {
+        if (availability != null && !availability.isAvailableAt(date, startSlot, endSlot)) {
             return ConflictReason.UNAVAILABLE
         }
         // 2. 확정 Jam 예약 충돌
@@ -90,49 +88,6 @@ class AvailabilityCalculator(
             return ConflictReason.PENDING_BLOCK
         }
         return null
-    }
-
-    private fun isAvailable(
-        availability: MemberAvailability,
-        date: LocalDate,
-        reqStart: Int,
-        reqEnd: Int,
-    ): Boolean {
-        val dayExceptions = availability.exceptions.filter { it.date == date }
-        // BLOCKED 예외가 요청 구간과 겹치면 불가
-        if (dayExceptions.any { it.kind == AvailabilityKind.BLOCKED && exceptionOverlaps(it, reqStart, reqEnd) }) {
-            return false
-        }
-        // AVAILABLE 예외가 요청 구간을 포함하면 가용(주간규칙 무관)
-        if (dayExceptions.any { it.kind == AvailabilityKind.AVAILABLE && exceptionCovers(it, reqStart, reqEnd) }) {
-            return true
-        }
-        // 주간 반복 규칙으로 요청 구간이 완전히 덮이면 가용
-        return availability.weeklyRules.any {
-            it.isEffectiveOn(date) && it.startSlot <= reqStart && reqEnd <= it.endSlot
-        }
-    }
-
-    private fun exceptionOverlaps(
-        exception: AvailabilityException,
-        reqStart: Int,
-        reqEnd: Int,
-    ): Boolean {
-        if (exception.isAllDay) return true
-        val s = exception.startSlot ?: return true
-        val e = exception.endSlot ?: return true
-        return s < reqEnd && e > reqStart
-    }
-
-    private fun exceptionCovers(
-        exception: AvailabilityException,
-        reqStart: Int,
-        reqEnd: Int,
-    ): Boolean {
-        if (exception.isAllDay) return true
-        val s = exception.startSlot ?: return true
-        val e = exception.endSlot ?: return true
-        return s <= reqStart && reqEnd <= e
     }
 
     private fun overlapsReservation(
