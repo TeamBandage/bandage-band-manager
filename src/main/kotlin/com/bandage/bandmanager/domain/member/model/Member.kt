@@ -22,7 +22,8 @@ open class Member(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L
 
-    @Column(name = "email", unique = true, nullable = false)
+    // 활성 회원 간 email 유일성은 partial unique index(uk_member_email_active, Liquibase 017)로 관리
+    @Column(name = "email", nullable = false)
     var email: String = email
         protected set
 

@@ -24,7 +24,8 @@ open class Band(
     lateinit var id: UUID
         protected set
 
-    @Column(name = "name", unique = true, nullable = false)
+    // 활성 밴드 간 name 유일성은 partial unique index(uk_band_name_active, Liquibase 017)로 관리
+    @Column(name = "name", nullable = false)
     var name: String = name
         protected set
 
