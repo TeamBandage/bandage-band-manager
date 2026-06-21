@@ -3,10 +3,11 @@ package com.bandage.bandmanager.global.infra.s3
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 /**
  * 이미지 업로드 presigned URL 발급 공통 처리.
- * content-type/확장자/용량 검증 후, 도메인이 넘긴 objectKey 빌더로 키를 만들어 presigned PUT URL 을 발급한다.
+ * content-type/확장자/용량 검증 후 `{keyPrefix}/{uuid}.{ext}` 키로 presigned PUT URL 을 발급한다.
  * 권한 검증과 키 prefix 결정은 각 도메인(밴드/멤버/공연)이 소유한다.
  */
 @Component
@@ -14,18 +15,20 @@ class ImagePresignSupport(
     private val s3PresignedUrlIssuer: S3PresignedUrlIssuer,
 ) {
     fun issue(
-        contentType: String,
-        ext: String,
-        contentLength: Long,
-        objectKeyBuilder: (ext: String) -> String,
+        request: ImagePresignRequest,
+        keyPrefix: String,
     ): ImagePresignResponse {
-        val normalizedContentType = contentType.trim().lowercase()
-        val normalizedExt = ext.trim().lowercase().removePrefix(".")
+        val normalizedContentType = request.contentType.trim().lowercase()
+        val normalizedExt =
+            request.ext
+                .trim()
+                .lowercase()
+                .removePrefix(".")
         validateContentTypeAndExt(normalizedContentType, normalizedExt)
-        validateContentLength(contentLength)
+        validateContentLength(request.contentLength)
 
-        val objectKey = objectKeyBuilder(normalizedExt)
-        val uploadUrl = s3PresignedUrlIssuer.issuePutUrl(objectKey, normalizedContentType, contentLength)
+        val objectKey = "${keyPrefix.trimEnd('/')}/${UUID.randomUUID()}.$normalizedExt"
+        val uploadUrl = s3PresignedUrlIssuer.issuePutUrl(objectKey, normalizedContentType, request.contentLength)
         return ImagePresignResponse(
             uploadUrl = uploadUrl,
             objectKey = objectKey,
