@@ -30,6 +30,12 @@ interface BandApplicationRepository :
         status: ApplicationStatus,
     ): BandApplication?
 
+    /** 회원의 특정 밴드에 대한 가장 최근 가입 신청 단건(상태 무관). */
+    fun findTopByBandAndMemberOrderByCreatedAtDesc(
+        band: Band,
+        member: Long,
+    ): BandApplication?
+
     /** 회원의 특정 상태 가입 신청을 밴드와 함께 일괄 조회(탈퇴 시 LEAVED 처리 배치용). */
     @Query("SELECT a FROM BandApplication a JOIN FETCH a.band WHERE a.member = :memberId AND a.status = :status")
     fun findAllByMemberAndStatusFetchBand(

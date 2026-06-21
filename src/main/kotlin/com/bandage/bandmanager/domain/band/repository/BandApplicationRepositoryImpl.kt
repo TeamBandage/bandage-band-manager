@@ -43,5 +43,38 @@ class BandApplicationRepositoryImpl(
         )
     }
 
+    override fun findAllByMemberPaging(
+        lastId: UUID?,
+        pageSize: Int,
+        status: ApplicationStatus?,
+        memberId: Long,
+    ): CursorResponse<BandApplication, UUID> {
+        val qBandApplication = QBandApplication.bandApplication
+
+        val contents =
+            queryFactory
+                .selectFrom(qBandApplication)
+                .join(qBandApplication.band)
+                .fetchJoin()
+                .where(qBandApplication.member.eq(memberId))
+                .where(status?.let { qBandApplication.status.eq(it) })
+                .where(ltBandId(lastId))
+                .orderBy(qBandApplication.id.desc())
+                .limit(pageSize.toLong() + 1) // 실제 요청한 pageSize + 1
+                .fetch()
+
+        val hasNext = contents.size > pageSize
+
+        val resultContents = if (hasNext) contents.dropLast(1) else contents // 사이즈 확인 후 마지막 1개 항목 제외 반환
+
+        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
+
+        return CursorResponse(
+            content = resultContents,
+            nextCursor = nextCursor,
+            hasNext = hasNext,
+        )
+    }
+
     private fun ltBandId(lastId: UUID?): BooleanExpression? = lastId?.let { QBandApplication.bandApplication.id.lt(it) }
 }
