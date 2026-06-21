@@ -8,8 +8,8 @@ import java.util.UUID
 data class JamParticipantResponse(
     @Schema(description = "참여자 고유 식별자 (UUID)", example = "550e8400-e29b-41d4-a716-446655440000")
     val participantId: UUID,
-    @Schema(description = "세션 토큰(SessionDef.sessionId)", example = "G")
-    val sessionId: String,
+    @Schema(description = "세션 토큰(SessionDef.sessionId). 세션 미배정 소속 참여자는 null", example = "G")
+    val sessionId: String?,
     @Schema(description = "회원 고유 식별자 (Long)", example = "1")
     val memberId: Long,
 ) {

@@ -47,7 +47,8 @@ data class JamDetailResponse(
 
     companion object {
         fun of(jam: Jam): JamDetailResponse {
-            val participantsBySession: Map<String, List<JamParticipant>> = jam.participants.groupBy { it.sessionId }
+            // 세션 미배정(소속) 참여자는 sessionId=null 그룹으로 묶이며, 아래 세션별 매핑에서 자연히 제외된다.
+            val participantsBySession: Map<String?, List<JamParticipant>> = jam.participants.groupBy { it.sessionId }
             return JamDetailResponse(
                 jamId = jam.id,
                 title = jam.title,

@@ -3,6 +3,7 @@ package com.bandage.bandmanager.domain.jam.controller
 import com.bandage.bandmanager.domain.jam.dto.req.JamCreateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamMemberAddRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamPagingQuery
+import com.bandage.bandmanager.domain.jam.dto.req.JamParticipantSessionUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamSearchQuery
 import com.bandage.bandmanager.domain.jam.dto.req.JamSessionsUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamTimeInfoUpdateRequest
@@ -41,9 +42,10 @@ class JamController(
     @Operation(operationId = "createJam", summary = "합주 생성 API", description = "신규 합주를 생성합니다.")
     fun createJam(
         @Valid @RequestBody request: JamCreateRequest,
+        @CurrentMemberId memberId: Long,
     ): ApiResponse<JamResponse> =
         ApiResponse.success(
-            jamService.createJam(request),
+            jamService.createJam(request, memberId),
         )
 
     @GetMapping
@@ -108,6 +110,22 @@ class JamController(
     ): ApiResponse<JamParticipantResponse> =
         ApiResponse.success(
             jamService.addParticipant(jamId, request),
+        )
+
+    @PatchMapping("/{jamId}/participants/{participantId}/session")
+    @Operation(
+        operationId = "updateParticipantSession",
+        summary = "합주 세션 참여자 세션 변경 API",
+        description = "합주 참여자의 배정 세션을 변경합니다. 세션 미배정 소속 참여자(생성자 등)의 세션 지정에도 사용합니다.",
+    )
+    fun updateParticipantSession(
+        @PathVariable jamId: UUID,
+        @PathVariable participantId: UUID,
+        @Valid @RequestBody request: JamParticipantSessionUpdateRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<JamParticipantResponse> =
+        ApiResponse.success(
+            jamService.updateParticipantSession(jamId, participantId, request),
         )
 
     @DeleteMapping("/{jamId}/participants/{participantId}")

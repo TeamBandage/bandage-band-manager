@@ -26,7 +26,7 @@ import java.util.UUID
 @SQLRestriction("deleted_at IS NULL")
 open class JamParticipant(
     jam: Jam,
-    sessionId: String,
+    sessionId: String?,
     member: Long,
 ) : BaseEntity() {
     @Id
@@ -39,16 +39,21 @@ open class JamParticipant(
     @JoinColumn(name = "jam_id")
     val jam: Jam = jam
 
-    @Column(name = "session_id", nullable = false)
-    val sessionId: String = sessionId
+    @Column(name = "session_id")
+    var sessionId: String? = sessionId
+        protected set
 
     @Column(name = "member_id")
     val member: Long = member
 
+    fun changeSession(sessionId: String) {
+        this.sessionId = sessionId
+    }
+
     companion object {
         fun create(
             jam: Jam,
-            sessionId: String,
+            sessionId: String?,
             member: Long,
         ): JamParticipant =
             JamParticipant(

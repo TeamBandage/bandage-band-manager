@@ -2802,14 +2802,28 @@
                         "type": "string"
                     },
                     "sessionId": {
-                        "description": "\uc138\uc158 \ud1a0\ud070(SessionDef.sessionId)",
+                        "description": "\uc138\uc158 \ud1a0\ud070(SessionDef.sessionId). \uc138\uc158 \ubbf8\ubc30\uc815 \uc18c\uc18d \ucc38\uc5ec\uc790\ub294 null",
                         "example": "G",
                         "type": "string"
                     }
                 },
                 "required": [
                     "memberId",
-                    "participantId",
+                    "participantId"
+                ],
+                "type": "object"
+            },
+            "JamParticipantSessionUpdateRequest": {
+                "description": "\ud569\uc8fc \ucc38\uc5ec\uc790 \uc138\uc158 \ubcc0\uacbd \uc694\uccad",
+                "properties": {
+                    "sessionId": {
+                        "description": "\ubcc0\uacbd\ud560 \uc138\uc158 \ud1a0\ud070(SessionDef.sessionId)",
+                        "example": "G",
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
                     "sessionId"
                 ],
                 "type": "object"
@@ -6906,6 +6920,58 @@
                 ]
             }
         },
+        "/api/v1/jams/{jamId}/participants/{participantId}/session": {
+            "patch": {
+                "description": "\ud569\uc8fc \ucc38\uc5ec\uc790\uc758 \ubc30\uc815 \uc138\uc158\uc744 \ubcc0\uacbd\ud569\ub2c8\ub2e4. \uc138\uc158 \ubbf8\ubc30\uc815 \uc18c\uc18d \ucc38\uc5ec\uc790(\uc0dd\uc131\uc790 \ub4f1)\uc758 \uc138\uc158 \uc9c0\uc815\uc5d0\ub3c4 \uc0ac\uc6a9\ud569\ub2c8\ub2e4.",
+                "operationId": "updateParticipantSession",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "jamId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "participantId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JamParticipantSessionUpdateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseJamParticipantResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud569\uc8fc \uc138\uc158 \ucc38\uc5ec\uc790 \uc138\uc158 \ubcc0\uacbd API",
+                "tags": [
+                    "jams"
+                ]
+            }
+        },
         "/api/v1/jams/{jamId}/sessions": {
             "put": {
                 "description": "\ud569\uc8fc\uc758 \uc138\uc158 \uc815\uc758 \ubaa9\ub85d\uc744 \uc804\uccb4 \uad50\uccb4\ud569\ub2c8\ub2e4. \uc81c\uac70\ub41c \uc138\uc158\uc758 \ucc38\uc5ec\uc790 \ubc30\uc815\uc740 \ud568\uaed8 \uc0ad\uc81c\ub429\ub2c8\ub2e4.",
@@ -10114,7 +10180,7 @@
     "servers": [
         {
             "description": "Generated server url",
-            "url": "http://bandage-band-manager:8080"
+            "url": "http://localhost:8080"
         }
     ],
     "tags": [
