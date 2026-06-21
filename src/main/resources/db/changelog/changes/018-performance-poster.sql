@@ -2,7 +2,7 @@
 CREATE TABLE public.p_performance_poster (
     performance_poster_id uuid NOT NULL,
     performance_id uuid NOT NULL,
-    s3_url varchar(2048) NOT NULL,
+    image_key varchar(1024) NOT NULL,
     description text,
     created_at timestamp(6) without time zone NOT NULL,
     created_by bigint,

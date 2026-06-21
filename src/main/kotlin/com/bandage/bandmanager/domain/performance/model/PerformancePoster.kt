@@ -15,7 +15,7 @@ import java.util.UUID
 @Table(name = "p_performance_poster")
 open class PerformancePoster(
     performance: Performance,
-    s3Url: String,
+    imageKey: String,
     description: String?,
 ) : BaseEntity() {
     @Id
@@ -28,8 +28,8 @@ open class PerformancePoster(
     @JoinColumn(name = "performance_id", nullable = false)
     val performance: Performance = performance
 
-    @Column(name = "s3_url", nullable = false)
-    val s3Url: String = s3Url
+    @Column(name = "image_key", nullable = false)
+    val imageKey: String = imageKey
 
     @Column(name = "description")
     var description: String? = description
@@ -38,12 +38,12 @@ open class PerformancePoster(
     companion object {
         fun create(
             performance: Performance,
-            s3Url: String,
+            imageKey: String,
             description: String?,
         ): PerformancePoster =
             PerformancePoster(
                 performance = performance,
-                s3Url = s3Url,
+                imageKey = imageKey,
                 description = description,
             )
     }

@@ -1,6 +1,7 @@
 package com.bandage.bandmanager.domain.member.controller
 
 import com.bandage.bandmanager.domain.member.dto.req.MemberInfoUpdateRequest
+import com.bandage.bandmanager.domain.member.dto.req.MemberProfileImagePresignRequest
 import com.bandage.bandmanager.domain.member.dto.res.MemberInfoResponse
 import com.bandage.bandmanager.domain.member.dto.res.MemberMetricsResponse
 import com.bandage.bandmanager.domain.member.dto.res.MemberSearchItemResponse
@@ -12,6 +13,7 @@ import com.bandage.bandmanager.facade.dto.MemberJoinRequest
 import com.bandage.bandmanager.facade.dto.MemberResponse
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
+import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.security.annotation.CurrentMemberId
 import com.bandage.bandmanager.global.util.CookieUtil
 import io.swagger.v3.oas.annotations.Operation
@@ -64,6 +66,17 @@ class MemberController(
         memberService.updateMemberInfo(request, memberId)
         return ApiResponse.success()
     }
+
+    @PostMapping("/me/profile-image/presigned-url")
+    @Operation(
+        operationId = "issueMemberProfileImagePresignedUrl",
+        summary = "회원 프로필 이미지 presigned URL 발급 API",
+        description = "회원 본인 프로필 이미지를 S3에 PUT 업로드하기 위한 presigned URL을 발급합니다. 응답 objectKey 를 회원 정보 수정 시 profileImg 로 전달합니다.",
+    )
+    fun issueMemberProfileImagePresignedUrl(
+        @Valid @RequestBody request: MemberProfileImagePresignRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<ImagePresignResponse> = ApiResponse.success(memberService.issueProfileImagePresignedUrl(request, memberId))
 
     @DeleteMapping("/me/profile-image")
     @Operation(

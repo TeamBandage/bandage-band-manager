@@ -9,6 +9,7 @@ import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.band.repository.BandRepository
 import com.bandage.bandmanager.domain.member.repository.MemberRepository
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
+import com.bandage.bandmanager.global.infra.s3.ImagePresignSupport
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
@@ -22,6 +23,7 @@ class BandServiceCleanupTest {
     private val bandMemberRepository = mock(BandMemberRepository::class.java)
     private val memberRepository = mock(MemberRepository::class.java)
     private val cloudFrontUrlResolver = mock(CloudFrontUrlResolver::class.java)
+    private val imagePresignSupport = mock(ImagePresignSupport::class.java)
 
     private val sut =
         BandService(
@@ -30,6 +32,7 @@ class BandServiceCleanupTest {
             bandMemberRepository,
             memberRepository,
             cloudFrontUrlResolver,
+            imagePresignSupport,
         )
 
     private val bandId: UUID = UUID.fromString("00000000-0000-0000-0000-0000000000a1")

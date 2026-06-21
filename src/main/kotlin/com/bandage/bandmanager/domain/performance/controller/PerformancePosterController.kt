@@ -1,11 +1,14 @@
 package com.bandage.bandmanager.domain.performance.controller
 
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterCreateRequest
+import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterPresignRequest
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterUpdateRequest
 import com.bandage.bandmanager.domain.performance.dto.res.PerformancePosterResponse
 import com.bandage.bandmanager.domain.performance.service.PerformancePosterService
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
+import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
+import com.bandage.bandmanager.global.security.annotation.CurrentMemberId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -26,11 +29,24 @@ import java.util.UUID
 class PerformancePosterController(
     private val performancePosterService: PerformancePosterService,
 ) {
+    @PostMapping("/presigned-url")
+    @Operation(
+        operationId = "issuePerformancePosterPresignedUrl",
+        summary = "공연 포스터 presigned URL 발급 API",
+        description = "포스터 이미지를 S3에 PUT 업로드하기 위한 presigned URL을 발급합니다. OWNER/MANAGER만 가능. 응답 objectKey 를 포스터 등록 시 imageKey 로 전달합니다.",
+    )
+    fun issuePresignedUrl(
+        @RequestParam performanceId: UUID,
+        @Valid @RequestBody request: PerformancePosterPresignRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<ImagePresignResponse> = ApiResponse.success(performancePosterService.issuePresignedUrl(performanceId, request, memberId))
+
     @PostMapping
-    @Operation(operationId = "createPerformancePoster", summary = "공연 포스터 등록 API", description = "공연에 신규 포스터를 등록합니다.")
+    @Operation(operationId = "createPerformancePoster", summary = "공연 포스터 등록 API", description = "공연에 신규 포스터를 등록합니다. OWNER/MANAGER만 가능.")
     fun createPoster(
         @Valid @RequestBody request: PerformancePosterCreateRequest,
-    ): ApiResponse<PerformancePosterResponse> = ApiResponse.success(performancePosterService.createPoster(request))
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<PerformancePosterResponse> = ApiResponse.success(performancePosterService.createPoster(request, memberId))
 
     @GetMapping
     @Operation(
@@ -57,19 +73,21 @@ class PerformancePosterController(
     @Operation(
         operationId = "updatePerformancePoster",
         summary = "공연 포스터 설명 수정 API",
-        description = "포스터 설명을 수정합니다. description=null 전달 시 설명을 제거합니다.",
+        description = "포스터 설명을 수정합니다. description=null 전달 시 설명을 제거합니다. OWNER/MANAGER만 가능.",
     )
     fun updatePoster(
         @PathVariable posterId: UUID,
         @Valid @RequestBody request: PerformancePosterUpdateRequest,
-    ): ApiResponse<PerformancePosterResponse> = ApiResponse.success(performancePosterService.updateDescription(posterId, request))
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<PerformancePosterResponse> = ApiResponse.success(performancePosterService.updateDescription(posterId, request, memberId))
 
     @DeleteMapping("/{posterId}")
-    @Operation(operationId = "deletePerformancePoster", summary = "공연 포스터 삭제 API", description = "포스터를 삭제합니다.")
+    @Operation(operationId = "deletePerformancePoster", summary = "공연 포스터 삭제 API", description = "포스터를 삭제합니다. OWNER/MANAGER만 가능.")
     fun deletePoster(
         @PathVariable posterId: UUID,
+        @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
-        performancePosterService.deletePoster(posterId)
+        performancePosterService.deletePoster(posterId, memberId)
         return ApiResponse.success()
     }
 }
