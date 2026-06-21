@@ -10,6 +10,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLRestriction
+import java.time.LocalDate
 
 /**
  * 멤버의 글로벌 가용성. 특정 회의/공연에 종속되지 않는 멤버 본인의 상시 가용 정보다.
@@ -71,5 +72,21 @@ open class MemberAvailability(
 
     fun updateNote(note: String?) {
         this.note = note
+    }
+
+    /**
+     * 특정 날짜의 요청 구간 [reqStart, reqEnd) 가 가용한지 판정한다.
+     * 우선순위: BLOCKED 예외(겹치면 불가) > AVAILABLE 예외(포함하면 가용) > 주간 규칙(완전히 덮으면 가용).
+     * 가용성/충돌 계산(AvailabilityCalculator)과 슬롯 전개 양쪽이 공유하는 단일 판정 로직이다.
+     */
+    fun isAvailableAt(
+        date: LocalDate,
+        reqStart: Int,
+        reqEnd: Int,
+    ): Boolean {
+        val dayExceptions = _exceptions.filter { it.date == date }
+        if (dayExceptions.any { it.kind == AvailabilityKind.BLOCKED && it.overlaps(reqStart, reqEnd) }) return false
+        if (dayExceptions.any { it.kind == AvailabilityKind.AVAILABLE && it.covers(reqStart, reqEnd) }) return true
+        return _weeklyRules.any { it.isEffectiveOn(date) && it.startSlot <= reqStart && reqEnd <= it.endSlot }
     }
 }
