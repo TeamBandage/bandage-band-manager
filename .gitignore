@@ -50,4 +50,5 @@ set-env.sh
 API_*.md
 SERVICE_SPEC.md
 .taskmaster
+.understand-anything
 docs/design
