@@ -116,8 +116,10 @@ class JamService(
     fun updateSessions(
         jamId: UUID,
         request: JamSessionsUpdateRequest,
+        memberId: Long,
     ): JamDetailResponse {
         val jam = getJam(jamId)
+        validateParticipant(jam, memberId)
         val newDefs = request.sessions.map { it.toEntity() }
         val newSessionIds = newDefs.map { it.sessionId }.toSet()
         jamParticipantRepository
@@ -133,8 +135,10 @@ class JamService(
     fun addParticipant(
         jamId: UUID,
         request: JamMemberAddRequest,
+        memberId: Long,
     ): JamParticipantResponse {
         val jam = getJam(jamId)
+        validateParticipant(jam, memberId)
         validateSessionExists(jam, request.sessionId)
         validateParticipantNotExists(jam, request.sessionId, request.memberId)
         val participant =
@@ -154,8 +158,10 @@ class JamService(
         jamId: UUID,
         participantId: UUID,
         request: JamParticipantSessionUpdateRequest,
+        memberId: Long,
     ): JamParticipantResponse {
         val jam = getJam(jamId)
+        validateParticipant(jam, memberId)
         val participant =
             jamParticipantRepository.findByIdAndJam(participantId, jam)
                 ?: throw BusinessException(ErrorCode.JAM_PARTICIPANT_NOT_FOUND)
@@ -175,6 +181,7 @@ class JamService(
         memberId: Long,
     ) {
         val jam = getJam(jamId)
+        validateParticipant(jam, memberId)
         val participant =
             jamParticipantRepository.findByIdAndJam(participantId, jam)
                 ?: throw BusinessException(ErrorCode.JAM_PARTICIPANT_NOT_FOUND)
@@ -186,8 +193,10 @@ class JamService(
     fun updateTimeInfo(
         jamId: UUID,
         request: JamTimeInfoUpdateRequest,
+        memberId: Long,
     ) {
         val jam = getJam(jamId)
+        validateParticipant(jam, memberId)
         jam.updateTimeInfo(request.startAt, request.durationMinutes)
         jamReservationSyncService.sync(jam)
     }
@@ -196,8 +205,10 @@ class JamService(
     fun updateVenue(
         jamId: UUID,
         request: JamVenueUpdateRequest,
+        memberId: Long,
     ) {
         val jam = getJam(jamId)
+        validateParticipant(jam, memberId)
         jam.updateVenue(request.venue)
     }
 
@@ -207,6 +218,7 @@ class JamService(
         memberId: Long,
     ) {
         val jam = getJam(jamId)
+        validateParticipant(jam, memberId)
         jam.markAsDeleted(memberId)
         jamReservationSyncService.sync(jam)
     }
@@ -215,6 +227,15 @@ class JamService(
     private fun getJam(jamId: UUID): Jam =
         jamRepository.findByIdOrNull(jamId)
             ?: throw BusinessException(ErrorCode.JAM_NOT_FOUND)
+
+    private fun validateParticipant(
+        jam: Jam,
+        memberId: Long,
+    ) {
+        if (!jamParticipantRepository.existsByJamAndMember(jam, memberId)) {
+            throw BusinessException(ErrorCode.JAM_FORBIDDEN_NOT_PARTICIPANT)
+        }
+    }
 
     private fun validateSessionExists(
         jam: Jam,

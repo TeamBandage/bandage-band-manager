@@ -24,6 +24,11 @@ interface JamParticipantRepository : JpaRepository<JamParticipant, UUID> {
         member: Long,
     ): Boolean
 
+    fun existsByJamAndMember(
+        jam: Jam,
+        member: Long,
+    ): Boolean
+
     @Query(
         "SELECT COUNT(pp) FROM JamParticipant pp " +
             "WHERE pp.member = :memberId AND pp.jam.timeInfo.startAt > :now",
