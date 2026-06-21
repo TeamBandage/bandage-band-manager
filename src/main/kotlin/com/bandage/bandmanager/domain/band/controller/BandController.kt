@@ -3,7 +3,6 @@ package com.bandage.bandmanager.domain.band.controller
 import com.bandage.bandmanager.domain.band.dto.req.BandCreateRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandMemberRoleUpdateRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandPagingQuery
-import com.bandage.bandmanager.domain.band.dto.req.BandProfileImagePresignRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandSearchQuery
 import com.bandage.bandmanager.domain.band.dto.req.BandUpdateRequest
 import com.bandage.bandmanager.domain.band.dto.res.BandInfoResponse
@@ -14,6 +13,7 @@ import com.bandage.bandmanager.domain.band.service.BandService
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
 import com.bandage.bandmanager.global.common.response.CursorResponse
+import com.bandage.bandmanager.global.infra.s3.ImagePresignRequest
 import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.security.annotation.CurrentMemberId
 import io.swagger.v3.oas.annotations.Operation
@@ -127,7 +127,7 @@ class BandController(
     )
     fun issueBandProfileImagePresignedUrl(
         @PathVariable bandId: UUID,
-        @Valid @RequestBody request: BandProfileImagePresignRequest,
+        @Valid @RequestBody request: ImagePresignRequest,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<ImagePresignResponse> = ApiResponse.success(bandService.issueProfileImagePresignedUrl(bandId, request, memberId))
 

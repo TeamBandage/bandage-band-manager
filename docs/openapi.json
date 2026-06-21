@@ -2055,36 +2055,6 @@
                 ],
                 "type": "object"
             },
-            "BandProfileImagePresignRequest": {
-                "description": "\ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc694\uccad",
-                "properties": {
-                    "contentLength": {
-                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 \uc815\ud655\ud55c \ubc14\uc774\ud2b8 \ud06c\uae30 (\ucd5c\ub300 5MB = 5,242,880 bytes)",
-                        "example": 1048576,
-                        "format": "int64",
-                        "minimum": 1,
-                        "type": "integer"
-                    },
-                    "contentType": {
-                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 Content-Type",
-                        "example": "image/jpeg",
-                        "minLength": 1,
-                        "type": "string"
-                    },
-                    "ext": {
-                        "description": "\ud30c\uc77c \ud655\uc7a5\uc790(\uc810 \uc81c\uc678, \uc18c\ubb38\uc790)",
-                        "example": "jpg",
-                        "minLength": 1,
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "contentLength",
-                    "contentType",
-                    "ext"
-                ],
-                "type": "object"
-            },
             "BandResponse": {
                 "description": "\ubc34\ub4dc API \uae30\ubcf8 \uc751\ub2f5",
                 "properties": {
@@ -2525,6 +2495,36 @@
                 },
                 "required": [
                     "idToken"
+                ],
+                "type": "object"
+            },
+            "ImagePresignRequest": {
+                "description": "\uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc694\uccad",
+                "properties": {
+                    "contentLength": {
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 \uc815\ud655\ud55c \ubc14\uc774\ud2b8 \ud06c\uae30 (\ucd5c\ub300 5MB = 5,242,880 bytes)",
+                        "example": 1048576,
+                        "format": "int64",
+                        "minimum": 1,
+                        "type": "integer"
+                    },
+                    "contentType": {
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 Content-Type",
+                        "example": "image/jpeg",
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "ext": {
+                        "description": "\ud30c\uc77c \ud655\uc7a5\uc790(\uc810 \uc81c\uc678, \uc18c\ubb38\uc790)",
+                        "example": "jpg",
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "contentLength",
+                    "contentType",
+                    "ext"
                 ],
                 "type": "object"
             },
@@ -3222,36 +3222,6 @@
                 "required": [
                     "newPassword",
                     "originalPassword"
-                ],
-                "type": "object"
-            },
-            "MemberProfileImagePresignRequest": {
-                "description": "\ud68c\uc6d0 \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc694\uccad",
-                "properties": {
-                    "contentLength": {
-                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 \uc815\ud655\ud55c \ubc14\uc774\ud2b8 \ud06c\uae30 (\ucd5c\ub300 5MB = 5,242,880 bytes)",
-                        "example": 1048576,
-                        "format": "int64",
-                        "minimum": 1,
-                        "type": "integer"
-                    },
-                    "contentType": {
-                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 Content-Type",
-                        "example": "image/jpeg",
-                        "minLength": 1,
-                        "type": "string"
-                    },
-                    "ext": {
-                        "description": "\ud30c\uc77c \ud655\uc7a5\uc790(\uc810 \uc81c\uc678, \uc18c\ubb38\uc790)",
-                        "example": "jpg",
-                        "minLength": 1,
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "contentLength",
-                    "contentType",
-                    "ext"
                 ],
                 "type": "object"
             },
@@ -4073,36 +4043,6 @@
                 "required": [
                     "imageKey",
                     "performanceId"
-                ],
-                "type": "object"
-            },
-            "PerformancePosterPresignRequest": {
-                "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc694\uccad",
-                "properties": {
-                    "contentLength": {
-                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 \uc815\ud655\ud55c \ubc14\uc774\ud2b8 \ud06c\uae30 (\ucd5c\ub300 5MB = 5,242,880 bytes)",
-                        "example": 1048576,
-                        "format": "int64",
-                        "minimum": 1,
-                        "type": "integer"
-                    },
-                    "contentType": {
-                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 Content-Type",
-                        "example": "image/jpeg",
-                        "minLength": 1,
-                        "type": "string"
-                    },
-                    "ext": {
-                        "description": "\ud30c\uc77c \ud655\uc7a5\uc790(\uc810 \uc81c\uc678, \uc18c\ubb38\uc790)",
-                        "example": "jpg",
-                        "minLength": 1,
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "contentLength",
-                    "contentType",
-                    "ext"
                 ],
                 "type": "object"
             },
@@ -6658,7 +6598,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/BandProfileImagePresignRequest"
+                                "$ref": "#/components/schemas/ImagePresignRequest"
                             }
                         }
                     },
@@ -7303,7 +7243,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/MemberProfileImagePresignRequest"
+                                "$ref": "#/components/schemas/ImagePresignRequest"
                             }
                         }
                     },
@@ -7551,7 +7491,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PerformancePosterPresignRequest"
+                                "$ref": "#/components/schemas/ImagePresignRequest"
                             }
                         }
                     },
