@@ -98,7 +98,7 @@ class JamController(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<JamDetailResponse> =
         ApiResponse.success(
-            jamService.updateSessions(jamId, request),
+            jamService.updateSessions(jamId, request, memberId),
         )
 
     @PostMapping("/{jamId}/participants")
@@ -109,7 +109,7 @@ class JamController(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<JamParticipantResponse> =
         ApiResponse.success(
-            jamService.addParticipant(jamId, request),
+            jamService.addParticipant(jamId, request, memberId),
         )
 
     @PatchMapping("/{jamId}/participants/{participantId}/session")
@@ -125,7 +125,7 @@ class JamController(
         @CurrentMemberId memberId: Long,
     ): ApiResponse<JamParticipantResponse> =
         ApiResponse.success(
-            jamService.updateParticipantSession(jamId, participantId, request),
+            jamService.updateParticipantSession(jamId, participantId, request, memberId),
         )
 
     @DeleteMapping("/{jamId}/participants/{participantId}")
@@ -146,7 +146,7 @@ class JamController(
         @Valid @RequestBody request: JamTimeInfoUpdateRequest,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
-        jamService.updateTimeInfo(jamId, request)
+        jamService.updateTimeInfo(jamId, request, memberId)
         return ApiResponse.success()
     }
 
@@ -157,7 +157,7 @@ class JamController(
         @Valid @RequestBody request: JamVenueUpdateRequest,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
-        jamService.updateVenue(jamId, request)
+        jamService.updateVenue(jamId, request, memberId)
         return ApiResponse.success()
     }
 
