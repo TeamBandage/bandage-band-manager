@@ -497,6 +497,37 @@
                 ],
                 "type": "object"
             },
+            "ApiResponseImagePresignResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ImagePresignResponse"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
             "ApiResponseJamDetailResponse": {
                 "properties": {
                     "code": {
@@ -700,6 +731,40 @@
                     "data": {
                         "items": {
                             "$ref": "#/components/schemas/PerformanceInvitationResponse"
+                        },
+                        "type": "array"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
+            "ApiResponseListPerformancePosterResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/PerformancePosterResponse"
                         },
                         "type": "array"
                     },
@@ -1169,13 +1234,13 @@
                 ],
                 "type": "object"
             },
-            "ApiResponsePerformanceResponse": {
+            "ApiResponsePerformancePosterResponse": {
                 "properties": {
                     "code": {
                         "type": "string"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/PerformanceResponse"
+                        "$ref": "#/components/schemas/PerformancePosterResponse"
                     },
                     "fieldErrors": {
                         "additionalProperties": {
@@ -1200,13 +1265,13 @@
                 ],
                 "type": "object"
             },
-            "ApiResponseProfileImagePresignResponse": {
+            "ApiResponsePerformanceResponse": {
                 "properties": {
                     "code": {
                         "type": "string"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/ProfileImagePresignResponse"
+                        "$ref": "#/components/schemas/PerformanceResponse"
                     },
                     "fieldErrors": {
                         "additionalProperties": {
@@ -1990,6 +2055,36 @@
                 ],
                 "type": "object"
             },
+            "BandProfileImagePresignRequest": {
+                "description": "\ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc694\uccad",
+                "properties": {
+                    "contentLength": {
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 \uc815\ud655\ud55c \ubc14\uc774\ud2b8 \ud06c\uae30 (\ucd5c\ub300 5MB = 5,242,880 bytes)",
+                        "example": 1048576,
+                        "format": "int64",
+                        "minimum": 1,
+                        "type": "integer"
+                    },
+                    "contentType": {
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 Content-Type",
+                        "example": "image/jpeg",
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "ext": {
+                        "description": "\ud30c\uc77c \ud655\uc7a5\uc790(\uc810 \uc81c\uc678, \uc18c\ubb38\uc790)",
+                        "example": "jpg",
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "contentLength",
+                    "contentType",
+                    "ext"
+                ],
+                "type": "object"
+            },
             "BandResponse": {
                 "description": "\ubc34\ub4dc API \uae30\ubcf8 \uc751\ub2f5",
                 "properties": {
@@ -2430,6 +2525,33 @@
                 },
                 "required": [
                     "idToken"
+                ],
+                "type": "object"
+            },
+            "ImagePresignResponse": {
+                "description": "\uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc751\ub2f5",
+                "properties": {
+                    "expiresInSeconds": {
+                        "description": "presigned URL \ub9cc\ub8cc\uae4c\uc9c0 \ub0a8\uc740 \uc2dc\uac04(\ucd08)",
+                        "example": 300,
+                        "format": "int64",
+                        "type": "integer"
+                    },
+                    "objectKey": {
+                        "description": "\uc5c5\ub85c\ub4dc \ud6c4 \uc800\uc7a5/\ub4f1\ub85d \uc2dc \uc804\ub2ec\ud560 \uac1d\uccb4 \ud0a4",
+                        "example": "profile/band/550e.../uuid.jpg",
+                        "type": "string"
+                    },
+                    "uploadUrl": {
+                        "description": "PUT \uc5c5\ub85c\ub4dc\uc6a9 presigned URL",
+                        "example": "https://bucket.s3.ap-northeast-2.amazonaws.com/...",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "expiresInSeconds",
+                    "objectKey",
+                    "uploadUrl"
                 ],
                 "type": "object"
             },
@@ -3100,6 +3222,36 @@
                 "required": [
                     "newPassword",
                     "originalPassword"
+                ],
+                "type": "object"
+            },
+            "MemberProfileImagePresignRequest": {
+                "description": "\ud68c\uc6d0 \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc694\uccad",
+                "properties": {
+                    "contentLength": {
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 \uc815\ud655\ud55c \ubc14\uc774\ud2b8 \ud06c\uae30 (\ucd5c\ub300 5MB = 5,242,880 bytes)",
+                        "example": 1048576,
+                        "format": "int64",
+                        "minimum": 1,
+                        "type": "integer"
+                    },
+                    "contentType": {
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 Content-Type",
+                        "example": "image/jpeg",
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "ext": {
+                        "description": "\ud30c\uc77c \ud655\uc7a5\uc790(\uc810 \uc81c\uc678, \uc18c\ubb38\uc790)",
+                        "example": "jpg",
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "contentLength",
+                    "contentType",
+                    "ext"
                 ],
                 "type": "object"
             },
@@ -3897,6 +4049,107 @@
                 ],
                 "type": "object"
             },
+            "PerformancePosterCreateRequest": {
+                "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ub4f1\ub85d \uc694\uccad",
+                "properties": {
+                    "description": {
+                        "description": "\ud3ec\uc2a4\ud130 \uc124\uba85",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 \uba54\uc778 \ud3ec\uc2a4\ud130",
+                        "type": "string"
+                    },
+                    "imageKey": {
+                        "description": "presigned URL \ubc1c\uae09 \uc751\ub2f5\uc758 objectKey (S3 \uac1d\uccb4 \ud0a4)",
+                        "example": "poster/performance/550e8400-e29b-41d4-a716-446655440000/abc.png",
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "performanceId": {
+                        "description": "\uacf5\uc5f0 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "imageKey",
+                    "performanceId"
+                ],
+                "type": "object"
+            },
+            "PerformancePosterPresignRequest": {
+                "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc694\uccad",
+                "properties": {
+                    "contentLength": {
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 \uc815\ud655\ud55c \ubc14\uc774\ud2b8 \ud06c\uae30 (\ucd5c\ub300 5MB = 5,242,880 bytes)",
+                        "example": 1048576,
+                        "format": "int64",
+                        "minimum": 1,
+                        "type": "integer"
+                    },
+                    "contentType": {
+                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 Content-Type",
+                        "example": "image/jpeg",
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "ext": {
+                        "description": "\ud30c\uc77c \ud655\uc7a5\uc790(\uc810 \uc81c\uc678, \uc18c\ubb38\uc790)",
+                        "example": "jpg",
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "contentLength",
+                    "contentType",
+                    "ext"
+                ],
+                "type": "object"
+            },
+            "PerformancePosterResponse": {
+                "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc751\ub2f5",
+                "properties": {
+                    "description": {
+                        "description": "\ud3ec\uc2a4\ud130 \uc124\uba85",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 \uba54\uc778 \ud3ec\uc2a4\ud130",
+                        "type": "string"
+                    },
+                    "imageUrl": {
+                        "description": "\ud3ec\uc2a4\ud130 \uc774\ubbf8\uc9c0 URL (CloudFront)",
+                        "example": "https://cdn.bandage.com/poster/performance/550e.../abc.png",
+                        "type": "string"
+                    },
+                    "performanceId": {
+                        "description": "\uacf5\uc5f0 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "posterId": {
+                        "description": "\ud3ec\uc2a4\ud130 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "imageUrl",
+                    "performanceId",
+                    "posterId"
+                ],
+                "type": "object"
+            },
+            "PerformancePosterUpdateRequest": {
+                "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc124\uba85 \uc218\uc815 \uc694\uccad",
+                "properties": {
+                    "description": {
+                        "description": "\ud3ec\uc2a4\ud130 \uc124\uba85 (null \uc804\ub2ec \uc2dc \uc124\uba85 \uc81c\uac70)",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 \uba54\uc778 \ud3ec\uc2a4\ud130",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
             "PerformanceResponse": {
                 "description": "\uacf5\uc5f0 \uae30\ubcf8 \uc751\ub2f5",
                 "properties": {
@@ -4068,79 +4321,6 @@
                 "required": [
                     "from",
                     "to"
-                ],
-                "type": "object"
-            },
-            "ProfileImagePresignRequest": {
-                "description": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc694\uccad",
-                "properties": {
-                    "bandId": {
-                        "description": "domain=BAND \uc778 \uacbd\uc6b0 \ud544\uc218, \uad8c\ud55c \uac80\uc99d \ub300\uc0c1 \ubc34\ub4dc ID",
-                        "example": "550e8400-e29b-41d4-a716-446655440000",
-                        "format": "uuid",
-                        "type": "string"
-                    },
-                    "contentLength": {
-                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 \uc815\ud655\ud55c \ubc14\uc774\ud2b8 \ud06c\uae30 (\ucd5c\ub300 5MB = 5,242,880 bytes)",
-                        "example": 1048576,
-                        "format": "int64",
-                        "minimum": 1,
-                        "type": "integer"
-                    },
-                    "contentType": {
-                        "description": "\uc5c5\ub85c\ub4dc\ud560 \ud30c\uc77c\uc758 Content-Type",
-                        "example": "image/jpeg",
-                        "minLength": 1,
-                        "type": "string"
-                    },
-                    "domain": {
-                        "description": "\uc5c5\ub85c\ub4dc \ub300\uc0c1 \ub3c4\uba54\uc778",
-                        "enum": [
-                            "BAND",
-                            "MEMBER"
-                        ],
-                        "example": "BAND",
-                        "type": "string"
-                    },
-                    "ext": {
-                        "description": "\ud30c\uc77c \ud655\uc7a5\uc790(\uc810 \uc81c\uc678, \uc18c\ubb38\uc790)",
-                        "example": "jpg",
-                        "minLength": 1,
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "contentLength",
-                    "contentType",
-                    "domain",
-                    "ext"
-                ],
-                "type": "object"
-            },
-            "ProfileImagePresignResponse": {
-                "description": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09 \uc751\ub2f5",
-                "properties": {
-                    "expiresInSeconds": {
-                        "description": "presigned URL \ub9cc\ub8cc\uae4c\uc9c0 \ub0a8\uc740 \uc2dc\uac04(\ucd08)",
-                        "example": 300,
-                        "format": "int64",
-                        "type": "integer"
-                    },
-                    "objectKey": {
-                        "description": "\uc5c5\ub85c\ub4dc \ud6c4 PATCH \uc2dc profileImg \ud544\ub4dc\uc5d0 \uc800\uc7a5\ud560 \uac1d\uccb4 \ud0a4",
-                        "example": "profile/band/550e.../uuid.jpg",
-                        "type": "string"
-                    },
-                    "uploadUrl": {
-                        "description": "PUT \uc5c5\ub85c\ub4dc\uc6a9 presigned URL",
-                        "example": "https://bucket.s3.ap-northeast-2.amazonaws.com/...",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "expiresInSeconds",
-                    "objectKey",
-                    "uploadUrl"
                 ],
                 "type": "object"
             },
@@ -6459,6 +6639,49 @@
                 ]
             }
         },
+        "/api/v1/bands/{bandId}/profile-image/presigned-url": {
+            "post": {
+                "description": "\ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0\ub97c S3\uc5d0 PUT \uc5c5\ub85c\ub4dc\ud558\uae30 \uc704\ud55c presigned URL\uc744 \ubc1c\uae09\ud569\ub2c8\ub2e4. \ub9ac\ub354\ub9cc \uac00\ub2a5. \uc751\ub2f5 objectKey \ub97c \ubc34\ub4dc \uc218\uc815 \uc2dc profileImg \ub85c \uc804\ub2ec\ud569\ub2c8\ub2e4.",
+                "operationId": "issueBandProfileImagePresignedUrl",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "bandId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BandProfileImagePresignRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseImagePresignResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ubc34\ub4dc \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 presigned URL \ubc1c\uae09 API",
+                "tags": [
+                    "bands"
+                ]
+            }
+        },
         "/api/v1/jams": {
             "get": {
                 "description": "\ud569\uc8fc \ubaa9\ub85d\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. bandId \uc81c\uacf5 \uc2dc \ud574\ub2f9 \ubc34\ub4dc \uba64\ubc84\uac00 \ucc38\uc5ec \uc911\uc778 \ud569\uc8fc\ub9cc \uc870\ud68c\ud569\ub2c8\ub2e4.",
@@ -7072,6 +7295,38 @@
                 ]
             }
         },
+        "/api/v1/members/me/profile-image/presigned-url": {
+            "post": {
+                "description": "\ud68c\uc6d0 \ubcf8\uc778 \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0\ub97c S3\uc5d0 PUT \uc5c5\ub85c\ub4dc\ud558\uae30 \uc704\ud55c presigned URL\uc744 \ubc1c\uae09\ud569\ub2c8\ub2e4. \uc751\ub2f5 objectKey \ub97c \ud68c\uc6d0 \uc815\ubcf4 \uc218\uc815 \uc2dc profileImg \ub85c \uc804\ub2ec\ud569\ub2c8\ub2e4.",
+                "operationId": "issueMemberProfileImagePresignedUrl",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MemberProfileImagePresignRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseImagePresignResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud68c\uc6d0 \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 presigned URL \ubc1c\uae09 API",
+                "tags": [
+                    "members"
+                ]
+            }
+        },
         "/api/v1/members/search": {
             "get": {
                 "description": "\uc774\ub984/\uc774\uba54\uc77c \ubd80\ubd84 \uc77c\uce58 \uac80\uc0c9. \ucd5c\ub300 20\uac74. \ubcf8\uc778\uc740 \uacb0\uacfc\uc5d0\uc11c \uc81c\uc678.",
@@ -7211,6 +7466,217 @@
                 "summary": "\uc54c\ub9bc \uc77d\uc74c \ucc98\ub9ac API",
                 "tags": [
                     "notifications"
+                ]
+            }
+        },
+        "/api/v1/performance-posters": {
+            "get": {
+                "description": "\ud3ec\uc2a4\ud130 \ubaa9\ub85d\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4. performanceId \uc81c\uacf5 \uc2dc \ud574\ub2f9 \uacf5\uc5f0\uc758 \ud3ec\uc2a4\ud130\ub9cc, \ubbf8\uc81c\uacf5 \uc2dc \uc804\uccb4 \ud3ec\uc2a4\ud130\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "operationId": "getPerformancePosters",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "performanceId",
+                        "required": false,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListPerformancePosterResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ubaa9\ub85d \uc870\ud68c API",
+                "tags": [
+                    "performance-posters"
+                ]
+            },
+            "post": {
+                "description": "\uacf5\uc5f0\uc5d0 \uc2e0\uaddc \ud3ec\uc2a4\ud130\ub97c \ub4f1\ub85d\ud569\ub2c8\ub2e4. OWNER/MANAGER\ub9cc \uac00\ub2a5.",
+                "operationId": "createPerformancePoster",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformancePosterCreateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponsePerformancePosterResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ub4f1\ub85d API",
+                "tags": [
+                    "performance-posters"
+                ]
+            }
+        },
+        "/api/v1/performance-posters/presigned-url": {
+            "post": {
+                "description": "\ud3ec\uc2a4\ud130 \uc774\ubbf8\uc9c0\ub97c S3\uc5d0 PUT \uc5c5\ub85c\ub4dc\ud558\uae30 \uc704\ud55c presigned URL\uc744 \ubc1c\uae09\ud569\ub2c8\ub2e4. OWNER/MANAGER\ub9cc \uac00\ub2a5. \uc751\ub2f5 objectKey \ub97c \ud3ec\uc2a4\ud130 \ub4f1\ub85d \uc2dc imageKey \ub85c \uc804\ub2ec\ud569\ub2c8\ub2e4.",
+                "operationId": "issuePerformancePosterPresignedUrl",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "performanceId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformancePosterPresignRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseImagePresignResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 presigned URL \ubc1c\uae09 API",
+                "tags": [
+                    "performance-posters"
+                ]
+            }
+        },
+        "/api/v1/performance-posters/{posterId}": {
+            "delete": {
+                "description": "\ud3ec\uc2a4\ud130\ub97c \uc0ad\uc81c\ud569\ub2c8\ub2e4. OWNER/MANAGER\ub9cc \uac00\ub2a5.",
+                "operationId": "deletePerformancePoster",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "posterId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseUnit"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc0ad\uc81c API",
+                "tags": [
+                    "performance-posters"
+                ]
+            },
+            "get": {
+                "description": "\ud3ec\uc2a4\ud130 \uace0\uc720 \uc2dd\ubcc4 ID\ub85c \ud3ec\uc2a4\ud130\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "operationId": "getPerformancePoster",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "posterId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponsePerformancePosterResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ub2e8\uac74 \uc870\ud68c API",
+                "tags": [
+                    "performance-posters"
+                ]
+            },
+            "patch": {
+                "description": "\ud3ec\uc2a4\ud130 \uc124\uba85\uc744 \uc218\uc815\ud569\ub2c8\ub2e4. description=null \uc804\ub2ec \uc2dc \uc124\uba85\uc744 \uc81c\uac70\ud569\ub2c8\ub2e4. OWNER/MANAGER\ub9cc \uac00\ub2a5.",
+                "operationId": "updatePerformancePoster",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "posterId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformancePosterUpdateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponsePerformancePosterResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc124\uba85 \uc218\uc815 API",
+                "tags": [
+                    "performance-posters"
                 ]
             }
         },
@@ -9703,44 +10169,12 @@
                     "track-selections"
                 ]
             }
-        },
-        "/api/v1/uploads/profile-image/presigned-url": {
-            "post": {
-                "description": "Band/Member \ud504\ub85c\ud544 \uc774\ubbf8\uc9c0\ub97c S3\uc5d0 PUT \uc5c5\ub85c\ub4dc\ud558\uae30 \uc704\ud55c presigned URL\uc744 \ubc1c\uae09\ud569\ub2c8\ub2e4. \uc751\ub2f5\uc758 objectKey \ub97c PATCH \uc2dc profileImg \ud544\ub4dc\uc5d0 \uadf8\ub300\ub85c \uc804\ub2ec\ud569\ub2c8\ub2e4.",
-                "operationId": "issueProfileImagePresignedUrl",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ProfileImagePresignRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseProfileImagePresignResponse"
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    }
-                },
-                "summary": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 \uc5c5\ub85c\ub4dc\uc6a9 presigned URL \ubc1c\uae09",
-                "tags": [
-                    "uploads"
-                ]
-            }
         }
     },
     "servers": [
         {
             "description": "Generated server url",
-            "url": "http://bandage-band-manager:8080"
+            "url": "http://localhost:8080"
         }
     ],
     "tags": [
@@ -9801,8 +10235,8 @@
             "name": "track-selections"
         },
         {
-            "description": "\ud30c\uc77c \uc5c5\ub85c\ub4dc API",
-            "name": "uploads"
+            "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 API",
+            "name": "performance-posters"
         },
         {
             "description": "\ud569\uc8fc API",

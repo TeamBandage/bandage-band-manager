@@ -4,6 +4,7 @@ import com.bandage.bandmanager.domain.band.dto.req.BandApplicationPagingQuery
 import com.bandage.bandmanager.domain.band.dto.req.BandCreateRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandMemberRoleUpdateRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandPagingQuery
+import com.bandage.bandmanager.domain.band.dto.req.BandProfileImagePresignRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandSearchQuery
 import com.bandage.bandmanager.domain.band.dto.req.BandUpdateRequest
 import com.bandage.bandmanager.domain.band.dto.req.MyBandApplicationPagingQuery
@@ -29,6 +30,8 @@ import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
+import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
+import com.bandage.bandmanager.global.infra.s3.ImagePresignSupport
 import com.bandage.bandmanager.global.notify.annotation.Notify
 import com.bandage.bandmanager.global.notify.annotation.NotifyCategory
 import org.springframework.data.repository.findByIdOrNull
@@ -44,6 +47,7 @@ class BandService(
     private val bandMemberRepository: BandMemberRepository,
     private val memberRepository: MemberRepository,
     private val cloudFrontUrlResolver: CloudFrontUrlResolver,
+    private val imagePresignSupport: ImagePresignSupport,
 ) : MemberAuthorityCleanupHandler {
     override val authorityType: ResourceAuthorityType = ResourceAuthorityType.BAND_LEADERSHIP
 
@@ -293,6 +297,19 @@ class BandService(
         val band = getBand(bandId)
         validateMemberIsBandLeader(band, memberId)
         band.deleteImg()
+    }
+
+    /** 밴드 프로필 이미지 업로드용 presigned URL 발급. 리더만 가능. 응답 objectKey 를 밴드 수정 시 profileImg 로 전달. */
+    fun issueProfileImagePresignedUrl(
+        bandId: UUID,
+        request: BandProfileImagePresignRequest,
+        memberId: Long,
+    ): ImagePresignResponse {
+        val band = getBand(bandId)
+        validateMemberIsBandLeader(band, memberId)
+        return imagePresignSupport.issue(request.contentType, request.ext, request.contentLength) { ext ->
+            "profile/band/$bandId/${UUID.randomUUID()}.$ext"
+        }
     }
 
     @Transactional

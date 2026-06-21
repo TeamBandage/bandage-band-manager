@@ -3,6 +3,7 @@ package com.bandage.bandmanager.domain.band.controller
 import com.bandage.bandmanager.domain.band.dto.req.BandCreateRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandMemberRoleUpdateRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandPagingQuery
+import com.bandage.bandmanager.domain.band.dto.req.BandProfileImagePresignRequest
 import com.bandage.bandmanager.domain.band.dto.req.BandSearchQuery
 import com.bandage.bandmanager.domain.band.dto.req.BandUpdateRequest
 import com.bandage.bandmanager.domain.band.dto.res.BandInfoResponse
@@ -13,6 +14,7 @@ import com.bandage.bandmanager.domain.band.service.BandService
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
 import com.bandage.bandmanager.global.common.response.CursorResponse
+import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.security.annotation.CurrentMemberId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -116,6 +118,18 @@ class BandController(
         @Valid @RequestBody request: BandUpdateRequest,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<BandResponse> = ApiResponse.success(bandService.updateBand(bandId, request, memberId))
+
+    @PostMapping("/{bandId}/profile-image/presigned-url")
+    @Operation(
+        operationId = "issueBandProfileImagePresignedUrl",
+        summary = "밴드 프로필 이미지 presigned URL 발급 API",
+        description = "밴드 프로필 이미지를 S3에 PUT 업로드하기 위한 presigned URL을 발급합니다. 리더만 가능. 응답 objectKey 를 밴드 수정 시 profileImg 로 전달합니다.",
+    )
+    fun issueBandProfileImagePresignedUrl(
+        @PathVariable bandId: UUID,
+        @Valid @RequestBody request: BandProfileImagePresignRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<ImagePresignResponse> = ApiResponse.success(bandService.issueProfileImagePresignedUrl(bandId, request, memberId))
 
     @DeleteMapping("/{bandId}/profile-image")
     @Operation(
