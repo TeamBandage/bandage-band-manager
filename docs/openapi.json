@@ -726,6 +726,40 @@
                 ],
                 "type": "object"
             },
+            "ApiResponseListPerformancePosterResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/PerformancePosterResponse"
+                        },
+                        "type": "array"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
             "ApiResponseListPerformanceSetlistResponse": {
                 "properties": {
                     "code": {
@@ -1145,6 +1179,37 @@
                     },
                     "data": {
                         "$ref": "#/components/schemas/PerformanceInvitationResponse"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
+            "ApiResponsePerformancePosterResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/PerformancePosterResponse"
                     },
                     "fieldErrors": {
                         "additionalProperties": {
@@ -3895,6 +3960,77 @@
                 "required": [
                     "pageSize"
                 ],
+                "type": "object"
+            },
+            "PerformancePosterCreateRequest": {
+                "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ub4f1\ub85d \uc694\uccad",
+                "properties": {
+                    "description": {
+                        "description": "\ud3ec\uc2a4\ud130 \uc124\uba85",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 \uba54\uc778 \ud3ec\uc2a4\ud130",
+                        "type": "string"
+                    },
+                    "performanceId": {
+                        "description": "\uacf5\uc5f0 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "s3Url": {
+                        "description": "\ud3ec\uc2a4\ud130 \uc774\ubbf8\uc9c0 S3 URL",
+                        "example": "https://bucket.s3.ap-northeast-2.amazonaws.com/posters/abc.png",
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "performanceId",
+                    "s3Url"
+                ],
+                "type": "object"
+            },
+            "PerformancePosterResponse": {
+                "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc751\ub2f5",
+                "properties": {
+                    "description": {
+                        "description": "\ud3ec\uc2a4\ud130 \uc124\uba85",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 \uba54\uc778 \ud3ec\uc2a4\ud130",
+                        "type": "string"
+                    },
+                    "performanceId": {
+                        "description": "\uacf5\uc5f0 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "posterId": {
+                        "description": "\ud3ec\uc2a4\ud130 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "s3Url": {
+                        "description": "\ud3ec\uc2a4\ud130 \uc774\ubbf8\uc9c0 S3 URL",
+                        "example": "https://bucket.s3.ap-northeast-2.amazonaws.com/posters/abc.png",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "performanceId",
+                    "posterId",
+                    "s3Url"
+                ],
+                "type": "object"
+            },
+            "PerformancePosterUpdateRequest": {
+                "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc124\uba85 \uc218\uc815 \uc694\uccad",
+                "properties": {
+                    "description": {
+                        "description": "\ud3ec\uc2a4\ud130 \uc124\uba85 (null \uc804\ub2ec \uc2dc \uc124\uba85 \uc81c\uac70)",
+                        "example": "TuNA \uc815\uae30\uacf5\uc5f0 \uba54\uc778 \ud3ec\uc2a4\ud130",
+                        "type": "string"
+                    }
+                },
                 "type": "object"
             },
             "PerformanceResponse": {
@@ -7214,6 +7350,174 @@
                 ]
             }
         },
+        "/api/v1/performance-posters": {
+            "get": {
+                "description": "\ud3ec\uc2a4\ud130 \ubaa9\ub85d\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4. performanceId \uc81c\uacf5 \uc2dc \ud574\ub2f9 \uacf5\uc5f0\uc758 \ud3ec\uc2a4\ud130\ub9cc, \ubbf8\uc81c\uacf5 \uc2dc \uc804\uccb4 \ud3ec\uc2a4\ud130\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "operationId": "getPerformancePosters",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "performanceId",
+                        "required": false,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListPerformancePosterResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ubaa9\ub85d \uc870\ud68c API",
+                "tags": [
+                    "performance-posters"
+                ]
+            },
+            "post": {
+                "description": "\uacf5\uc5f0\uc5d0 \uc2e0\uaddc \ud3ec\uc2a4\ud130\ub97c \ub4f1\ub85d\ud569\ub2c8\ub2e4.",
+                "operationId": "createPerformancePoster",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformancePosterCreateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponsePerformancePosterResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ub4f1\ub85d API",
+                "tags": [
+                    "performance-posters"
+                ]
+            }
+        },
+        "/api/v1/performance-posters/{posterId}": {
+            "delete": {
+                "description": "\ud3ec\uc2a4\ud130\ub97c \uc0ad\uc81c\ud569\ub2c8\ub2e4.",
+                "operationId": "deletePerformancePoster",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "posterId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseUnit"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc0ad\uc81c API",
+                "tags": [
+                    "performance-posters"
+                ]
+            },
+            "get": {
+                "description": "\ud3ec\uc2a4\ud130 \uace0\uc720 \uc2dd\ubcc4 ID\ub85c \ud3ec\uc2a4\ud130\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "operationId": "getPerformancePoster",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "posterId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponsePerformancePosterResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ub2e8\uac74 \uc870\ud68c API",
+                "tags": [
+                    "performance-posters"
+                ]
+            },
+            "patch": {
+                "description": "\ud3ec\uc2a4\ud130 \uc124\uba85\uc744 \uc218\uc815\ud569\ub2c8\ub2e4. description=null \uc804\ub2ec \uc2dc \uc124\uba85\uc744 \uc81c\uac70\ud569\ub2c8\ub2e4.",
+                "operationId": "updatePerformancePoster",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "posterId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PerformancePosterUpdateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponsePerformancePosterResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \uc124\uba85 \uc218\uc815 API",
+                "tags": [
+                    "performance-posters"
+                ]
+            }
+        },
         "/api/v1/performances": {
             "get": {
                 "description": "\uacf5\uc5f0 \ubaa9\ub85d\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. bandId \uc81c\uacf5 \uc2dc \ud574\ub2f9 \ubc34\ub4dc\uac00 \uc14b\ub9ac\uc2a4\ud2b8\ub85c \ucc38\uc5ec\ud558\ub294 \uacf5\uc5f0\ub9cc \uc870\ud68c\ud569\ub2c8\ub2e4.",
@@ -9740,7 +10044,7 @@
     "servers": [
         {
             "description": "Generated server url",
-            "url": "http://bandage-band-manager:8080"
+            "url": "http://localhost:8080"
         }
     ],
     "tags": [
@@ -9803,6 +10107,10 @@
         {
             "description": "\ud30c\uc77c \uc5c5\ub85c\ub4dc API",
             "name": "uploads"
+        },
+        {
+            "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 API",
+            "name": "performance-posters"
         },
         {
             "description": "\ud569\uc8fc API",
