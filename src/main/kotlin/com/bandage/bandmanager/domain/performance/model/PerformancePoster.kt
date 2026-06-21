@@ -32,7 +32,8 @@ open class PerformancePoster(
     val s3Url: String = s3Url
 
     @Column(name = "description")
-    val description: String? = description
+    var description: String? = description
+        protected set
 
     companion object {
         fun create(
@@ -45,5 +46,9 @@ open class PerformancePoster(
                 s3Url = s3Url,
                 description = description,
             )
+    }
+
+    fun updateDescription(newDescription: String?) {
+        this.description = newDescription
     }
 }

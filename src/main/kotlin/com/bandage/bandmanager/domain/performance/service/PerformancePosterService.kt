@@ -1,6 +1,7 @@
 package com.bandage.bandmanager.domain.performance.service
 
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterCreateRequest
+import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterUpdateRequest
 import com.bandage.bandmanager.domain.performance.dto.res.PerformancePosterResponse
 import com.bandage.bandmanager.domain.performance.model.PerformancePoster
 import com.bandage.bandmanager.domain.performance.repository.PerformancePosterRepository
@@ -37,6 +38,16 @@ class PerformancePosterService(
 
     fun getAllPosters(): List<PerformancePosterResponse> =
         performancePosterRepository.findAllByOrderByCreatedAtDesc().map { PerformancePosterResponse.of(it) }
+
+    @Transactional
+    fun updateDescription(
+        posterId: UUID,
+        request: PerformancePosterUpdateRequest,
+    ): PerformancePosterResponse {
+        val poster = requirePoster(posterId)
+        poster.updateDescription(request.description)
+        return PerformancePosterResponse.of(poster)
+    }
 
     @Transactional
     fun deletePoster(posterId: UUID) {

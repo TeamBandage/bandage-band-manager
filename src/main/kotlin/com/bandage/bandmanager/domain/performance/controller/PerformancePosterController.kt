@@ -1,6 +1,7 @@
 package com.bandage.bandmanager.domain.performance.controller
 
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterCreateRequest
+import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterUpdateRequest
 import com.bandage.bandmanager.domain.performance.dto.res.PerformancePosterResponse
 import com.bandage.bandmanager.domain.performance.service.PerformancePosterService
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -50,6 +52,17 @@ class PerformancePosterController(
     fun getPoster(
         @PathVariable posterId: UUID,
     ): ApiResponse<PerformancePosterResponse> = ApiResponse.success(performancePosterService.getPoster(posterId))
+
+    @PatchMapping("/{posterId}")
+    @Operation(
+        operationId = "updatePerformancePoster",
+        summary = "공연 포스터 설명 수정 API",
+        description = "포스터 설명을 수정합니다. description=null 전달 시 설명을 제거합니다.",
+    )
+    fun updatePoster(
+        @PathVariable posterId: UUID,
+        @Valid @RequestBody request: PerformancePosterUpdateRequest,
+    ): ApiResponse<PerformancePosterResponse> = ApiResponse.success(performancePosterService.updateDescription(posterId, request))
 
     @DeleteMapping("/{posterId}")
     @Operation(operationId = "deletePerformancePoster", summary = "공연 포스터 삭제 API", description = "포스터를 삭제합니다.")
