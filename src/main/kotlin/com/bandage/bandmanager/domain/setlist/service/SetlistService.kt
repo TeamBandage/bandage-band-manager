@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.setlist.service
 
 import com.bandage.bandmanager.domain.band.model.BandMember
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
+import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackUpdateRequest
@@ -36,6 +37,7 @@ class SetlistService(
     private val setlistTrackRepository: SetlistTrackRepository,
     private val setlistTrackParticipantRepository: SetlistTrackParticipantRepository,
     private val bandMemberRepository: BandMemberRepository,
+    private val memberService: MemberService,
 ) : MemberAuthorityCleanupHandler {
     override val authorityType: ResourceAuthorityType = ResourceAuthorityType.SETLIST_MANAGEMENT
 
@@ -88,13 +90,16 @@ class SetlistService(
         if (result.content.isEmpty()) {
             return CursorResponse(content = emptyList(), nextCursor = null, hasNext = false)
         }
-        val participantsByTrack =
-            setlistTrackParticipantRepository.findAllByTrackIn(result.content).groupBy { it.track.id }
+        val allParticipants = setlistTrackParticipantRepository.findAllByTrackIn(result.content)
+        val participantsByTrack = allParticipants.groupBy { it.track.id }
+        // 페이지 전체 참여자 회원 정보를 1회 bulk 조회(목록 단위 N+1 방지)
+        val memberInfos = memberService.getMemberSummaries(allParticipants.map { it.memberId })
         val content =
             result.content.map { track ->
                 SetlistTrackResponse.of(
                     track = track,
                     participants = participantsByTrack[track.id] ?: emptyList(),
+                    memberInfos = memberInfos,
                 )
             }
         return CursorResponse(content = content, nextCursor = result.nextCursor, hasNext = result.hasNext)
@@ -108,10 +113,7 @@ class SetlistService(
         val setlist = getSetlistOrThrow(setlistId)
         validateAccess(setlist, memberId)
         val track = getTrackOrThrow(setlist, trackId)
-        return SetlistTrackResponse.of(
-            track = track,
-            participants = setlistTrackParticipantRepository.findAllByTrack(track),
-        )
+        return toTrackResponse(track)
     }
 
     @Transactional
@@ -135,10 +137,7 @@ class SetlistService(
                 .forEach { setlistTrackParticipantRepository.delete(it) }
             track.replaceSessions(newDefs)
         }
-        return SetlistTrackResponse.of(
-            track = track,
-            participants = setlistTrackParticipantRepository.findAllByTrack(track),
-        )
+        return toTrackResponse(track)
     }
 
     @Transactional
@@ -152,6 +151,13 @@ class SetlistService(
         val track = getTrackOrThrow(setlist, trackId)
         setlistTrackParticipantRepository.findAllByTrack(track).forEach { it.markAsDeleted(memberId) }
         track.markAsDeleted(memberId)
+    }
+
+    /** 단건 트랙 응답 구성. 참여자 회원 정보를 1회 bulk 조회(N+1 방지). */
+    private fun toTrackResponse(track: SetlistTrack): SetlistTrackResponse {
+        val participants = setlistTrackParticipantRepository.findAllByTrack(track)
+        val memberInfos = memberService.getMemberSummaries(participants.map { it.memberId })
+        return SetlistTrackResponse.of(track, participants, memberInfos)
     }
 
     private fun getSetlistOrThrow(setlistId: UUID): Setlist =
