@@ -20,7 +20,7 @@ class ParticipantResponseTest {
         val res = ParticipantResponse.of(member(1L), MemberSummary(1L, "홍길동", null), managerId = 1L)
 
         assertThat(res.isManager).isTrue()
-        assertThat(res.memberId).isEqualTo(1L)
+        assertThat(res.member?.memberId).isEqualTo(1L)
         assertThat(res.member?.name).isEqualTo("홍길동")
     }
 
@@ -32,11 +32,10 @@ class ParticipantResponseTest {
     }
 
     @Test
-    fun `of - 회원 정보가 없으면(탈퇴) member는 null이지만 memberId와 isManager는 유지`() {
+    fun `of - 회원 정보가 없으면(탈퇴) member는 null이지만 isManager는 유지`() {
         val res = ParticipantResponse.of(member(1L), null, managerId = 1L)
 
         assertThat(res.member).isNull()
-        assertThat(res.memberId).isEqualTo(1L)
         assertThat(res.isManager).isTrue()
     }
 }

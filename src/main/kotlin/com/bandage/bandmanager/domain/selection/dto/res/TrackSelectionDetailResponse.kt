@@ -44,7 +44,6 @@ data class TrackSelectionDetailResponse(
 
 @Schema(description = "선곡 참여자 응답")
 data class ParticipantResponse(
-    val memberId: Long,
     @Schema(description = "참여자 회원 정보 (탈퇴 회원이면 null)")
     val member: MemberSummary?,
     val bandIds: List<UUID>,
@@ -58,7 +57,6 @@ data class ParticipantResponse(
             managerId: Long,
         ): ParticipantResponse =
             ParticipantResponse(
-                memberId = member.memberId,
                 member = memberInfo,
                 bandIds = member.bandIds.toList(),
                 isManager = member.memberId == managerId,
