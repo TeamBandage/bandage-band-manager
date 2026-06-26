@@ -3768,16 +3768,11 @@
                     "member": {
                         "$ref": "#/components/schemas/MemberSummary",
                         "description": "\ucc38\uc5ec\uc790 \ud68c\uc6d0 \uc815\ubcf4 (\ud0c8\ud1f4 \ud68c\uc6d0\uc774\uba74 null)"
-                    },
-                    "memberId": {
-                        "format": "int64",
-                        "type": "integer"
                     }
                 },
                 "required": [
                     "bandIds",
-                    "isManager",
-                    "memberId"
+                    "isManager"
                 ],
                 "type": "object"
             },
@@ -5209,9 +5204,9 @@
                         "type": "integer"
                     },
                     "participants": {
+                        "description": "\ubc30\uc815\ub41c \ucc38\uc5ec\uc790 \ubaa9\ub85d",
                         "items": {
-                            "format": "int64",
-                            "type": "integer"
+                            "$ref": "#/components/schemas/MemberSummary"
                         },
                         "type": "array"
                     },

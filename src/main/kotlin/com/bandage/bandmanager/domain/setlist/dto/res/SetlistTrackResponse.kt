@@ -1,5 +1,6 @@
 package com.bandage.bandmanager.domain.setlist.dto.res
 
+import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.domain.setlist.model.SetlistTrack
 import com.bandage.bandmanager.domain.setlist.model.SetlistTrackParticipant
 import com.bandage.bandmanager.global.common.domain.SessionDef
@@ -27,13 +28,14 @@ data class SetlistTrackResponse(
         fun of(
             track: SetlistTrack,
             participants: List<SetlistTrackParticipant>,
+            memberInfos: Map<Long, MemberSummary>,
         ): SetlistTrackResponse {
             val participantsBySession = participants.groupBy { it.sessionId }
             val sessions =
                 track.sessions.map { def ->
                     SetlistTrackSessionResponse.of(
                         def = def,
-                        participants = participantsBySession[def.sessionId]?.map { it.memberId } ?: emptyList(),
+                        participants = participantsBySession[def.sessionId]?.mapNotNull { memberInfos[it.memberId] } ?: emptyList(),
                     )
                 }
             return SetlistTrackResponse(
@@ -60,12 +62,13 @@ data class SetlistTrackSessionResponse(
     val short: String,
     val need: Int,
     val custom: Boolean,
-    val participants: List<Long>,
+    @Schema(description = "배정된 참여자 목록")
+    val participants: List<MemberSummary>,
 ) {
     companion object {
         fun of(
             def: SessionDef,
-            participants: List<Long>,
+            participants: List<MemberSummary>,
         ): SetlistTrackSessionResponse =
             SetlistTrackSessionResponse(
                 sessionId = def.sessionId,
