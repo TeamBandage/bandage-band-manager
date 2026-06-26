@@ -225,7 +225,7 @@ class TrackSelectionService(
                     sessions = request.sessions.map { it.toEntity() },
                 ),
             )
-        return TrackSelectionItemResponse.of(item, emptyList(), emptyList())
+        return toItemResponse(item, emptyList(), emptyList())
     }
 
     fun getItems(
@@ -239,14 +239,26 @@ class TrackSelectionService(
         if (result.content.isEmpty()) {
             return CursorResponse(content = emptyList(), nextCursor = null, hasNext = false)
         }
-        val applicants = applicantRepository.findAllByItemIn(result.content).groupBy { it.item.id }
-        val confirmations = confirmationRepository.findAllByItemIn(result.content).groupBy { it.item.id }
+        val allApplicants = applicantRepository.findAllByItemIn(result.content)
+        val allConfirmations = confirmationRepository.findAllByItemIn(result.content)
+        val applicants = allApplicants.groupBy { it.item.id }
+        val confirmations = allConfirmations.groupBy { it.item.id }
+        // 페이지 전체의 회원 정보를 1회 bulk 조회(목록 단위 N+1 방지)
+        val memberInfos =
+            memberService.getMemberSummaries(
+                buildSet {
+                    result.content.forEach { add(it.proposerId) }
+                    allApplicants.forEach { add(it.memberId) }
+                    allConfirmations.forEach { add(it.memberId) }
+                },
+            )
         val content =
             result.content.map { item ->
                 TrackSelectionItemResponse.of(
                     item = item,
                     applicants = applicants[item.id] ?: emptyList(),
                     confirmations = confirmations[item.id] ?: emptyList(),
+                    memberInfos = memberInfos,
                 )
             }
         return CursorResponse(content = content, nextCursor = result.nextCursor, hasNext = result.hasNext)
@@ -260,7 +272,7 @@ class TrackSelectionService(
         val selection = getSelectionOrThrow(selectionId)
         validateAccess(selection, memberId)
         val item = getItemOrThrow(selection, itemId)
-        return TrackSelectionItemResponse.of(
+        return toItemResponse(
             item = item,
             applicants = applicantRepository.findAllByItem(item),
             confirmations = confirmationRepository.findAllByItem(item),
@@ -291,7 +303,7 @@ class TrackSelectionService(
             confirmations.filter { it.sessionId !in newSessionIds }.forEach { confirmationRepository.delete(it) }
             item.replaceSessions(newDefs)
         }
-        return TrackSelectionItemResponse.of(
+        return toItemResponse(
             item = item,
             applicants = applicantRepository.findAllByItem(item),
             confirmations = confirmationRepository.findAllByItem(item),
@@ -332,7 +344,7 @@ class TrackSelectionService(
         } else {
             item.deselect()
         }
-        return TrackSelectionItemResponse.of(
+        return toItemResponse(
             item = item,
             applicants = applicantRepository.findAllByItem(item),
             confirmations = confirmationRepository.findAllByItem(item),
@@ -420,7 +432,7 @@ class TrackSelectionService(
                 TrackSelectionItemConfirmation.create(item = item, sessionId = sessionId, memberId = uid, confirmedBy = memberId),
             )
         }
-        return TrackSelectionItemResponse.of(
+        return toItemResponse(
             item = item,
             applicants = applicantRepository.findAllByItem(item),
             confirmations = confirmationRepository.findAllByItem(item),
@@ -498,6 +510,27 @@ class TrackSelectionService(
     /** 참여자 회원 정보를 1회 bulk 조회(N+1 방지). */
     private fun memberInfosOf(members: List<TrackSelectionMember>): Map<Long, MemberSummary> =
         memberService.getMemberSummaries(members.map { it.memberId })
+
+    /** 선곡 항목 응답에 필요한 회원(제안자/지원자/확정자) 정보를 1회 bulk 조회(N+1 방지). */
+    private fun itemMemberInfos(
+        item: TrackSelectionItem,
+        applicants: List<TrackSelectionItemApplicant>,
+        confirmations: List<TrackSelectionItemConfirmation>,
+    ): Map<Long, MemberSummary> =
+        memberService.getMemberSummaries(
+            buildSet {
+                add(item.proposerId)
+                applicants.forEach { add(it.memberId) }
+                confirmations.forEach { add(it.memberId) }
+            },
+        )
+
+    private fun toItemResponse(
+        item: TrackSelectionItem,
+        applicants: List<TrackSelectionItemApplicant>,
+        confirmations: List<TrackSelectionItemConfirmation>,
+    ): TrackSelectionItemResponse =
+        TrackSelectionItemResponse.of(item, applicants, confirmations, itemMemberInfos(item, applicants, confirmations))
 
     private fun getItemOrThrow(
         selection: TrackSelection,

@@ -1,5 +1,6 @@
 package com.bandage.bandmanager.domain.selection.dto.res
 
+import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionItem
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionItemApplicant
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionItemConfirmation
@@ -18,7 +19,8 @@ data class TrackSelectionItemResponse(
     val duration: Int?,
     @Schema(description = "참고 링크(예: YouTube)")
     val reference: String?,
-    val proposerId: Long,
+    @Schema(description = "곡 제안자 회원 정보 (탈퇴 회원이면 null)")
+    val proposer: MemberSummary?,
     val note: String?,
     val isSelected: Boolean,
     val sessions: List<SessionDefResponse>,
@@ -30,6 +32,7 @@ data class TrackSelectionItemResponse(
             item: TrackSelectionItem,
             applicants: List<TrackSelectionItemApplicant>,
             confirmations: List<TrackSelectionItemConfirmation>,
+            memberInfos: Map<Long, MemberSummary>,
         ): TrackSelectionItemResponse {
             val applicantsBySession = applicants.groupBy { it.sessionId }
             val confirmedBySession = confirmations.groupBy { it.sessionId }
@@ -37,8 +40,8 @@ data class TrackSelectionItemResponse(
                 item.sessions.map { def ->
                     SessionDefResponse.of(
                         def = def,
-                        applicants = applicantsBySession[def.sessionId]?.map { it.memberId } ?: emptyList(),
-                        confirmed = confirmedBySession[def.sessionId]?.map { it.memberId } ?: emptyList(),
+                        applicants = applicantsBySession[def.sessionId]?.mapNotNull { memberInfos[it.memberId] } ?: emptyList(),
+                        confirmed = confirmedBySession[def.sessionId]?.mapNotNull { memberInfos[it.memberId] } ?: emptyList(),
                     )
                 }
             return TrackSelectionItemResponse(
@@ -49,7 +52,7 @@ data class TrackSelectionItemResponse(
                 album = item.trackInfo.album,
                 duration = item.trackInfo.duration,
                 reference = item.trackInfo.reference,
-                proposerId = item.proposerId,
+                proposer = memberInfos[item.proposerId],
                 note = item.note,
                 isSelected = item.isSelected,
                 sessions = sessionResponses,
