@@ -1,6 +1,8 @@
 package com.bandage.bandmanager.domain.selection.service
 
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
+import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
+import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.selection.dto.req.SetlistChatMessageCreateRequest
 import com.bandage.bandmanager.domain.selection.dto.req.SetlistConfirmationUpdateRequest
 import com.bandage.bandmanager.domain.selection.dto.req.SetlistParticipantsUpdateRequest
@@ -53,6 +55,7 @@ class TrackSelectionService(
     private val confirmationRepository: TrackSelectionItemConfirmationRepository,
     private val chatMessageRepository: TrackSelectionItemChatMessageRepository,
     private val bandMemberRepository: BandMemberRepository,
+    private val memberService: MemberService,
 ) : MemberAuthorityCleanupHandler {
     override val authorityType: ResourceAuthorityType = ResourceAuthorityType.TRACK_SELECTION_MANAGEMENT
 
@@ -93,7 +96,7 @@ class TrackSelectionService(
         val members = selectionMemberRepository.findAllBySelection(selection)
         validateAccess(selection, members, memberId)
         val bandIds = selectionBandRepository.findAllBySelection(selection).map { it.bandId }
-        return TrackSelectionDetailResponse.of(selection, bandIds, members)
+        return TrackSelectionDetailResponse.of(selection, bandIds, members, memberInfosOf(members))
     }
 
     fun getMySelections(
@@ -191,7 +194,7 @@ class TrackSelectionService(
         }
 
         val members = selectionMemberRepository.findAllBySelection(selection)
-        return TrackSelectionDetailResponse.of(selection, loadBandIds(selection), members)
+        return TrackSelectionDetailResponse.of(selection, loadBandIds(selection), members, memberInfosOf(members))
     }
 
     // -------- items --------
@@ -491,6 +494,10 @@ class TrackSelectionService(
             ?: throw BusinessException(ErrorCode.SETLIST_MEETING_NOT_FOUND)
 
     private fun loadBandIds(selection: TrackSelection): List<UUID> = selectionBandRepository.findAllBySelection(selection).map { it.bandId }
+
+    /** 참여자 회원 정보를 1회 bulk 조회(N+1 방지). */
+    private fun memberInfosOf(members: List<TrackSelectionMember>): Map<Long, MemberSummary> =
+        memberService.getMemberSummaries(members.map { it.memberId })
 
     private fun getItemOrThrow(
         selection: TrackSelection,

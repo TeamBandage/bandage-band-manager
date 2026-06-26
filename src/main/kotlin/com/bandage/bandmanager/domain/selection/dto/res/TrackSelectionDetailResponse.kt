@@ -1,5 +1,6 @@
 package com.bandage.bandmanager.domain.selection.dto.res
 
+import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.domain.selection.dto.PracticeWindowDto
 import com.bandage.bandmanager.domain.selection.model.TrackSelection
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionMember
@@ -25,13 +26,14 @@ data class TrackSelectionDetailResponse(
             m: TrackSelection,
             bandIds: List<UUID>,
             members: List<TrackSelectionMember>,
+            memberInfos: Map<Long, MemberSummary>,
         ): TrackSelectionDetailResponse =
             TrackSelectionDetailResponse(
                 selectionId = m.id,
                 bandIds = bandIds,
                 title = m.title,
                 managerId = m.managerId,
-                participants = members.map { ParticipantResponse.of(it) },
+                participants = members.map { ParticipantResponse.of(it, memberInfos[it.memberId], m.managerId) },
                 practiceWindow = PracticeWindowDto.of(m.practiceWindow),
                 lockedAt = m.lockedAt,
                 createdAt = m.createdAt,
@@ -43,13 +45,23 @@ data class TrackSelectionDetailResponse(
 @Schema(description = "선곡 참여자 응답")
 data class ParticipantResponse(
     val memberId: Long,
+    @Schema(description = "참여자 회원 정보 (탈퇴 회원이면 null)")
+    val member: MemberSummary?,
     val bandIds: List<UUID>,
+    @Schema(description = "이 참여자가 선곡 회의의 매니저인지 여부")
+    val isManager: Boolean,
 ) {
     companion object {
-        fun of(member: TrackSelectionMember): ParticipantResponse =
+        fun of(
+            member: TrackSelectionMember,
+            memberInfo: MemberSummary?,
+            managerId: Long,
+        ): ParticipantResponse =
             ParticipantResponse(
                 memberId = member.memberId,
+                member = memberInfo,
                 bandIds = member.bandIds.toList(),
+                isManager = member.memberId == managerId,
             )
     }
 }

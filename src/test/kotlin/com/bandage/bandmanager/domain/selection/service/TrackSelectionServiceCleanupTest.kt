@@ -4,6 +4,7 @@ import com.bandage.bandmanager.domain.band.model.Band
 import com.bandage.bandmanager.domain.band.model.BandMember
 import com.bandage.bandmanager.domain.band.model.enums.BandRole
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
+import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.selection.model.PracticeWindow
 import com.bandage.bandmanager.domain.selection.model.TrackSelection
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionBand
@@ -35,6 +36,7 @@ class TrackSelectionServiceCleanupTest {
     private val confirmationRepository = mock(TrackSelectionItemConfirmationRepository::class.java)
     private val chatMessageRepository = mock(TrackSelectionItemChatMessageRepository::class.java)
     private val bandMemberRepository = mock(BandMemberRepository::class.java)
+    private val memberService = mock(MemberService::class.java)
 
     private val sut =
         TrackSelectionService(
@@ -46,6 +48,7 @@ class TrackSelectionServiceCleanupTest {
             confirmationRepository,
             chatMessageRepository,
             bandMemberRepository,
+            memberService,
         )
 
     private val selectionId: UUID = UUID.fromString("00000000-0000-0000-0000-0000000000a1")
