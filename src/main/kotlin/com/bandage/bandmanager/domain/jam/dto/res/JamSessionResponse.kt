@@ -1,5 +1,6 @@
 package com.bandage.bandmanager.domain.jam.dto.res
 
+import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.global.common.domain.SessionDef
 import io.swagger.v3.oas.annotations.media.Schema
 
@@ -15,13 +16,13 @@ data class JamSessionResponse(
     val need: Int,
     @Schema(description = "커스텀 세션 여부", example = "false")
     val custom: Boolean,
-    @Schema(description = "배정된 참여자 회원 ID 목록")
-    val participants: List<Long>,
+    @Schema(description = "배정된 참여자 목록")
+    val participants: List<MemberSummary>,
 ) {
     companion object {
         fun of(
             def: SessionDef,
-            participants: List<Long>,
+            participants: List<MemberSummary>,
         ): JamSessionResponse =
             JamSessionResponse(
                 sessionId = def.sessionId,

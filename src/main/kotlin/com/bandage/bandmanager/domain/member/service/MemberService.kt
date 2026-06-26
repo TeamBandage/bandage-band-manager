@@ -6,6 +6,7 @@ import com.bandage.bandmanager.domain.member.dto.req.MemberCreateRequest
 import com.bandage.bandmanager.domain.member.dto.req.MemberInfoUpdateRequest
 import com.bandage.bandmanager.domain.member.dto.res.MemberInfoResponse
 import com.bandage.bandmanager.domain.member.dto.res.MemberSearchItemResponse
+import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.domain.member.model.Member
 import com.bandage.bandmanager.domain.member.repository.MemberRepository
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
@@ -41,6 +42,14 @@ class MemberService(
     fun getMemberInfo(memberId: Long): MemberInfoResponse {
         val member = getMember(memberId)
         return MemberInfoResponse.of(member, profileImageUrl(member.profileImg))
+    }
+
+    /** 다른 도메인 응답에 회원 정보를 임베드할 때 사용. memberId → MemberSummary 맵을 한 번의 조회로 반환(N+1 방지). */
+    fun getMemberSummaries(ids: Collection<Long>): Map<Long, MemberSummary> {
+        if (ids.isEmpty()) return emptyMap()
+        return memberRepository
+            .findAllByIdIn(ids.toSet())
+            .associateBy({ it.id }, { MemberSummary.of(it, profileImageUrl(it.profileImg)) })
     }
 
     @Transactional

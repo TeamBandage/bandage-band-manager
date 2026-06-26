@@ -5,6 +5,7 @@ import com.bandage.bandmanager.domain.jam.dto.req.JamVenueUpdateRequest
 import com.bandage.bandmanager.domain.jam.model.Jam
 import com.bandage.bandmanager.domain.jam.repository.JamParticipantRepository
 import com.bandage.bandmanager.domain.jam.repository.JamRepository
+import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.global.common.domain.TrackInfo
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -22,12 +23,14 @@ class JamServiceTest {
     private val jamParticipantRepository = mock(JamParticipantRepository::class.java)
     private val bandMemberRepository = mock(BandMemberRepository::class.java)
     private val jamReservationSyncService = mock(JamReservationSyncService::class.java)
+    private val memberService = mock(MemberService::class.java)
     private val sut =
         JamService(
             jamRepository,
             jamParticipantRepository,
             bandMemberRepository,
             jamReservationSyncService,
+            memberService,
         )
 
     private val jamId = UUID.randomUUID()

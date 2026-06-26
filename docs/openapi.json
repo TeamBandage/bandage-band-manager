@@ -2823,11 +2823,9 @@
             "JamParticipantResponse": {
                 "description": "\ud569\uc8fc \ucc38\uc5ec\uc790 \uc751\ub2f5",
                 "properties": {
-                    "memberId": {
-                        "description": "\ud68c\uc6d0 \uace0\uc720 \uc2dd\ubcc4\uc790 (Long)",
-                        "example": 1,
-                        "format": "int64",
-                        "type": "integer"
+                    "member": {
+                        "$ref": "#/components/schemas/MemberSummary",
+                        "description": "\ucc38\uc5ec\uc790 \ud68c\uc6d0 \uc815\ubcf4 (\ud0c8\ud1f4 \ud68c\uc6d0\uc774\uba74 null)"
                     },
                     "participantId": {
                         "description": "\ucc38\uc5ec\uc790 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
@@ -2842,7 +2840,6 @@
                     }
                 },
                 "required": [
-                    "memberId",
                     "participantId"
                 ],
                 "type": "object"
@@ -2933,10 +2930,9 @@
                         "type": "integer"
                     },
                     "participants": {
-                        "description": "\ubc30\uc815\ub41c \ucc38\uc5ec\uc790 \ud68c\uc6d0 ID \ubaa9\ub85d",
+                        "description": "\ubc30\uc815\ub41c \ucc38\uc5ec\uc790 \ubaa9\ub85d",
                         "items": {
-                            "format": "int64",
-                            "type": "integer"
+                            "$ref": "#/components/schemas/MemberSummary"
                         },
                         "type": "array"
                     },
@@ -3447,6 +3443,32 @@
                 ],
                 "type": "object"
             },
+            "MemberSummary": {
+                "description": "\ud68c\uc6d0 \uc694\uc57d \uc815\ubcf4 (\uc784\ubca0\ub4dc\uc6a9)",
+                "properties": {
+                    "memberId": {
+                        "description": "\ud68c\uc6d0 \uace0\uc720 \uc2dd\ubcc4\uc790 (Long)",
+                        "example": 1,
+                        "format": "int64",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "\ud68c\uc6d0 \uc774\ub984",
+                        "example": "\ud64d\uae38\ub3d9",
+                        "type": "string"
+                    },
+                    "profileImg": {
+                        "description": "\ud504\ub85c\ud544 \uc774\ubbf8\uc9c0 URL (nullable)",
+                        "example": "https://cdn.example.com/profile/member/1/uuid.jpg",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "memberId",
+                    "name"
+                ],
+                "type": "object"
+            },
             "MyBandApplicationInfoResponse": {
                 "description": "\ub0b4 \ubc34\ub4dc \uac00\uc785 \uc2e0\uccad \ud56d\ubaa9 (\uc2e0\uccad \uc815\ubcf4 + \ub300\uc0c1 \ubc34\ub4dc \uc815\ubcf4)",
                 "properties": {
@@ -3739,6 +3761,14 @@
                         },
                         "type": "array"
                     },
+                    "isManager": {
+                        "description": "\uc774 \ucc38\uc5ec\uc790\uac00 \uc120\uace1 \ud68c\uc758\uc758 \ub9e4\ub2c8\uc800\uc778\uc9c0 \uc5ec\ubd80",
+                        "type": "boolean"
+                    },
+                    "member": {
+                        "$ref": "#/components/schemas/MemberSummary",
+                        "description": "\ucc38\uc5ec\uc790 \ud68c\uc6d0 \uc815\ubcf4 (\ud0c8\ud1f4 \ud68c\uc6d0\uc774\uba74 null)"
+                    },
                     "memberId": {
                         "format": "int64",
                         "type": "integer"
@@ -3746,6 +3776,7 @@
                 },
                 "required": [
                     "bandIds",
+                    "isManager",
                     "memberId"
                 ],
                 "type": "object"
@@ -4802,16 +4833,16 @@
             "SessionDefResponse": {
                 "properties": {
                     "applicants": {
+                        "description": "\uc9c0\uc6d0\uc790 \ud68c\uc6d0 \ubaa9\ub85d",
                         "items": {
-                            "format": "int64",
-                            "type": "integer"
+                            "$ref": "#/components/schemas/MemberSummary"
                         },
                         "type": "array"
                     },
                     "confirmed": {
+                        "description": "\ud655\uc815\uc790 \ud68c\uc6d0 \ubaa9\ub85d",
                         "items": {
-                            "format": "int64",
-                            "type": "integer"
+                            "$ref": "#/components/schemas/MemberSummary"
                         },
                         "type": "array"
                     },
@@ -4865,9 +4896,9 @@
                         "format": "date-time",
                         "type": "string"
                     },
-                    "memberId": {
-                        "format": "int64",
-                        "type": "integer"
+                    "member": {
+                        "$ref": "#/components/schemas/MemberSummary",
+                        "description": "\uc791\uc131\uc790 \ud68c\uc6d0 \uc815\ubcf4 (\ud0c8\ud1f4 \ud68c\uc6d0\uc774\uba74 null)"
                     },
                     "message": {
                         "type": "string"
@@ -4882,7 +4913,6 @@
                     }
                 },
                 "required": [
-                    "memberId",
                     "message",
                     "messageId",
                     "trackSelectionItemId"
@@ -5508,9 +5538,9 @@
                     "note": {
                         "type": "string"
                     },
-                    "proposerId": {
-                        "format": "int64",
-                        "type": "integer"
+                    "proposer": {
+                        "$ref": "#/components/schemas/MemberSummary",
+                        "description": "\uace1 \uc81c\uc548\uc790 \ud68c\uc6d0 \uc815\ubcf4 (\ud0c8\ud1f4 \ud68c\uc6d0\uc774\uba74 null)"
                     },
                     "reference": {
                         "description": "\ucc38\uace0 \ub9c1\ud06c(\uc608: YouTube)",
@@ -5541,7 +5571,6 @@
                 "required": [
                     "artist",
                     "isSelected",
-                    "proposerId",
                     "selectionId",
                     "sessions",
                     "title",
@@ -7488,6 +7517,28 @@
                     }
                 },
                 "summary": "\ud68c\uc6d0 \uac80\uc0c9 API",
+                "tags": [
+                    "members"
+                ]
+            }
+        },
+        "/api/v1/members/{memberId}": {
+            "get": {
+                "description": "\ud68c\uc6d0 ID\ub85c \ud2b9\uc815 \ud68c\uc6d0\uc758 \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "operationId": "getMemberInfoById",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMemberInfoResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud68c\uc6d0 \uc815\ubcf4 \uc870\ud68c API(\ud68c\uc6d0 ID)",
                 "tags": [
                     "members"
                 ]
@@ -10307,7 +10358,7 @@
     "servers": [
         {
             "description": "Generated server url",
-            "url": "http://bandage-band-manager:8080"
+            "url": "http://localhost:8080"
         }
     ],
     "tags": [

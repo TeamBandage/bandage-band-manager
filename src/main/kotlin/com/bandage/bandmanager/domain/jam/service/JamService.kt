@@ -17,6 +17,8 @@ import com.bandage.bandmanager.domain.jam.model.Jam
 import com.bandage.bandmanager.domain.jam.model.JamParticipant
 import com.bandage.bandmanager.domain.jam.repository.JamParticipantRepository
 import com.bandage.bandmanager.domain.jam.repository.JamRepository
+import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
+import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -32,6 +34,7 @@ class JamService(
     private val jamParticipantRepository: JamParticipantRepository,
     private val bandMemberRepository: BandMemberRepository,
     private val jamReservationSyncService: JamReservationSyncService,
+    private val memberService: MemberService,
 ) {
     @Transactional
     fun createJam(
@@ -59,7 +62,7 @@ class JamService(
         return JamResponse.of(jam)
     }
 
-    fun getJamDetail(jamId: UUID): JamDetailResponse = JamDetailResponse.of(getJam(jamId))
+    fun getJamDetail(jamId: UUID): JamDetailResponse = toDetailResponse(getJam(jamId))
 
     fun getJamsByCursor(
         bandId: UUID?,
@@ -128,7 +131,7 @@ class JamService(
             .forEach { jamParticipantRepository.delete(it) }
         jam.replaceSessions(newDefs)
         jamReservationSyncService.sync(jam)
-        return JamDetailResponse.of(jam)
+        return toDetailResponse(jam)
     }
 
     @Transactional
@@ -150,7 +153,7 @@ class JamService(
                 ),
             )
         jamReservationSyncService.sync(jam)
-        return JamParticipantResponse.of(participant)
+        return JamParticipantResponse.of(participant, summaryOf(participant.member))
     }
 
     @Transactional
@@ -166,12 +169,12 @@ class JamService(
             jamParticipantRepository.findByIdAndJam(participantId, jam)
                 ?: throw BusinessException(ErrorCode.JAM_PARTICIPANT_NOT_FOUND)
         if (participant.sessionId == request.sessionId) {
-            return JamParticipantResponse.of(participant)
+            return JamParticipantResponse.of(participant, summaryOf(participant.member))
         }
         validateSessionExists(jam, request.sessionId)
         validateParticipantNotExists(jam, request.sessionId, participant.member)
         participant.changeSession(request.sessionId)
-        return JamParticipantResponse.of(participant)
+        return JamParticipantResponse.of(participant, summaryOf(participant.member))
     }
 
     @Transactional
@@ -227,6 +230,14 @@ class JamService(
     private fun getJam(jamId: UUID): Jam =
         jamRepository.findByIdOrNull(jamId)
             ?: throw BusinessException(ErrorCode.JAM_NOT_FOUND)
+
+    /** 합주 참여자 전원의 회원 정보를 한 번에 조회해 상세 응답을 구성한다(N+1 방지). */
+    private fun toDetailResponse(jam: Jam): JamDetailResponse {
+        val members = memberService.getMemberSummaries(jam.participants.map { it.member })
+        return JamDetailResponse.of(jam, members)
+    }
+
+    private fun summaryOf(memberId: Long): MemberSummary? = memberService.getMemberSummaries(listOf(memberId))[memberId]
 
     private fun validateParticipant(
         jam: Jam,
