@@ -7493,6 +7493,28 @@
                 ]
             }
         },
+        "/api/v1/members/{memberId}": {
+            "get": {
+                "description": "\ud68c\uc6d0 ID\ub85c \ud2b9\uc815 \ud68c\uc6d0\uc758 \uc815\ubcf4\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "operationId": "getMemberInfoById",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMemberInfoResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ud68c\uc6d0 \uc815\ubcf4 \uc870\ud68c API(\ud68c\uc6d0 ID)",
+                "tags": [
+                    "members"
+                ]
+            }
+        },
         "/api/v1/notifications": {
             "get": {
                 "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc804\uccb4 \uc54c\ub9bc\uc744 \ucee4\uc11c \uae30\ubc18 \ucd5c\uc2e0\uc21c\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. \uce74\ud14c\uace0\ub9ac \ud544\ud130\ub9c1\uc740 \ud504\ub860\ud2b8\uac00 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
@@ -10307,7 +10329,7 @@
     "servers": [
         {
             "description": "Generated server url",
-            "url": "http://bandage-band-manager:8080"
+            "url": "http://localhost:8080"
         }
     ],
     "tags": [

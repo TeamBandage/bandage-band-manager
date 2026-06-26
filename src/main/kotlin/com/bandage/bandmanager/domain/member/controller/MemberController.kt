@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -52,6 +53,15 @@ class MemberController(
     @Operation(operationId = "getMemberInfo", summary = "회원 정보 조회 API", description = "회원 본인의 정보를 조회합니다.")
     fun getMemberInfo(
         @CurrentMemberId memberId: Long,
+    ): ApiResponse<MemberInfoResponse> =
+        ApiResponse.success(
+            memberService.getMemberInfo(memberId),
+        )
+
+    @GetMapping("/{memberId}")
+    @Operation(operationId = "getMemberInfoById", summary = "회원 정보 조회 API(회원 ID)", description = "회원 ID로 특정 회원의 정보를 조회합니다.")
+    fun getMemberInfoById(
+        @PathVariable @CurrentMemberId memberId: Long,
     ): ApiResponse<MemberInfoResponse> =
         ApiResponse.success(
             memberService.getMemberInfo(memberId),
