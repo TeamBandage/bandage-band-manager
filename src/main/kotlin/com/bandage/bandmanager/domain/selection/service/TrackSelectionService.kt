@@ -451,8 +451,10 @@ class TrackSelectionService(
         validateAccess(selection, memberId)
         val item = getItemOrThrow(selection, itemId)
         val result = chatMessageRepository.findAllByItemAndPaging(item.id, lastId, pageSize)
+        // 페이지 내 작성자 회원 정보를 1회 bulk 조회(N+1 방지)
+        val memberInfos = memberService.getMemberSummaries(result.content.map { it.memberId })
         return CursorResponse(
-            content = result.content.map { SetlistChatMessageResponse.of(it) },
+            content = result.content.map { SetlistChatMessageResponse.of(it, memberInfos[it.memberId]) },
             nextCursor = result.nextCursor,
             hasNext = result.hasNext,
         )
@@ -472,7 +474,7 @@ class TrackSelectionService(
             chatMessageRepository.save(
                 TrackSelectionItemChatMessage.create(item = item, memberId = memberId, message = request.message),
             )
-        return SetlistChatMessageResponse.of(msg)
+        return SetlistChatMessageResponse.of(msg, memberService.getMemberSummaries(listOf(memberId))[memberId])
     }
 
     // -------- lock / unlock --------
