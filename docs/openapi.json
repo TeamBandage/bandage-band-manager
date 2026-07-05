@@ -5810,6 +5810,13 @@
                 ],
                 "type": "object"
             }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "bearerFormat": "JWT",
+                "scheme": "bearer",
+                "type": "http"
+            }
         }
     },
     "info": {
@@ -10350,6 +10357,11 @@
             }
         }
     },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
     "servers": [
         {
             "description": "Generated server url",
