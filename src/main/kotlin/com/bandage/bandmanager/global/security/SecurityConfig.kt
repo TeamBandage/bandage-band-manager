@@ -60,7 +60,6 @@ class SecurityConfig(
                         "http://localhost:*",
                         "http://127.0.0.1:*",
                         "https://bandage.team",
-                        "https://bandage.team/swagger-ui/index.html",
                     )
                 allowedMethods =
                     listOf(
