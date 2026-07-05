@@ -1,7 +1,7 @@
 springdoc:
   swagger-ui:
     enabled: true
-    path: /swagger-ui.html
+    path: /swagger-ui/index.html
     groups-order: ASC
     tags-sorter: alpha # 알파벳 순서
     operations-sorter: method
