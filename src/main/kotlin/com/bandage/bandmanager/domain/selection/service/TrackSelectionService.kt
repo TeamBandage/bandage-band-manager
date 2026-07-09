@@ -353,8 +353,7 @@ class TrackSelectionService(
 
     private fun validateAllSessionsConfirmed(item: TrackSelectionItem) {
         item.sessions.forEach { sessionDef ->
-            val confirmedCount = confirmationRepository.countByItemAndSessionId(item, sessionDef.sessionId).toInt()
-            if (confirmedCount < sessionDef.need) {
+            if (!confirmationRepository.existsByItemAndSessionId(item, sessionDef.sessionId)) {
                 throw BusinessException(ErrorCode.SETLIST_SELECTION_INCOMPLETE_SESSION)
             }
         }
@@ -410,21 +409,18 @@ class TrackSelectionService(
         val selection = getSelectionOrThrow(selectionId)
         validateManager(selection, memberId)
         val item = getItemOrThrow(selection, itemId)
-        val sessionDef =
-            item.sessions.firstOrNull { it.sessionId == sessionId }
-                ?: throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_SESSION_NOT_FOUND)
+        validateSessionExists(item, sessionId)
 
         request.unconfirm.forEach { uid ->
             confirmationRepository.findByItemAndSessionIdAndMemberId(item, sessionId, uid)?.let {
                 confirmationRepository.delete(it)
             }
         }
-        val currentCount = confirmationRepository.countByItemAndSessionId(item, sessionId).toInt()
         val toAdd =
             request.confirm.filter { uid ->
                 confirmationRepository.findByItemAndSessionIdAndMemberId(item, sessionId, uid) == null
             }
-        if (currentCount + toAdd.size > sessionDef.need) {
+        if (toAdd.isNotEmpty() && confirmationRepository.existsByItemAndSessionId(item, sessionId)) {
             throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_SESSION_FULL)
         }
         toAdd.forEach { uid ->

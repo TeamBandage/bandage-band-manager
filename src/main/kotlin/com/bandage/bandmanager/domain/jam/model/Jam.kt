@@ -136,6 +136,26 @@ open class Jam(
         this._sessions.addAll(newSessions)
     }
 
+    fun addSession(def: SessionDef) {
+        require(_sessions.none { it.sessionId == def.sessionId }) { "이미 존재하는 세션입니다: ${def.sessionId}" }
+        _sessions.add(def)
+    }
+
+    fun updateSession(
+        sessionId: String,
+        label: String,
+        short: String,
+    ) {
+        val idx = _sessions.indexOfFirst { it.sessionId == sessionId }
+        require(idx >= 0) { "존재하지 않는 세션입니다: $sessionId" }
+        val custom = _sessions[idx].custom
+        _sessions[idx] = SessionDef(sessionId = sessionId, label = label, short = short, custom = custom)
+    }
+
+    fun removeSession(sessionId: String) {
+        _sessions.removeIf { it.sessionId == sessionId }
+    }
+
     fun addParticipant(
         sessionId: String,
         member: Long,

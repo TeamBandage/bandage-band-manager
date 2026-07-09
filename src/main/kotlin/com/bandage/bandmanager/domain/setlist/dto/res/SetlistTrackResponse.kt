@@ -60,7 +60,6 @@ data class SetlistTrackSessionResponse(
     val sessionId: String,
     val label: String,
     val short: String,
-    val need: Int,
     val custom: Boolean,
     @Schema(description = "배정된 참여자 목록")
     val participants: List<MemberSummary>,
@@ -74,7 +73,6 @@ data class SetlistTrackSessionResponse(
                 sessionId = def.sessionId,
                 label = def.label,
                 short = def.short,
-                need = def.need,
                 custom = def.custom,
                 participants = participants,
             )

@@ -24,6 +24,11 @@ interface JamParticipantRepository : JpaRepository<JamParticipant, UUID> {
         member: Long,
     ): Boolean
 
+    fun existsByJamAndSessionId(
+        jam: Jam,
+        sessionId: String,
+    ): Boolean
+
     fun existsByJamAndMember(
         jam: Jam,
         member: Long,

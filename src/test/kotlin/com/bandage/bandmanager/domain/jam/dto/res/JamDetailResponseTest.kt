@@ -35,7 +35,7 @@ class JamDetailResponseTest {
         `when`(jam.note).thenReturn(null)
         `when`(jam.timeInfo).thenReturn(TimeInfoUnit(LocalDateTime.of(2026, 6, 10, 19, 0), 120, null))
         `when`(jam.trackInfo).thenReturn(TrackInfo(title = "곡", artist = "아티스트"))
-        `when`(jam.sessions).thenReturn(sessionIds.map { SessionDef(it, it, it, 1, false) })
+        `when`(jam.sessions).thenReturn(sessionIds.map { SessionDef(it, it, it, false) })
         `when`(jam.participants).thenReturn(participants)
         return jam
     }

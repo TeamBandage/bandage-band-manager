@@ -12,8 +12,6 @@ data class JamSessionResponse(
     val label: String,
     @Schema(description = "표시용 약어", example = "G")
     val short: String,
-    @Schema(description = "정원", example = "1")
-    val need: Int,
     @Schema(description = "커스텀 세션 여부", example = "false")
     val custom: Boolean,
     @Schema(description = "배정된 참여자 목록")
@@ -28,7 +26,6 @@ data class JamSessionResponse(
                 sessionId = def.sessionId,
                 label = def.label,
                 short = def.short,
-                need = def.need,
                 custom = def.custom,
                 participants = participants,
             )

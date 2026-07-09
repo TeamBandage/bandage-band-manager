@@ -27,7 +27,7 @@ class TrackSelectionItemResponseTest {
         `when`(item.proposerId).thenReturn(proposerId)
         `when`(item.note).thenReturn(null)
         `when`(item.isSelected).thenReturn(false)
-        `when`(item.sessions).thenReturn(sessionIds.map { SessionDef(it, it, it, 1, false) })
+        `when`(item.sessions).thenReturn(sessionIds.map { SessionDef(it, it, it, false) })
         return item
     }
 

@@ -50,6 +50,8 @@ enum class ErrorCode(
     JAM_PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "합주 참여자 정보를 찾을 수 없습니다."),
     JAM_PARTICIPANT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 합주에 참여 중인 멤버입니다."),
     JAM_FORBIDDEN_NOT_PARTICIPANT(HttpStatus.FORBIDDEN, "합주 참여자만 변경할 수 있습니다."),
+    JAM_SESSION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 세션입니다."),
+    JAM_SESSION_FULL(HttpStatus.CONFLICT, "이미 다른 멤버가 배정된 세션입니다."),
 
     // performance
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 공연 정보를 찾을 수 없습니다."),

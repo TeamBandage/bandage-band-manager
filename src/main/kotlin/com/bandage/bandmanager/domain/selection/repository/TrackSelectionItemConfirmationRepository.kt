@@ -18,10 +18,10 @@ interface TrackSelectionItemConfirmationRepository : JpaRepository<TrackSelectio
         memberId: Long,
     ): TrackSelectionItemConfirmation?
 
-    fun countByItemAndSessionId(
+    fun existsByItemAndSessionId(
         item: TrackSelectionItem,
         sessionId: String,
-    ): Long
+    ): Boolean
 
     fun deleteAllByItemInAndMemberId(
         items: List<TrackSelectionItem>,

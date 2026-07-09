@@ -8,7 +8,6 @@ data class SessionDefResponse(
     val sessionId: String,
     val label: String,
     val short: String,
-    val need: Int,
     val custom: Boolean,
     @Schema(description = "지원자 회원 목록")
     val applicants: List<MemberSummary>,
@@ -25,7 +24,6 @@ data class SessionDefResponse(
                 sessionId = def.sessionId,
                 label = def.label,
                 short = def.short,
-                need = def.need,
                 custom = def.custom,
                 applicants = applicants,
                 confirmed = confirmed,
