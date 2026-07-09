@@ -253,3 +253,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 021-drop-session-need
+      author: bandage
+      comment: |
+        세션 "1세션=1인" 고정: SessionDef.need(정원) 필드 제거
+        - p_track_selection_item_session / p_setlist_track_session / p_jam_session 의 session_need 컬럼 DROP
+        - 정원 N명 세션은 이제 클라이언트가 세션을 N개(예: G-1, G-2) 등록하는 것으로 표현
+      changes:
+        - sqlFile:
+            path: changes/021-drop-session-need.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"

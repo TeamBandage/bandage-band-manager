@@ -1,13 +1,12 @@
-package com.bandage.bandmanager.domain.selection.dto.req
+package com.bandage.bandmanager.domain.jam.dto.req
 
-import com.bandage.bandmanager.global.common.domain.SessionDef
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 
-@Schema(description = "세션 정의")
-data class SessionDefDto(
+@Schema(description = "합주 세션 추가 요청")
+data class JamSessionAddRequest(
     @field:NotBlank
-    @Schema(description = "세션 토큰", example = "G")
+    @Schema(description = "세션 토큰", example = "G-2")
     val sessionId: String,
     @field:NotBlank
     @Schema(description = "세션 이름", example = "기타")
@@ -17,6 +16,4 @@ data class SessionDefDto(
     val short: String,
     @Schema(description = "커스텀 세션 여부", example = "false")
     val custom: Boolean = false,
-) {
-    fun toEntity(): SessionDef = SessionDef(sessionId = sessionId, label = label, short = short, custom = custom)
-}
+)

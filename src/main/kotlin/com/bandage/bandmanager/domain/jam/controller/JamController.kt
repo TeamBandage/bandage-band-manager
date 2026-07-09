@@ -5,6 +5,8 @@ import com.bandage.bandmanager.domain.jam.dto.req.JamMemberAddRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamPagingQuery
 import com.bandage.bandmanager.domain.jam.dto.req.JamParticipantSessionUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamSearchQuery
+import com.bandage.bandmanager.domain.jam.dto.req.JamSessionAddRequest
+import com.bandage.bandmanager.domain.jam.dto.req.JamSessionUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamSessionsUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamTimeInfoUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamVenueUpdateRequest
@@ -99,6 +101,40 @@ class JamController(
     ): ApiResponse<JamDetailResponse> =
         ApiResponse.success(
             jamService.updateSessions(jamId, request, memberId),
+        )
+
+    @PostMapping("/{jamId}/sessions")
+    @Operation(operationId = "addSession", summary = "합주 세션 추가 API", description = "합주에 세션을 하나 추가합니다.")
+    fun addSession(
+        @PathVariable jamId: UUID,
+        @Valid @RequestBody request: JamSessionAddRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<JamDetailResponse> =
+        ApiResponse.success(
+            jamService.addSession(jamId, request, memberId),
+        )
+
+    @PatchMapping("/{jamId}/sessions/{sessionId}")
+    @Operation(operationId = "updateSession", summary = "합주 세션 개별 수정 API", description = "합주 세션 하나의 이름/약칭을 수정합니다.")
+    fun updateSession(
+        @PathVariable jamId: UUID,
+        @PathVariable sessionId: String,
+        @Valid @RequestBody request: JamSessionUpdateRequest,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<JamDetailResponse> =
+        ApiResponse.success(
+            jamService.updateSession(jamId, sessionId, request, memberId),
+        )
+
+    @DeleteMapping("/{jamId}/sessions/{sessionId}")
+    @Operation(operationId = "removeSession", summary = "합주 세션 삭제 API", description = "합주 세션 하나를 삭제합니다. 배정된 참여자도 함께 삭제됩니다.")
+    fun removeSession(
+        @PathVariable jamId: UUID,
+        @PathVariable sessionId: String,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<JamDetailResponse> =
+        ApiResponse.success(
+            jamService.removeSession(jamId, sessionId, memberId),
         )
 
     @PostMapping("/{jamId}/participants")

@@ -21,7 +21,7 @@ class SetlistTrackResponseTest {
         `when`(t.setlist).thenReturn(setlist)
         `when`(t.trackInfo).thenReturn(TrackInfo(title = "곡", artist = "아티스트"))
         `when`(t.note).thenReturn(null)
-        `when`(t.sessions).thenReturn(sessionIds.map { SessionDef(it, it, it, 1, false) })
+        `when`(t.sessions).thenReturn(sessionIds.map { SessionDef(it, it, it, false) })
         return t
     }
 

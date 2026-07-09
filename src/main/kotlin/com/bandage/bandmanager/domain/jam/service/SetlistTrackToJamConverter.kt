@@ -62,7 +62,6 @@ class SetlistTrackToJamConverter(
                             sessionId = def.sessionId,
                             label = def.label,
                             short = def.short,
-                            need = def.need,
                             custom = def.custom,
                         )
                     },
