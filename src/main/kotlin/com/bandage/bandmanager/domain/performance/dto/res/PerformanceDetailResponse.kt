@@ -21,22 +21,27 @@ data class PerformanceDetailResponse(
     val venue: String?,
     @Schema(description = "참여 셋리스트 목록 (각 셋리스트는 참여 밴드 메타데이터를 포함)")
     val setlists: List<PerformanceSetlistSummary>,
-    @Schema(description = "매니저 멤버 아이디 목록")
+    @Schema(description = "공연 소유자 멤버 아이디")
+    val ownerId: Long,
+    @Schema(description = "매니저(소유자 제외) 멤버 아이디 목록")
     val managerIds: List<Long>,
 ) {
     companion object {
         fun of(
             performance: Performance,
             setlistSummariesBySetlistId: Map<UUID, PerformanceSetlistSummary>,
-        ): PerformanceDetailResponse =
-            PerformanceDetailResponse(
+        ): PerformanceDetailResponse {
+            val (owners, managers) = performance.managers.partition { it.isOwner() }
+            return PerformanceDetailResponse(
                 performanceId = performance.id,
                 title = performance.title,
                 startAt = performance.timeInfo.startAt,
                 durationMinutes = performance.timeInfo.durationMinutes,
                 venue = performance.timeInfo.venue,
                 setlists = performance.setlists.mapNotNull { ps -> setlistSummariesBySetlistId[ps.setlistId] },
-                managerIds = performance.managers.map { it.member },
+                ownerId = (owners.firstOrNull() ?: error("공연(${performance.id})에 OWNER 가 존재하지 않습니다.")).member,
+                managerIds = managers.map { it.member },
             )
+        }
     }
 }
