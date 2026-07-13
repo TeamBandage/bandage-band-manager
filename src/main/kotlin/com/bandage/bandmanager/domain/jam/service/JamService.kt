@@ -128,7 +128,7 @@ class JamService(
         validateParticipant(jam, memberId)
         val newDefs = request.sessions.map { it.toEntity() }
         val newSessionIds = newDefs.map { it.sessionId }.toSet()
-        deleteParticipantsNotIn(jam, newSessionIds)
+        unassignParticipantsNotIn(jam, newSessionIds)
         jam.replaceSessions(newDefs)
         jamReservationSyncService.sync(jam)
         return toDetailResponse(jam)
@@ -177,7 +177,7 @@ class JamService(
         val jam = getJam(jamId)
         validateParticipant(jam, memberId)
         validateSessionExists(jam, sessionId)
-        deleteParticipantsNotIn(jam, jam.sessions.map { it.sessionId }.toSet() - sessionId)
+        unassignParticipantsNotIn(jam, jam.sessions.map { it.sessionId }.toSet() - sessionId)
         jam.removeSession(sessionId)
         jamReservationSyncService.sync(jam)
         return toDetailResponse(jam)
@@ -318,17 +318,18 @@ class JamService(
     }
 
     /**
-     * 남길 세션(keepSessionIds)에 포함되지 않은 참여자 배정을 정리한다(세션 전체 교체/개별 삭제 공용).
-     * 세션 미배정 소속 참여자(sessionId=null, 생성자 등)는 세션 목록과 무관하므로 대상에서 제외한다.
+     * 남길 세션(keepSessionIds)에 없는 세션에 배정된 참여자의 배정을 해제한다(세션 전체 교체/개별 삭제 공용).
+     * 참여자 레코드 자체는 삭제하지 않는다 — 세션(메타데이터) 삭제가 합주 참여 포기를 의미하지 않는다.
+     * 세션 미배정 소속 참여자(sessionId=null, 생성자 등)는 이미 대상이 아니므로 필터에서 자연히 제외된다.
      */
-    private fun deleteParticipantsNotIn(
+    private fun unassignParticipantsNotIn(
         jam: Jam,
         keepSessionIds: Set<String>,
     ) {
         jamParticipantRepository
             .findAllByJam(jam)
             .filter { it.sessionId != null && it.sessionId !in keepSessionIds }
-            .forEach { jamParticipantRepository.delete(it) }
+            .forEach { it.unassignSession() }
     }
 
     private fun validateSessionNotFull(

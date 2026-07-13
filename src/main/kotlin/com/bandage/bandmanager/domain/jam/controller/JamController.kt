@@ -92,7 +92,7 @@ class JamController(
     @Operation(
         operationId = "updateSessions",
         summary = "합주 세션 정의 교체 API",
-        description = "합주의 세션 정의 목록을 전체 교체합니다. 제거된 세션의 참여자 배정은 함께 삭제됩니다.",
+        description = "합주의 세션 정의 목록을 전체 교체합니다. 제거된 세션에 배정되어 있던 참여자는 세션 미배정 상태로 전환됩니다(합주 참여 자체는 유지).",
     )
     fun updateSessions(
         @PathVariable jamId: UUID,
@@ -127,7 +127,11 @@ class JamController(
         )
 
     @DeleteMapping("/{jamId}/sessions/{sessionId}")
-    @Operation(operationId = "removeSession", summary = "합주 세션 삭제 API", description = "합주 세션 하나를 삭제합니다. 배정된 참여자도 함께 삭제됩니다.")
+    @Operation(
+        operationId = "removeSession",
+        summary = "합주 세션 삭제 API",
+        description = "합주 세션 하나를 삭제합니다. 해당 세션에 배정되어 있던 참여자는 세션 미배정 상태로 전환됩니다.",
+    )
     fun removeSession(
         @PathVariable jamId: UUID,
         @PathVariable sessionId: String,
