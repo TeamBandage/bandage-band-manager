@@ -50,6 +50,10 @@ open class JamParticipant(
         this.sessionId = sessionId
     }
 
+    fun unassignSession() {
+        this.sessionId = null
+    }
+
     companion object {
         fun create(
             jam: Jam,

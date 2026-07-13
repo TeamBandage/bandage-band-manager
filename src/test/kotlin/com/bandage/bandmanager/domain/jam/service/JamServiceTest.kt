@@ -18,6 +18,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import java.time.LocalDateTime
@@ -125,10 +126,9 @@ class JamServiceTest {
     }
 
     @Test
-    fun `세션을 삭제하면 배정된 참여자도 함께 삭제된다`() {
+    fun `세션을 삭제하면 배정된 참여자는 세션 미배정 상태로 전환된다`() {
         val jam = jam(listOf(SessionDef("G-1", "기타", "G", false)))
-        val participant = mock(JamParticipant::class.java)
-        `when`(participant.sessionId).thenReturn("G-1")
+        val participant = JamParticipant.create(jam = jam, sessionId = "G-1", member = 2L)
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
         `when`(jamParticipantRepository.findAllByJam(jam)).thenReturn(listOf(participant))
@@ -136,7 +136,8 @@ class JamServiceTest {
         sut.removeSession(jamId, "G-1", 1L)
 
         assertThat(jam.sessions).isEmpty()
-        verify(jamParticipantRepository).delete(participant)
+        assertThat(participant.sessionId).isNull()
+        verify(jamParticipantRepository, never()).delete(participant)
     }
 
     @Test
