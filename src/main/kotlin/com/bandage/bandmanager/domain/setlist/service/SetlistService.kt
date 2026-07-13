@@ -76,6 +76,13 @@ class SetlistService(
         val setlist = getSetlistOrThrow(setlistId)
         validateManager(setlist, memberId)
         setlist.updateTitle(request.title)
+        request.managerId?.let { newManagerId ->
+            if (newManagerId == memberId) throw BusinessException(ErrorCode.NO_CHANGE)
+            if (!setlistRepository.isAccessibleMember(setlist.id, newManagerId)) {
+                throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
+            }
+            setlist.changeManager(newManagerId)
+        }
         return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id))
     }
 
