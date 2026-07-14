@@ -3947,12 +3947,17 @@
                         "type": "integer"
                     },
                     "managerIds": {
-                        "description": "\ub9e4\ub2c8\uc800 \uba64\ubc84 \uc544\uc774\ub514 \ubaa9\ub85d",
+                        "description": "\ub9e4\ub2c8\uc800(\uc18c\uc720\uc790 \uc81c\uc678) \uba64\ubc84 \uc544\uc774\ub514 \ubaa9\ub85d",
                         "items": {
                             "format": "int64",
                             "type": "integer"
                         },
                         "type": "array"
+                    },
+                    "ownerId": {
+                        "description": "\uacf5\uc5f0 \uc18c\uc720\uc790 \uba64\ubc84 \uc544\uc774\ub514",
+                        "format": "int64",
+                        "type": "integer"
                     },
                     "performanceId": {
                         "description": "\uacf5\uc5f0 \uace0\uc720 \uc2dd\ubcc4\uc790 (UUID)",
@@ -3987,6 +3992,7 @@
                 "required": [
                     "durationMinutes",
                     "managerIds",
+                    "ownerId",
                     "performanceId",
                     "setlists",
                     "startAt",
@@ -5296,6 +5302,11 @@
             "SetlistUpdateRequest": {
                 "description": "\uc14b\ub9ac\uc2a4\ud2b8 \uc218\uc815 \uc694\uccad",
                 "properties": {
+                    "managerId": {
+                        "description": "\ubcc0\uacbd\ud560 \ub9e4\ub2c8\uc800 \ud68c\uc6d0 ID",
+                        "format": "int64",
+                        "type": "integer"
+                    },
                     "title": {
                         "description": "\ubcc0\uacbd\ud560 \uc14b\ub9ac\uc2a4\ud2b8 \uc81c\ubaa9",
                         "minLength": 1,
@@ -9449,7 +9460,7 @@
                 ]
             },
             "patch": {
-                "description": "\ub9e4\ub2c8\uc800\uac00 \uc14b\ub9ac\uc2a4\ud2b8 \uc81c\ubaa9\uc744 \uc218\uc815\ud569\ub2c8\ub2e4.",
+                "description": "\ub9e4\ub2c8\uc800\uac00 \uc14b\ub9ac\uc2a4\ud2b8 \uc81c\ubaa9\uc744 \uc218\uc815\ud569\ub2c8\ub2e4. managerId \ub97c \ud568\uaed8 \uc804\ub2ec\ud558\uba74 \ub9e4\ub2c8\uc800 \uad8c\ud55c\uc744 \uc591\ub3c4\ud569\ub2c8\ub2e4(\ub300\uc0c1\uc740 \uc14b\ub9ac\uc2a4\ud2b8 \uc811\uadfc \uac00\ub2a5 \uba64\ubc84\uc5ec\uc57c \ud568).",
                 "operationId": "updateSetlist",
                 "parameters": [
                     {
@@ -9484,7 +9495,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud0c0\uc774\ud2c0 \uc218\uc815",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \uc218\uc815",
                 "tags": [
                     "setlists"
                 ]

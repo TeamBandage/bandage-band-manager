@@ -69,7 +69,11 @@ class SetlistController(
     ): ApiResponse<SetlistDetailResponse> = ApiResponse.success(setlistService.getSetlist(setlistId, memberId))
 
     @PatchMapping("/{setlistId}")
-    @Operation(operationId = "updateSetlist", summary = "셋리스트 타이틀 수정", description = "매니저가 셋리스트 제목을 수정합니다.")
+    @Operation(
+        operationId = "updateSetlist",
+        summary = "셋리스트 수정",
+        description = "매니저가 셋리스트 제목을 수정합니다. managerId 를 함께 전달하면 매니저 권한을 양도합니다(대상은 셋리스트 접근 가능 멤버여야 함).",
+    )
     fun updateSetlist(
         @PathVariable setlistId: UUID,
         @CurrentMemberId memberId: Long,
