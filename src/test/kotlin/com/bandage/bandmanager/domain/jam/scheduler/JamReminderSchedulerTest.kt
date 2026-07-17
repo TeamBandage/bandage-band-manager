@@ -49,7 +49,7 @@ class JamReminderSchedulerTest {
                 venue = null,
             )
         setId(jam, UUID.randomUUID())
-        members.forEachIndexed { idx, member -> jam.addParticipant("session-$idx", member) }
+        members.forEach { member -> jam.addParticipant(member) }
         return jam
     }
 

@@ -1,7 +1,6 @@
 package com.bandage.bandmanager.domain.jam.dto.res
 
 import com.bandage.bandmanager.domain.jam.model.Jam
-import com.bandage.bandmanager.domain.jam.model.JamParticipant
 import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
@@ -51,8 +50,12 @@ data class JamDetailResponse(
             jam: Jam,
             members: Map<Long, MemberSummary>,
         ): JamDetailResponse {
-            // 세션 미배정(소속) 참여자는 sessionId=null 그룹으로 묶이며, 아래 세션별 매핑에서 자연히 제외된다.
-            val participantsBySession: Map<String?, List<JamParticipant>> = jam.participants.groupBy { it.sessionId }
+            // 세션별 배정 참여자 매핑: 참여자 1명이 여러 세션에 배정될 수 있으므로 세션ID 기준으로 펼쳐서 그룹핑한다.
+            val membersBySession: Map<String, List<MemberSummary>> =
+                jam.participants
+                    .flatMap { participant -> participant.sessions.map { it.sessionId to participant.member } }
+                    .groupBy({ it.first }, { members[it.second] })
+                    .mapValues { (_, memberList) -> memberList.filterNotNull() }
             return JamDetailResponse(
                 jamId = jam.id,
                 title = jam.title,
@@ -73,7 +76,7 @@ data class JamDetailResponse(
                     jam.sessions.map { def ->
                         JamSessionResponse.of(
                             def = def,
-                            participants = participantsBySession[def.sessionId]?.mapNotNull { members[it.member] } ?: emptyList(),
+                            participants = membersBySession[def.sessionId] ?: emptyList(),
                         )
                     },
                 participants = jam.participants.map { JamParticipantResponse.of(it, members[it.member]) },

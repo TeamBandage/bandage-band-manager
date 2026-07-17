@@ -1,12 +1,14 @@
 package com.bandage.bandmanager.domain.jam.model
 
 import com.bandage.bandmanager.global.common.domain.BaseEntity
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.SQLRestriction
@@ -19,14 +21,13 @@ import java.util.UUID
     uniqueConstraints = [
         UniqueConstraint(
             name = "uk_jam_participant",
-            columnNames = ["jam_id", "session_id", "member_id"],
+            columnNames = ["jam_id", "member_id"],
         ),
     ],
 )
 @SQLRestriction("deleted_at IS NULL")
 open class JamParticipant(
     jam: Jam,
-    sessionId: String?,
     member: Long,
 ) : BaseEntity() {
     @Id
@@ -39,30 +40,29 @@ open class JamParticipant(
     @JoinColumn(name = "jam_id")
     val jam: Jam = jam
 
-    @Column(name = "session_id")
-    var sessionId: String? = sessionId
-        protected set
-
     @Column(name = "member_id")
     val member: Long = member
 
-    fun changeSession(sessionId: String) {
-        this.sessionId = sessionId
+    @OneToMany(mappedBy = "jamParticipant", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    private var _sessions: MutableList<JamParticipantSession> = mutableListOf()
+
+    val sessions: List<JamParticipantSession> get() = _sessions.toList()
+
+    fun assignSession(sessionId: String) {
+        _sessions.add(JamParticipantSession.create(jamParticipant = this, sessionId = sessionId))
     }
 
-    fun unassignSession() {
-        this.sessionId = null
+    fun unassignSession(sessionId: String) {
+        _sessions.removeIf { it.sessionId == sessionId }
     }
 
     companion object {
         fun create(
             jam: Jam,
-            sessionId: String?,
             member: Long,
         ): JamParticipant =
             JamParticipant(
                 jam = jam,
-                sessionId = sessionId,
                 member = member,
             )
     }

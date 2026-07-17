@@ -8,6 +8,7 @@ import com.bandage.bandmanager.domain.jam.dto.req.JamVenueUpdateRequest
 import com.bandage.bandmanager.domain.jam.model.Jam
 import com.bandage.bandmanager.domain.jam.model.JamParticipant
 import com.bandage.bandmanager.domain.jam.repository.JamParticipantRepository
+import com.bandage.bandmanager.domain.jam.repository.JamParticipantSessionRepository
 import com.bandage.bandmanager.domain.jam.repository.JamRepository
 import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.global.common.domain.SessionDef
@@ -18,7 +19,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import java.time.LocalDateTime
@@ -28,6 +28,7 @@ import java.util.UUID
 class JamServiceTest {
     private val jamRepository = mock(JamRepository::class.java)
     private val jamParticipantRepository = mock(JamParticipantRepository::class.java)
+    private val jamParticipantSessionRepository = mock(JamParticipantSessionRepository::class.java)
     private val bandMemberRepository = mock(BandMemberRepository::class.java)
     private val jamReservationSyncService = mock(JamReservationSyncService::class.java)
     private val memberService = mock(MemberService::class.java)
@@ -35,6 +36,7 @@ class JamServiceTest {
         JamService(
             jamRepository,
             jamParticipantRepository,
+            jamParticipantSessionRepository,
             bandMemberRepository,
             jamReservationSyncService,
             memberService,
@@ -126,18 +128,15 @@ class JamServiceTest {
     }
 
     @Test
-    fun `세션을 삭제하면 배정된 참여자는 세션 미배정 상태로 전환된다`() {
+    fun `세션을 삭제하면 해당 세션에 대한 참여자 배정만 해제되고 참여자는 유지된다`() {
         val jam = jam(listOf(SessionDef("G-1", "기타", "G", false)))
-        val participant = JamParticipant.create(jam = jam, sessionId = "G-1", member = 2L)
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
-        `when`(jamParticipantRepository.findAllByJam(jam)).thenReturn(listOf(participant))
 
         sut.removeSession(jamId, "G-1", 1L)
 
         assertThat(jam.sessions).isEmpty()
-        assertThat(participant.sessionId).isNull()
-        verify(jamParticipantRepository, never()).delete(participant)
+        verify(jamParticipantSessionRepository).deleteAllByJamParticipantJamAndSessionIdIn(jam, setOf("G-1"))
     }
 
     @Test
@@ -145,10 +144,27 @@ class JamServiceTest {
         val jam = jam(listOf(SessionDef("G-1", "기타", "G", false)))
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
-        `when`(jamParticipantRepository.existsByJamAndSessionId(jam, "G-1")).thenReturn(true)
+        `when`(jamParticipantSessionRepository.existsByJamParticipantJamAndSessionId(jam, "G-1")).thenReturn(true)
 
         assertThatThrownBy { sut.addParticipant(jamId, JamMemberAddRequest("G-1", 2L), 1L) }
             .isInstanceOf(BusinessException::class.java)
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.JAM_SESSION_FULL)
+    }
+
+    @Test
+    fun `한 참여자가 여러 세션에 배정될 수 있다`() {
+        val jam = jam(listOf(SessionDef("G-1", "기타", "G", false), SessionDef("V-1", "보컬", "V", false)))
+        val participant = JamParticipant.create(jam = jam, member = 2L)
+        val idField = JamParticipant::class.java.getDeclaredField("id")
+        idField.isAccessible = true
+        idField.set(participant, UUID.randomUUID())
+        `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
+        `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
+        `when`(jamParticipantRepository.findAllByJam(jam)).thenReturn(listOf(participant))
+
+        sut.addParticipant(jamId, JamMemberAddRequest("G-1", 2L), 1L)
+        sut.addParticipant(jamId, JamMemberAddRequest("V-1", 2L), 1L)
+
+        assertThat(participant.sessions.map { it.sessionId }).containsExactlyInAnyOrder("G-1", "V-1")
     }
 }

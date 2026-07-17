@@ -4,7 +4,6 @@ import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.jam.dto.req.JamCreateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamMemberAddRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamPagingQuery
-import com.bandage.bandmanager.domain.jam.dto.req.JamParticipantSessionUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamSearchQuery
 import com.bandage.bandmanager.domain.jam.dto.req.JamSessionAddRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamSessionUpdateRequest
@@ -18,6 +17,7 @@ import com.bandage.bandmanager.domain.jam.dto.res.JamResponse
 import com.bandage.bandmanager.domain.jam.model.Jam
 import com.bandage.bandmanager.domain.jam.model.JamParticipant
 import com.bandage.bandmanager.domain.jam.repository.JamParticipantRepository
+import com.bandage.bandmanager.domain.jam.repository.JamParticipantSessionRepository
 import com.bandage.bandmanager.domain.jam.repository.JamRepository
 import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.domain.member.service.MemberService
@@ -35,6 +35,7 @@ import java.util.UUID
 class JamService(
     private val jamRepository: JamRepository,
     private val jamParticipantRepository: JamParticipantRepository,
+    private val jamParticipantSessionRepository: JamParticipantSessionRepository,
     private val bandMemberRepository: BandMemberRepository,
     private val jamReservationSyncService: JamReservationSyncService,
     private val memberService: MemberService,
@@ -57,10 +58,8 @@ class JamService(
                     sessions = request.sessions.map { it.toEntity() },
                 ),
             )
-        // 생성자를 세션 미배정(소속) 참여자로 자동 등록 → "내 합주 목록" 노출. 세션은 추후 세션 변경 API로 지정.
-        jamParticipantRepository.save(
-            JamParticipant.create(jam = jam, sessionId = null, member = memberId),
-        )
+        // 생성자를 세션 미배정 소속 참여자로 자동 등록 → "내 합주 목록" 노출. 세션 배정은 추후 별도 API로 지정.
+        jamParticipantRepository.save(JamParticipant.create(jam = jam, member = memberId))
         jamReservationSyncService.sync(jam)
         return JamResponse.of(jam)
     }
@@ -128,7 +127,8 @@ class JamService(
         validateParticipant(jam, memberId)
         val newDefs = request.sessions.map { it.toEntity() }
         val newSessionIds = newDefs.map { it.sessionId }.toSet()
-        unassignParticipantsNotIn(jam, newSessionIds)
+        val removedSessionIds = jam.sessions.map { it.sessionId }.toSet() - newSessionIds
+        unassignSessions(jam, removedSessionIds)
         jam.replaceSessions(newDefs)
         jamReservationSyncService.sync(jam)
         return toDetailResponse(jam)
@@ -177,7 +177,7 @@ class JamService(
         val jam = getJam(jamId)
         validateParticipant(jam, memberId)
         validateSessionExists(jam, sessionId)
-        unassignParticipantsNotIn(jam, jam.sessions.map { it.sessionId }.toSet() - sessionId)
+        unassignSessions(jam, setOf(sessionId))
         jam.removeSession(sessionId)
         jamReservationSyncService.sync(jam)
         return toDetailResponse(jam)
@@ -192,25 +192,23 @@ class JamService(
         val jam = getJam(jamId)
         validateParticipant(jam, memberId)
         validateSessionExists(jam, request.sessionId)
-        validateParticipantNotExists(jam, request.sessionId, request.memberId)
         validateSessionNotFull(jam, request.sessionId)
         val participant =
-            jamParticipantRepository.save(
-                JamParticipant.create(
-                    jam = jam,
-                    sessionId = request.sessionId,
-                    member = request.memberId,
-                ),
-            )
+            jamParticipantRepository
+                .findAllByJam(jam)
+                .find { it.member == request.memberId }
+                ?: jamParticipantRepository.save(JamParticipant.create(jam = jam, member = request.memberId))
+        validateParticipantSessionNotExists(participant, request.sessionId)
+        participant.assignSession(request.sessionId)
         jamReservationSyncService.sync(jam)
         return JamParticipantResponse.of(participant, summaryOf(participant.member))
     }
 
     @Transactional
-    fun updateParticipantSession(
+    fun addParticipantSession(
         jamId: UUID,
         participantId: UUID,
-        request: JamParticipantSessionUpdateRequest,
+        sessionId: String,
         memberId: Long,
     ): JamParticipantResponse {
         val jam = getJam(jamId)
@@ -218,13 +216,30 @@ class JamService(
         val participant =
             jamParticipantRepository.findByIdAndJam(participantId, jam)
                 ?: throw BusinessException(ErrorCode.JAM_PARTICIPANT_NOT_FOUND)
-        if (participant.sessionId == request.sessionId) {
-            return JamParticipantResponse.of(participant, summaryOf(participant.member))
-        }
-        validateSessionExists(jam, request.sessionId)
-        validateParticipantNotExists(jam, request.sessionId, participant.member)
-        validateSessionNotFull(jam, request.sessionId)
-        participant.changeSession(request.sessionId)
+        validateSessionExists(jam, sessionId)
+        validateParticipantSessionNotExists(participant, sessionId)
+        validateSessionNotFull(jam, sessionId)
+        participant.assignSession(sessionId)
+        jamReservationSyncService.sync(jam)
+        return JamParticipantResponse.of(participant, summaryOf(participant.member))
+    }
+
+    @Transactional
+    fun removeParticipantSession(
+        jamId: UUID,
+        participantId: UUID,
+        sessionId: String,
+        memberId: Long,
+    ): JamParticipantResponse {
+        val jam = getJam(jamId)
+        validateParticipant(jam, memberId)
+        val participant =
+            jamParticipantRepository.findByIdAndJam(participantId, jam)
+                ?: throw BusinessException(ErrorCode.JAM_PARTICIPANT_NOT_FOUND)
+        jamParticipantSessionRepository.findByJamParticipantAndSessionId(participant, sessionId)
+            ?: throw BusinessException(ErrorCode.JAM_PARTICIPANT_SESSION_NOT_FOUND)
+        participant.unassignSession(sessionId)
+        jamReservationSyncService.sync(jam)
         return JamParticipantResponse.of(participant, summaryOf(participant.member))
     }
 
@@ -239,6 +254,7 @@ class JamService(
         val participant =
             jamParticipantRepository.findByIdAndJam(participantId, jam)
                 ?: throw BusinessException(ErrorCode.JAM_PARTICIPANT_NOT_FOUND)
+        jamParticipantSessionRepository.deleteAll(jamParticipantSessionRepository.findAllByJamParticipant(participant))
         participant.markAsDeleted(memberId)
         jamReservationSyncService.sync(jam)
     }
@@ -318,35 +334,31 @@ class JamService(
     }
 
     /**
-     * 남길 세션(keepSessionIds)에 없는 세션에 배정된 참여자의 배정을 해제한다(세션 전체 교체/개별 삭제 공용).
-     * 참여자 레코드 자체는 삭제하지 않는다 — 세션(메타데이터) 삭제가 합주 참여 포기를 의미하지 않는다.
-     * 세션 미배정 소속 참여자(sessionId=null, 생성자 등)는 이미 대상이 아니므로 필터에서 자연히 제외된다.
+     * 삭제되는 세션(removedSessionIds)에 대한 배정을 전부 해제한다(세션 전체 교체/개별 삭제 공용).
+     * 참여자 레코드 자체는 영향받지 않는다 — 세션(메타데이터) 삭제가 합주 참여 포기를 의미하지 않는다.
      */
-    private fun unassignParticipantsNotIn(
+    private fun unassignSessions(
         jam: Jam,
-        keepSessionIds: Set<String>,
+        removedSessionIds: Set<String>,
     ) {
-        jamParticipantRepository
-            .findAllByJam(jam)
-            .filter { it.sessionId != null && it.sessionId !in keepSessionIds }
-            .forEach { it.unassignSession() }
+        if (removedSessionIds.isEmpty()) return
+        jamParticipantSessionRepository.deleteAllByJamParticipantJamAndSessionIdIn(jam, removedSessionIds)
     }
 
     private fun validateSessionNotFull(
         jam: Jam,
         sessionId: String,
     ) {
-        if (jamParticipantRepository.existsByJamAndSessionId(jam, sessionId)) {
+        if (jamParticipantSessionRepository.existsByJamParticipantJamAndSessionId(jam, sessionId)) {
             throw BusinessException(ErrorCode.JAM_SESSION_FULL)
         }
     }
 
-    private fun validateParticipantNotExists(
-        jam: Jam,
+    private fun validateParticipantSessionNotExists(
+        participant: JamParticipant,
         sessionId: String,
-        memberId: Long,
     ) {
-        if (jamParticipantRepository.existsByJamAndSessionIdAndMember(jam, sessionId, memberId)) {
+        if (jamParticipantSessionRepository.existsByJamParticipantAndSessionId(participant, sessionId)) {
             throw BusinessException(ErrorCode.JAM_PARTICIPANT_ALREADY_EXISTS)
         }
     }
