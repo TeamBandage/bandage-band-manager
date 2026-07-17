@@ -43,13 +43,13 @@ class JamReservationSyncServiceTest {
         val id = UUID.randomUUID()
         val jam = jamWithId(id)
         val saved = mutableListOf<JamReservation>()
-        `when`(participantRepository.findAllByJam(jam)).thenReturn(
-            listOf(
-                JamParticipant.create(jam, "vocal", 1L),
-                JamParticipant.create(jam, "guitar", 1L),
-                JamParticipant.create(jam, "drum", 2L),
-            ),
-        )
+        val member1 =
+            JamParticipant.create(jam, 1L).apply {
+                assignSession("vocal")
+                assignSession("guitar")
+            }
+        val member2 = JamParticipant.create(jam, 2L).apply { assignSession("drum") }
+        `when`(participantRepository.findAllByJam(jam)).thenReturn(listOf(member1, member2))
         `when`(reservationRepository.saveAll(anyIterable())).thenAnswer { invocation ->
             @Suppress("UNCHECKED_CAST")
             val arg = invocation.getArgument(0) as Iterable<JamReservation>

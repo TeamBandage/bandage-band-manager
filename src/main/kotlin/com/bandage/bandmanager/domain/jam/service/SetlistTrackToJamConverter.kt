@@ -20,7 +20,7 @@ import java.util.UUID
  * 변환 규칙:
  * - SetlistTrack.trackInfo → Jam.trackInfo (필드 복사)
  * - SetlistTrack.sessions → Jam.sessions (SessionDef 새 인스턴스로 깊은 복사, 공유 방지)
- * - SetlistTrackParticipant(sessionId, memberId) → JamParticipant
+ * - SetlistTrackParticipant(sessionId, memberId) → JamParticipant(소속) + JamParticipantSession(배정)
  * - Jam.setlistId 에 출처 Setlist 기록
  * - 저장 후 JamReservationSyncService.sync() 로 예약 동기화
  */
@@ -68,7 +68,7 @@ class SetlistTrackToJamConverter(
             )
 
         participants.forEach { participant ->
-            jam.addParticipant(participant.sessionId, participant.memberId)
+            jam.addParticipant(participant.memberId).assignSession(participant.sessionId)
         }
 
         val savedJam = jamRepository.save(jam)

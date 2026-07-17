@@ -267,3 +267,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 022-jam-participant-session-split
+      author: bandage
+      comment: |
+        BD-205: JamParticipant(합주 소속)와 JamParticipantSession(세션 배정) 분리
+        - p_jam_participant_session 신설(jam_participant_id, session_id), 기존 session_id 데이터 이행
+        - p_jam_participant.session_id 컬럼 제거, (jam_id, member_id) partial unique index로 전환
+      changes:
+        - sqlFile:
+            path: changes/022-jam-participant-session-split.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"

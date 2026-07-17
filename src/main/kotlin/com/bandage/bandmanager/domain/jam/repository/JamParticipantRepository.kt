@@ -18,17 +18,6 @@ interface JamParticipantRepository : JpaRepository<JamParticipant, UUID> {
 
     fun findAllByJam(jam: Jam): List<JamParticipant>
 
-    fun existsByJamAndSessionIdAndMember(
-        jam: Jam,
-        sessionId: String,
-        member: Long,
-    ): Boolean
-
-    fun existsByJamAndSessionId(
-        jam: Jam,
-        sessionId: String,
-    ): Boolean
-
     fun existsByJamAndMember(
         jam: Jam,
         member: Long,

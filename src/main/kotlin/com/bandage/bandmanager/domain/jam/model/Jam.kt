@@ -156,22 +156,10 @@ open class Jam(
         _sessions.removeIf { it.sessionId == sessionId }
     }
 
-    fun addParticipant(
-        sessionId: String,
-        member: Long,
-    ): JamParticipant? {
-        if (this._participants.any { it.sessionId == sessionId && it.member == member }) return null
-        val participant =
-            JamParticipant(
-                jam = this,
-                sessionId = sessionId,
-                member = member,
-            )
+    fun addParticipant(member: Long): JamParticipant {
+        this._participants.find { it.member == member }?.let { return it }
+        val participant = JamParticipant(jam = this, member = member)
         this._participants.add(participant)
         return participant
-    }
-
-    fun deleteParticipant(participant: JamParticipant) {
-        this._participants.remove(participant)
     }
 }

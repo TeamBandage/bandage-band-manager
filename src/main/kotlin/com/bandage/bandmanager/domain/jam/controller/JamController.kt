@@ -3,7 +3,6 @@ package com.bandage.bandmanager.domain.jam.controller
 import com.bandage.bandmanager.domain.jam.dto.req.JamCreateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamMemberAddRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamPagingQuery
-import com.bandage.bandmanager.domain.jam.dto.req.JamParticipantSessionUpdateRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamSearchQuery
 import com.bandage.bandmanager.domain.jam.dto.req.JamSessionAddRequest
 import com.bandage.bandmanager.domain.jam.dto.req.JamSessionUpdateRequest
@@ -92,7 +91,7 @@ class JamController(
     @Operation(
         operationId = "updateSessions",
         summary = "합주 세션 정의 교체 API",
-        description = "합주의 세션 정의 목록을 전체 교체합니다. 제거된 세션에 배정되어 있던 참여자는 세션 미배정 상태로 전환됩니다(합주 참여 자체는 유지).",
+        description = "합주의 세션 정의 목록을 전체 교체합니다. 제거된 세션에 대한 참여자의 배정은 해제됩니다(합주 참여 자체는 유지).",
     )
     fun updateSessions(
         @PathVariable jamId: UUID,
@@ -130,7 +129,7 @@ class JamController(
     @Operation(
         operationId = "removeSession",
         summary = "합주 세션 삭제 API",
-        description = "합주 세션 하나를 삭제합니다. 해당 세션에 배정되어 있던 참여자는 세션 미배정 상태로 전환됩니다.",
+        description = "합주 세션 하나를 삭제합니다. 해당 세션에 대한 참여자의 배정은 해제됩니다.",
     )
     fun removeSession(
         @PathVariable jamId: UUID,
@@ -152,24 +151,40 @@ class JamController(
             jamService.addParticipant(jamId, request, memberId),
         )
 
-    @PatchMapping("/{jamId}/participants/{participantId}/session")
+    @PostMapping("/{jamId}/participants/{participantId}/sessions/{sessionId}")
     @Operation(
-        operationId = "updateParticipantSession",
-        summary = "합주 세션 참여자 세션 변경 API",
-        description = "합주 참여자의 배정 세션을 변경합니다. 세션 미배정 소속 참여자(생성자 등)의 세션 지정에도 사용합니다.",
+        operationId = "addParticipantSession",
+        summary = "합주 참여자 세션 배정 추가 API",
+        description = "합주 참여자에게 세션 배정을 추가합니다. 참여자는 여러 세션에 배정될 수 있습니다.",
     )
-    fun updateParticipantSession(
+    fun addParticipantSession(
         @PathVariable jamId: UUID,
         @PathVariable participantId: UUID,
-        @Valid @RequestBody request: JamParticipantSessionUpdateRequest,
+        @PathVariable sessionId: String,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<JamParticipantResponse> =
         ApiResponse.success(
-            jamService.updateParticipantSession(jamId, participantId, request, memberId),
+            jamService.addParticipantSession(jamId, participantId, sessionId, memberId),
+        )
+
+    @DeleteMapping("/{jamId}/participants/{participantId}/sessions/{sessionId}")
+    @Operation(
+        operationId = "removeParticipantSession",
+        summary = "합주 참여자 세션 배정 해제 API",
+        description = "합주 참여자의 특정 세션 배정을 해제합니다. 합주 참여 자체는 유지됩니다.",
+    )
+    fun removeParticipantSession(
+        @PathVariable jamId: UUID,
+        @PathVariable participantId: UUID,
+        @PathVariable sessionId: String,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<JamParticipantResponse> =
+        ApiResponse.success(
+            jamService.removeParticipantSession(jamId, participantId, sessionId, memberId),
         )
 
     @DeleteMapping("/{jamId}/participants/{participantId}")
-    @Operation(operationId = "deleteParticipant", summary = "합주 세션 참여자 삭제 API", description = "합주 세션 참여자 배정을 삭제합니다.")
+    @Operation(operationId = "deleteParticipant", summary = "합주 참여자 삭제 API", description = "합주 참여자를 합주에서 탈퇴시킵니다(모든 세션 배정도 함께 정리됩니다).")
     fun deleteParticipant(
         @PathVariable jamId: UUID,
         @PathVariable participantId: UUID,
