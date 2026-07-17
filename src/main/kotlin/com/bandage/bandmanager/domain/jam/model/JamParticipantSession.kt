@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import org.hibernate.annotations.SQLRestriction
 import org.hibernate.annotations.UuidGenerator
 import java.util.UUID
 
@@ -22,6 +23,7 @@ import java.util.UUID
         ),
     ],
 )
+@SQLRestriction("deleted_at IS NULL")
 open class JamParticipantSession(
     jamParticipant: JamParticipant,
     sessionId: String,
@@ -33,7 +35,7 @@ open class JamParticipantSession(
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "jam_participant_id")
+    @JoinColumn(name = "jam_participant_id", nullable = false)
     val jamParticipant: JamParticipant = jamParticipant
 
     @Column(name = "session_id", nullable = false)

@@ -82,6 +82,8 @@ class BandService(
         validateBandMemberNotExists(band, memberId)
         validateBandApplicationNotExists(band, memberId)
 
+        applicationRepository.findByBandAndMemberAndIsLatestTrue(band, memberId)?.markAsOutdated()
+
         applicationRepository.save(
             BandApplication.create(
                 band = band,
@@ -189,7 +191,7 @@ class BandService(
     ): MyBandApplicationInfoResponse {
         val band = getBand(bandId)
         val application =
-            applicationRepository.findTopByBandAndMemberOrderByCreatedAtDesc(band, memberId)
+            applicationRepository.findByBandAndMemberAndIsLatestTrue(band, memberId)
                 ?: throw BusinessException(ErrorCode.BAND_APPLICATION_NOT_FOUND)
         return MyBandApplicationInfoResponse.of(application, profileImageUrl(band.profileImg))
     }
