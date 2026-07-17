@@ -295,3 +295,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 024-band-application-is-latest
+      author: bandage
+      comment: |
+        BD-210: 밴드 가입 신청 재지원 시 최신/과거 이력 구분
+        - p_band_application.is_latest 컬럼 추가, (band_id, member_id) 당 최신 1건만 true 로 백필
+        - (band_id, member_id, is_latest=true) partial unique index 추가
+      changes:
+        - sqlFile:
+            path: changes/024-band-application-is-latest.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"

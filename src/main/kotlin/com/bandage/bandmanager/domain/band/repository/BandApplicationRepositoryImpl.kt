@@ -57,6 +57,7 @@ class BandApplicationRepositoryImpl(
                 .join(qBandApplication.band)
                 .fetchJoin()
                 .where(qBandApplication.member.eq(memberId))
+                .where(qBandApplication.isLatest.isTrue)
                 .where(status?.let { qBandApplication.status.eq(it) })
                 .where(ltBandId(lastId))
                 .orderBy(qBandApplication.id.desc())
