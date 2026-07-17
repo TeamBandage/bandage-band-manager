@@ -30,8 +30,8 @@ interface BandApplicationRepository :
         status: ApplicationStatus,
     ): BandApplication?
 
-    /** 회원의 특정 밴드에 대한 가장 최근 가입 신청 단건(상태 무관). */
-    fun findTopByBandAndMemberOrderByCreatedAtDesc(
+    /** 회원의 특정 밴드에 대한 최신 가입 신청 단건. (band, member) 당 isLatest=true 는 유일하다. */
+    fun findByBandAndMemberAndIsLatestTrue(
         band: Band,
         member: Long,
     ): BandApplication?
