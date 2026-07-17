@@ -281,3 +281,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 023-jam-participant-session-soft-delete-columns
+      author: bandage
+      comment: |
+        BD-205 후속 수정: p_jam_participant_session soft delete 컬럼 누락 보강
+        - JamParticipantSession 은 BaseEntity 를 상속하나 022 마이그레이션에 deleted_at/deleted_by 컬럼이 빠져
+          Hibernate 스키마 검증(ddl-auto=validate) 실패를 유발하던 문제 수정
+      changes:
+        - sqlFile:
+            path: changes/023-jam-participant-session-soft-delete-columns.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
