@@ -25,6 +25,8 @@ import com.bandage.bandmanager.global.common.domain.SessionDef
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
+import com.bandage.bandmanager.global.notify.annotation.Notify
+import com.bandage.bandmanager.global.notify.annotation.NotifyCategory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -183,6 +185,7 @@ class JamService(
         return toDetailResponse(jam)
     }
 
+    @Notify(NotifyCategory.JAM_PARTICIPANT_ADDED)
     @Transactional
     fun addParticipant(
         jamId: UUID,

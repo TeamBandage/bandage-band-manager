@@ -11,4 +11,11 @@ enum class NotifyCategory {
     BAND_APPLICATION_RESULT, // 신청 승인/거절 결과 → 신청자에게
     AUTHORITY_PROMOTION, // 권한 승격(리더 승격 등) → 승격된 멤버에게
     JAM_UPCOMING, // 임박한 합주 → 참여자에게
+    JAM_PARTICIPANT_ADDED, // 합주 참여자 추가 → 추가된 참여자에게
+    JAM_CREATED, // 셋리스트 기반 합주 생성 → 생성된 합주 참여자들에게
+    PERFORMANCE_UPCOMING, // 임박한 공연 → 공연 참여자(매니저)들에게
+    PERFORMANCE_MANAGER_INVITED, // 공연 매니저 초대 → 초대받은 멤버에게
+    PERFORMANCE_OWNER_PROMOTED, // 공연 소유자 승격 → 새 소유자에게
+    SELECTION_PARTICIPANT_ADDED, // 선곡회의 참여자 추가 → 추가된 참여자에게
+    SETLIST_CREATED, // 셋리스트 생성 → 셋리스트 참여자들에게
 }

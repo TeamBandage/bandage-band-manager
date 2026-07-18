@@ -17,6 +17,8 @@ import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
 import com.bandage.bandmanager.global.common.domain.TrackInfo
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
+import com.bandage.bandmanager.global.notify.annotation.Notify
+import com.bandage.bandmanager.global.notify.annotation.NotifyCategory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,6 +34,7 @@ class SetlistCreateFacade(
     private val setlistTrackRepository: SetlistTrackRepository,
     private val setlistTrackParticipantRepository: SetlistTrackParticipantRepository,
 ) {
+    @Notify(NotifyCategory.SETLIST_CREATED)
     @Transactional
     fun createSetlist(
         memberId: Long,
