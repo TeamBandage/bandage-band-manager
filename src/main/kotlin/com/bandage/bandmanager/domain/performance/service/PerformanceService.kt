@@ -204,6 +204,7 @@ class PerformanceService(
      * 공연 소유권(OWNER) 수동 양도. 현재 OWNER 가 같은 공연의 MANAGER 에게 권한을 넘긴다.
      * 기존 OWNER 는 MANAGER 로 강등된다.
      */
+    @Notify(NotifyCategory.PERFORMANCE_OWNER_PROMOTED)
     @Transactional
     fun delegateOwnership(
         performanceId: UUID,
