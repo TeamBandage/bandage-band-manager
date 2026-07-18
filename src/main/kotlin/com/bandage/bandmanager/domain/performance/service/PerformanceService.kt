@@ -38,6 +38,8 @@ import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
+import com.bandage.bandmanager.global.notify.annotation.Notify
+import com.bandage.bandmanager.global.notify.annotation.NotifyCategory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -223,6 +225,7 @@ class PerformanceService(
         target.promoteToOwner()
     }
 
+    @Notify(NotifyCategory.PERFORMANCE_MANAGER_INVITED)
     @Transactional
     fun sendInvitation(
         performanceId: UUID,
