@@ -9,5 +9,6 @@ interface NotificationRepositoryCustom {
         recipientId: Long,
         lastId: UUID?,
         pageSize: Int,
+        unreadOnly: Boolean,
     ): CursorResponse<Notification, UUID>
 }

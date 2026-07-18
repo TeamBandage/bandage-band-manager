@@ -33,7 +33,8 @@ class NotificationService(
         memberId: Long,
         query: NotificationPagingQuery,
     ): CursorResponse<NotificationResponse, UUID> {
-        val result = notificationRepository.findAllByRecipientIdWithCursor(memberId, query.lastId, query.pageSize)
+        val result =
+            notificationRepository.findAllByRecipientIdWithCursor(memberId, query.lastId, query.pageSize, query.unreadOnly)
         return CursorResponse(
             content = result.content.map { NotificationResponse.of(it) },
             nextCursor = result.nextCursor,
