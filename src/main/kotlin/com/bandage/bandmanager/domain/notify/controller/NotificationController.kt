@@ -28,7 +28,7 @@ class NotificationController(
     @Operation(
         operationId = "getMyNotifications",
         summary = "내 알림 목록 조회 API",
-        description = "로그인한 회원의 전체 알림을 커서 기반 최신순으로 조회합니다. 카테고리 필터링은 프론트가 처리합니다.",
+        description = "로그인한 회원의 알림을 커서 기반 최신순으로 조회합니다. unreadOnly=true면 읽지 않은 알림만 조회합니다. 카테고리 필터링은 프론트가 처리합니다.",
     )
     fun getMyNotifications(
         @Valid query: NotificationPagingQuery,

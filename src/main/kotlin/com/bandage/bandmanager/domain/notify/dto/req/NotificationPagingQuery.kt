@@ -13,4 +13,6 @@ data class NotificationPagingQuery(
     @field:Max(100)
     @Schema(description = "페이지 크기", example = "20")
     val pageSize: Int = 20,
+    @Schema(description = "true면 읽지 않은 알림만 조회", example = "false")
+    val unreadOnly: Boolean = false,
 )

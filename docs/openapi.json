@@ -3678,10 +3678,16 @@
                         "maximum": 100,
                         "minimum": 1,
                         "type": "integer"
+                    },
+                    "unreadOnly": {
+                        "description": "true\uba74 \uc77d\uc9c0 \uc54a\uc740 \uc54c\ub9bc\ub9cc \uc870\ud68c",
+                        "example": false,
+                        "type": "boolean"
                     }
                 },
                 "required": [
-                    "pageSize"
+                    "pageSize",
+                    "unreadOnly"
                 ],
                 "type": "object"
             },
@@ -7758,7 +7764,7 @@
         },
         "/api/v1/notifications": {
             "get": {
-                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc804\uccb4 \uc54c\ub9bc\uc744 \ucee4\uc11c \uae30\ubc18 \ucd5c\uc2e0\uc21c\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. \uce74\ud14c\uace0\ub9ac \ud544\ud130\ub9c1\uc740 \ud504\ub860\ud2b8\uac00 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
+                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc54c\ub9bc\uc744 \ucee4\uc11c \uae30\ubc18 \ucd5c\uc2e0\uc21c\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. unreadOnly=true\uba74 \uc77d\uc9c0 \uc54a\uc740 \uc54c\ub9bc\ub9cc \uc870\ud68c\ud569\ub2c8\ub2e4. \uce74\ud14c\uace0\ub9ac \ud544\ud130\ub9c1\uc740 \ud504\ub860\ud2b8\uac00 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
                 "operationId": "getMyNotifications",
                 "parameters": [
                     {

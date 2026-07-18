@@ -14,6 +14,7 @@ class NotificationRepositoryImpl(
         recipientId: Long,
         lastId: UUID?,
         pageSize: Int,
+        unreadOnly: Boolean,
     ): CursorResponse<Notification, UUID> {
         val qNotification = QNotification.notification
 
@@ -22,6 +23,7 @@ class NotificationRepositoryImpl(
                 .selectFrom(qNotification)
                 .where(qNotification.recipientId.eq(recipientId))
                 .where(ltNotificationId(lastId))
+                .where(unreadOnlyCondition(unreadOnly))
                 .orderBy(qNotification.id.desc())
                 .limit(pageSize.toLong() + 1)
                 .fetch()
@@ -38,4 +40,7 @@ class NotificationRepositoryImpl(
     }
 
     private fun ltNotificationId(lastId: UUID?): BooleanExpression? = lastId?.let { QNotification.notification.id.lt(it) }
+
+    private fun unreadOnlyCondition(unreadOnly: Boolean): BooleanExpression? =
+        if (unreadOnly) QNotification.notification.isRead.isFalse else null
 }
