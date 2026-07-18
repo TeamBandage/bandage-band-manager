@@ -18,6 +18,8 @@ interface JamParticipantRepository : JpaRepository<JamParticipant, UUID> {
 
     fun findAllByJam(jam: Jam): List<JamParticipant>
 
+    fun findAllByJamIdIn(jamIds: Collection<UUID>): List<JamParticipant>
+
     fun existsByJamAndMember(
         jam: Jam,
         member: Long,
