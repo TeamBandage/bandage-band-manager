@@ -100,4 +100,16 @@ open class GlobalExceptionHandler {
         val response = ApiResponse.error(message = errorCode.message, code = errorCode.name)
         return ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR)
     }
+
+    /**
+     * 위 handleException 은 커스텀 Exception 타입만 잡으므로, 그 외 표준 예외
+     * (예: DataIntegrityViolationException)는 여기서 500 으로 매핑한다.
+     * 이 폴백이 없으면 미처리 예외가 Security 필터 체인까지 전파되어 401 로 오응답된다.
+     */
+    @ExceptionHandler(java.lang.Exception::class)
+    protected fun handleUnexpectedException(e: java.lang.Exception): ResponseEntity<ApiResponse<Nothing>> {
+        val errorCode = ErrorCode.INTERNAL_SERVER_ERROR
+        val response = ApiResponse.error(message = errorCode.message, code = errorCode.name)
+        return ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
 }
