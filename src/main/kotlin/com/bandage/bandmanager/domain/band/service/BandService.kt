@@ -82,7 +82,13 @@ class BandService(
         validateBandMemberNotExists(band, memberId)
         validateBandApplicationNotExists(band, memberId)
 
-        applicationRepository.findByBandAndMemberAndIsLatestTrue(band, memberId)?.markAsOutdated()
+        applicationRepository.findByBandAndMemberAndIsLatestTrue(band, memberId)?.let {
+            it.markAsOutdated()
+            // 새 신청 INSERT 전에 이전 건의 is_latest=false 를 먼저 반영해야 partial unique index
+            // (band_id, member_id) WHERE is_latest 위반을 피한다. order_inserts 로 INSERT 가 UPDATE 보다
+            // 먼저 flush 되므로 명시적 flush 로 순서를 보장한다.
+            applicationRepository.flush()
+        }
 
         applicationRepository.save(
             BandApplication.create(
