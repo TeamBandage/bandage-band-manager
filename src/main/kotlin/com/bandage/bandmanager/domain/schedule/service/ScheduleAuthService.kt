@@ -1,12 +1,11 @@
 package com.bandage.bandmanager.domain.schedule.service
 
-import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.performance.model.Performance
 import com.bandage.bandmanager.domain.performance.repository.PerformanceManagerRepository
 import com.bandage.bandmanager.domain.performance.repository.PerformanceRepository
 import com.bandage.bandmanager.domain.selection.repository.TrackSelectionMemberRepository
 import com.bandage.bandmanager.domain.selection.repository.TrackSelectionRepository
-import com.bandage.bandmanager.domain.setlist.repository.SetlistBandRepository
+import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackParticipantRepository
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
@@ -21,8 +20,7 @@ class ScheduleAuthService(
     private val trackSelectionMemberRepository: TrackSelectionMemberRepository,
     private val performanceRepository: PerformanceRepository,
     private val performanceManagerRepository: PerformanceManagerRepository,
-    private val setlistBandRepository: SetlistBandRepository,
-    private val bandMemberRepository: BandMemberRepository,
+    private val setlistTrackParticipantRepository: SetlistTrackParticipantRepository,
 ) {
     // ===== Performance 스코프 (PRD-2) =====
 
@@ -39,7 +37,7 @@ class ScheduleAuthService(
     }
 
     /**
-     * 공연 참여자 여부. 공연 매니저이거나, 공연의 셋리스트가 속한 밴드의 멤버이면 참여자로 본다.
+     * 공연 참여자 여부. 공연 매니저이거나, 공연의 셋리스트에 트랙 참여자로 등록되어 있으면 참여자로 본다.
      */
     fun isPerformanceParticipant(
         performanceId: UUID,
@@ -50,9 +48,7 @@ class ScheduleAuthService(
 
         val setlistIds = performance.setlists.map { it.setlistId }
         if (setlistIds.isEmpty()) return false
-        val bandIds = setlistBandRepository.findAllBySetlistIdIn(setlistIds).map { it.bandId }.distinct()
-        if (bandIds.isEmpty()) return false
-        return bandMemberRepository.findAllByBandIdIn(bandIds).any { it.member == memberId }
+        return setlistTrackParticipantRepository.existsByTrackSetlistIdInAndMemberId(setlistIds, memberId)
     }
 
     fun validatePerformanceManager(

@@ -5385,12 +5385,11 @@
                 "description": "\uc120\uace1 \uc0dd\uc131 \uc694\uccad",
                 "properties": {
                     "bandIds": {
-                        "description": "\ucc38\uc5ec \ubc34\ub4dc ID \ubaa9\ub85d (1..N)",
+                        "description": "\ucc38\uc5ec \ubc34\ub4dc ID \ubaa9\ub85d (0..N, \ubc34\ub4dc \uc5c6\uc774 \uac1c\uc778\uc73c\ub85c\ub9cc \uad6c\uc131 \uac00\ub2a5)",
                         "items": {
                             "format": "uuid",
                             "type": "string"
                         },
-                        "minItems": 1,
                         "type": "array"
                     },
                     "managerId": {
