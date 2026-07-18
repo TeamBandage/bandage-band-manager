@@ -22,4 +22,11 @@ interface PerformanceRepository :
         @Param("bandIds") bandIds: Collection<UUID>,
         @Param("now") now: LocalDateTime,
     ): Long
+
+    // 임박 공연 알림 스케줄러용: [from, to) 구간에 시작하는 공연 조회
+    @Query("SELECT p FROM Performance p WHERE p.timeInfo.startAt >= :from AND p.timeInfo.startAt < :to")
+    fun findUpcomingBetween(
+        @Param("from") from: LocalDateTime,
+        @Param("to") to: LocalDateTime,
+    ): List<Performance>
 }
