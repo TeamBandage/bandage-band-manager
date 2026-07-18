@@ -1,6 +1,5 @@
 package com.bandage.bandmanager.domain.schedule.model
 
-import com.bandage.bandmanager.domain.schedule_bak.model.ScheduleBlock
 import com.bandage.bandmanager.global.common.domain.BaseEntity
 import com.github.f4b6a3.uuid.UuidCreator
 import jakarta.persistence.Column

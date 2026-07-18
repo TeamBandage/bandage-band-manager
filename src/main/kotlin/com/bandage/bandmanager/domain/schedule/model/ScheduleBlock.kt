@@ -122,7 +122,7 @@ open class ScheduleBlock(
             return dayDiff * SLOTS_PER_DAY + (endSlot - startSlot)
         }
 
-        private fun validateSlot(
+        fun validateSlot(
             startDate: LocalDate,
             endDate: LocalDate,
             startSlot: Int,
