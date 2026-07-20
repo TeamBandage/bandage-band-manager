@@ -1,5 +1,6 @@
 package com.bandage.bandmanager.domain.schedule.model
 
+import com.bandage.bandmanager.domain.schedule.model.enums.PlacementOrigin
 import com.bandage.bandmanager.global.common.domain.BaseEntity
 import com.github.f4b6a3.uuid.UuidCreator
 import jakarta.persistence.Column
@@ -16,26 +17,20 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import org.hibernate.annotations.SQLRestriction
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
-/**
- * 시간표 블록(하나의 연습 시간 구간).
- *
- * PRD-2 변경점:
- * - 단일 songId 제거 → SetlistTrack 과 N:M([ScheduleBlockTrack])
- * - 반복 배치 규칙(recurrenceRule) 및 배치 출처(placementOrigin) 메타데이터 추가
- */
 @Entity
 @Table(name = "p_schedule_block")
 @SQLRestriction("deleted_at IS NULL")
 open class ScheduleBlock(
     id: UUID,
     board: ScheduleBoard,
-    date: LocalDate,
+    startDate: LocalDate,
+    endDate: LocalDate,
     startSlot: Int,
-    durationSlots: Int,
-    paletteIndex: Int?,
-    titleOverride: String?,
+    endSlot: Int,
+    title: String?,
     note: String?,
     recurrenceRule: RecurrenceRule,
     placementOrigin: PlacementOrigin,
@@ -49,28 +44,28 @@ open class ScheduleBlock(
     @OnDelete(action = OnDeleteAction.CASCADE)
     val board: ScheduleBoard = board
 
-    @Column(name = "block_date", nullable = false)
-    var date: LocalDate = date
+    @Column(name = "start_date", nullable = false)
+    var startDate: LocalDate = startDate
+        protected set
+
+    @Column(name = "end_date", nullable = false)
+    var endDate: LocalDate = endDate
         protected set
 
     @Column(name = "start_slot", nullable = false)
     var startSlot: Int = startSlot
         protected set
 
-    @Column(name = "duration_slots", nullable = false)
-    var durationSlots: Int = durationSlots
+    @Column(name = "end_slot", nullable = false)
+    var endSlot: Int = endSlot
         protected set
 
     @Column(name = "pinned", nullable = false)
     var pinned: Boolean = false
         protected set
 
-    @Column(name = "palette_index", nullable = true)
-    var paletteIndex: Int? = paletteIndex
-        protected set
-
-    @Column(name = "title_override", nullable = true)
-    var titleOverride: String? = titleOverride
+    @Column(name = "title", nullable = true)
+    var title: String? = title
         protected set
 
     @Column(name = "note", nullable = true, length = 200)
@@ -91,56 +86,74 @@ open class ScheduleBlock(
 
         fun create(
             board: ScheduleBoard,
-            date: LocalDate,
+            startDate: LocalDate,
+            endDate: LocalDate,
             startSlot: Int,
-            durationSlots: Int,
-            paletteIndex: Int? = null,
-            titleOverride: String? = null,
+            endSlot: Int,
+            title: String? = null,
             note: String? = null,
             recurrenceRule: RecurrenceRule = RecurrenceRule.none(),
             placementOrigin: PlacementOrigin = PlacementOrigin.MANUAL,
             id: UUID = UuidCreator.getTimeOrderedEpoch(),
         ): ScheduleBlock {
-            validateSlot(startSlot, durationSlots)
+            validateSlot(startDate, endDate, startSlot, endSlot)
             return ScheduleBlock(
                 id = id,
                 board = board,
-                date = date,
+                startDate = startDate,
+                endDate = endDate,
                 startSlot = startSlot,
-                durationSlots = durationSlots,
-                paletteIndex = paletteIndex,
-                titleOverride = titleOverride,
+                endSlot = endSlot,
+                title = title,
                 note = note,
                 recurrenceRule = recurrenceRule,
                 placementOrigin = placementOrigin,
             )
         }
 
-        private fun validateSlot(
+        /** [startDate, startSlot) 부터 [endDate, endSlot) 까지의 총 슬롯 수(exclusive). */
+        fun totalSlots(
+            startDate: LocalDate,
+            endDate: LocalDate,
             startSlot: Int,
-            durationSlots: Int,
+            endSlot: Int,
+        ): Int {
+            val dayDiff = ChronoUnit.DAYS.between(startDate, endDate).toInt()
+            return dayDiff * SLOTS_PER_DAY + (endSlot - startSlot)
+        }
+
+        fun validateSlot(
+            startDate: LocalDate,
+            endDate: LocalDate,
+            startSlot: Int,
+            endSlot: Int,
         ) {
+            require(!endDate.isBefore(startDate)) {
+                "endDate must be on or after startDate (startDate=$startDate, endDate=$endDate)"
+            }
             require(startSlot in 0 until SLOTS_PER_DAY) {
                 "startSlot must be in 0..${SLOTS_PER_DAY - 1}, was $startSlot"
             }
-            require(durationSlots >= 1) {
-                "durationSlots must be >= 1, was $durationSlots"
+            require(endSlot in 0 until SLOTS_PER_DAY) {
+                "endSlot must be in 0..${SLOTS_PER_DAY - 1}, was $endSlot"
             }
-            require(startSlot + durationSlots <= SLOTS_PER_DAY) {
-                "startSlot + durationSlots must be <= $SLOTS_PER_DAY (got ${startSlot + durationSlots})"
+            require(totalSlots(startDate, endDate, startSlot, endSlot) >= 1) {
+                "end must be after start (startDate=$startDate, startSlot=$startSlot, endDate=$endDate, endSlot=$endSlot)"
             }
         }
     }
 
     fun reposition(
-        date: LocalDate,
+        startDate: LocalDate,
+        endDate: LocalDate,
         startSlot: Int,
-        durationSlots: Int,
+        endSlot: Int,
     ) {
-        validateSlot(startSlot, durationSlots)
-        this.date = date
+        validateSlot(startDate, endDate, startSlot, endSlot)
+        this.startDate = startDate
+        this.endDate = endDate
         this.startSlot = startSlot
-        this.durationSlots = durationSlots
+        this.endSlot = endSlot
     }
 
     fun pin() {
@@ -151,12 +164,8 @@ open class ScheduleBlock(
         this.pinned = false
     }
 
-    fun updatePaletteIndex(index: Int?) {
-        this.paletteIndex = index
-    }
-
-    fun updateTitleOverride(title: String?) {
-        this.titleOverride = title
+    fun updateTitle(title: String?) {
+        this.title = title
     }
 
     fun updateNote(note: String?) {

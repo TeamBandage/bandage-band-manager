@@ -1,4 +1,4 @@
-package com.bandage.bandmanager.domain.schedule.model
+package com.bandage.bandmanager.domain.schedule.model.enums
 
 /**
  * ScheduleBlock 이 어떻게 배치되었는지 출처.

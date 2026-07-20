@@ -18,7 +18,7 @@ import java.util.UUID
 /**
  * ScheduleBlock 과 SetlistTrack 의 N:M 매핑.
  *
- * 기존 단일 songId 를 대체한다. 한 블록(시간 구간)에 여러 트랙을 묶어 함께 연습할 수 있다.
+ * 한 블록(시간 구간)에 여러 트랙을 묶어 함께 연습할 수 있다.
  * ordinal 로 블록 내 트랙 순서를 유지한다.
  */
 @Entity

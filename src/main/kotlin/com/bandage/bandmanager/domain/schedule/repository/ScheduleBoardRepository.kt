@@ -7,10 +7,7 @@ import java.util.UUID
 
 @Repository
 interface ScheduleBoardRepository : JpaRepository<ScheduleBoard, UUID> {
-    fun findAllByPerformanceId(performanceId: UUID): List<ScheduleBoard>
+    fun findAllBySetlistId(setlistId: UUID): List<ScheduleBoard>
 
-    fun findFirstByPerformanceIdAndConfirmedTrue(performanceId: UUID): ScheduleBoard?
-
-    // 마이그레이션 기간 한정(구 meeting 스코프). 추후 제거 예정.
-    fun findAllByMeetingId(meetingId: UUID): List<ScheduleBoard>
+    fun findFirstBySetlistIdAndConfirmedTrue(setlistId: UUID): ScheduleBoard?
 }

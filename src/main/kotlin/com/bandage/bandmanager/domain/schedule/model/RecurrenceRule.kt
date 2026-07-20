@@ -1,5 +1,6 @@
 package com.bandage.bandmanager.domain.schedule.model
 
+import com.bandage.bandmanager.domain.schedule.model.enums.RecurrenceFreq
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EnumType

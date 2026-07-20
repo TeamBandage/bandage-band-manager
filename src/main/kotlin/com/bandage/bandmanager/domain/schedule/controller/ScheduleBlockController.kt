@@ -19,43 +19,43 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
-@Tag(name = "schedule-blocks", description = "시간표 블록 API (공연 단위)")
+@Tag(name = "schedule-blocks", description = "시간표 블록 API (셋리스트 단위)")
 @RestController
-@RequestMapping("$PREFIX/performances/{performanceId}/schedule-boards/{boardId}/blocks")
+@RequestMapping("$PREFIX/setlists/{setlistId}/schedule-boards/{boardId}/blocks")
 class ScheduleBlockController(
     private val scheduleBlockService: ScheduleBlockService,
 ) {
     @PutMapping("/{blockId}")
-    @Operation(operationId = "upsertBlock", summary = "시간표 블록 등록/수정", description = "공연 매니저 권한, blockId 가 없으면 새로 생성, 있으면 갱신.")
+    @Operation(operationId = "upsertBlock", summary = "시간표 블록 등록/수정", description = "셋리스트 매니저 권한, blockId 가 없으면 새로 생성, 있으면 갱신.")
     fun upsertBlock(
-        @PathVariable performanceId: UUID,
+        @PathVariable setlistId: UUID,
         @PathVariable boardId: UUID,
         @PathVariable blockId: UUID,
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: ScheduleBlockUpsertRequest,
     ): ApiResponse<ScheduleBlockResponse> =
-        ApiResponse.success(scheduleBlockService.upsertBlock(performanceId, boardId, blockId, memberId, request))
+        ApiResponse.success(scheduleBlockService.upsertBlock(setlistId, boardId, blockId, memberId, request))
 
     @DeleteMapping("/{blockId}")
-    @Operation(operationId = "deleteBlock", summary = "시간표 블록 삭제", description = "공연 매니저 권한, confirmed=true 인 시안의 블록은 삭제 불가.")
+    @Operation(operationId = "deleteBlock", summary = "시간표 블록 삭제", description = "셋리스트 매니저 권한, confirmed=true 인 시안의 블록은 삭제 불가.")
     fun deleteBlock(
-        @PathVariable performanceId: UUID,
+        @PathVariable setlistId: UUID,
         @PathVariable boardId: UUID,
         @PathVariable blockId: UUID,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<Unit> {
-        scheduleBlockService.deleteBlock(performanceId, boardId, blockId, memberId)
+        scheduleBlockService.deleteBlock(setlistId, boardId, blockId, memberId)
         return ApiResponse.success()
     }
 
     @PatchMapping("/{blockId}/pin")
-    @Operation(operationId = "setPin", summary = "시간표 블록 핀 토글", description = "공연 매니저 권한, 요청 body 의 pinned 값으로 설정.")
+    @Operation(operationId = "setPin", summary = "시간표 블록 핀 토글", description = "셋리스트 매니저 권한, 요청 body 의 pinned 값으로 설정.")
     fun setPin(
-        @PathVariable performanceId: UUID,
+        @PathVariable setlistId: UUID,
         @PathVariable boardId: UUID,
         @PathVariable blockId: UUID,
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: ScheduleBlockPinRequest,
     ): ApiResponse<ScheduleBlockResponse> =
-        ApiResponse.success(scheduleBlockService.setPin(performanceId, boardId, blockId, memberId, request.pinned))
+        ApiResponse.success(scheduleBlockService.setPin(setlistId, boardId, blockId, memberId, request.pinned))
 }
