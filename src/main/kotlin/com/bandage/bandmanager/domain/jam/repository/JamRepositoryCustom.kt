@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.jam.repository
 
 import com.bandage.bandmanager.domain.jam.model.Jam
 import com.bandage.bandmanager.global.common.response.CursorResponse
+import java.time.LocalDate
 import java.util.UUID
 
 interface JamRepositoryCustom {
@@ -20,6 +21,8 @@ interface JamRepositoryCustom {
         memberId: Long,
         lastId: UUID?,
         pageSize: Int,
+        from: LocalDate? = null,
+        to: LocalDate? = null,
     ): CursorResponse<Jam, UUID>
 
     fun searchByMemberAndKeywordAndPaging(

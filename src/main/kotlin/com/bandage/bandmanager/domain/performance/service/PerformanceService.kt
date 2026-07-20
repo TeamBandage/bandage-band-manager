@@ -112,7 +112,8 @@ class PerformanceService(
         query: PerformancePagingQuery,
     ): CursorResponse<PerformanceListResponse, UUID> {
         val bandIds = bandMemberRepository.findAllBandIdsByMember(memberId)
-        val result = performanceRepository.findMyPerformancesByCursor(memberId, bandIds, query.lastId, query.pageSize)
+        val result =
+            performanceRepository.findMyPerformancesByCursor(memberId, bandIds, query.lastId, query.pageSize, query.from, query.to)
         val summaries = buildSetlistSummaries(result.content.flatMap { p -> p.setlists.map { it.setlistId } })
         return CursorResponse(
             content = result.content.map { PerformanceListResponse.of(it, summaries) },

@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.performance.repository
 
 import com.bandage.bandmanager.domain.performance.model.Performance
 import com.bandage.bandmanager.global.common.response.CursorResponse
+import java.time.LocalDate
 import java.util.UUID
 
 interface PerformanceRepositoryCustom {
@@ -21,6 +22,8 @@ interface PerformanceRepositoryCustom {
         bandIds: List<UUID>,
         lastId: UUID?,
         pageSize: Int,
+        from: LocalDate? = null,
+        to: LocalDate? = null,
     ): CursorResponse<Performance, UUID>
 
     fun searchByTitleAndPaging(
