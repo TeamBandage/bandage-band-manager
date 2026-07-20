@@ -2800,6 +2800,12 @@
             "JamPagingQuery": {
                 "description": "\ud569\uc8fc \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
+                    "from": {
+                        "description": "\uc870\ud68c \uc2dc\uc791\uc77c (\ubbf8\uc9c0\uc815 \uc2dc \uc81c\ud55c \uc5c6\uc74c)",
+                        "example": "2026-07-01",
+                        "format": "date",
+                        "type": "string"
+                    },
                     "lastId": {
                         "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \ud569\uc8fc ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
@@ -2813,6 +2819,12 @@
                         "maximum": 100,
                         "minimum": 1,
                         "type": "integer"
+                    },
+                    "to": {
+                        "description": "\uc870\ud68c \uc885\ub8cc\uc77c (\ubbf8\uc9c0\uc815 \uc2dc \uc81c\ud55c \uc5c6\uc74c)",
+                        "example": "2026-07-31",
+                        "format": "date",
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -4147,6 +4159,12 @@
             "PerformancePagingQuery": {
                 "description": "\uacf5\uc5f0 \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
+                    "from": {
+                        "description": "\uc870\ud68c \uc2dc\uc791\uc77c (\ubbf8\uc9c0\uc815 \uc2dc \uc81c\ud55c \uc5c6\uc74c)",
+                        "example": "2026-07-01",
+                        "format": "date",
+                        "type": "string"
+                    },
                     "lastId": {
                         "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \uacf5\uc5f0 ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
@@ -4160,6 +4178,12 @@
                         "maximum": 100,
                         "minimum": 1,
                         "type": "integer"
+                    },
+                    "to": {
+                        "description": "\uc870\ud68c \uc885\ub8cc\uc77c (\ubbf8\uc9c0\uc815 \uc2dc \uc81c\ud55c \uc5c6\uc74c)",
+                        "example": "2026-07-31",
+                        "format": "date",
+                        "type": "string"
                     }
                 },
                 "required": [
