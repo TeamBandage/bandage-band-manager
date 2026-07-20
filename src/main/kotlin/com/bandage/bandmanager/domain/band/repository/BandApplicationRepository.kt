@@ -19,17 +19,6 @@ interface BandApplicationRepository :
         status: ApplicationStatus,
     ): Boolean
 
-    fun findByBandAndMemberAndStatus(
-        band: Band,
-        member: Long,
-        status: ApplicationStatus,
-    ): BandApplication?
-
-    fun findByIdAndStatus(
-        id: UUID,
-        status: ApplicationStatus,
-    ): BandApplication?
-
     /** 회원의 특정 밴드에 대한 최신 가입 신청 단건. (band, member) 당 isLatest=true 는 유일하다. */
     fun findByBandAndMemberAndIsLatestTrue(
         band: Band,
