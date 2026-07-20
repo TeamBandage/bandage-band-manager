@@ -1,7 +1,9 @@
 package com.bandage.bandmanager.domain.notify.service
 
+import com.bandage.bandmanager.domain.notify.dto.req.NotificationPagingQuery
 import com.bandage.bandmanager.domain.notify.model.Notification
 import com.bandage.bandmanager.domain.notify.repository.NotificationRepository
+import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.notify.annotation.NotifyCategory
@@ -89,5 +91,16 @@ class NotificationServiceTest {
         `when`(notificationRepository.countByRecipientIdAndIsReadFalse(1L)).thenReturn(3L)
 
         assertThat(sut.getUnreadCount(1L)).isEqualTo(3L)
+    }
+
+    @Test
+    fun `unreadOnly 쿼리는 레포지토리에 그대로 전달된다`() {
+        val query = NotificationPagingQuery(lastId = null, pageSize = 20, unreadOnly = true)
+        `when`(notificationRepository.findAllByRecipientIdWithCursor(1L, null, 20, true))
+            .thenReturn(CursorResponse(content = emptyList(), nextCursor = null, hasNext = false))
+
+        sut.getMyNotifications(1L, query)
+
+        verify(notificationRepository).findAllByRecipientIdWithCursor(1L, null, 20, true)
     }
 }

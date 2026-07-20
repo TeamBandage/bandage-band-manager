@@ -38,6 +38,8 @@ import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
+import com.bandage.bandmanager.global.notify.annotation.Notify
+import com.bandage.bandmanager.global.notify.annotation.NotifyCategory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -110,7 +112,8 @@ class PerformanceService(
         query: PerformancePagingQuery,
     ): CursorResponse<PerformanceListResponse, UUID> {
         val bandIds = bandMemberRepository.findAllBandIdsByMember(memberId)
-        val result = performanceRepository.findMyPerformancesByCursor(memberId, bandIds, query.lastId, query.pageSize)
+        val result =
+            performanceRepository.findMyPerformancesByCursor(memberId, bandIds, query.lastId, query.pageSize, query.from, query.to)
         val summaries = buildSetlistSummaries(result.content.flatMap { p -> p.setlists.map { it.setlistId } })
         return CursorResponse(
             content = result.content.map { PerformanceListResponse.of(it, summaries) },
@@ -202,6 +205,7 @@ class PerformanceService(
      * 공연 소유권(OWNER) 수동 양도. 현재 OWNER 가 같은 공연의 MANAGER 에게 권한을 넘긴다.
      * 기존 OWNER 는 MANAGER 로 강등된다.
      */
+    @Notify(NotifyCategory.PERFORMANCE_OWNER_PROMOTED)
     @Transactional
     fun delegateOwnership(
         performanceId: UUID,
@@ -223,6 +227,7 @@ class PerformanceService(
         target.promoteToOwner()
     }
 
+    @Notify(NotifyCategory.PERFORMANCE_MANAGER_INVITED)
     @Transactional
     fun sendInvitation(
         performanceId: UUID,

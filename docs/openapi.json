@@ -2474,6 +2474,12 @@
             "JamPagingQuery": {
                 "description": "\ud569\uc8fc \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
+                    "from": {
+                        "description": "\uc870\ud68c \uc2dc\uc791\uc77c (\ubbf8\uc9c0\uc815 \uc2dc \uc81c\ud55c \uc5c6\uc74c)",
+                        "example": "2026-07-01",
+                        "format": "date",
+                        "type": "string"
+                    },
                     "lastId": {
                         "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \ud569\uc8fc ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
@@ -2487,6 +2493,12 @@
                         "maximum": 100,
                         "minimum": 1,
                         "type": "integer"
+                    },
+                    "to": {
+                        "description": "\uc870\ud68c \uc885\ub8cc\uc77c (\ubbf8\uc9c0\uc815 \uc2dc \uc81c\ud55c \uc5c6\uc74c)",
+                        "example": "2026-07-31",
+                        "format": "date",
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -3214,10 +3226,16 @@
                         "maximum": 100,
                         "minimum": 1,
                         "type": "integer"
+                    },
+                    "unreadOnly": {
+                        "description": "true\uba74 \uc77d\uc9c0 \uc54a\uc740 \uc54c\ub9bc\ub9cc \uc870\ud68c",
+                        "example": false,
+                        "type": "boolean"
                     }
                 },
                 "required": [
-                    "pageSize"
+                    "pageSize",
+                    "unreadOnly"
                 ],
                 "type": "object"
             },
@@ -3230,7 +3248,14 @@
                             "BAND_APPLICATION",
                             "BAND_APPLICATION_RESULT",
                             "AUTHORITY_PROMOTION",
-                            "JAM_UPCOMING"
+                            "JAM_UPCOMING",
+                            "JAM_PARTICIPANT_ADDED",
+                            "JAM_CREATED",
+                            "PERFORMANCE_UPCOMING",
+                            "PERFORMANCE_MANAGER_INVITED",
+                            "PERFORMANCE_OWNER_PROMOTED",
+                            "SELECTION_PARTICIPANT_ADDED",
+                            "SETLIST_CREATED"
                         ],
                         "example": "BAND_APPLICATION",
                         "type": "string"
@@ -3670,6 +3695,12 @@
             "PerformancePagingQuery": {
                 "description": "\uacf5\uc5f0 \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
                 "properties": {
+                    "from": {
+                        "description": "\uc870\ud68c \uc2dc\uc791\uc77c (\ubbf8\uc9c0\uc815 \uc2dc \uc81c\ud55c \uc5c6\uc74c)",
+                        "example": "2026-07-01",
+                        "format": "date",
+                        "type": "string"
+                    },
                     "lastId": {
                         "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \uacf5\uc5f0 ID (\ucee4\uc11c)",
                         "example": "550e8400-e29b-41d4-a716-446655440000",
@@ -3683,6 +3714,12 @@
                         "maximum": 100,
                         "minimum": 1,
                         "type": "integer"
+                    },
+                    "to": {
+                        "description": "\uc870\ud68c \uc885\ub8cc\uc77c (\ubbf8\uc9c0\uc815 \uc2dc \uc81c\ud55c \uc5c6\uc74c)",
+                        "example": "2026-07-31",
+                        "format": "date",
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -4846,12 +4883,11 @@
                 "description": "\uc120\uace1 \uc0dd\uc131 \uc694\uccad",
                 "properties": {
                     "bandIds": {
-                        "description": "\ucc38\uc5ec \ubc34\ub4dc ID \ubaa9\ub85d (1..N)",
+                        "description": "\ucc38\uc5ec \ubc34\ub4dc ID \ubaa9\ub85d (0..N, \ubc34\ub4dc \uc5c6\uc774 \uac1c\uc778\uc73c\ub85c\ub9cc \uad6c\uc131 \uac00\ub2a5)",
                         "items": {
                             "format": "uuid",
                             "type": "string"
                         },
-                        "minItems": 1,
                         "type": "array"
                     },
                     "managerId": {
@@ -7197,7 +7233,7 @@
         },
         "/api/v1/notifications": {
             "get": {
-                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc804\uccb4 \uc54c\ub9bc\uc744 \ucee4\uc11c \uae30\ubc18 \ucd5c\uc2e0\uc21c\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. \uce74\ud14c\uace0\ub9ac \ud544\ud130\ub9c1\uc740 \ud504\ub860\ud2b8\uac00 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
+                "description": "\ub85c\uadf8\uc778\ud55c \ud68c\uc6d0\uc758 \uc54c\ub9bc\uc744 \ucee4\uc11c \uae30\ubc18 \ucd5c\uc2e0\uc21c\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. unreadOnly=true\uba74 \uc77d\uc9c0 \uc54a\uc740 \uc54c\ub9bc\ub9cc \uc870\ud68c\ud569\ub2c8\ub2e4. \uce74\ud14c\uace0\ub9ac \ud544\ud130\ub9c1\uc740 \ud504\ub860\ud2b8\uac00 \ucc98\ub9ac\ud569\ub2c8\ub2e4.",
                 "operationId": "getMyNotifications",
                 "parameters": [
                     {

@@ -82,7 +82,13 @@ class BandService(
         validateBandMemberNotExists(band, memberId)
         validateBandApplicationNotExists(band, memberId)
 
-        applicationRepository.findByBandAndMemberAndIsLatestTrue(band, memberId)?.markAsOutdated()
+        applicationRepository.findByBandAndMemberAndIsLatestTrue(band, memberId)?.let {
+            it.markAsOutdated()
+            // 새 신청 INSERT 전에 이전 건의 is_latest=false 를 먼저 반영해야 partial unique index
+            // (band_id, member_id) WHERE is_latest 위반을 피한다. order_inserts 로 INSERT 가 UPDATE 보다
+            // 먼저 flush 되므로 명시적 flush 로 순서를 보장한다.
+            applicationRepository.flush()
+        }
 
         applicationRepository.save(
             BandApplication.create(
@@ -236,7 +242,10 @@ class BandService(
 
         when (status) {
             ApplicationStatus.APPROVED -> approve(band, application, memberId)
-            ApplicationStatus.REJECTED -> application.updateStatus(ApplicationStatus.REJECTED)
+            ApplicationStatus.REJECTED -> {
+                application.updateStatus(ApplicationStatus.REJECTED)
+                application.markProcessedBy(memberId)
+            }
             else -> throw BusinessException(ErrorCode.INVALID_INPUT_VALUE)
         }
     }
@@ -452,15 +461,21 @@ class BandService(
         bandRepository.findByIdOrNull(bandId)
             ?: throw BusinessException(ErrorCode.BAND_NOT_FOUND)
 
+    // BD-210: '현재 유효한 신청'은 isLatest=true 인 건으로 판단한다. status 로만 조회하면 재신청으로 밀려난
+    // 과거 레코드(isLatest=false)를 잘못 집어 처리할 수 있으므로, 최신 건을 찾은 뒤 상태를 확인한다.
     private fun getPendingBandApplicationById(bandApplicationId: UUID): BandApplication =
-        applicationRepository.findByIdAndStatus(bandApplicationId, ApplicationStatus.PENDING)
+        applicationRepository
+            .findByIdOrNull(bandApplicationId)
+            ?.takeIf { it.isLatest && it.status == ApplicationStatus.PENDING }
             ?: throw BusinessException(ErrorCode.BAND_APPLICATION_NOT_FOUND)
 
     private fun getPendingBandApplicationByMember(
         band: Band,
         member: Long,
     ): BandApplication =
-        applicationRepository.findByBandAndMemberAndStatus(band, member, ApplicationStatus.PENDING)
+        applicationRepository
+            .findByBandAndMemberAndIsLatestTrue(band, member)
+            ?.takeIf { it.status == ApplicationStatus.PENDING }
             ?: throw BusinessException(ErrorCode.UNABLE_TO_WITHDRAW)
 
     private fun getBandMemberById(bandMemberId: UUID): BandMember =
@@ -554,8 +569,11 @@ class BandService(
         band: Band,
         memberId: Long,
     ) {
-        val application = applicationRepository.findByBandAndMemberAndStatus(band, memberId, ApplicationStatus.APPROVED)
-        application?.updateStatus(ApplicationStatus.LEAVED)
+        // BD-210: 소속 중인 신청(APPROVED)은 최신 건이어야 한다. 최신 건을 찾아 APPROVED 일 때만 LEAVED 로 전환한다.
+        applicationRepository
+            .findByBandAndMemberAndIsLatestTrue(band, memberId)
+            ?.takeIf { it.status == ApplicationStatus.APPROVED }
+            ?.updateStatus(ApplicationStatus.LEAVED)
         bandMember.markAsDeleted(memberId)
     }
 }
