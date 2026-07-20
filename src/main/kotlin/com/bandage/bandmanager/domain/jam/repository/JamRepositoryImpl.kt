@@ -6,6 +6,7 @@ import com.bandage.bandmanager.domain.jam.model.QJamParticipant
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
+import java.time.LocalDate
 import java.util.UUID
 
 class JamRepositoryImpl(
@@ -71,6 +72,8 @@ class JamRepositoryImpl(
         memberId: Long,
         lastId: UUID?,
         pageSize: Int,
+        from: LocalDate?,
+        to: LocalDate?,
     ): CursorResponse<Jam, UUID> {
         val qJam = QJam.jam
         val qParticipant = QJamParticipant.jamParticipant
@@ -82,6 +85,8 @@ class JamRepositoryImpl(
                 .on(qParticipant.jam.eq(qJam))
                 .where(qParticipant.member.eq(memberId))
                 .where(ltJamId(lastId))
+                .where(goeStartAt(from))
+                .where(ltStartAt(to))
                 .orderBy(qJam.id.desc())
                 .distinct()
                 .limit(pageSize.toLong() + 1)
@@ -132,4 +137,16 @@ class JamRepositoryImpl(
     }
 
     private fun ltJamId(lastId: UUID?): BooleanExpression? = lastId?.let { QJam.jam.id.lt(it) }
+
+    private fun goeStartAt(from: LocalDate?): BooleanExpression? =
+        from?.let {
+            QJam.jam.timeInfo.startAt
+                .goe(it.atStartOfDay())
+        }
+
+    private fun ltStartAt(to: LocalDate?): BooleanExpression? =
+        to?.let {
+            QJam.jam.timeInfo.startAt
+                .lt(it.plusDays(1).atStartOfDay())
+        }
 }
