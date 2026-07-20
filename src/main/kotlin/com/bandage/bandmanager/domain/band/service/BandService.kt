@@ -242,7 +242,10 @@ class BandService(
 
         when (status) {
             ApplicationStatus.APPROVED -> approve(band, application, memberId)
-            ApplicationStatus.REJECTED -> application.updateStatus(ApplicationStatus.REJECTED)
+            ApplicationStatus.REJECTED -> {
+                application.updateStatus(ApplicationStatus.REJECTED)
+                application.markProcessedBy(memberId)
+            }
             else -> throw BusinessException(ErrorCode.INVALID_INPUT_VALUE)
         }
     }
