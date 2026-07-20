@@ -118,6 +118,9 @@ class ScheduleBlockService(
         trackIds: List<UUID>,
     ): List<UUID> {
         scheduleBlockTrackRepository.deleteAllByBlockId(block.id)
+        // 삭제를 먼저 DB 에 반영한다. flush 없이 이어지는 insert 가 먼저 나가면
+        // uk_schedule_block_track (schedule_block_id, setlist_track_id) 유니크 제약과 충돌한다.
+        scheduleBlockTrackRepository.flush()
         val distinct = trackIds.distinct()
         distinct.forEachIndexed { index, trackId ->
             scheduleBlockTrackRepository.save(

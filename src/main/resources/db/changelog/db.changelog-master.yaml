@@ -309,3 +309,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 025-schedule-setlist-recreate
+      author: bandage
+      comment: |
+        BD-172: schedule 도메인을 셋리스트 스코프로 재구성
+        - p_schedule_board: setlist_id 추가, performance_id/meeting_id/palette_seed/version 제거
+        - p_schedule_block: start_date/end_date/end_slot 추가, block_date/duration_slots/palette_index 제거, title_override → title
+      changes:
+        - sqlFile:
+            path: changes/025-schedule-setlist-recreate.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
