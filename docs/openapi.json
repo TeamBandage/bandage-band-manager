@@ -9615,7 +9615,7 @@
     "servers": [
         {
             "description": "Generated server url",
-            "url": "http://localhost:8081"
+            "url": "http://bandage-band-manager:8080"
         }
     ],
     "tags": [
