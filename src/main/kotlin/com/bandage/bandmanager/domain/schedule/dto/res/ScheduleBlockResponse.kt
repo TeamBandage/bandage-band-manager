@@ -1,20 +1,20 @@
 package com.bandage.bandmanager.domain.schedule.dto.res
 
-import com.bandage.bandmanager.domain.schedule.model.PlacementOrigin
-import com.bandage.bandmanager.domain.schedule.model.RecurrenceFreq
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBlock
+import com.bandage.bandmanager.domain.schedule.model.enums.PlacementOrigin
+import com.bandage.bandmanager.domain.schedule.model.enums.RecurrenceFreq
 import java.time.LocalDate
 import java.util.UUID
 
 data class ScheduleBlockResponse(
     val blockId: UUID,
     val trackIds: List<UUID>,
-    val date: LocalDate,
+    val startDate: LocalDate,
     val startSlot: Int,
-    val durationSlots: Int,
+    val endDate: LocalDate,
+    val endSlot: Int,
     val pinned: Boolean,
-    val paletteIndex: Int?,
-    val titleOverride: String?,
+    val title: String?,
     val note: String?,
     val recurrence: RecurrenceDto,
     val placementOrigin: PlacementOrigin,
@@ -34,12 +34,12 @@ data class ScheduleBlockResponse(
             ScheduleBlockResponse(
                 blockId = block.id,
                 trackIds = trackIds,
-                date = block.date,
+                startDate = block.startDate,
                 startSlot = block.startSlot,
-                durationSlots = block.durationSlots,
+                endDate = block.endDate,
+                endSlot = block.endSlot,
                 pinned = block.pinned,
-                paletteIndex = block.paletteIndex,
-                titleOverride = block.titleOverride,
+                title = block.title,
                 note = block.note,
                 recurrence =
                     RecurrenceDto(

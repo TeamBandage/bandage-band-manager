@@ -11,7 +11,6 @@ import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardRepositor
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -25,11 +24,11 @@ class ScheduleBoardService(
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     fun getBoards(
-        performanceId: UUID,
+        setlistId: UUID,
         memberId: Long,
     ): List<ScheduleBoardResponse> {
-        scheduleAuthService.validatePerformanceParticipant(performanceId, memberId)
-        val boards = scheduleBoardRepository.findAllByPerformanceId(performanceId)
+        scheduleAuthService.validateSetlistParticipant(setlistId, memberId)
+        val boards = scheduleBoardRepository.findAllBySetlistId(setlistId)
         if (boards.isEmpty()) return emptyList()
         val blocksByBoard = boards.associate { it.id to scheduleBlockRepository.findAllByBoardId(it.id) }
         val allBlockIds = blocksByBoard.values.flatten().map { it.id }
@@ -41,22 +40,21 @@ class ScheduleBoardService(
 
     @Transactional
     fun createBoard(
-        performanceId: UUID,
+        setlistId: UUID,
         memberId: Long,
         request: ScheduleBoardCreateRequest,
     ): ScheduleBoardResponse {
-        scheduleAuthService.validatePerformanceManager(performanceId, memberId)
-        val existingCount = scheduleBoardRepository.findAllByPerformanceId(performanceId).size
-        if (existingCount >= MAX_BOARDS_PER_PERFORMANCE) {
+        scheduleAuthService.validateSetlistManager(setlistId, memberId)
+        val existingCount = scheduleBoardRepository.findAllBySetlistId(setlistId).size
+        if (existingCount >= MAX_BOARDS_PER_SETLIST) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_LIMIT_EXCEEDED)
         }
         val constraints = request.constraints?.toEntity() ?: ScheduleBoardConstraints()
         val board =
             scheduleBoardRepository.save(
                 ScheduleBoard.create(
-                    performanceId = performanceId,
+                    setlistId = setlistId,
                     name = request.name,
-                    paletteSeed = request.paletteSeed,
                     constraints = constraints,
                     windowFrom = request.windowFrom,
                     windowTo = request.windowTo,
@@ -67,18 +65,17 @@ class ScheduleBoardService(
 
     @Transactional
     fun updateBoard(
-        performanceId: UUID,
+        setlistId: UUID,
         boardId: UUID,
         memberId: Long,
         request: ScheduleBoardUpdateRequest,
     ): ScheduleBoardResponse {
-        scheduleAuthService.validatePerformanceManager(performanceId, memberId)
-        val board = getBoardOrThrow(performanceId, boardId)
+        scheduleAuthService.validateSetlistManager(setlistId, memberId)
+        val board = getBoardOrThrow(setlistId, boardId)
         if (board.confirmed) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_ALREADY_CONFIRMED)
         }
         request.name?.let { board.rename(it) }
-        if (request.paletteSeed != null) board.updatePaletteSeed(request.paletteSeed)
         if (request.windowFrom != null || request.windowTo != null) {
             board.updateWindow(request.windowFrom ?: board.windowFrom, request.windowTo ?: board.windowTo)
         }
@@ -90,25 +87,19 @@ class ScheduleBoardService(
                 maxConsecutiveMinutes = dto.maxConsecutiveMinutes,
             )
         }
-        val saved =
-            try {
-                scheduleBoardRepository.saveAndFlush(board)
-            } catch (e: ObjectOptimisticLockingFailureException) {
-                throw BusinessException(ErrorCode.SCHEDULE_BOARD_VERSION_CONFLICT)
-            }
-        val blocks = scheduleBlockRepository.findAllByBoardId(saved.id)
+        val blocks = scheduleBlockRepository.findAllByBoardId(board.id)
         val trackIdsByBlock = trackIdsByBlock(blocks.map { it.id })
-        return ScheduleBoardResponse.of(saved, blocks, trackIdsByBlock)
+        return ScheduleBoardResponse.of(board, blocks, trackIdsByBlock)
     }
 
     @Transactional
     fun deleteBoard(
-        performanceId: UUID,
+        setlistId: UUID,
         boardId: UUID,
         memberId: Long,
     ) {
-        scheduleAuthService.validatePerformanceManager(performanceId, memberId)
-        val board = getBoardOrThrow(performanceId, boardId)
+        scheduleAuthService.validateSetlistManager(setlistId, memberId)
+        val board = getBoardOrThrow(setlistId, boardId)
         if (board.confirmed) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_ALREADY_CONFIRMED)
         }
@@ -124,19 +115,19 @@ class ScheduleBoardService(
     }
 
     private fun getBoardOrThrow(
-        performanceId: UUID,
+        setlistId: UUID,
         boardId: UUID,
     ): ScheduleBoard {
         val board =
             scheduleBoardRepository.findByIdOrNull(boardId)
                 ?: throw BusinessException(ErrorCode.SCHEDULE_BOARD_NOT_FOUND)
-        if (board.performanceId != performanceId) {
+        if (board.setlistId != setlistId) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_NOT_FOUND)
         }
         return board
     }
 
     companion object {
-        const val MAX_BOARDS_PER_PERFORMANCE = 5
+        const val MAX_BOARDS_PER_SETLIST = 5
     }
 }

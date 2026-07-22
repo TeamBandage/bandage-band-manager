@@ -93,7 +93,7 @@ class JamService(
         memberId: Long,
         query: JamPagingQuery,
     ): CursorResponse<JamListResponse, UUID> {
-        val result = jamRepository.findAllByMemberAndPaging(memberId, query.lastId, query.pageSize)
+        val result = jamRepository.findAllByMemberAndPaging(memberId, query.lastId, query.pageSize, query.from, query.to)
         return CursorResponse(
             content = result.content.map { JamListResponse.of(it) },
             nextCursor = result.nextCursor,

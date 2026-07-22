@@ -9,15 +9,13 @@ import java.util.UUID
 
 data class ScheduleBoardResponse(
     val boardId: UUID,
-    val performanceId: UUID,
+    val setlistId: UUID,
     val name: String,
-    val paletteSeed: Int?,
     val confirmed: Boolean,
     val constraints: ScheduleBoardConstraintsDto,
     val windowFrom: LocalDate?,
     val windowTo: LocalDate?,
     val blocks: List<ScheduleBlockResponse>,
-    val version: Long,
     val createdAt: LocalDateTime,
 ) {
     companion object {
@@ -28,15 +26,13 @@ data class ScheduleBoardResponse(
         ): ScheduleBoardResponse =
             ScheduleBoardResponse(
                 boardId = board.id,
-                performanceId = board.performanceId,
+                setlistId = board.setlistId,
                 name = board.name,
-                paletteSeed = board.paletteSeed,
                 confirmed = board.confirmed,
                 constraints = ScheduleBoardConstraintsDto.from(board.constraints),
                 windowFrom = board.windowFrom,
                 windowTo = board.windowTo,
                 blocks = blocks.map { ScheduleBlockResponse.from(it, trackIdsByBlock[it.id].orEmpty()) },
-                version = board.version,
                 createdAt = board.createdAt,
             )
     }

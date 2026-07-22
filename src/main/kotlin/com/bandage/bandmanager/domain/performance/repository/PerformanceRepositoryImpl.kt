@@ -9,6 +9,7 @@ import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.JPAExpressions
 import com.querydsl.jpa.impl.JPAQueryFactory
+import java.time.LocalDate
 import java.util.UUID
 
 class PerformanceRepositoryImpl(
@@ -62,6 +63,8 @@ class PerformanceRepositoryImpl(
         bandIds: List<UUID>,
         lastId: UUID?,
         pageSize: Int,
+        from: LocalDate?,
+        to: LocalDate?,
     ): CursorResponse<Performance, UUID> {
         val qPerformance = QPerformance.performance
         val qPerformanceSetlist = QPerformanceSetlist.performanceSetlist
@@ -93,6 +96,8 @@ class PerformanceRepositoryImpl(
                 .selectFrom(qPerformance)
                 .where(condition)
                 .where(ltPerformanceId(lastId))
+                .where(goeStartAt(from))
+                .where(ltStartAt(to))
                 .orderBy(qPerformance.id.desc())
                 .limit(pageSize.toLong() + 1)
                 .fetch()
@@ -130,4 +135,16 @@ class PerformanceRepositoryImpl(
     }
 
     private fun ltPerformanceId(lastId: UUID?): BooleanExpression? = lastId?.let { QPerformance.performance.id.lt(it) }
+
+    private fun goeStartAt(from: LocalDate?): BooleanExpression? =
+        from?.let {
+            QPerformance.performance.timeInfo.startAt
+                .goe(it.atStartOfDay())
+        }
+
+    private fun ltStartAt(to: LocalDate?): BooleanExpression? =
+        to?.let {
+            QPerformance.performance.timeInfo.startAt
+                .lt(it.plusDays(1).atStartOfDay())
+        }
 }
