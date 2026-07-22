@@ -80,15 +80,19 @@ class BandService(
     ) {
         val band = getBand(bandId)
         validateBandMemberNotExists(band, memberId)
-        validateBandApplicationNotExists(band, memberId)
 
-        applicationRepository.findByBandAndMemberAndIsLatestTrue(band, memberId)?.let {
-            it.markAsOutdated()
-            // 새 신청 INSERT 전에 이전 건의 is_latest=false 를 먼저 반영해야 partial unique index
-            // (band_id, member_id) WHERE is_latest 위반을 피한다. order_inserts 로 INSERT 가 UPDATE 보다
-            // 먼저 flush 되므로 명시적 flush 로 순서를 보장한다.
-            applicationRepository.flush()
+        // (band, member) 당 latest 는 1건이 정상이나, 과거 버그로 다건 오염 가능 → 전부 조회해 방어.
+        val latests = applicationRepository.findAllByBandAndMemberAndIsLatestTrue(band, memberId)
+        // 기 신청중(PENDING)/승인(APPROVED) 상태가 하나라도 있으면 재신청 불가.
+        if (latests.any { it.status == ApplicationStatus.PENDING || it.status == ApplicationStatus.APPROVED }) {
+            throw BusinessException(ErrorCode.DUPLICATE_BAND_APPLICATION)
         }
+
+        latests.forEach { it.markAsOutdated() }
+        // 새 신청 INSERT 전에 이전 건의 is_latest=false 를 먼저 반영해야 partial unique index
+        // (band_id, member_id) WHERE is_latest 위반을 피한다. order_inserts 로 INSERT 가 UPDATE 보다
+        // 먼저 flush 되므로 명시적 flush 로 순서를 보장한다.
+        if (latests.isNotEmpty()) applicationRepository.flush()
 
         applicationRepository.save(
             BandApplication.create(
@@ -509,15 +513,6 @@ class BandService(
     ) {
         if (bandMemberRepository.existsBandMemberByBandAndMember(band, member)) {
             throw BusinessException(ErrorCode.BAND_MEMBER_ALREADY_EXISTS)
-        }
-    }
-
-    private fun validateBandApplicationNotExists(
-        band: Band,
-        member: Long,
-    ) {
-        if (applicationRepository.existsByBandAndMemberAndStatus(band, member, ApplicationStatus.PENDING)) {
-            throw BusinessException(ErrorCode.DUPLICATE_BAND_APPLICATION)
         }
     }
 
