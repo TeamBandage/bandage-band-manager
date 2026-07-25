@@ -80,6 +80,20 @@ class SetlistController(
         @Valid @RequestBody request: SetlistUpdateRequest,
     ): ApiResponse<SetlistDetailResponse> = ApiResponse.success(setlistService.updateSetlist(setlistId, memberId, request))
 
+    @DeleteMapping("/{setlistId}")
+    @Operation(
+        operationId = "deleteSetlist",
+        summary = "셋리스트 삭제",
+        description = "매니저가 셋리스트를 삭제합니다. 셋리스트의 트랙·참여자·밴드 연결도 함께 정리됩니다.",
+    )
+    fun deleteSetlist(
+        @PathVariable setlistId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        setlistService.deleteSetlist(setlistId, memberId)
+        return ApiResponse.success()
+    }
+
     @PostMapping("/{setlistId}/jams")
     @Operation(
         operationId = "createJamsFromSetlist",

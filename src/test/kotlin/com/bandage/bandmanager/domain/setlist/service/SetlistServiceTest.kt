@@ -4,10 +4,14 @@ import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistUpdateRequest
 import com.bandage.bandmanager.domain.setlist.model.Setlist
+import com.bandage.bandmanager.domain.setlist.model.SetlistBand
+import com.bandage.bandmanager.domain.setlist.model.SetlistTrack
+import com.bandage.bandmanager.domain.setlist.model.SetlistTrackParticipant
 import com.bandage.bandmanager.domain.setlist.repository.SetlistBandRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackParticipantRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
+import com.bandage.bandmanager.global.common.domain.TrackInfo
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.assertj.core.api.Assertions.assertThat
@@ -91,5 +95,33 @@ class SetlistServiceTest {
                 sut.updateSetlist(setlistId, newManagerId, SetlistUpdateRequest(title = setlist.title, managerId = null))
             }
         assertThat(ex.errorCode).isEqualTo(ErrorCode.SETLIST_NOT_MANAGER)
+    }
+
+    @Test
+    fun `deleteSetlist - 매니저는 셋리스트와 트랙·참여자·밴드 연결을 함께 소프트 삭제한다`() {
+        val setlist = setlist()
+        val track = SetlistTrack.create(setlist, TrackInfo(title = "곡", artist = "아티스트"), note = null, sessions = emptyList())
+        val participant = SetlistTrackParticipant.create(track, sessionId = "vocal", memberId = 9L)
+        val setlistBand = SetlistBand.create(UUID.randomUUID(), setlistId)
+        `when`(setlistTrackRepository.findAllBySetlist(setlist)).thenReturn(listOf(track))
+        `when`(setlistTrackParticipantRepository.findAllByTrackIn(listOf(track))).thenReturn(listOf(participant))
+        `when`(setlistBandRepository.findAllBySetlistId(setlistId)).thenReturn(listOf(setlistBand))
+
+        sut.deleteSetlist(setlistId, managerId)
+
+        assertThat(setlist.deletedAt).isNotNull()
+        assertThat(track.deletedAt).isNotNull()
+        assertThat(participant.deletedAt).isNotNull()
+        assertThat(setlistBand.deletedAt).isNotNull()
+    }
+
+    @Test
+    fun `deleteSetlist - 매니저가 아니면 SETLIST_NOT_MANAGER`() {
+        val setlist = setlist()
+
+        val ex = assertThrows<BusinessException> { sut.deleteSetlist(setlistId, newManagerId) }
+
+        assertThat(ex.errorCode).isEqualTo(ErrorCode.SETLIST_NOT_MANAGER)
+        assertThat(setlist.deletedAt).isNull()
     }
 }
