@@ -34,6 +34,7 @@ import com.bandage.bandmanager.domain.selection.repository.TrackSelectionReposit
 import com.bandage.bandmanager.global.authority.MemberAuthorityCleanupHandler
 import com.bandage.bandmanager.global.authority.ResourceAuthorityType
 import com.bandage.bandmanager.global.authority.SuccessorSelector
+import com.bandage.bandmanager.global.common.domain.SessionDef
 import com.bandage.bandmanager.global.common.domain.TrackInfo
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
@@ -222,7 +223,7 @@ class TrackSelectionService(
                         ),
                     proposerId = memberId,
                     note = request.note,
-                    sessions = request.sessions.map { it.toEntity() },
+                    sessions = SessionDef.createAll(request.sessions.map { it.toSpec() }),
                 ),
             )
         return toItemResponse(item, emptyList(), emptyList())
@@ -295,7 +296,7 @@ class TrackSelectionService(
         }
         item.updateMeta(request.title, request.artist, request.album, request.duration, request.reference, request.note)
         request.sessions?.let { sessions ->
-            val newDefs = sessions.map { it.toEntity() }
+            val newDefs = SessionDef.createAll(sessions.map { it.toSpec() })
             val newSessionIds = newDefs.map { it.sessionId }.toSet()
             val applicants = applicantRepository.findAllByItem(item)
             val confirmations = confirmationRepository.findAllByItem(item)

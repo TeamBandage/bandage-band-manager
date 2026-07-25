@@ -22,6 +22,7 @@ import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
 import com.bandage.bandmanager.global.authority.MemberAuthorityCleanupHandler
 import com.bandage.bandmanager.global.authority.ResourceAuthorityType
 import com.bandage.bandmanager.global.authority.SuccessorSelector
+import com.bandage.bandmanager.global.common.domain.SessionDef
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -162,7 +163,7 @@ class SetlistService(
 
         track.updateMeta(request.title, request.artist, request.album, request.duration, request.reference, request.note)
         request.sessions?.let { sessions ->
-            val newDefs = sessions.map { it.toEntity() }
+            val newDefs = SessionDef.createAll(sessions.map { it.toSpec() })
             val newSessionIds = newDefs.map { it.sessionId }.toSet()
             setlistTrackParticipantRepository
                 .findAllByTrack(track)
