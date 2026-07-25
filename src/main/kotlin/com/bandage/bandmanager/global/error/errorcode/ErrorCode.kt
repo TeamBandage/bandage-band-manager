@@ -89,6 +89,7 @@ enum class ErrorCode(
     SETLIST_FORBIDDEN(HttpStatus.FORBIDDEN, "셋리스트에 접근할 권한이 없습니다."),
     SETLIST_NOT_MANAGER(HttpStatus.FORBIDDEN, "셋리스트 매니저만 수행할 수 있는 작업입니다."),
     SETLIST_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 셋리스트 트랙 정보를 찾을 수 없습니다."),
+    SETLIST_REFERENCED_BY_PERFORMANCE(HttpStatus.CONFLICT, "공연에 연결된 셋리스트는 삭제할 수 없습니다. 공연에서 먼저 해제해주세요."),
 
     // schedule
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 스케줄 정보를 찾을 수 없습니다."),

@@ -5,6 +5,7 @@ import com.bandage.bandmanager.domain.band.model.BandMember
 import com.bandage.bandmanager.domain.band.model.enums.BandRole
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.member.service.MemberService
+import com.bandage.bandmanager.domain.performance.repository.PerformanceSetlistRepository
 import com.bandage.bandmanager.domain.setlist.model.Setlist
 import com.bandage.bandmanager.domain.setlist.model.SetlistBand
 import com.bandage.bandmanager.domain.setlist.model.SetlistTrack
@@ -27,6 +28,7 @@ class SetlistServiceCleanupTest {
     private val setlistTrackRepository = mock(SetlistTrackRepository::class.java)
     private val setlistTrackParticipantRepository = mock(SetlistTrackParticipantRepository::class.java)
     private val bandMemberRepository = mock(BandMemberRepository::class.java)
+    private val performanceSetlistRepository = mock(PerformanceSetlistRepository::class.java)
     private val memberService = mock(MemberService::class.java)
 
     private val sut =
@@ -36,6 +38,7 @@ class SetlistServiceCleanupTest {
             setlistTrackRepository,
             setlistTrackParticipantRepository,
             bandMemberRepository,
+            performanceSetlistRepository,
             memberService,
         )
 
