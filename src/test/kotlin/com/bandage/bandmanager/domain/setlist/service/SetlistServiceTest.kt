@@ -3,6 +3,7 @@ package com.bandage.bandmanager.domain.setlist.service
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.performance.repository.PerformanceSetlistRepository
+import com.bandage.bandmanager.domain.setlist.dto.req.SetlistManagerTransferRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistUpdateRequest
 import com.bandage.bandmanager.domain.setlist.model.Setlist
 import com.bandage.bandmanager.domain.setlist.model.SetlistBand
@@ -57,45 +58,66 @@ class SetlistServiceTest {
     }
 
     @Test
-    fun `updateSetlist - managerId 를 전달하면 접근 가능한 멤버에게 매니저 권한을 양도한다`() {
+    fun `transferManager - 접근 가능한 멤버에게 매니저 권한을 양도한다`() {
         val setlist = setlist()
         `when`(setlistRepository.isAccessibleMember(setlistId, newManagerId)).thenReturn(true)
 
-        sut.updateSetlist(setlistId, managerId, SetlistUpdateRequest(title = setlist.title, managerId = newManagerId))
+        sut.transferManager(setlistId, managerId, SetlistManagerTransferRequest(managerId = newManagerId))
 
         assertThat(setlist.managerId).isEqualTo(newManagerId)
     }
 
     @Test
-    fun `updateSetlist - 접근 불가한 멤버로는 양도할 수 없다`() {
-        val setlist = setlist()
+    fun `transferManager - 접근 불가한 멤버로는 양도할 수 없다`() {
+        setlist()
         `when`(setlistRepository.isAccessibleMember(setlistId, newManagerId)).thenReturn(false)
 
         val ex =
             assertThrows<BusinessException> {
-                sut.updateSetlist(setlistId, managerId, SetlistUpdateRequest(title = setlist.title, managerId = newManagerId))
+                sut.transferManager(setlistId, managerId, SetlistManagerTransferRequest(managerId = newManagerId))
             }
         assertThat(ex.errorCode).isEqualTo(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
     }
 
     @Test
-    fun `updateSetlist - 본인에게 양도하면 NO_CHANGE`() {
-        val setlist = setlist()
+    fun `transferManager - 본인에게 양도하면 NO_CHANGE`() {
+        setlist()
 
         val ex =
             assertThrows<BusinessException> {
-                sut.updateSetlist(setlistId, managerId, SetlistUpdateRequest(title = setlist.title, managerId = managerId))
+                sut.transferManager(setlistId, managerId, SetlistManagerTransferRequest(managerId = managerId))
             }
         assertThat(ex.errorCode).isEqualTo(ErrorCode.NO_CHANGE)
     }
 
     @Test
-    fun `updateSetlist - 매니저가 아니면 SETLIST_NOT_MANAGER`() {
-        val setlist = setlist()
+    fun `transferManager - 매니저가 아니면 SETLIST_NOT_MANAGER`() {
+        setlist()
 
         val ex =
             assertThrows<BusinessException> {
-                sut.updateSetlist(setlistId, newManagerId, SetlistUpdateRequest(title = setlist.title, managerId = null))
+                sut.transferManager(setlistId, newManagerId, SetlistManagerTransferRequest(managerId = managerId))
+            }
+        assertThat(ex.errorCode).isEqualTo(ErrorCode.SETLIST_NOT_MANAGER)
+    }
+
+    @Test
+    fun `updateSetlist - 제목만 수정하며 매니저는 바뀌지 않는다`() {
+        val setlist = setlist()
+
+        sut.updateSetlist(setlistId, managerId, SetlistUpdateRequest(title = "새 제목"))
+
+        assertThat(setlist.title).isEqualTo("새 제목")
+        assertThat(setlist.managerId).isEqualTo(managerId)
+    }
+
+    @Test
+    fun `updateSetlist - 매니저가 아니면 SETLIST_NOT_MANAGER`() {
+        setlist()
+
+        val ex =
+            assertThrows<BusinessException> {
+                sut.updateSetlist(setlistId, newManagerId, SetlistUpdateRequest(title = "새 제목"))
             }
         assertThat(ex.errorCode).isEqualTo(ErrorCode.SETLIST_NOT_MANAGER)
     }

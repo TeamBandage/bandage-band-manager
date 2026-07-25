@@ -3,6 +3,7 @@ package com.bandage.bandmanager.domain.setlist.controller
 import com.bandage.bandmanager.domain.jam.dto.req.SetlistToJamRequest
 import com.bandage.bandmanager.domain.jam.dto.res.JamResponse
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistCreateRequest
+import com.bandage.bandmanager.domain.setlist.dto.req.SetlistManagerTransferRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackUpdateRequest
@@ -72,13 +73,25 @@ class SetlistController(
     @Operation(
         operationId = "updateSetlist",
         summary = "셋리스트 수정",
-        description = "매니저가 셋리스트 제목을 수정합니다. managerId 를 함께 전달하면 매니저 권한을 양도합니다(대상은 셋리스트 접근 가능 멤버여야 함).",
+        description = "매니저가 셋리스트 제목을 수정합니다.",
     )
     fun updateSetlist(
         @PathVariable setlistId: UUID,
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: SetlistUpdateRequest,
     ): ApiResponse<SetlistDetailResponse> = ApiResponse.success(setlistService.updateSetlist(setlistId, memberId, request))
+
+    @PatchMapping("/{setlistId}/manager")
+    @Operation(
+        operationId = "transferSetlistManager",
+        summary = "셋리스트 매니저 권한 양도",
+        description = "매니저가 다른 멤버에게 매니저 권한을 양도합니다. 대상은 셋리스트 접근 가능 멤버여야 하며 본인에게 양도할 수 없습니다.",
+    )
+    fun transferSetlistManager(
+        @PathVariable setlistId: UUID,
+        @CurrentMemberId memberId: Long,
+        @Valid @RequestBody request: SetlistManagerTransferRequest,
+    ): ApiResponse<SetlistDetailResponse> = ApiResponse.success(setlistService.transferManager(setlistId, memberId, request))
 
     @DeleteMapping("/{setlistId}")
     @Operation(

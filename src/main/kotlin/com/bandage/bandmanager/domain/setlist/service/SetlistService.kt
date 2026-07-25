@@ -4,6 +4,7 @@ import com.bandage.bandmanager.domain.band.model.BandMember
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.performance.repository.PerformanceSetlistRepository
+import com.bandage.bandmanager.domain.setlist.dto.req.SetlistManagerTransferRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackUpdateRequest
@@ -79,13 +80,24 @@ class SetlistService(
         val setlist = getSetlistOrThrow(setlistId)
         validateManager(setlist, memberId)
         setlist.updateTitle(request.title)
-        request.managerId?.let { newManagerId ->
-            if (newManagerId == memberId) throw BusinessException(ErrorCode.NO_CHANGE)
-            if (!setlistRepository.isAccessibleMember(setlist.id, newManagerId)) {
-                throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
-            }
-            setlist.changeManager(newManagerId)
+        return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id))
+    }
+
+    /** 매니저 권한 양도. 대상은 셋리스트 접근 가능 멤버여야 하며, 본인에게 양도할 수는 없다(BD-225). */
+    @Transactional
+    fun transferManager(
+        setlistId: UUID,
+        memberId: Long,
+        request: SetlistManagerTransferRequest,
+    ): SetlistDetailResponse {
+        val setlist = getSetlistOrThrow(setlistId)
+        validateManager(setlist, memberId)
+        val newManagerId = request.managerId
+        if (newManagerId == memberId) throw BusinessException(ErrorCode.NO_CHANGE)
+        if (!setlistRepository.isAccessibleMember(setlist.id, newManagerId)) {
+            throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
         }
+        setlist.changeManager(newManagerId)
         return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id))
     }
 

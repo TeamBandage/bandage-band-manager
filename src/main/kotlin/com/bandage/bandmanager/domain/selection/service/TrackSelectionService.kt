@@ -11,6 +11,7 @@ import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemCreate
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemPagingQuery
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemSelectionRequest
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemUpdateRequest
+import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionManagerTransferRequest
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionPagingQuery
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionUpdateRequest
 import com.bandage.bandmanager.domain.selection.dto.res.SetlistChatMessageResponse
@@ -131,13 +132,25 @@ class TrackSelectionService(
         val selection = getSelectionOrThrow(selectionId)
         validateManager(selection, memberId)
         request.title?.let { selection.updateTitle(it) }
-        request.managerId?.let { newManagerId ->
-            val members = selectionMemberRepository.findAllBySelection(selection)
-            if (members.none { it.memberId == newManagerId }) {
-                throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
-            }
-            selection.changeManager(newManagerId)
+        return TrackSelectionResponse.of(selection, loadBandIds(selection))
+    }
+
+    /** 매니저 권한 양도. 대상은 회의 참여자여야 하며, 본인에게 양도할 수는 없다(BD-225). */
+    @Transactional
+    fun transferManager(
+        selectionId: UUID,
+        memberId: Long,
+        request: TrackSelectionManagerTransferRequest,
+    ): TrackSelectionResponse {
+        val selection = getSelectionOrThrow(selectionId)
+        validateManager(selection, memberId)
+        val newManagerId = request.managerId
+        if (newManagerId == memberId) throw BusinessException(ErrorCode.NO_CHANGE)
+        val members = selectionMemberRepository.findAllBySelection(selection)
+        if (members.none { it.memberId == newManagerId }) {
+            throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
         }
+        selection.changeManager(newManagerId)
         return TrackSelectionResponse.of(selection, loadBandIds(selection))
     }
 

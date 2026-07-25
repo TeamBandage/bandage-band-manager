@@ -8,6 +8,7 @@ import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemCreate
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemPagingQuery
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemSelectionRequest
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemUpdateRequest
+import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionManagerTransferRequest
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionPagingQuery
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionUpdateRequest
 import com.bandage.bandmanager.domain.selection.dto.res.SetlistChatMessageResponse
@@ -64,12 +65,24 @@ class TrackSelectionController(
     ): ApiResponse<TrackSelectionDetailResponse> = ApiResponse.success(trackSelectionService.getSelection(selectionId, memberId))
 
     @PatchMapping("/{selectionId}")
-    @Operation(operationId = "updateSelection", summary = "선곡 수정")
+    @Operation(operationId = "updateSelection", summary = "선곡 수정", description = "매니저가 선곡 회의 제목을 수정합니다.")
     fun updateSelection(
         @PathVariable selectionId: UUID,
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: TrackSelectionUpdateRequest,
     ): ApiResponse<TrackSelectionResponse> = ApiResponse.success(trackSelectionService.updateSelection(selectionId, memberId, request))
+
+    @PatchMapping("/{selectionId}/manager")
+    @Operation(
+        operationId = "transferSelectionManager",
+        summary = "선곡 회의 매니저 권한 양도",
+        description = "매니저가 다른 참여자에게 매니저 권한을 양도합니다. 대상은 회의 참여자여야 하며 본인에게 양도할 수 없습니다.",
+    )
+    fun transferSelectionManager(
+        @PathVariable selectionId: UUID,
+        @CurrentMemberId memberId: Long,
+        @Valid @RequestBody request: TrackSelectionManagerTransferRequest,
+    ): ApiResponse<TrackSelectionResponse> = ApiResponse.success(trackSelectionService.transferManager(selectionId, memberId, request))
 
     @DeleteMapping("/{selectionId}")
     @Operation(operationId = "deleteSelection", summary = "선곡 삭제")
