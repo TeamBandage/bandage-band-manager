@@ -1,6 +1,5 @@
 package com.bandage.bandmanager.domain.selection.dto.res
 
-import com.bandage.bandmanager.domain.selection.dto.PracticeWindowDto
 import com.bandage.bandmanager.domain.selection.model.TrackSelection
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
@@ -12,7 +11,6 @@ data class TrackSelectionResponse(
     val bandIds: List<UUID>,
     val title: String,
     val managerId: Long,
-    val practiceWindow: PracticeWindowDto,
     val lockedAt: LocalDateTime?,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
@@ -27,7 +25,6 @@ data class TrackSelectionResponse(
                 bandIds = bandIds,
                 title = m.title,
                 managerId = m.managerId,
-                practiceWindow = PracticeWindowDto.of(m.practiceWindow),
                 lockedAt = m.lockedAt,
                 createdAt = m.createdAt,
                 updatedAt = m.lastModifiedAt,

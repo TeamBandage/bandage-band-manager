@@ -1,8 +1,6 @@
 package com.bandage.bandmanager.domain.selection.dto.req
 
-import com.bandage.bandmanager.domain.selection.dto.PracticeWindowDto
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import java.util.UUID
@@ -19,7 +17,4 @@ data class TrackSelectionCreateRequest(
     val managerId: Long,
     @Schema(description = "참여자 회원 ID 목록 (매니저 포함)")
     val participantUserIds: List<Long> = emptyList(),
-    @field:Valid
-    @Schema(description = "합주 가능 기간")
-    val practiceWindow: PracticeWindowDto? = null,
 )

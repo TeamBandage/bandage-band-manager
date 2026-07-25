@@ -17,7 +17,6 @@ import com.bandage.bandmanager.domain.selection.dto.res.SetlistChatMessageRespon
 import com.bandage.bandmanager.domain.selection.dto.res.TrackSelectionDetailResponse
 import com.bandage.bandmanager.domain.selection.dto.res.TrackSelectionItemResponse
 import com.bandage.bandmanager.domain.selection.dto.res.TrackSelectionResponse
-import com.bandage.bandmanager.domain.selection.model.PracticeWindow
 import com.bandage.bandmanager.domain.selection.model.TrackSelection
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionBand
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionItem
@@ -66,7 +65,6 @@ class TrackSelectionService(
         memberId: Long,
         request: TrackSelectionCreateRequest,
     ): TrackSelectionResponse {
-        val practiceWindow = resolvePracticeWindow(request)
         val participantIds = (request.participantUserIds + request.managerId + memberId).toSet()
         if (request.managerId !in participantIds) {
             throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
@@ -77,7 +75,6 @@ class TrackSelectionService(
                 TrackSelection.create(
                     title = request.title,
                     managerId = request.managerId,
-                    practiceWindow = practiceWindow,
                 ),
             )
         val bandIds = request.bandIds.toSet().toList()
@@ -579,16 +576,6 @@ class TrackSelectionService(
         if (item.sessions.none { it.sessionId == sessionId }) {
             throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_SESSION_NOT_FOUND)
         }
-    }
-
-    private fun resolvePracticeWindow(request: TrackSelectionCreateRequest): PracticeWindow {
-        val window =
-            request.practiceWindow
-                ?: throw BusinessException(ErrorCode.SETLIST_PRACTICE_WINDOW_REQUIRED)
-        if (window.from.isAfter(window.to)) {
-            throw BusinessException(ErrorCode.SETLIST_PRACTICE_WINDOW_INVALID)
-        }
-        return window.toEntity()
     }
 
     /**

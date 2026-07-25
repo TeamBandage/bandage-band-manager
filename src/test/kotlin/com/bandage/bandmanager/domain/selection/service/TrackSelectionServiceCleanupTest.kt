@@ -5,7 +5,6 @@ import com.bandage.bandmanager.domain.band.model.BandMember
 import com.bandage.bandmanager.domain.band.model.enums.BandRole
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.member.service.MemberService
-import com.bandage.bandmanager.domain.selection.model.PracticeWindow
 import com.bandage.bandmanager.domain.selection.model.TrackSelection
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionBand
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionMember
@@ -23,7 +22,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -61,7 +59,6 @@ class TrackSelectionServiceCleanupTest {
             TrackSelection.create(
                 title = "선곡 회의",
                 managerId = managerId,
-                practiceWindow = PracticeWindow(from = LocalDate.of(2024, 2, 1), to = LocalDate.of(2024, 2, 10)),
             )
         setEntityId(selection, selectionId)
         `when`(selectionRepository.findAllByManagerId(managerId)).thenReturn(listOf(selection))
