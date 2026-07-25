@@ -4,7 +4,6 @@ import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.selection.dto.req.SetlistConfirmationUpdateRequest
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemSelectionRequest
-import com.bandage.bandmanager.domain.selection.model.PracticeWindow
 import com.bandage.bandmanager.domain.selection.model.TrackSelection
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionItem
 import com.bandage.bandmanager.domain.selection.repository.TrackSelectionBandRepository
@@ -22,7 +21,6 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
-import java.time.LocalDate
 import java.util.Optional
 import java.util.UUID
 
@@ -69,7 +67,6 @@ class TrackSelectionServiceConfirmationTest {
             TrackSelection.create(
                 title = "회의",
                 managerId = managerId,
-                practiceWindow = PracticeWindow(from = LocalDate.of(2026, 1, 1), to = LocalDate.of(2026, 1, 31)),
             )
         setEntityId(selection, selectionId)
         return selection

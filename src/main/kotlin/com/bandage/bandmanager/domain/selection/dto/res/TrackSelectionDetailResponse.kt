@@ -1,7 +1,6 @@
 package com.bandage.bandmanager.domain.selection.dto.res
 
 import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
-import com.bandage.bandmanager.domain.selection.dto.PracticeWindowDto
 import com.bandage.bandmanager.domain.selection.model.TrackSelection
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionMember
 import io.swagger.v3.oas.annotations.media.Schema
@@ -16,7 +15,6 @@ data class TrackSelectionDetailResponse(
     val managerId: Long,
     @Schema(description = "참여자 목록 (멤버ID + 소속 밴드ID 목록)")
     val participants: List<ParticipantResponse>,
-    val practiceWindow: PracticeWindowDto,
     val lockedAt: LocalDateTime?,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
@@ -34,7 +32,6 @@ data class TrackSelectionDetailResponse(
                 title = m.title,
                 managerId = m.managerId,
                 participants = members.map { ParticipantResponse.of(it, memberInfos[it.memberId], m.managerId) },
-                practiceWindow = PracticeWindowDto.of(m.practiceWindow),
                 lockedAt = m.lockedAt,
                 createdAt = m.createdAt,
                 updatedAt = m.lastModifiedAt,

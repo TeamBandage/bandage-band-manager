@@ -8,6 +8,4 @@ data class SetlistUpdateRequest(
     @field:NotBlank
     @Schema(description = "변경할 셋리스트 제목")
     val title: String,
-    @Schema(description = "변경할 매니저 회원 ID")
-    val managerId: Long?,
 )

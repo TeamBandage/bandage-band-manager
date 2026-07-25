@@ -114,7 +114,11 @@ class JamController(
         )
 
     @PatchMapping("/{jamId}/sessions/{sessionId}")
-    @Operation(operationId = "updateSession", summary = "합주 세션 개별 수정 API", description = "합주 세션 하나의 이름/약칭을 수정합니다.")
+    @Operation(
+        operationId = "updateSession",
+        summary = "합주 세션 개별 수정 API",
+        description = "합주 세션 하나의 이름을 수정합니다. 약어는 세션 목록 전체를 기준으로 서버가 재생성합니다.",
+    )
     fun updateSession(
         @PathVariable jamId: UUID,
         @PathVariable sessionId: String,

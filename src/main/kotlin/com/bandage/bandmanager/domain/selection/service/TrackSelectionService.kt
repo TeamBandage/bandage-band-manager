@@ -11,13 +11,13 @@ import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemCreate
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemPagingQuery
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemSelectionRequest
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemUpdateRequest
+import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionManagerTransferRequest
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionPagingQuery
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionUpdateRequest
 import com.bandage.bandmanager.domain.selection.dto.res.SetlistChatMessageResponse
 import com.bandage.bandmanager.domain.selection.dto.res.TrackSelectionDetailResponse
 import com.bandage.bandmanager.domain.selection.dto.res.TrackSelectionItemResponse
 import com.bandage.bandmanager.domain.selection.dto.res.TrackSelectionResponse
-import com.bandage.bandmanager.domain.selection.model.PracticeWindow
 import com.bandage.bandmanager.domain.selection.model.TrackSelection
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionBand
 import com.bandage.bandmanager.domain.selection.model.TrackSelectionItem
@@ -35,6 +35,7 @@ import com.bandage.bandmanager.domain.selection.repository.TrackSelectionReposit
 import com.bandage.bandmanager.global.authority.MemberAuthorityCleanupHandler
 import com.bandage.bandmanager.global.authority.ResourceAuthorityType
 import com.bandage.bandmanager.global.authority.SuccessorSelector
+import com.bandage.bandmanager.global.common.domain.SessionDef
 import com.bandage.bandmanager.global.common.domain.TrackInfo
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
@@ -66,7 +67,6 @@ class TrackSelectionService(
         memberId: Long,
         request: TrackSelectionCreateRequest,
     ): TrackSelectionResponse {
-        val practiceWindow = resolvePracticeWindow(request)
         val participantIds = (request.participantUserIds + request.managerId + memberId).toSet()
         if (request.managerId !in participantIds) {
             throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
@@ -77,7 +77,6 @@ class TrackSelectionService(
                 TrackSelection.create(
                     title = request.title,
                     managerId = request.managerId,
-                    practiceWindow = practiceWindow,
                 ),
             )
         val bandIds = request.bandIds.toSet().toList()
@@ -133,13 +132,25 @@ class TrackSelectionService(
         val selection = getSelectionOrThrow(selectionId)
         validateManager(selection, memberId)
         request.title?.let { selection.updateTitle(it) }
-        request.managerId?.let { newManagerId ->
-            val members = selectionMemberRepository.findAllBySelection(selection)
-            if (members.none { it.memberId == newManagerId }) {
-                throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
-            }
-            selection.changeManager(newManagerId)
+        return TrackSelectionResponse.of(selection, loadBandIds(selection))
+    }
+
+    /** 매니저 권한 양도. 대상은 회의 참여자여야 하며, 본인에게 양도할 수는 없다(BD-225). */
+    @Transactional
+    fun transferManager(
+        selectionId: UUID,
+        memberId: Long,
+        request: TrackSelectionManagerTransferRequest,
+    ): TrackSelectionResponse {
+        val selection = getSelectionOrThrow(selectionId)
+        validateManager(selection, memberId)
+        val newManagerId = request.managerId
+        if (newManagerId == memberId) throw BusinessException(ErrorCode.NO_CHANGE)
+        val members = selectionMemberRepository.findAllBySelection(selection)
+        if (members.none { it.memberId == newManagerId }) {
+            throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
         }
+        selection.changeManager(newManagerId)
         return TrackSelectionResponse.of(selection, loadBandIds(selection))
     }
 
@@ -200,6 +211,54 @@ class TrackSelectionService(
         return TrackSelectionDetailResponse.of(selection, loadBandIds(selection), members, memberInfosOf(members))
     }
 
+    /**
+     * 선곡 회의 떠나기(BD-218). 상세 정책: docs/TRACK-SELECTION-LEAVE.md
+     *
+     * 처리 순서
+     *  1. 떠나는 멤버가 매니저면 기존 후임 선정 정책으로 권한 양도. 후보가 없으면 회의를 소프트 삭제하고 종료.
+     *  2. 해당 멤버의 세션 지원/확정 연결을 모두 삭제.
+     *  3. 지원/확정이 사라진 아이템은 선곡 확정 상태를 유지할 수 없으므로 isSelected = false.
+     *  4. 해당 멤버가 제안한 아이템의 proposerId 를 null 로 해제.
+     *  5. 참여자(TrackSelectionMember) 연결 삭제.
+     */
+    @Transactional
+    fun leaveSelection(
+        selectionId: UUID,
+        memberId: Long,
+    ) {
+        val selection = getSelectionOrThrow(selectionId)
+        val membership =
+            selectionMemberRepository.findBySelectionAndMemberId(selection, memberId)
+                ?: throw BusinessException(ErrorCode.SETLIST_MEETING_FORBIDDEN)
+
+        val items = itemRepository.findAllBySelection(selection)
+
+        if (selection.managerId == memberId) {
+            val successor = selectSuccessor(selection, leavingMemberId = memberId)
+            if (successor == null) {
+                // 후임 후보가 없으면 회의 자체를 해소한다(매니저 없는 회의는 진행 불가).
+                selection.markAsDeleted(memberId)
+                return
+            }
+            selection.changeManager(successor)
+        }
+
+        if (items.isNotEmpty()) {
+            // 이 멤버의 지원/확정이 걸려 있던 아이템만 선곡 확정을 해제한다(전체 일괄 해제가 아님).
+            val affected =
+                (
+                    applicantRepository.findAllByItemIn(items).filter { it.memberId == memberId }.map { it.item.id } +
+                        confirmationRepository.findAllByItemIn(items).filter { it.memberId == memberId }.map { it.item.id }
+                ).toSet()
+            applicantRepository.deleteAllByItemInAndMemberId(items, memberId)
+            confirmationRepository.deleteAllByItemInAndMemberId(items, memberId)
+            items.filter { it.id in affected }.forEach { it.deselect() }
+            items.filter { it.proposerId == memberId }.forEach { it.clearProposer() }
+        }
+
+        selectionMemberRepository.delete(membership)
+    }
+
     // -------- items --------
     @Transactional
     fun createItem(
@@ -225,7 +284,7 @@ class TrackSelectionService(
                         ),
                     proposerId = memberId,
                     note = request.note,
-                    sessions = request.sessions.map { it.toEntity() },
+                    sessions = SessionDef.createAll(request.sessions.map { it.toSpec() }),
                 ),
             )
         return toItemResponse(item, emptyList(), emptyList())
@@ -238,7 +297,14 @@ class TrackSelectionService(
     ): CursorResponse<TrackSelectionItemResponse, UUID> {
         val selection = getSelectionOrThrow(selectionId)
         validateAccess(selection, memberId)
-        val result = itemRepository.findAllBySelectionAndPaging(selectionId, query.lastId, query.pageSize)
+        val result =
+            itemRepository.findAllBySelectionAndPaging(
+                selectionId = selectionId,
+                memberId = memberId,
+                filter = query.toFilter(),
+                lastId = query.lastId,
+                pageSize = query.pageSize,
+            )
         if (result.content.isEmpty()) {
             return CursorResponse(content = emptyList(), nextCursor = null, hasNext = false)
         }
@@ -250,7 +316,7 @@ class TrackSelectionService(
         val memberInfos =
             memberService.getMemberSummaries(
                 buildSet {
-                    result.content.forEach { add(it.proposerId) }
+                    result.content.forEach { item -> item.proposerId?.let { add(it) } }
                     allApplicants.forEach { add(it.memberId) }
                     allConfirmations.forEach { add(it.memberId) }
                 },
@@ -293,12 +359,13 @@ class TrackSelectionService(
         validateAccess(selection, memberId)
         if (selection.isLocked) throw BusinessException(ErrorCode.SETLIST_MEETING_LOCKED)
         val item = getItemOrThrow(selection, itemId)
-        if (item.proposerId != memberId && selection.managerId != memberId) {
+        // 통과 조건은 '매니저 OR 제안자'. 매니저를 먼저 비교해 proposerId 가 null(BD-218 떠남)인 경우에도 안전하다.
+        if (selection.managerId != memberId && item.proposerId != memberId) {
             throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_FORBIDDEN)
         }
         item.updateMeta(request.title, request.artist, request.album, request.duration, request.reference, request.note)
         request.sessions?.let { sessions ->
-            val newDefs = sessions.map { it.toEntity() }
+            val newDefs = SessionDef.createAll(sessions.map { it.toSpec() })
             val newSessionIds = newDefs.map { it.sessionId }.toSet()
             val applicants = applicantRepository.findAllByItem(item)
             val confirmations = confirmationRepository.findAllByItem(item)
@@ -323,7 +390,8 @@ class TrackSelectionService(
         validateAccess(selection, memberId)
         if (selection.isLocked) throw BusinessException(ErrorCode.SETLIST_MEETING_LOCKED)
         val item = getItemOrThrow(selection, itemId)
-        if (item.proposerId != memberId && selection.managerId != memberId) {
+        // 통과 조건은 '매니저 OR 제안자'. 매니저를 먼저 비교해 proposerId 가 null(BD-218 떠남)인 경우에도 안전하다.
+        if (selection.managerId != memberId && item.proposerId != memberId) {
             throw BusinessException(ErrorCode.SETLIST_MEETING_ITEM_FORBIDDEN)
         }
         item.markAsDeleted(memberId)
@@ -520,7 +588,7 @@ class TrackSelectionService(
     ): Map<Long, MemberSummary> =
         memberService.getMemberSummaries(
             buildSet {
-                add(item.proposerId)
+                item.proposerId?.let { add(it) }
                 applicants.forEach { add(it.memberId) }
                 confirmations.forEach { add(it.memberId) }
             },
@@ -581,14 +649,36 @@ class TrackSelectionService(
         }
     }
 
-    private fun resolvePracticeWindow(request: TrackSelectionCreateRequest): PracticeWindow {
-        val window =
-            request.practiceWindow
-                ?: throw BusinessException(ErrorCode.SETLIST_PRACTICE_WINDOW_REQUIRED)
-        if (window.from.isAfter(window.to)) {
-            throw BusinessException(ErrorCode.SETLIST_PRACTICE_WINDOW_INVALID)
-        }
-        return window.toEntity()
+    /**
+     * 단일 선곡 회의의 매니저 후임을 선정한다(BD-218 떠나기 경로용).
+     * 티어 정책은 [cleanupOnWithdrawal] 과 동일하며, 티어2 후임은 참여자로도 등록한다.
+     * 다건 처리인 탈퇴 경로와 달리 회의 1건만 다루므로 벌크 조회 없이 직접 조회한다.
+     */
+    private fun selectSuccessor(
+        selection: TrackSelection,
+        leavingMemberId: Long,
+    ): Long? {
+        val members = selectionMemberRepository.findAllBySelection(selection)
+
+        // 티어1: 회의 참여자 중 최고참
+        SuccessorSelector
+            .oldestFromHighestTier(listOf(members.filter { it.memberId != leavingMemberId })) { it.createdAt }
+            ?.let { return it.memberId }
+
+        // 티어2: 연결된 밴드의 일반 멤버 중 최고참(밴드 등록 순) → 참여자로도 등록
+        val excluded = members.mapTo(mutableSetOf()) { it.memberId }.apply { add(leavingMemberId) }
+        val bands =
+            selectionBandRepository
+                .findAllBySelection(selection)
+                .sortedBy { it.createdAt }
+                .map { it.bandId }
+                .distinct()
+        if (bands.isEmpty()) return null
+        val membersByBand = bandMemberRepository.findAllByBandIdIn(bands).groupBy { it.band.id }
+        val bandTiers = bands.map { bandId -> membersByBand[bandId].orEmpty().filter { it.member !in excluded } }
+        val successor = SuccessorSelector.oldestFromHighestTier(bandTiers) { it.createdAt }?.member ?: return null
+        selectionMemberRepository.save(TrackSelectionMember.create(selection, successor))
+        return successor
     }
 
     /**

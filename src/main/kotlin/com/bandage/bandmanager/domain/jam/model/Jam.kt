@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.jam.model
 
 import com.bandage.bandmanager.global.common.domain.BaseEntity
 import com.bandage.bandmanager.global.common.domain.SessionDef
+import com.bandage.bandmanager.global.common.domain.SessionSpec
 import com.bandage.bandmanager.global.common.domain.TimeInfoUnit
 import com.bandage.bandmanager.global.common.domain.TrackInfo
 import jakarta.persistence.AttributeOverride
@@ -136,21 +137,28 @@ open class Jam(
         this._sessions.addAll(newSessions)
     }
 
-    fun addSession(def: SessionDef) {
-        require(_sessions.none { it.sessionId == def.sessionId }) { "이미 존재하는 세션입니다: ${def.sessionId}" }
-        _sessions.add(def)
+    /**
+     * 세션을 추가하고 목록 전체의 약어(short)를 재생성한다(BD-229).
+     * 약어는 목록 단위로 결정되므로(VOCAL 이 하나 더 들어오면 기존 V -> V1) 전량 재생성이 필요하다.
+     * short 는 표시 전용이고 배정 정보는 sessionId 를 키로 쓰므로 재생성에 부수효과가 없다.
+     */
+    fun addSession(spec: SessionSpec) {
+        require(_sessions.none { it.sessionId == spec.sessionId }) { "이미 존재하는 세션입니다: ${spec.sessionId}" }
+        replaceSessions(SessionDef.createAll(toSpecs() + spec))
     }
 
+    /** 특정 세션의 이름을 변경하고 목록 전체의 약어를 재생성한다(BD-229). custom 은 보존한다. */
     fun updateSession(
         sessionId: String,
         label: String,
-        short: String,
     ) {
         val idx = _sessions.indexOfFirst { it.sessionId == sessionId }
         require(idx >= 0) { "존재하지 않는 세션입니다: $sessionId" }
-        val custom = _sessions[idx].custom
-        _sessions[idx] = SessionDef(sessionId = sessionId, label = label, short = short, custom = custom)
+        val specs = toSpecs().mapIndexed { i, spec -> if (i == idx) spec.copy(label = label) else spec }
+        replaceSessions(SessionDef.createAll(specs))
     }
+
+    private fun toSpecs(): List<SessionSpec> = _sessions.map { SessionSpec(it.sessionId, it.label, it.custom) }
 
     fun removeSession(sessionId: String) {
         _sessions.removeIf { it.sessionId == sessionId }

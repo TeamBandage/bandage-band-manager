@@ -25,6 +25,8 @@ class BandApplicationRepositoryImpl(
                 .selectFrom(qBandApplication)
                 .where(qBandApplication.band.eq(band))
                 .where(qBandApplication.status.eq(status))
+                // BD-227: 한 회원당 최신 신청서 1건만 노출한다(나의 신청서 조회와 동일 기준).
+                .where(qBandApplication.isLatest.isTrue)
                 .where(ltBandId(lastId))
                 .orderBy(qBandApplication.id.desc())
                 .limit(pageSize.toLong() + 1) // 실제 요청한 pageSize + 1

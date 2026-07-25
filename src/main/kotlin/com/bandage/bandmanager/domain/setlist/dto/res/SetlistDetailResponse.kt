@@ -12,6 +12,8 @@ data class SetlistDetailResponse(
     val title: String,
     val managerId: Long,
     val bandIds: List<UUID>,
+    @Schema(description = "참여자 목록 (회원 정보 + 배정 세션/약어)")
+    val participants: List<SetlistParticipantResponse>,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
 ) {
@@ -19,6 +21,7 @@ data class SetlistDetailResponse(
         fun of(
             setlist: Setlist,
             bandIds: List<UUID>,
+            participants: List<SetlistParticipantResponse> = emptyList(),
         ): SetlistDetailResponse =
             SetlistDetailResponse(
                 setlistId = setlist.id,
@@ -26,6 +29,7 @@ data class SetlistDetailResponse(
                 title = setlist.title,
                 managerId = setlist.managerId,
                 bandIds = bandIds,
+                participants = participants,
                 createdAt = setlist.createdAt,
                 updatedAt = setlist.lastModifiedAt,
             )

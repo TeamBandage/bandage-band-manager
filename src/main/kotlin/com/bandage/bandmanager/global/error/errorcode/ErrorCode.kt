@@ -12,6 +12,7 @@ enum class ErrorCode(
     NO_CHANGE(HttpStatus.BAD_REQUEST, "변경된 사항이 없습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
+    SESSION_LABEL_NOT_ALPHABETIC(HttpStatus.BAD_REQUEST, "세션 이름은 영문 알파벳만 사용할 수 있습니다."),
 
     // member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 회원 정보를 찾을 수 없습니다."),
@@ -80,8 +81,6 @@ enum class ErrorCode(
     SETLIST_CHAT_MESSAGE_TOO_LONG(HttpStatus.BAD_REQUEST, "채팅 메시지는 500자를 초과할 수 없습니다."),
     SETLIST_PERFORMANCE_HAS_ACTIVE_MEETING(HttpStatus.CONFLICT, "해당 공연에는 이미 활성 선곡 회의가 존재합니다."),
     SETLIST_CANNOT_REMOVE_MANAGER(HttpStatus.BAD_REQUEST, "매니저는 회의 참여자에서 제거할 수 없습니다."),
-    SETLIST_PRACTICE_WINDOW_REQUIRED(HttpStatus.BAD_REQUEST, "purpose=GENERAL 인 회의는 practiceWindow 가 필수입니다."),
-    SETLIST_PRACTICE_WINDOW_INVALID(HttpStatus.BAD_REQUEST, "practiceWindow.from 은 to 보다 같거나 이전이어야 합니다."),
     SETLIST_NOT_LOCKED(HttpStatus.BAD_REQUEST, "선곡 회의가 lock 상태가 아닙니다. 시안 확정 전 회의를 lock 해주세요."),
     SETLIST_SELECTION_INCOMPLETE_SESSION(HttpStatus.BAD_REQUEST, "모든 세션의 확정 인원이 충족되지 않았습니다."),
     SETLIST_NO_SELECTED_TRACK(HttpStatus.BAD_REQUEST, "선택된 트랙이 없습니다. 최소 1개 이상의 트랙을 선택해주세요."),

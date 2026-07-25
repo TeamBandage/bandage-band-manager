@@ -8,6 +8,7 @@ import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemCreate
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemPagingQuery
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemSelectionRequest
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionItemUpdateRequest
+import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionManagerTransferRequest
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionPagingQuery
 import com.bandage.bandmanager.domain.selection.dto.req.TrackSelectionUpdateRequest
 import com.bandage.bandmanager.domain.selection.dto.res.SetlistChatMessageResponse
@@ -64,12 +65,24 @@ class TrackSelectionController(
     ): ApiResponse<TrackSelectionDetailResponse> = ApiResponse.success(trackSelectionService.getSelection(selectionId, memberId))
 
     @PatchMapping("/{selectionId}")
-    @Operation(operationId = "updateSelection", summary = "선곡 수정")
+    @Operation(operationId = "updateSelection", summary = "선곡 수정", description = "매니저가 선곡 회의 제목을 수정합니다.")
     fun updateSelection(
         @PathVariable selectionId: UUID,
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: TrackSelectionUpdateRequest,
     ): ApiResponse<TrackSelectionResponse> = ApiResponse.success(trackSelectionService.updateSelection(selectionId, memberId, request))
+
+    @PatchMapping("/{selectionId}/manager")
+    @Operation(
+        operationId = "transferSelectionManager",
+        summary = "선곡 회의 매니저 권한 양도",
+        description = "매니저가 다른 참여자에게 매니저 권한을 양도합니다. 대상은 회의 참여자여야 하며 본인에게 양도할 수 없습니다.",
+    )
+    fun transferSelectionManager(
+        @PathVariable selectionId: UUID,
+        @CurrentMemberId memberId: Long,
+        @Valid @RequestBody request: TrackSelectionManagerTransferRequest,
+    ): ApiResponse<TrackSelectionResponse> = ApiResponse.success(trackSelectionService.transferManager(selectionId, memberId, request))
 
     @DeleteMapping("/{selectionId}")
     @Operation(operationId = "deleteSelection", summary = "선곡 삭제")
@@ -94,9 +107,31 @@ class TrackSelectionController(
     ): ApiResponse<TrackSelectionDetailResponse> =
         ApiResponse.success(trackSelectionService.updateParticipants(selectionId, memberId, request))
 
+    @DeleteMapping("/{selectionId}/members/me")
+    @Operation(
+        operationId = "leaveSelection",
+        summary = "선곡 회의 떠나기",
+        description =
+            "본인이 선곡 회의에서 나갑니다. 매니저인 경우 후임에게 권한이 자동 양도되며, " +
+                "본인의 세션 지원/확정 연결과 제안자 연결이 정리됩니다(상세: docs/TRACK-SELECTION-LEAVE.md).",
+    )
+    fun leaveSelection(
+        @PathVariable selectionId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        trackSelectionService.leaveSelection(selectionId, memberId)
+        return ApiResponse.success()
+    }
+
     // -------- items --------
     @GetMapping("/{selectionId}/items")
-    @Operation(operationId = "getItems", summary = "선곡 항목 목록 조회")
+    @Operation(
+        operationId = "getItems",
+        summary = "선곡 항목 목록 조회",
+        description =
+            "모집 상태(status)/나의 지원(appliedByMe)/참여자 이름(memberName)/트랙 정보(keyword+searchFields) " +
+                "4종 필터를 독립적으로 조합할 수 있습니다. 상태 값끼리는 겹칠 수 있습니다(상세: docs/TRACK-SELECTION-FILTER.md).",
+    )
     fun getItems(
         @PathVariable selectionId: UUID,
         @CurrentMemberId memberId: Long,

@@ -14,6 +14,7 @@ import com.bandage.bandmanager.domain.setlist.repository.SetlistBandRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackParticipantRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
+import com.bandage.bandmanager.global.common.domain.SessionDef
 import com.bandage.bandmanager.global.common.domain.TrackInfo
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -82,7 +83,9 @@ class SetlistCreateFacade(
                                 reference = item.trackInfo.reference,
                             ),
                         note = item.note,
-                        sessions = item.sessions,
+                        // SessionDef 새 인스턴스로 깊은 복사(두 엔티티의 ElementCollection 간 인스턴스 공유 방지).
+                        // 약어는 선곡 항목에서 이미 목록 단위로 생성된 값이라 그대로 옮긴다.
+                        sessions = item.sessions.map { SessionDef(it.sessionId, it.label, it.short, it.custom) },
                     ),
                 )
             confirmationRepository.findAllByItem(item).forEach { conf ->

@@ -40,7 +40,11 @@ class BandApplicationController(
     }
 
     @GetMapping("$PREFIX/bands/{bandId}/applications")
-    @Operation(operationId = "getBandApplications", summary = "밴드 가입 신청 목록 조회 API", description = "필터 조건에 맞는 해당 밴드 가입 요청 목록을 확인합니다.")
+    @Operation(
+        operationId = "getBandApplications",
+        summary = "밴드 가입 신청 목록 조회 API",
+        description = "필터 조건에 맞는 해당 밴드 가입 요청 목록을 확인합니다. 한 회원당 최신 신청서 1건만 조회됩니다(과거 이력 제외).",
+    )
     fun getBandApplications(
         @PathVariable bandId: UUID,
         @Valid query: BandApplicationPagingQuery,

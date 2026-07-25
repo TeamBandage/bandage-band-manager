@@ -40,8 +40,10 @@ open class TrackSelectionItem(
     var trackInfo: TrackInfo = trackInfo
         protected set
 
-    @Column(name = "proposer_id", nullable = false)
-    val proposerId: Long = proposerId
+    // 제안자가 회의를 떠나면 null 이 된다(BD-218). 생성 시에는 항상 값이 있다.
+    @Column(name = "proposer_id", nullable = true)
+    var proposerId: Long? = proposerId
+        protected set
 
     @Column(name = "note", nullable = true, length = 1000)
     var note: String? = note
@@ -93,6 +95,11 @@ open class TrackSelectionItem(
     fun replaceSessions(newSessions: List<SessionDef>) {
         this._sessions.clear()
         this._sessions.addAll(newSessions)
+    }
+
+    /** 제안자가 선곡 회의를 떠날 때 연결을 해제한다(BD-218). */
+    fun clearProposer() {
+        this.proposerId = null
     }
 
     fun select() {

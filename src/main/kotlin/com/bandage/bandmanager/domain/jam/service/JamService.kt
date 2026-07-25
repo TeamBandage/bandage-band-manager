@@ -21,7 +21,9 @@ import com.bandage.bandmanager.domain.jam.repository.JamParticipantSessionReposi
 import com.bandage.bandmanager.domain.jam.repository.JamRepository
 import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.domain.member.service.MemberService
+import com.bandage.bandmanager.global.common.domain.SessionAbbreviationGenerator
 import com.bandage.bandmanager.global.common.domain.SessionDef
+import com.bandage.bandmanager.global.common.domain.SessionSpec
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -57,7 +59,7 @@ class JamService(
                     durationMinutes = request.durationMinutes,
                     venue = request.venue,
                     note = request.note,
-                    sessions = request.sessions.map { it.toEntity() },
+                    sessions = SessionDef.createAll(request.sessions.map { it.toSpec() }),
                 ),
             )
         // 생성자를 세션 미배정 소속 참여자로 자동 등록 → "내 합주 목록" 노출. 세션 배정은 추후 별도 API로 지정.
@@ -127,7 +129,7 @@ class JamService(
     ): JamDetailResponse {
         val jam = getJam(jamId)
         validateParticipant(jam, memberId)
-        val newDefs = request.sessions.map { it.toEntity() }
+        val newDefs = SessionDef.createAll(request.sessions.map { it.toSpec() })
         val newSessionIds = newDefs.map { it.sessionId }.toSet()
         val removedSessionIds = jam.sessions.map { it.sessionId }.toSet() - newSessionIds
         unassignSessions(jam, removedSessionIds)
@@ -146,10 +148,9 @@ class JamService(
         validateParticipant(jam, memberId)
         validateSessionNotExists(jam, request.sessionId)
         jam.addSession(
-            SessionDef(
+            SessionSpec(
                 sessionId = request.sessionId,
-                label = request.label,
-                short = request.short,
+                label = SessionAbbreviationGenerator.normalizeLabel(request.label),
                 custom = request.custom,
             ),
         )
@@ -166,7 +167,7 @@ class JamService(
         val jam = getJam(jamId)
         validateParticipant(jam, memberId)
         validateSessionExists(jam, sessionId)
-        jam.updateSession(sessionId, request.label, request.short)
+        jam.updateSession(sessionId, SessionAbbreviationGenerator.normalizeLabel(request.label))
         return toDetailResponse(jam)
     }
 

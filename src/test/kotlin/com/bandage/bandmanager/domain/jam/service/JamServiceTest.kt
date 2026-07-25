@@ -87,33 +87,58 @@ class JamServiceTest {
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
 
-        sut.addSession(jamId, JamSessionAddRequest("G-2", "기타", "G", false), 1L)
+        sut.addSession(jamId, JamSessionAddRequest("G-2", "GUITAR", false), 1L)
 
         assertThat(jam.sessions.map { it.sessionId }).containsExactly("G-2")
     }
 
     @Test
-    fun `이미 존재하는 세션 토큰은 추가할 수 없다`() {
-        val jam = jam(listOf(SessionDef("G-1", "기타", "G", false)))
+    fun `세션을 추가하면 목록 전체의 약어가 재생성된다`() {
+        // 동일 이름이 2개가 되므로 기존 세션의 약어도 G -> G1 로 바뀐다(BD-229)
+        val jam = jam(listOf(SessionDef("G-1", "GUITAR", "G", false)))
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
 
-        assertThatThrownBy { sut.addSession(jamId, JamSessionAddRequest("G-1", "기타", "G", false), 1L) }
+        sut.addSession(jamId, JamSessionAddRequest("G-2", "guitar", false), 1L)
+
+        assertThat(jam.sessions.map { it.sessionId }).containsExactly("G-1", "G-2")
+        assertThat(jam.sessions.map { it.label }).containsExactly("GUITAR", "GUITAR")
+        assertThat(jam.sessions.map { it.short }).containsExactly("G1", "G2")
+    }
+
+    @Test
+    fun `알파벳이 아닌 세션 이름은 추가할 수 없다`() {
+        val jam = jam()
+        `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
+        `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
+
+        assertThatThrownBy { sut.addSession(jamId, JamSessionAddRequest("G-2", "기타", false), 1L) }
+            .isInstanceOf(BusinessException::class.java)
+            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_LABEL_NOT_ALPHABETIC)
+    }
+
+    @Test
+    fun `이미 존재하는 세션 토큰은 추가할 수 없다`() {
+        val jam = jam(listOf(SessionDef("G-1", "GUITAR", "G", false)))
+        `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
+        `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
+
+        assertThatThrownBy { sut.addSession(jamId, JamSessionAddRequest("G-1", "GUITAR", false), 1L) }
             .isInstanceOf(BusinessException::class.java)
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.JAM_SESSION_ALREADY_EXISTS)
     }
 
     @Test
-    fun `세션 이름과 약칭을 개별로 수정할 수 있다`() {
-        val jam = jam(listOf(SessionDef("G-1", "기타", "G", false)))
+    fun `세션 이름을 개별로 수정하면 약어가 재생성된다`() {
+        val jam = jam(listOf(SessionDef("G-1", "GUITAR", "G", false)))
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
 
-        sut.updateSession(jamId, "G-1", JamSessionUpdateRequest("메인 기타", "MG"), 1L)
+        sut.updateSession(jamId, "G-1", JamSessionUpdateRequest("MAINGUITAR"), 1L)
 
         val session = jam.sessions.first { it.sessionId == "G-1" }
-        assertThat(session.label).isEqualTo("메인 기타")
-        assertThat(session.short).isEqualTo("MG")
+        assertThat(session.label).isEqualTo("MAINGUITAR")
+        assertThat(session.short).isEqualTo("M")
     }
 
     @Test
@@ -122,14 +147,14 @@ class JamServiceTest {
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
 
-        assertThatThrownBy { sut.updateSession(jamId, "G-1", JamSessionUpdateRequest("기타", "G"), 1L) }
+        assertThatThrownBy { sut.updateSession(jamId, "G-1", JamSessionUpdateRequest("GUITAR"), 1L) }
             .isInstanceOf(BusinessException::class.java)
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.JAM_SESSION_NOT_FOUND)
     }
 
     @Test
     fun `세션을 삭제하면 해당 세션에 대한 참여자 배정만 해제되고 참여자는 유지된다`() {
-        val jam = jam(listOf(SessionDef("G-1", "기타", "G", false)))
+        val jam = jam(listOf(SessionDef("G-1", "GUITAR", "G", false)))
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
 
@@ -141,7 +166,7 @@ class JamServiceTest {
 
     @Test
     fun `이미 다른 멤버가 배정된 세션에는 추가로 배정할 수 없다`() {
-        val jam = jam(listOf(SessionDef("G-1", "기타", "G", false)))
+        val jam = jam(listOf(SessionDef("G-1", "GUITAR", "G", false)))
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
         `when`(jamParticipantSessionRepository.existsByJamParticipantJamAndSessionId(jam, "G-1")).thenReturn(true)
@@ -153,7 +178,7 @@ class JamServiceTest {
 
     @Test
     fun `한 참여자가 여러 세션에 배정될 수 있다`() {
-        val jam = jam(listOf(SessionDef("G-1", "기타", "G", false), SessionDef("V-1", "보컬", "V", false)))
+        val jam = jam(listOf(SessionDef("G-1", "GUITAR", "G", false), SessionDef("V-1", "VOCAL", "V", false)))
         val participant = JamParticipant.create(jam = jam, member = 2L)
         val idField = JamParticipant::class.java.getDeclaredField("id")
         idField.isAccessible = true
