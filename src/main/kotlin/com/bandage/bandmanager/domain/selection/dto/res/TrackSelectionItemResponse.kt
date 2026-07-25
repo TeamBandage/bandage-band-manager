@@ -19,7 +19,7 @@ data class TrackSelectionItemResponse(
     val duration: Int?,
     @Schema(description = "참고 링크(예: YouTube)")
     val reference: String?,
-    @Schema(description = "곡 제안자 회원 정보 (탈퇴 회원이면 null)")
+    @Schema(description = "곡 제안자 회원 정보 (탈퇴했거나 회의를 떠난 회원이면 null)")
     val proposer: MemberSummary?,
     val note: String?,
     val isSelected: Boolean,
