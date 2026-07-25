@@ -107,6 +107,22 @@ class TrackSelectionController(
     ): ApiResponse<TrackSelectionDetailResponse> =
         ApiResponse.success(trackSelectionService.updateParticipants(selectionId, memberId, request))
 
+    @DeleteMapping("/{selectionId}/members/me")
+    @Operation(
+        operationId = "leaveSelection",
+        summary = "선곡 회의 떠나기",
+        description =
+            "본인이 선곡 회의에서 나갑니다. 매니저인 경우 후임에게 권한이 자동 양도되며, " +
+                "본인의 세션 지원/확정 연결과 제안자 연결이 정리됩니다(상세: docs/TRACK-SELECTION-LEAVE.md).",
+    )
+    fun leaveSelection(
+        @PathVariable selectionId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<Unit> {
+        trackSelectionService.leaveSelection(selectionId, memberId)
+        return ApiResponse.success()
+    }
+
     // -------- items --------
     @GetMapping("/{selectionId}/items")
     @Operation(
