@@ -32,7 +32,7 @@ class PerformanceManagerInvitedResolver(
                 recipientId = request.memberId,
                 category = category,
                 title = "공연 매니저 초대",
-                message = "'${performance.title}' 공연의 매니저로 초대되었습니다.",
+                message = "${performance.title} 공연의 매니저로 초대되었습니다.",
                 referenceId = performanceId.toString(),
             ),
         )

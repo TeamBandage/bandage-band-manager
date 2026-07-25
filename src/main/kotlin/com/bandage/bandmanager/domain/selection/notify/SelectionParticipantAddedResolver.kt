@@ -38,7 +38,7 @@ class SelectionParticipantAddedResolver(
                     recipientId = memberId,
                     category = category,
                     title = "선곡 회의 참여자 추가",
-                    message = "'${selection.title}' 선곡 회의에 참여자로 추가되었습니다.",
+                    message = "${selection.title} 선곡 회의에 참여자로 추가되었습니다.",
                     referenceId = selectionId.toString(),
                 )
             }

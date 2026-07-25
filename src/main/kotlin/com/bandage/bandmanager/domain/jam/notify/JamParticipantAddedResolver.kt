@@ -46,7 +46,7 @@ class JamParticipantAddedResolver(
                 recipientId = request.memberId,
                 category = category,
                 title = "합주 참여자 추가",
-                message = "'${jam.title}' 합주에 참여자로 추가되었습니다.",
+                message = "${jam.title} 합주에 참여자로 추가되었습니다.",
                 referenceId = jamId.toString(),
             ),
         )
