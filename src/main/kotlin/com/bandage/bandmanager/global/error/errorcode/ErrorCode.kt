@@ -12,6 +12,7 @@ enum class ErrorCode(
     NO_CHANGE(HttpStatus.BAD_REQUEST, "변경된 사항이 없습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
+    SESSION_LABEL_NOT_ALPHABETIC(HttpStatus.BAD_REQUEST, "세션 이름은 영문 알파벳만 사용할 수 있습니다."),
 
     // member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 회원 정보를 찾을 수 없습니다."),
