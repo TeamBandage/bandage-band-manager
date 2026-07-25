@@ -323,3 +323,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 026-selection-setlist-refactor
+      author: bandage
+      comment: |
+        BD-256/BD-218: 선곡 도메인 리팩토링
+        - BD-256: p_track_selection 의 practice_window_from/practice_window_to 제거 (Schedule 도메인으로 이전)
+        - BD-218: p_track_selection_item.proposer_id NOT NULL 해제 (선곡 회의 떠나기 시 제안자 연결 해제)
+      changes:
+        - sqlFile:
+            path: changes/026-selection-setlist-refactor.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
