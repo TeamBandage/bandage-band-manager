@@ -96,7 +96,13 @@ class TrackSelectionController(
 
     // -------- items --------
     @GetMapping("/{selectionId}/items")
-    @Operation(operationId = "getItems", summary = "선곡 항목 목록 조회")
+    @Operation(
+        operationId = "getItems",
+        summary = "선곡 항목 목록 조회",
+        description =
+            "모집 상태(status)/나의 지원(appliedByMe)/참여자 이름(memberName)/트랙 정보(keyword+searchFields) " +
+                "4종 필터를 독립적으로 조합할 수 있습니다. 상태 값끼리는 겹칠 수 있습니다(상세: docs/TRACK-SELECTION-FILTER.md).",
+    )
     fun getItems(
         @PathVariable selectionId: UUID,
         @CurrentMemberId memberId: Long,

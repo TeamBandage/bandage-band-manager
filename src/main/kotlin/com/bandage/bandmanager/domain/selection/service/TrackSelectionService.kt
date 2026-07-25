@@ -236,7 +236,14 @@ class TrackSelectionService(
     ): CursorResponse<TrackSelectionItemResponse, UUID> {
         val selection = getSelectionOrThrow(selectionId)
         validateAccess(selection, memberId)
-        val result = itemRepository.findAllBySelectionAndPaging(selectionId, query.lastId, query.pageSize)
+        val result =
+            itemRepository.findAllBySelectionAndPaging(
+                selectionId = selectionId,
+                memberId = memberId,
+                filter = query.toFilter(),
+                lastId = query.lastId,
+                pageSize = query.pageSize,
+            )
         if (result.content.isEmpty()) {
             return CursorResponse(content = emptyList(), nextCursor = null, hasNext = false)
         }
