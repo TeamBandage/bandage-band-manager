@@ -60,6 +60,16 @@ open class WeeklyRule(
         return date.dayOfWeek == dayOfWeek
     }
 
+    /** 이 규칙의 유효 기간이 조회 구간 [from, to] 와 겹치는지 여부. effectiveTo == null 이면 무기한. */
+    fun overlapsPeriod(
+        from: LocalDate,
+        to: LocalDate,
+    ): Boolean {
+        if (effectiveFrom.isAfter(to)) return false
+        val end = effectiveTo ?: return true
+        return !end.isBefore(from)
+    }
+
     companion object {
         const val SLOTS_PER_DAY: Int = 48
     }
