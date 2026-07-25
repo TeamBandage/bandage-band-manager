@@ -9,6 +9,7 @@ import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackUpdateRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistUpdateRequest
 import com.bandage.bandmanager.domain.setlist.dto.res.SetlistDetailResponse
+import com.bandage.bandmanager.domain.setlist.dto.res.SetlistParticipantResponse
 import com.bandage.bandmanager.domain.setlist.dto.res.SetlistResponse
 import com.bandage.bandmanager.domain.setlist.dto.res.SetlistTrackResponse
 import com.bandage.bandmanager.domain.setlist.service.SetlistService
@@ -92,6 +93,19 @@ class SetlistController(
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: SetlistManagerTransferRequest,
     ): ApiResponse<SetlistDetailResponse> = ApiResponse.success(setlistService.transferManager(setlistId, memberId, request))
+
+    @GetMapping("/{setlistId}/participants")
+    @Operation(
+        operationId = "getSetlistParticipants",
+        summary = "셋리스트 참여 멤버 목록 조회",
+        description =
+            "셋리스트에 참여 중인 멤버 전체를 조회합니다. 참여자별로 배정된 트랙/세션과 세션 약어를 함께 반환하며, " +
+                "매니저는 트랙 배정이 없어도 포함됩니다.",
+    )
+    fun getSetlistParticipants(
+        @PathVariable setlistId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<List<SetlistParticipantResponse>> = ApiResponse.success(setlistService.getParticipants(setlistId, memberId))
 
     @DeleteMapping("/{setlistId}")
     @Operation(

@@ -10,6 +10,8 @@ import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackUpdateRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistUpdateRequest
 import com.bandage.bandmanager.domain.setlist.dto.res.SetlistDetailResponse
+import com.bandage.bandmanager.domain.setlist.dto.res.SetlistParticipantResponse
+import com.bandage.bandmanager.domain.setlist.dto.res.SetlistParticipantSessionResponse
 import com.bandage.bandmanager.domain.setlist.dto.res.SetlistResponse
 import com.bandage.bandmanager.domain.setlist.dto.res.SetlistTrackResponse
 import com.bandage.bandmanager.domain.setlist.model.Setlist
@@ -51,7 +53,17 @@ class SetlistService(
     ): SetlistDetailResponse {
         val setlist = getSetlistOrThrow(setlistId)
         validateAccess(setlist, memberId)
-        return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id))
+        return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id), loadParticipants(setlist))
+    }
+
+    /** 셋리스트 참여 멤버 전체 조회(BD-226). 매니저는 트랙 배정이 없어도 포함된다. */
+    fun getParticipants(
+        setlistId: UUID,
+        memberId: Long,
+    ): List<SetlistParticipantResponse> {
+        val setlist = getSetlistOrThrow(setlistId)
+        validateAccess(setlist, memberId)
+        return loadParticipants(setlist)
     }
 
     fun getSetlistsByTitle(
@@ -80,7 +92,7 @@ class SetlistService(
         val setlist = getSetlistOrThrow(setlistId)
         validateManager(setlist, memberId)
         setlist.updateTitle(request.title)
-        return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id))
+        return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id), loadParticipants(setlist))
     }
 
     /** 매니저 권한 양도. 대상은 셋리스트 접근 가능 멤버여야 하며, 본인에게 양도할 수는 없다(BD-225). */
@@ -98,7 +110,7 @@ class SetlistService(
             throw BusinessException(ErrorCode.SETLIST_MANAGER_NOT_PARTICIPANT)
         }
         setlist.changeManager(newManagerId)
-        return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id))
+        return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id), loadParticipants(setlist))
     }
 
     /**
@@ -222,6 +234,44 @@ class SetlistService(
     }
 
     private fun loadBandIds(setlistId: UUID): List<UUID> = setlistBandRepository.findAllBySetlistId(setlistId).map { it.bandId }
+
+    /**
+     * 셋리스트 참여자 목록을 조립한다(BD-226, BD-180).
+     *
+     * 참여 정의는 접근 권한 판정(SetlistRepositoryImpl.isAccessibleMember)과 동일하게
+     * "매니저 OR 트랙 참여자" 로 맞춘다. 어긋나면 목록과 403 판정이 불일치한다.
+     * 세션 이름/약어는 트랙의 SessionDef 에 있으므로 (trackId, sessionId) 로 매핑한다.
+     * 회원 정보는 1회 bulk 조회한다(N+1 방지).
+     */
+    private fun loadParticipants(setlist: Setlist): List<SetlistParticipantResponse> {
+        val tracks = setlistTrackRepository.findAllBySetlist(setlist)
+        val participants = if (tracks.isEmpty()) emptyList() else setlistTrackParticipantRepository.findAllByTrackIn(tracks)
+        val memberInfos = memberService.getMemberSummaries(participants.map { it.memberId } + setlist.managerId)
+        val sessionDefs =
+            tracks.flatMap { track -> track.sessions.map { (track.id to it.sessionId) to it } }.toMap()
+
+        val bySession =
+            participants.groupBy({ it.memberId }) { participant ->
+                val def = sessionDefs[participant.track.id to participant.sessionId]
+                SetlistParticipantSessionResponse(
+                    setlistTrackId = participant.track.id,
+                    sessionId = participant.sessionId,
+                    // 세션 교체 후 남은 고아 배정이면 정의가 없다. 이 경우 토큰을 그대로 표시값으로 쓴다.
+                    label = def?.label ?: participant.sessionId,
+                    short = def?.short ?: participant.sessionId,
+                )
+            }
+
+        // 매니저는 트랙 배정이 없어도 참여자 목록에 포함한다(접근 권한 정의와 일치).
+        val memberIds = LinkedHashSet<Long>().apply { add(setlist.managerId) }.apply { addAll(bySession.keys) }
+        return memberIds.map { id ->
+            SetlistParticipantResponse(
+                member = memberInfos[id],
+                isManager = id == setlist.managerId,
+                sessions = bySession[id].orEmpty(),
+            )
+        }
+    }
 
     private fun validateAccess(
         setlist: Setlist,
