@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.setlist.service
 
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.member.service.MemberService
+import com.bandage.bandmanager.domain.performance.repository.PerformanceSetlistRepository
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistUpdateRequest
 import com.bandage.bandmanager.domain.setlist.model.Setlist
 import com.bandage.bandmanager.domain.setlist.model.SetlistBand
@@ -28,6 +29,7 @@ class SetlistServiceTest {
     private val setlistTrackRepository = mock(SetlistTrackRepository::class.java)
     private val setlistTrackParticipantRepository = mock(SetlistTrackParticipantRepository::class.java)
     private val bandMemberRepository = mock(BandMemberRepository::class.java)
+    private val performanceSetlistRepository = mock(PerformanceSetlistRepository::class.java)
     private val memberService = mock(MemberService::class.java)
 
     private val sut =
@@ -37,6 +39,7 @@ class SetlistServiceTest {
             setlistTrackRepository,
             setlistTrackParticipantRepository,
             bandMemberRepository,
+            performanceSetlistRepository,
             memberService,
         )
 
@@ -113,6 +116,20 @@ class SetlistServiceTest {
         assertThat(track.deletedAt).isNotNull()
         assertThat(participant.deletedAt).isNotNull()
         assertThat(setlistBand.deletedAt).isNotNull()
+    }
+
+    @Test
+    fun `deleteSetlist - 공연에 연결된 셋리스트는 삭제할 수 없다`() {
+        val setlist = setlist()
+        val track = SetlistTrack.create(setlist, TrackInfo(title = "곡", artist = "아티스트"), note = null, sessions = emptyList())
+        `when`(setlistTrackRepository.findAllBySetlist(setlist)).thenReturn(listOf(track))
+        `when`(performanceSetlistRepository.existsBySetlistId(setlistId)).thenReturn(true)
+
+        val ex = assertThrows<BusinessException> { sut.deleteSetlist(setlistId, managerId) }
+
+        assertThat(ex.errorCode).isEqualTo(ErrorCode.SETLIST_REFERENCED_BY_PERFORMANCE)
+        assertThat(setlist.deletedAt).isNull()
+        assertThat(track.deletedAt).isNull()
     }
 
     @Test

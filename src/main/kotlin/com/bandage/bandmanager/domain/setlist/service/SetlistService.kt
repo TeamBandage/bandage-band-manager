@@ -3,6 +3,7 @@ package com.bandage.bandmanager.domain.setlist.service
 import com.bandage.bandmanager.domain.band.model.BandMember
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.member.service.MemberService
+import com.bandage.bandmanager.domain.performance.repository.PerformanceSetlistRepository
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackUpdateRequest
@@ -37,6 +38,7 @@ class SetlistService(
     private val setlistTrackRepository: SetlistTrackRepository,
     private val setlistTrackParticipantRepository: SetlistTrackParticipantRepository,
     private val bandMemberRepository: BandMemberRepository,
+    private val performanceSetlistRepository: PerformanceSetlistRepository,
     private val memberService: MemberService,
 ) : MemberAuthorityCleanupHandler {
     override val authorityType: ResourceAuthorityType = ResourceAuthorityType.SETLIST_MANAGEMENT
@@ -86,7 +88,10 @@ class SetlistService(
         return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id))
     }
 
-    /** 셋리스트 소프트 삭제. 트랙·참여자·밴드 연결도 함께 정리한다. */
+    /**
+     * 셋리스트 소프트 삭제. 트랙·참여자·밴드 연결도 함께 정리한다.
+     * 공연에 연결된(PerformanceSetlist 가 존재하는) 셋리스트는 삭제할 수 없다.
+     */
     @Transactional
     fun deleteSetlist(
         setlistId: UUID,
@@ -94,6 +99,9 @@ class SetlistService(
     ) {
         val setlist = getSetlistOrThrow(setlistId)
         validateManager(setlist, memberId)
+        if (performanceSetlistRepository.existsBySetlistId(setlistId)) {
+            throw BusinessException(ErrorCode.SETLIST_REFERENCED_BY_PERFORMANCE)
+        }
 
         val tracks = setlistTrackRepository.findAllBySetlist(setlist)
         if (tracks.isNotEmpty()) {

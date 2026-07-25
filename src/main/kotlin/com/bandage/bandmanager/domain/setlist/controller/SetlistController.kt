@@ -84,7 +84,7 @@ class SetlistController(
     @Operation(
         operationId = "deleteSetlist",
         summary = "셋리스트 삭제",
-        description = "매니저가 셋리스트를 삭제합니다. 셋리스트의 트랙·참여자·밴드 연결도 함께 정리됩니다.",
+        description = "매니저가 셋리스트를 삭제합니다. 셋리스트의 트랙·참여자·밴드 연결도 함께 정리됩니다. 공연에 연결된 셋리스트는 삭제할 수 없습니다(409).",
     )
     fun deleteSetlist(
         @PathVariable setlistId: UUID,
