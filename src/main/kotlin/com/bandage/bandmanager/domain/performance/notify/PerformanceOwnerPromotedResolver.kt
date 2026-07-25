@@ -31,7 +31,7 @@ class PerformanceOwnerPromotedResolver(
                 recipientId = targetMemberId,
                 category = category,
                 title = "공연 소유자 승격",
-                message = "'${performance.title}' 공연의 새로운 소유자로 승격되었습니다.",
+                message = "${performance.title} 공연의 새로운 소유자로 승격되었습니다.",
                 referenceId = performanceId.toString(),
             ),
         )

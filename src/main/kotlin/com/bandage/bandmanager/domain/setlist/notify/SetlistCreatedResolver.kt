@@ -39,7 +39,7 @@ class SetlistCreatedResolver(
                     recipientId = memberId,
                     category = category,
                     title = "셋리스트 생성",
-                    message = "'${response.title}' 셋리스트가 생성되었습니다.",
+                    message = "${response.title} 셋리스트가 생성되었습니다.",
                     referenceId = response.setlistId.toString(),
                 )
             }

@@ -31,7 +31,7 @@ class AuthorityPromotionResolver(
                 recipientId = newLeader.member,
                 category = category,
                 title = "밴드 리더 승격",
-                message = "${newLeader.band.name}: 밴드의 새로운 리더로 승격되었습니다.",
+                message = "${newLeader.band.name} 밴드의 새로운 리더로 승격되었습니다.",
                 referenceId = bandId.toString(),
             ),
         )
