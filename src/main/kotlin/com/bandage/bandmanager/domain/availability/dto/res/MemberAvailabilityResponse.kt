@@ -17,10 +17,18 @@ data class MemberAvailabilityResponse(
 ) {
     companion object {
         fun from(availability: MemberAvailability): MemberAvailabilityResponse =
+            from(availability, availability.weeklyRules, availability.exceptions)
+
+        /** 기간 필터링 등으로 선별한 규칙/예외만 담아 응답한다(memberId/note/updatedAt 는 원본 유지). */
+        fun from(
+            availability: MemberAvailability,
+            weeklyRules: List<WeeklyRule>,
+            exceptions: List<AvailabilityException>,
+        ): MemberAvailabilityResponse =
             MemberAvailabilityResponse(
                 memberId = availability.memberId,
-                weeklyRules = availability.weeklyRules.map { WeeklyRuleResponse.from(it) },
-                exceptions = availability.exceptions.map { AvailabilityExceptionResponse.from(it) },
+                weeklyRules = weeklyRules.map { WeeklyRuleResponse.from(it) },
+                exceptions = exceptions.map { AvailabilityExceptionResponse.from(it) },
                 note = availability.note,
                 updatedAt = availability.lastModifiedAt,
             )

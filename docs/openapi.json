@@ -6954,6 +6954,48 @@
                 ]
             }
         },
+        "/api/v1/me/availability/period": {
+            "get": {
+                "description": "\uc870\ud68c \uae30\uac04(from~to, \ucd5c\ub300 366\uc77c)\uacfc \uacb9\uce58\ub294 \uc8fc\uac04 \uaddc\uce59/\uc608\uc678 \uc6d0\ubcf8\uc744 \ubc18\ud658. \ubbf8\ub4f1\ub85d \uc2dc \ube48 \uc751\ub2f5.",
+                "operationId": "getMyAvailabilityByPeriod",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "from",
+                        "required": true,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "to",
+                        "required": true,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMemberAvailabilityResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub0b4 \uac00\uc6a9\uc131 \uae30\uac04\ubcc4 \uc870\ud68c",
+                "tags": [
+                    "member-availability"
+                ]
+            }
+        },
         "/api/v1/me/availability/slots": {
             "get": {
                 "description": "\uc870\ud68c \uae30\uac04(from~to, \ucd5c\ub300 366\uc77c)\uc5d0 \uc18d\ud55c \uac00\uc6a9 \uc2ac\ub86f\uc744 \ub0a0\uc9dc\ubcc4\ub85c \uc804\uac1c\ud574 \ubc18\ud658. \ud074\ub77c\uc774\uc5b8\ud2b8 \ucd94\uac00 \uacc4\uc0b0 \ubd88\ud544\uc694.",

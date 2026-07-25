@@ -43,6 +43,19 @@ class MemberAvailabilityController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate,
     ): ApiResponse<List<ScheduleSlotResponse>> = ApiResponse.success(memberAvailabilityService.getMySlots(memberId, from, to))
 
+    @GetMapping("/period")
+    @Operation(
+        operationId = "getMyAvailabilityByPeriod",
+        summary = "내 가용성 기간별 조회",
+        description = "조회 기간(from~to, 최대 366일)과 겹치는 주간 규칙/예외 원본을 반환. 미등록 시 빈 응답.",
+    )
+    fun getMyAvailabilityByPeriod(
+        @CurrentMemberId memberId: Long,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) from: LocalDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) to: LocalDate,
+    ): ApiResponse<MemberAvailabilityResponse> =
+        ApiResponse.success(memberAvailabilityService.getMyAvailabilityByPeriod(memberId, from, to))
+
     @PutMapping
     @Operation(
         operationId = "updateMyAvailability",

@@ -63,6 +63,30 @@ class MemberAvailabilityService(
         return slots
     }
 
+    /**
+     * 조회 기간 [from, to] 와 겹치는 주간 규칙/예외 원본을 그대로 반환한다.
+     * 슬롯 전개(getMySlots)와 달리 규칙/예외 자체가 필요한 화면(편집 등)을 위한 조회다.
+     * - 주간 규칙: 유효 기간이 [from, to] 와 겹치면 포함
+     * - 예외: date 가 [from, to] 안이면 포함
+     * 미등록 멤버는 빈 응답. 최대 366일까지 조회 가능.
+     */
+    fun getMyAvailabilityByPeriod(
+        memberId: Long,
+        from: LocalDate,
+        to: LocalDate,
+    ): MemberAvailabilityResponse {
+        if (from.isAfter(to) || ChronoUnit.DAYS.between(from, to) > MAX_RANGE_DAYS) {
+            throw BusinessException(ErrorCode.AVAILABILITY_RANGE_INVALID)
+        }
+        val availability =
+            memberAvailabilityRepository.findByMemberId(memberId)
+                ?: return MemberAvailabilityResponse.empty(memberId)
+
+        val rules = availability.weeklyRules.filter { it.overlapsPeriod(from, to) }
+        val exceptions = availability.exceptions.filter { !it.date.isBefore(from) && !it.date.isAfter(to) }
+        return MemberAvailabilityResponse.from(availability, rules, exceptions)
+    }
+
     private fun slotOf(
         date: LocalDate,
         startSlot: Int,
