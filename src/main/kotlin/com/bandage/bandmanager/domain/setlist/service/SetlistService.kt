@@ -86,6 +86,24 @@ class SetlistService(
         return SetlistDetailResponse.of(setlist, loadBandIds(setlist.id))
     }
 
+    /** 셋리스트 소프트 삭제. 트랙·참여자·밴드 연결도 함께 정리한다. */
+    @Transactional
+    fun deleteSetlist(
+        setlistId: UUID,
+        memberId: Long,
+    ) {
+        val setlist = getSetlistOrThrow(setlistId)
+        validateManager(setlist, memberId)
+
+        val tracks = setlistTrackRepository.findAllBySetlist(setlist)
+        if (tracks.isNotEmpty()) {
+            setlistTrackParticipantRepository.findAllByTrackIn(tracks).forEach { it.markAsDeleted(memberId) }
+            tracks.forEach { it.markAsDeleted(memberId) }
+        }
+        setlistBandRepository.findAllBySetlistId(setlistId).forEach { it.markAsDeleted(memberId) }
+        setlist.markAsDeleted(memberId)
+    }
+
     fun getTracks(
         setlistId: UUID,
         memberId: Long,
