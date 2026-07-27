@@ -31,8 +31,8 @@ class BandApplicationResultResolver(
 
         val (title, message) =
             when (status) {
-                ApplicationStatus.APPROVED -> "가입 신청 승인" to "${application.band.name} 가입 신청이 승인되었습니다."
-                ApplicationStatus.REJECTED -> "가입 신청 거절" to "${application.band.name} 가입 신청이 거절되었습니다."
+                ApplicationStatus.APPROVED -> "가입 신청 승인" to "${application.band.name} 밴드의 가입 신청이 승인되었습니다."
+                ApplicationStatus.REJECTED -> "가입 신청 거절" to "${application.band.name} 밴드의 가입 신청이 거절되었습니다."
                 else -> return emptyList()
             }
 
