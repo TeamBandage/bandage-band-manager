@@ -1,6 +1,11 @@
 spring:
   application:
     name: v1
+  autoconfigure:
+    # 인증은 JwtAuthenticationFilter 로만 처리한다. 이 자동설정은 UserDetailsService 빈이
+    # 없을 때 in-memory 사용자를 만들고 임시 비밀번호를 로그에 평문으로 남기므로 제외한다.
+    exclude:
+      - org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
   profiles:
     group:
       local: [local, default-datasource, swagger, redis, security, s3]

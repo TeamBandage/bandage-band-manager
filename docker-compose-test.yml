@@ -8,14 +8,21 @@ services:
     image: postgres:15
     container_name: bandage-postgres
     environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      # POSTGRES_USER 는 관리 전용 슈퍼유저. 애플리케이션은 사용하지 않는다.
+      POSTGRES_USER: ${DB_ADMIN}
+      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+      # 최초 기동 시 01-roles.sh 가 owner/app 역할을 생성하는 데 사용한다.
+      DB_OWNER: ${DB_OWNER}
+      DB_OWNER_PASSWORD: ${DB_OWNER_PASSWORD}
+      DB_APP: ${DB_USER}
+      DB_APP_PASSWORD: ${DB_USER_PASSWORD}
       TZ: Asia/Seoul
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./scripts/db-init:/docker-entrypoint-initdb.d:ro
     restart: always
 
   redis:
@@ -23,7 +30,7 @@ services:
     container_name: bandage-redis
     ports:
       - "6379:6379"
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redisdata:/data
     restart: always
