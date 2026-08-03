@@ -55,15 +55,16 @@ jobs:
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$SHA_TAG"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$LATEST_TAG"
 
-      # 5. docker-compose.yml 을 EC2 의 ~/bandage/ 로 동기화 (repo 가 single source of truth)
+      # 5. compose 파일과 DB 초기화 스크립트를 EC2 의 ~/bandage/ 로 동기화 (repo 가 single source of truth)
       #    SSH 단계에서 compose pull 이 동작하려면 작업 디렉토리에 compose 파일이 미리 존재해야 함
-      - name: Sync docker-compose.yml to EC2
+      #    scripts/db-init 은 compose 가 postgres 에 마운트하므로 함께 배포해야 한다.
+      - name: Sync docker-compose.yml & db-init scripts to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: rocky
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: docker-compose.yml
+          source: "docker-compose.yml,scripts/db-init/*"
           target: /home/rocky/bandage
           overwrite: true
 
@@ -108,6 +109,10 @@ jobs:
           script: |
             set -euo pipefail
             cd ~/bandage
+
+            # scp 가 실행 권한을 보존하지 않으면 postgres 엔트리포인트가
+            # "bad interpreter: Permission denied" 로 조용히 실패해 역할이 생성되지 않는다.
+            chmod +x scripts/db-init/*.sh
 
             umask 077
             cat > .env <<EOF
