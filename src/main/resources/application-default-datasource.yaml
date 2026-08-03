@@ -1,12 +1,21 @@
 spring:
+  # 런타임 전용 계정(DB_USER): DML 만 가능하고 DDL 권한이 없다.
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: ${DB_USER}
+    password: ${DB_USER_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      # 사고 당시 DB 응답 지연이 기본 30s 커넥션 타임아웃과 겹쳐 헬스체크가 매번 30s 씩
+      # 지연되고 컨테이너가 unhealthy 로 고착됐다. 빠르게 실패시켜 장애 확산을 막는다.
+      connection-timeout: 5000
+      # 기동 시 DB 가 아직 준비되지 않아도 부팅을 막지 않는다(풀 초기화 실패를 무시).
+      initialization-fail-timeout: -1
   jpa:
     hibernate:
       ddl-auto: validate
+    # 기본값 true 로 인한 경고 제거. 뷰 렌더링 시점까지 커넥션을 잡아두지 않는다.
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
@@ -15,3 +24,6 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yaml
     drop-first: false
+    # 마이그레이션(DDL)은 스키마 소유자 계정으로 실행한다. 런타임 계정과 분리.
+    user: ${DB_OWNER}
+    password: ${DB_OWNER_PASSWORD}
