@@ -55,6 +55,20 @@ jobs:
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$SHA_TAG"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$LATEST_TAG"
 
+      # 4-1. scp 대상 경로의 소유권을 배포 계정으로 정리한다.
+      #      과거에 root 로 생성된 파일이 남아 있으면 scp 의 untar 가
+      #      "Cannot open: Permission denied" 로 실패한다.
+      - name: Ensure deploy target is writable
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: rocky
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            mkdir -p ~/bandage/scripts/db-init
+            sudo chown -R rocky:rocky ~/bandage/docker-compose.yml ~/bandage/scripts 2>/dev/null || true
+
       # 5. compose 파일과 DB 초기화 스크립트를 EC2 의 ~/bandage/ 로 동기화 (repo 가 single source of truth)
       #    SSH 단계에서 compose pull 이 동작하려면 작업 디렉토리에 compose 파일이 미리 존재해야 함
       #    scripts/db-init 은 compose 가 postgres 에 마운트하므로 함께 배포해야 한다.
