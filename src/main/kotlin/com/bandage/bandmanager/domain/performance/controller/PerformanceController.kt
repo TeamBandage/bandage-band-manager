@@ -12,8 +12,10 @@ import com.bandage.bandmanager.domain.performance.dto.res.PerformanceInvitationR
 import com.bandage.bandmanager.domain.performance.dto.res.PerformanceListResponse
 import com.bandage.bandmanager.domain.performance.dto.res.PerformanceResponse
 import com.bandage.bandmanager.domain.performance.dto.res.PerformanceSetlistResponse
+import com.bandage.bandmanager.domain.performance.dto.res.PerformanceSetlistTracksResponse
 import com.bandage.bandmanager.domain.performance.model.enums.PerformanceInvitationStatus
 import com.bandage.bandmanager.domain.performance.service.PerformanceService
+import com.bandage.bandmanager.facade.PerformanceSetlistTrackFacade
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
 import com.bandage.bandmanager.global.common.response.CursorResponse
@@ -37,6 +39,7 @@ import java.util.UUID
 @RequestMapping("$PREFIX/performances")
 class PerformanceController(
     private val performanceService: PerformanceService,
+    private val performanceSetlistTrackFacade: PerformanceSetlistTrackFacade,
 ) {
     @PostMapping
     @Operation(operationId = "createPerformance", summary = "공연 생성 API", description = "신규 공연을 생성하고 생성자를 매니저로 등록합니다.")
@@ -108,6 +111,21 @@ class PerformanceController(
         @Valid @RequestBody request: PerformanceSetlistAddRequest,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<List<PerformanceSetlistResponse>> = ApiResponse.success(performanceService.addSetlists(performanceId, request, memberId))
+
+    @GetMapping("/{performanceId}/setlists/tracks")
+    @Operation(
+        operationId = "getPerformanceSetlistTracks",
+        summary = "공연 참여 셋리스트 트랙·참여자 전체 조회 API",
+        description =
+            "공연에 참여하는 모든 셋리스트와 각 셋리스트의 트랙·참여자 전체를 셋리스트별로 묶어 조회합니다. " +
+                "공연 OWNER/MANAGER면 본인이 소유·참여하지 않은 셋리스트의 트랙·참여자도 조회할 수 있습니다. " +
+                "참여자 목록은 각 셋리스트 기준(매니저 + 트랙 배정자)이며, 공연에 묶였다는 이유로 확장되지 않습니다.",
+    )
+    fun getPerformanceSetlistTracks(
+        @PathVariable performanceId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<List<PerformanceSetlistTracksResponse>> =
+        ApiResponse.success(performanceSetlistTrackFacade.getSetlistTracks(performanceId, memberId))
 
     @DeleteMapping("/{performanceId}/setlists/{setlistId}")
     @Operation(

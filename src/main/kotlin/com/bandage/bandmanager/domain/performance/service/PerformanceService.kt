@@ -376,6 +376,19 @@ class PerformanceService(
         performanceRepository.findByIdOrNull(performanceId)
             ?: throw BusinessException(ErrorCode.PERFORMANCE_NOT_FOUND)
 
+    /**
+     * 공연 참여자(OWNER/MANAGER)임을 검증하고 공연에 묶인 셋리스트 ID 를 반환한다(BD-264).
+     * 공연 단위 조회 파사드의 권한 판정 진입점이다.
+     */
+    fun getAccessibleSetlistIds(
+        performanceId: UUID,
+        memberId: Long,
+    ): List<UUID> {
+        val performance = getPerformance(performanceId)
+        validateParticipant(performance, memberId)
+        return performance.setlists.map { it.setlistId }
+    }
+
     private fun requireSetlist(setlistId: UUID): Setlist =
         setlistRepository.findByIdOrNull(setlistId)
             ?: throw BusinessException(ErrorCode.SETLIST_NOT_FOUND)

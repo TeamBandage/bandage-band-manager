@@ -788,6 +788,40 @@
                 ],
                 "type": "object"
             },
+            "ApiResponseListPerformanceSetlistTracksResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/PerformanceSetlistTracksResponse"
+                        },
+                        "type": "array"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
             "ApiResponseListScheduleBoardResponse": {
                 "properties": {
                     "code": {
@@ -3976,6 +4010,35 @@
                     "bands",
                     "setlistId",
                     "title"
+                ],
+                "type": "object"
+            },
+            "PerformanceSetlistTracksResponse": {
+                "description": "\uacf5\uc5f0\uc5d0 \ucc38\uc5ec\ud558\ub294 \uc14b\ub9ac\uc2a4\ud2b8 1\uac74\uacfc \uadf8 \ud2b8\ub799\u00b7\ucc38\uc5ec\uc790 \uc804\uccb4",
+                "properties": {
+                    "participants": {
+                        "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ucc38\uc5ec\uc790 \uc804\uccb4 (\ud574\ub2f9 \uc14b\ub9ac\uc2a4\ud2b8\uc758 \ub9e4\ub2c8\uc800 + \ud2b8\ub799 \ubc30\uc815\uc790)",
+                        "items": {
+                            "$ref": "#/components/schemas/SetlistParticipantResponse"
+                        },
+                        "type": "array"
+                    },
+                    "setlist": {
+                        "$ref": "#/components/schemas/SetlistResponse",
+                        "description": "\uc14b\ub9ac\uc2a4\ud2b8 \uc815\ubcf4"
+                    },
+                    "tracks": {
+                        "description": "\uc14b\ub9ac\uc2a4\ud2b8\uc5d0 \uc18d\ud55c \ud2b8\ub799 \uc804\uccb4",
+                        "items": {
+                            "$ref": "#/components/schemas/SetlistTrackResponse"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "participants",
+                    "setlist",
+                    "tracks"
                 ],
                 "type": "object"
             },
@@ -8256,6 +8319,39 @@
                 ]
             }
         },
+        "/api/v1/performances/{performanceId}/setlists/tracks": {
+            "get": {
+                "description": "\uacf5\uc5f0\uc5d0 \ucc38\uc5ec\ud558\ub294 \ubaa8\ub4e0 \uc14b\ub9ac\uc2a4\ud2b8\uc640 \uac01 \uc14b\ub9ac\uc2a4\ud2b8\uc758 \ud2b8\ub799\u00b7\ucc38\uc5ec\uc790 \uc804\uccb4\ub97c \uc14b\ub9ac\uc2a4\ud2b8\ubcc4\ub85c \ubb36\uc5b4 \uc870\ud68c\ud569\ub2c8\ub2e4. \uacf5\uc5f0 OWNER/MANAGER\uba74 \ubcf8\uc778\uc774 \uc18c\uc720\u00b7\ucc38\uc5ec\ud558\uc9c0 \uc54a\uc740 \uc14b\ub9ac\uc2a4\ud2b8\uc758 \ud2b8\ub799\u00b7\ucc38\uc5ec\uc790\ub3c4 \uc870\ud68c\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4. \ucc38\uc5ec\uc790 \ubaa9\ub85d\uc740 \uac01 \uc14b\ub9ac\uc2a4\ud2b8 \uae30\uc900(\ub9e4\ub2c8\uc800 + \ud2b8\ub799 \ubc30\uc815\uc790)\uc774\uba70, \uacf5\uc5f0\uc5d0 \ubb36\uc600\ub2e4\ub294 \uc774\uc720\ub85c \ud655\uc7a5\ub418\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.",
+                "operationId": "getPerformanceSetlistTracks",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "performanceId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListPerformanceSetlistTracksResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uacf5\uc5f0 \ucc38\uc5ec \uc14b\ub9ac\uc2a4\ud2b8 \ud2b8\ub799\u00b7\ucc38\uc5ec\uc790 \uc804\uccb4 \uc870\ud68c API",
+                "tags": [
+                    "performances"
+                ]
+            }
+        },
         "/api/v1/performances/{performanceId}/setlists/{setlistId}": {
             "delete": {
                 "description": "\uacf5\uc5f0\uc5d0\uc11c \ud2b9\uc815 \ucc38\uc5ec \uc14b\ub9ac\uc2a4\ud2b8\ub97c \uc81c\uac70\ud569\ub2c8\ub2e4. OWNER\ub294 \ubaa8\ub4e0 \uc14b\ub9ac\uc2a4\ud2b8\ub97c, MANAGER\ub294 \ubcf8\uc778\uc774 \uc18c\uc720/\ucc38\uc5ec\ud55c \uc14b\ub9ac\uc2a4\ud2b8\ub9cc \uc81c\uac70\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
@@ -8332,7 +8428,7 @@
         },
         "/api/v1/setlists/by-title": {
             "get": {
-                "description": "\ubcf8\uc778\uc774 \uc811\uadfc \uac00\ub2a5\ud55c \uc14b\ub9ac\uc2a4\ud2b8 \uc911 \ud0c0\uc774\ud2c0\uc774 \uc77c\uce58\ud558\ub294 \ud56d\ubaa9\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "description": "\ubcf8\uc778\uc774 \uc811\uadfc \uac00\ub2a5\ud55c \uc14b\ub9ac\uc2a4\ud2b8 \uc911 \ud0c0\uc774\ud2c0\uc5d0 \uac80\uc0c9\uc5b4\uac00 \ud3ec\ud568\ub41c \ud56d\ubaa9\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4(\ub300\uc18c\ubb38\uc790 \ubb34\uc2dc).",
                 "operationId": "getSetlistsByTitle",
                 "parameters": [
                     {
@@ -8356,7 +8452,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud0c0\uc774\ud2c0 \uc870\ud68c",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud0c0\uc774\ud2c0 \uac80\uc0c9",
                 "tags": [
                     "setlists"
                 ]
