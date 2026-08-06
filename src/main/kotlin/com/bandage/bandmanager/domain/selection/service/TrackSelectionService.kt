@@ -365,7 +365,7 @@ class TrackSelectionService(
         }
         item.updateMeta(request.title, request.artist, request.album, request.duration, request.reference, request.note)
         request.sessions?.let { sessions ->
-            val newDefs = SessionDef.createAll(sessions.map { it.toSpec() })
+            val newDefs = SessionDef.createAll(sessions.map { it.toSpec() }, item.sessions.map { it.sessionId }.toSet())
             val newSessionIds = newDefs.map { it.sessionId }.toSet()
             val applicants = applicantRepository.findAllByItem(item)
             val confirmations = confirmationRepository.findAllByItem(item)

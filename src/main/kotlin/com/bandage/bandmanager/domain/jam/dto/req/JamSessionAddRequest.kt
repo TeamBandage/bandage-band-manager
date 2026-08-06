@@ -6,9 +6,6 @@ import jakarta.validation.constraints.NotBlank
 @Schema(description = "합주 세션 추가 요청")
 data class JamSessionAddRequest(
     @field:NotBlank
-    @Schema(description = "세션 토큰", example = "G-2")
-    val sessionId: String,
-    @field:NotBlank
     @Schema(
         description = "세션 이름. 영문 알파벳만 허용하며 서버가 대문자로 저장한다.",
         example = "GUITAR",

@@ -144,6 +144,7 @@ class SessionAbbreviationGeneratorTest {
                     SessionSpec(sessionId = "V-2", label = "vocal", custom = true),
                     SessionSpec(sessionId = "G-1", label = "guitar", custom = false),
                 ),
+                existingSessionIds = setOf("V-1", "V-2", "G-1"),
             )
 
         assertThat(defs.map { it.sessionId }).containsExactly("V-1", "V-2", "G-1")

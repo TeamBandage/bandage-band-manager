@@ -2655,18 +2655,11 @@
                         "minLength": 1,
                         "pattern": "^[A-Za-z]+$",
                         "type": "string"
-                    },
-                    "sessionId": {
-                        "description": "\uc138\uc158 \ud1a0\ud070",
-                        "example": "G-2",
-                        "minLength": 1,
-                        "type": "string"
                     }
                 },
                 "required": [
                     "custom",
-                    "label",
-                    "sessionId"
+                    "label"
                 ],
                 "type": "object"
             },
@@ -4386,16 +4379,14 @@
                         "type": "string"
                     },
                     "sessionId": {
-                        "description": "\uc138\uc158 \ud1a0\ud070",
-                        "example": "G",
-                        "minLength": 1,
+                        "description": "\uc138\uc158 \uc2dd\ubcc4\uc790. \uae30\uc874 \uc138\uc158\uc744 \uc720\uc9c0\u00b7\uc218\uc815\ud560 \ub54c\ub9cc \uc751\ub2f5\uc5d0\uc11c \ubc1b\uc740 \uac12\uc744 \uadf8\ub300\ub85c \ubcf4\ub0b8\ub2e4. \uc2e0\uaddc \uc138\uc158\uc740 \uc0dd\ub7b5(\uc11c\ubc84\uac00 \ubc1c\uae09).",
+                        "example": "0199c3f4-1b2c-7a3d-8e4f-5a6b7c8d9e0f",
                         "type": "string"
                     }
                 },
                 "required": [
                     "custom",
-                    "label",
-                    "sessionId"
+                    "label"
                 ],
                 "type": "object"
             },

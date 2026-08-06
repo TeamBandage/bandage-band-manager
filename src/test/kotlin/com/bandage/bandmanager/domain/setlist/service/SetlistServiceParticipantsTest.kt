@@ -149,7 +149,11 @@ class SetlistServiceParticipantsTest {
                 setlist = setlist,
                 trackInfo = TrackInfo(title = "트랙", artist = "아티스트"),
                 note = null,
-                sessions = SessionDef.createAll(sessions.map { (id, label) -> SessionSpec(id, label) }),
+                sessions =
+                    SessionDef.createAll(
+                        sessions.map { (id, label) -> SessionSpec(id, label) },
+                        existingSessionIds = sessions.map { it.first }.toSet(),
+                    ),
             )
         setId(track, trackId)
         return track

@@ -129,9 +129,10 @@ class JamService(
     ): JamDetailResponse {
         val jam = getJam(jamId)
         validateParticipant(jam, memberId)
-        val newDefs = SessionDef.createAll(request.sessions.map { it.toSpec() })
+        val existingSessionIds = jam.sessions.map { it.sessionId }.toSet()
+        val newDefs = SessionDef.createAll(request.sessions.map { it.toSpec() }, existingSessionIds)
         val newSessionIds = newDefs.map { it.sessionId }.toSet()
-        val removedSessionIds = jam.sessions.map { it.sessionId }.toSet() - newSessionIds
+        val removedSessionIds = existingSessionIds - newSessionIds
         unassignSessions(jam, removedSessionIds)
         jam.replaceSessions(newDefs)
         jamReservationSyncService.sync(jam)
@@ -146,10 +147,8 @@ class JamService(
     ): JamDetailResponse {
         val jam = getJam(jamId)
         validateParticipant(jam, memberId)
-        validateSessionNotExists(jam, request.sessionId)
         jam.addSession(
             SessionSpec(
-                sessionId = request.sessionId,
                 label = SessionAbbreviationGenerator.normalizeLabel(request.label),
                 custom = request.custom,
             ),
@@ -325,15 +324,6 @@ class JamService(
     ) {
         if (jam.sessions.none { it.sessionId == sessionId }) {
             throw BusinessException(ErrorCode.JAM_SESSION_NOT_FOUND)
-        }
-    }
-
-    private fun validateSessionNotExists(
-        jam: Jam,
-        sessionId: String,
-    ) {
-        if (jam.sessions.any { it.sessionId == sessionId }) {
-            throw BusinessException(ErrorCode.JAM_SESSION_ALREADY_EXISTS)
         }
     }
 

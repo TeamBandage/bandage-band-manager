@@ -298,7 +298,10 @@ class TrackSelectionItemFilterTest {
 
     /** (sessionId, label) 쌍으로 세션 정의를 만든다. 약어는 목록 단위로 생성된다. */
     private fun sessionDefs(sessions: List<Pair<String, String>>): List<SessionDef> =
-        SessionDef.createAll(sessions.map { (id, label) -> SessionSpec(sessionId = id, label = label) })
+        SessionDef.createAll(
+            sessions.map { (id, label) -> SessionSpec(sessionId = id, label = label) },
+            existingSessionIds = sessions.map { it.first }.toSet(),
+        )
 
     private fun applicant(
         item: TrackSelectionItem,
