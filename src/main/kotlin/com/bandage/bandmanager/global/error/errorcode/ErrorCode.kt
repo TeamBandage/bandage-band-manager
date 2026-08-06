@@ -120,6 +120,7 @@ enum class ErrorCode(
     INVALID_FILE_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 타입입니다."),
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다."),
     FILE_SIZE_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, "허용된 파일 크기를 초과했습니다."),
+    IMAGE_NOT_UPLOADED(HttpStatus.BAD_REQUEST, "업로드되지 않은 이미지입니다. 이미지 업로드 후 다시 시도해주세요."),
 
     // notify
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 알림 정보를 찾을 수 없습니다."),
