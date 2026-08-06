@@ -1,6 +1,7 @@
 package com.bandage.bandmanager.domain.performance.service
 
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
+import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterCreateRequest
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterPagingQuery
 import com.bandage.bandmanager.domain.performance.model.Performance
 import com.bandage.bandmanager.domain.performance.model.PerformancePoster
@@ -8,12 +9,20 @@ import com.bandage.bandmanager.domain.performance.repository.PerformanceManagerR
 import com.bandage.bandmanager.domain.performance.repository.PerformancePosterRepository
 import com.bandage.bandmanager.domain.performance.repository.PerformanceRepository
 import com.bandage.bandmanager.global.common.response.CursorResponse
+import com.bandage.bandmanager.global.error.errorcode.ErrorCode
+import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
 import com.bandage.bandmanager.global.infra.s3.ImagePresignSupport
+import com.bandage.bandmanager.global.infra.s3.S3ObjectValidator
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.doThrow
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import java.time.LocalDateTime
 import java.util.UUID
@@ -25,6 +34,7 @@ class PerformancePosterServiceTest {
     private val bandMemberRepository = mock(BandMemberRepository::class.java)
     private val cloudFrontUrlResolver = mock(CloudFrontUrlResolver::class.java)
     private val imagePresignSupport = mock(ImagePresignSupport::class.java)
+    private val s3ObjectValidator = mock(S3ObjectValidator::class.java)
 
     private val sut =
         PerformancePosterService(
@@ -34,6 +44,7 @@ class PerformancePosterServiceTest {
             bandMemberRepository,
             cloudFrontUrlResolver,
             imagePresignSupport,
+            s3ObjectValidator,
         )
 
     @Test
@@ -66,6 +77,35 @@ class PerformancePosterServiceTest {
         assertThat(result.content).isEmpty()
         assertThat(result.nextCursor).isNull()
         assertThat(result.hasNext).isFalse()
+    }
+
+    @Test
+    fun `포스터 등록 시 S3 에 업로드된 객체인지 확인한다`() {
+        val performance =
+            Performance.create(
+                title = "테스트 공연",
+                startAt = LocalDateTime.of(2026, 7, 1, 19, 0),
+                durationMinutes = 90,
+                venue = "Club FF",
+            )
+        val performanceId = UUID.randomUUID()
+        val memberId = 1L
+        setEntityId(performance, performanceId)
+        val imageKey = "poster/performance/$performanceId/a.png"
+        `when`(performanceRepository.findById(performanceId)).thenReturn(java.util.Optional.of(performance))
+        `when`(performanceManagerRepository.existsByPerformanceAndMember(performance, memberId)).thenReturn(true)
+        doThrow(BusinessException(ErrorCode.IMAGE_NOT_UPLOADED)).`when`(s3ObjectValidator).requireExists(imageKey)
+
+        val exception =
+            assertThrows<BusinessException> {
+                sut.createPoster(
+                    PerformancePosterCreateRequest(performanceId = performanceId, imageKey = imageKey, description = null),
+                    memberId,
+                )
+            }
+
+        assertThat(exception.errorCode).isEqualTo(ErrorCode.IMAGE_NOT_UPLOADED)
+        verify(performancePosterRepository, never()).save(any())
     }
 
     private fun poster(): PerformancePoster {

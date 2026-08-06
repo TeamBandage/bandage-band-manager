@@ -15,6 +15,7 @@ import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
 import com.bandage.bandmanager.global.infra.s3.ImagePresignRequest
 import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.infra.s3.ImagePresignSupport
+import com.bandage.bandmanager.global.infra.s3.S3ObjectValidator
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,6 +28,7 @@ class MemberService(
     private val jamParticipantRepository: JamParticipantRepository,
     private val cloudFrontUrlResolver: CloudFrontUrlResolver,
     private val imagePresignSupport: ImagePresignSupport,
+    private val s3ObjectValidator: S3ObjectValidator,
 ) {
     @Transactional
     fun createMember(request: MemberCreateRequest): Member {
@@ -79,6 +81,7 @@ class MemberService(
         request.profileImg
             ?.takeIf { it != member.profileImg }
             ?.let {
+                s3ObjectValidator.requireExists(it)
                 member.updateProfileImg(it)
                 isChanged = true
             }

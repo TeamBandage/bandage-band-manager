@@ -8,6 +8,7 @@ import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
 import com.bandage.bandmanager.global.infra.s3.ImagePresignSupport
+import com.bandage.bandmanager.global.infra.s3.S3ObjectValidator
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -21,6 +22,7 @@ class MemberServiceProfileImageTest {
     private val jamParticipantRepository = mock(JamParticipantRepository::class.java)
     private val cloudFrontUrlResolver = mock(CloudFrontUrlResolver::class.java)
     private val imagePresignSupport = mock(ImagePresignSupport::class.java)
+    private val s3ObjectValidator = mock(S3ObjectValidator::class.java)
 
     private val sut =
         MemberService(
@@ -29,6 +31,7 @@ class MemberServiceProfileImageTest {
             jamParticipantRepository,
             cloudFrontUrlResolver,
             imagePresignSupport,
+            s3ObjectValidator,
         )
 
     private val memberId = 1L

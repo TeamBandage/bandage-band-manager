@@ -17,6 +17,7 @@ import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
 import com.bandage.bandmanager.global.infra.s3.ImagePresignRequest
 import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.infra.s3.ImagePresignSupport
+import com.bandage.bandmanager.global.infra.s3.S3ObjectValidator
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -31,6 +32,7 @@ class PerformancePosterService(
     private val bandMemberRepository: BandMemberRepository,
     private val cloudFrontUrlResolver: CloudFrontUrlResolver,
     private val imagePresignSupport: ImagePresignSupport,
+    private val s3ObjectValidator: S3ObjectValidator,
 ) {
     /** 공연 포스터 업로드용 presigned URL 발급. OWNER/MANAGER만 가능. 응답 objectKey 를 포스터 등록 시 imageKey 로 전달. */
     fun issuePresignedUrl(
@@ -50,6 +52,7 @@ class PerformancePosterService(
     ): PerformancePosterResponse {
         val performance = requirePerformance(request.performanceId)
         validateParticipant(performance, memberId)
+        s3ObjectValidator.requireExists(request.imageKey)
         val poster =
             performancePosterRepository.save(
                 PerformancePoster.create(performance = performance, imageKey = request.imageKey, description = request.description),
