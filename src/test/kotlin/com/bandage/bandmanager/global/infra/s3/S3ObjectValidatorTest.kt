@@ -72,11 +72,35 @@ class S3ObjectValidatorTest {
     }
 
     @Test
-    fun `S3 장애로 확인이 불가하면 등록을 막지 않는다`() {
+    fun `S3 장애로 확인이 불가하면 IMAGE_STORAGE_UNAVAILABLE 로 실패한다`() {
         `when`(s3Client.headObject(any(HeadObjectRequest::class.java)))
             .thenThrow(SdkClientException.create("connection reset"))
 
-        assertThatCode { sut.requireExists("poster/performance/1/a.jpg") }.doesNotThrowAnyException()
+        val exception = assertThrows<BusinessException> { sut.requireExists("poster/performance/1/a.jpg") }
+
+        assertThat(exception.errorCode).isEqualTo(ErrorCode.IMAGE_STORAGE_UNAVAILABLE)
+    }
+
+    @Test
+    fun `IAM 권한 누락 등 403 은 IMAGE_STORAGE_UNAVAILABLE 로 실패한다`() {
+        `when`(s3Client.headObject(any(HeadObjectRequest::class.java)))
+            .thenThrow(
+                S3Exception
+                    .builder()
+                    .statusCode(403)
+                    .message("Forbidden")
+                    .build(),
+            )
+
+        val exception = assertThrows<BusinessException> { sut.requireExists("poster/performance/1/a.jpg") }
+
+        assertThat(exception.errorCode).isEqualTo(ErrorCode.IMAGE_STORAGE_UNAVAILABLE)
+    }
+
+    @Test
+    fun `입력 문제(400)와 저장소 장애(502)는 상태 코드로 구분된다`() {
+        assertThat(ErrorCode.IMAGE_NOT_UPLOADED.status.value()).isEqualTo(400)
+        assertThat(ErrorCode.IMAGE_STORAGE_UNAVAILABLE.status.value()).isEqualTo(502)
     }
 
     @Test
