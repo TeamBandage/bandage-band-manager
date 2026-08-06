@@ -2972,9 +2972,10 @@
                         "type": "string"
                     },
                     "password": {
-                        "description": "\ud68c\uc6d0 \ube44\ubc00\ubc88\ud638",
-                        "example": "pw1234",
-                        "minLength": 1,
+                        "description": "\ud68c\uc6d0 \ube44\ubc00\ubc88\ud638 (8\uc790 \uc774\uc0c1)",
+                        "example": "pw123456",
+                        "maxLength": 2147483647,
+                        "minLength": 8,
                         "type": "string"
                     }
                 },
@@ -3061,9 +3062,10 @@
                 "description": "\ud68c\uc6d0 \ube44\ubc00\ubc88\ud638 \ubcc0\uacbd \uc694\uccad",
                 "properties": {
                     "newPassword": {
-                        "description": "\ud68c\uc6d0 \uc774\uba54\uc77c",
+                        "description": "\uc0c8 \ube44\ubc00\ubc88\ud638 (8\uc790 \uc774\uc0c1)",
                         "example": "newPW123!",
-                        "minLength": 1,
+                        "maxLength": 2147483647,
+                        "minLength": 8,
                         "type": "string"
                     },
                     "originalPassword": {

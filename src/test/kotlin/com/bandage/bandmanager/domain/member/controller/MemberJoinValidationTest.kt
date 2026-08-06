@@ -1,5 +1,6 @@
 package com.bandage.bandmanager.domain.member.controller
 
+import com.bandage.bandmanager.domain.auth.dto.req.MemberPasswordChangeRequest
 import com.bandage.bandmanager.facade.dto.MemberJoinRequest
 import jakarta.validation.Validation
 import org.assertj.core.api.Assertions.assertThat
@@ -31,5 +32,24 @@ class MemberJoinValidationTest {
         val request = MemberJoinRequest(email = "member@bandage.test", password = "12345678", name = "홍길동")
 
         assertThat(validator.validate(request)).isEmpty()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["", " ", "1234567"])
+    fun `8자 미만 비밀번호는 제약 위반으로 걸러진다`(password: String) {
+        val request = MemberJoinRequest(email = "member@bandage.test", password = password, name = "홍길동")
+
+        val violations = validator.validate(request)
+
+        assertThat(violations).anySatisfy { assertThat(it.propertyPath.toString()).isEqualTo("password") }
+    }
+
+    @Test
+    fun `비밀번호 변경 요청도 8자 이상을 요구한다`() {
+        val request = MemberPasswordChangeRequest(originalPassword = "12345678", newPassword = "short")
+
+        val violations = validator.validate(request)
+
+        assertThat(violations).anySatisfy { assertThat(it.propertyPath.toString()).isEqualTo("newPassword") }
     }
 }
