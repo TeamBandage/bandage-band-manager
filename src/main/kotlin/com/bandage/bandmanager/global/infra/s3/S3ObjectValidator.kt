@@ -23,10 +23,12 @@ class S3ObjectValidator(
     private val awsProperties: AwsProperties,
 ) {
     /**
-     * 객체가 없으면 [ErrorCode.IMAGE_NOT_UPLOADED] 로 실패시킨다.
+     * 객체가 없으면 [ErrorCode.IMAGE_NOT_UPLOADED](400) 로 실패시킨다.
      *
-     * S3 장애로 확인 자체가 불가능한 경우에는 통과시킨다.
-     * 이미지 등록을 막는 것보다 깨진 참조를 허용하는 편이 사용자 영향이 작다고 판단했다.
+     * 확인 자체가 불가능한 경우(S3 장애·권한 오류 등)는 [ErrorCode.IMAGE_STORAGE_UNAVAILABLE](502) 로 실패시킨다.
+     * 저장소가 죽은 상태에서 등록을 허용해도 그 이미지는 어차피 조회되지 않으므로,
+     * 깨진 참조를 남기는 대신 즉시 실패시키고 클라이언트가 재시도하게 한다.
+     * 400 과 502 를 나눠 클라이언트 입력 문제와 시스템 외부 장애를 구분할 수 있게 한다.
      */
     fun requireExists(objectKey: String) {
         val request =
@@ -46,9 +48,12 @@ class S3ObjectValidator(
                 log.warn("업로드되지 않은 objectKey 로 등록 시도: {}", objectKey, e)
                 throw BusinessException(ErrorCode.IMAGE_NOT_UPLOADED)
             }
-            log.error("S3 객체 존재 확인 실패 - 검증을 건너뜁니다. key={}", objectKey, e)
+            // 403(IAM 권한 누락) 은 여기로 온다. 배포 시 s3:GetObject 권한 확인 필요.
+            log.error("S3 객체 존재 확인 실패. key={}, status={}", objectKey, e.statusCode(), e)
+            throw BusinessException(ErrorCode.IMAGE_STORAGE_UNAVAILABLE)
         } catch (e: SdkException) {
-            log.error("S3 객체 존재 확인 실패 - 검증을 건너뜁니다. key={}", objectKey, e)
+            log.error("S3 객체 존재 확인 실패. key={}", objectKey, e)
+            throw BusinessException(ErrorCode.IMAGE_STORAGE_UNAVAILABLE)
         }
     }
 

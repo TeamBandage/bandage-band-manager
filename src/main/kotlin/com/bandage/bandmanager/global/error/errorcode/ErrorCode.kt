@@ -122,6 +122,9 @@ enum class ErrorCode(
     FILE_SIZE_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, "허용된 파일 크기를 초과했습니다."),
     IMAGE_NOT_UPLOADED(HttpStatus.BAD_REQUEST, "업로드되지 않은 이미지입니다. 이미지 업로드 후 다시 시도해주세요."),
 
+    /** 이미지 저장소(S3) 장애로 업로드 여부를 확인하지 못한 경우. 클라이언트 입력 문제와 구분하기 위해 502 를 쓴다. */
+    IMAGE_STORAGE_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "이미지 저장소에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요."),
+
     // notify
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 알림 정보를 찾을 수 없습니다."),
     NOTIFICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "알림에 접근할 권한이 없습니다."),
