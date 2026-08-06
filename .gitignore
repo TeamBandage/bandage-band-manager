@@ -53,3 +53,5 @@ SERVICE_SPEC.md
 .taskmaster
 .understand-anything
 docs/design
+poster-images
+__pycache__/

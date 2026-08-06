@@ -30,7 +30,7 @@ class MemberAuthController(
     @PostMapping("/login")
     @Operation(operationId = "login", summary = "회원 로그인 API", description = "회원 로그인을 통해 access, refresh 토큰을 발급합니다.")
     fun login(
-        @RequestBody request: MemberLoginRequest,
+        @Valid @RequestBody request: MemberLoginRequest,
         response: HttpServletResponse,
     ): ApiResponse<MemberLoginResponse> {
         val tokens = memberAuthService.processLogin(request)

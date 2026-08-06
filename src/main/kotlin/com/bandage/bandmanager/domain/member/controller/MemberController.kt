@@ -43,7 +43,7 @@ class MemberController(
     @PostMapping("/join")
     @Operation(operationId = "joinMember", summary = "회원 가입 API", description = "신규 회원을 생성합니다.")
     fun joinMember(
-        @RequestBody request: MemberJoinRequest,
+        @Valid @RequestBody request: MemberJoinRequest,
     ): ApiResponse<MemberResponse> =
         ApiResponse.success(
             memberJoinFacade.joinMember(request),
