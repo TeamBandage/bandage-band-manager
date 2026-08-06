@@ -87,9 +87,12 @@ class JamServiceTest {
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
 
-        sut.addSession(jamId, JamSessionAddRequest("G-2", "GUITAR", false), 1L)
+        sut.addSession(jamId, JamSessionAddRequest("GUITAR", false), 1L)
 
-        assertThat(jam.sessions.map { it.sessionId }).containsExactly("G-2")
+        // sessionId 는 서버가 발급한다(BD-269) — 값 자체가 아니라 발급 여부를 검증한다.
+        assertThat(jam.sessions).singleElement()
+        assertThat(jam.sessions.first().sessionId).isNotBlank()
+        assertThat(jam.sessions.first().label).isEqualTo("GUITAR")
     }
 
     @Test
@@ -99,9 +102,10 @@ class JamServiceTest {
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
 
-        sut.addSession(jamId, JamSessionAddRequest("G-2", "guitar", false), 1L)
+        sut.addSession(jamId, JamSessionAddRequest("guitar", false), 1L)
 
-        assertThat(jam.sessions.map { it.sessionId }).containsExactly("G-1", "G-2")
+        // 기존 세션의 sessionId 는 보존되고, 새 세션만 서버가 발급한다(BD-269).
+        assertThat(jam.sessions.map { it.sessionId }).hasSize(2).startsWith("G-1").doesNotHaveDuplicates()
         assertThat(jam.sessions.map { it.label }).containsExactly("GUITAR", "GUITAR")
         assertThat(jam.sessions.map { it.short }).containsExactly("G1", "G2")
     }
@@ -112,20 +116,21 @@ class JamServiceTest {
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
 
-        assertThatThrownBy { sut.addSession(jamId, JamSessionAddRequest("G-2", "기타", false), 1L) }
+        assertThatThrownBy { sut.addSession(jamId, JamSessionAddRequest("기타", false), 1L) }
             .isInstanceOf(BusinessException::class.java)
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_LABEL_NOT_ALPHABETIC)
     }
 
     @Test
-    fun `이미 존재하는 세션 토큰은 추가할 수 없다`() {
-        val jam = jam(listOf(SessionDef("G-1", "GUITAR", "G", false)))
+    fun `세션을 여러 번 추가해도 sessionId 는 서로 겹치지 않는다`() {
+        val jam = jam()
         `when`(jamRepository.findById(jamId)).thenReturn(Optional.of(jam))
         `when`(jamParticipantRepository.existsByJamAndMember(jam, 1L)).thenReturn(true)
 
-        assertThatThrownBy { sut.addSession(jamId, JamSessionAddRequest("G-1", "GUITAR", false), 1L) }
-            .isInstanceOf(BusinessException::class.java)
-            .hasFieldOrPropertyWithValue("errorCode", ErrorCode.JAM_SESSION_ALREADY_EXISTS)
+        sut.addSession(jamId, JamSessionAddRequest("GUITAR", false), 1L)
+        sut.addSession(jamId, JamSessionAddRequest("GUITAR", false), 1L)
+
+        assertThat(jam.sessions.map { it.sessionId }).hasSize(2).doesNotHaveDuplicates()
     }
 
     @Test

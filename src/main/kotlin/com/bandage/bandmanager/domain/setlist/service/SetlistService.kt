@@ -187,7 +187,7 @@ class SetlistService(
 
         track.updateMeta(request.title, request.artist, request.album, request.duration, request.reference, request.note)
         request.sessions?.let { sessions ->
-            val newDefs = SessionDef.createAll(sessions.map { it.toSpec() })
+            val newDefs = SessionDef.createAll(sessions.map { it.toSpec() }, track.sessions.map { it.sessionId }.toSet())
             val newSessionIds = newDefs.map { it.sessionId }.toSet()
             setlistTrackParticipantRepository
                 .findAllByTrack(track)

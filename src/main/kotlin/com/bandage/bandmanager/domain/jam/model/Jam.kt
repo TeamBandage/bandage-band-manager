@@ -143,8 +143,7 @@ open class Jam(
      * short 는 표시 전용이고 배정 정보는 sessionId 를 키로 쓰므로 재생성에 부수효과가 없다.
      */
     fun addSession(spec: SessionSpec) {
-        require(_sessions.none { it.sessionId == spec.sessionId }) { "이미 존재하는 세션입니다: ${spec.sessionId}" }
-        replaceSessions(SessionDef.createAll(toSpecs() + spec))
+        replaceSessions(SessionDef.createAll(toSpecs() + spec, _sessions.map { it.sessionId }.toSet()))
     }
 
     /** 특정 세션의 이름을 변경하고 목록 전체의 약어를 재생성한다(BD-229). custom 은 보존한다. */
@@ -155,7 +154,7 @@ open class Jam(
         val idx = _sessions.indexOfFirst { it.sessionId == sessionId }
         require(idx >= 0) { "존재하지 않는 세션입니다: $sessionId" }
         val specs = toSpecs().mapIndexed { i, spec -> if (i == idx) spec.copy(label = label) else spec }
-        replaceSessions(SessionDef.createAll(specs))
+        replaceSessions(SessionDef.createAll(specs, _sessions.map { it.sessionId }.toSet()))
     }
 
     private fun toSpecs(): List<SessionSpec> = _sessions.map { SessionSpec(it.sessionId, it.label, it.custom) }
