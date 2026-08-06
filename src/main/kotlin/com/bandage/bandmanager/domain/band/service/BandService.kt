@@ -32,6 +32,7 @@ import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
 import com.bandage.bandmanager.global.infra.s3.ImagePresignRequest
 import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.infra.s3.ImagePresignSupport
+import com.bandage.bandmanager.global.infra.s3.S3ObjectValidator
 import com.bandage.bandmanager.global.notify.annotation.Notify
 import com.bandage.bandmanager.global.notify.annotation.NotifyCategory
 import org.springframework.data.repository.findByIdOrNull
@@ -48,6 +49,7 @@ class BandService(
     private val memberRepository: MemberRepository,
     private val cloudFrontUrlResolver: CloudFrontUrlResolver,
     private val imagePresignSupport: ImagePresignSupport,
+    private val s3ObjectValidator: S3ObjectValidator,
 ) : MemberAuthorityCleanupHandler {
     override val authorityType: ResourceAuthorityType = ResourceAuthorityType.BAND_LEADERSHIP
 
@@ -60,6 +62,7 @@ class BandService(
         if (bandRepository.existsByName(request.name)) {
             throw BusinessException(ErrorCode.DUPLICATE_BAND_NAME)
         }
+        request.profileImg?.let { s3ObjectValidator.requireExists(it) }
         val band =
             bandRepository.save(
                 Band.create(
@@ -297,6 +300,7 @@ class BandService(
         request.profileImg
             ?.takeIf { it != band.profileImg }
             ?.let {
+                s3ObjectValidator.requireExists(it)
                 band.updateImg(it)
                 changed = true
             }
