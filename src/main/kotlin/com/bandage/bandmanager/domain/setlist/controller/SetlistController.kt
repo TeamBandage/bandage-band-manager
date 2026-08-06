@@ -57,7 +57,11 @@ class SetlistController(
     ): ApiResponse<CursorResponse<SetlistResponse, UUID>> = ApiResponse.success(setlistService.getMySetlists(memberId, query))
 
     @GetMapping("/by-title")
-    @Operation(operationId = "getSetlistsByTitle", summary = "셋리스트 타이틀 조회", description = "본인이 접근 가능한 셋리스트 중 타이틀이 일치하는 항목을 조회합니다.")
+    @Operation(
+        operationId = "getSetlistsByTitle",
+        summary = "셋리스트 타이틀 검색",
+        description = "본인이 접근 가능한 셋리스트 중 타이틀에 검색어가 포함된 항목을 조회합니다(대소문자 무시).",
+    )
     fun getSetlistsByTitle(
         @CurrentMemberId memberId: Long,
         @RequestParam @NotBlank title: String,

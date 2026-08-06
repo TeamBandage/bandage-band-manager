@@ -8332,7 +8332,7 @@
         },
         "/api/v1/setlists/by-title": {
             "get": {
-                "description": "\ubcf8\uc778\uc774 \uc811\uadfc \uac00\ub2a5\ud55c \uc14b\ub9ac\uc2a4\ud2b8 \uc911 \ud0c0\uc774\ud2c0\uc774 \uc77c\uce58\ud558\ub294 \ud56d\ubaa9\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "description": "\ubcf8\uc778\uc774 \uc811\uadfc \uac00\ub2a5\ud55c \uc14b\ub9ac\uc2a4\ud2b8 \uc911 \ud0c0\uc774\ud2c0\uc5d0 \uac80\uc0c9\uc5b4\uac00 \ud3ec\ud568\ub41c \ud56d\ubaa9\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4(\ub300\uc18c\ubb38\uc790 \ubb34\uc2dc).",
                 "operationId": "getSetlistsByTitle",
                 "parameters": [
                     {
@@ -8356,7 +8356,7 @@
                         "description": "OK"
                     }
                 },
-                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud0c0\uc774\ud2c0 \uc870\ud68c",
+                "summary": "\uc14b\ub9ac\uc2a4\ud2b8 \ud0c0\uc774\ud2c0 \uac80\uc0c9",
                 "tags": [
                     "setlists"
                 ]

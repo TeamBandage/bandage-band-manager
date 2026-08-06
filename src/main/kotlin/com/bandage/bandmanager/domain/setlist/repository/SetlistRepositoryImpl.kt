@@ -65,7 +65,7 @@ class SetlistRepositoryImpl(
 
         return queryFactory
             .selectFrom(qSetlist)
-            .where(qSetlist.title.eq(title))
+            .where(qSetlist.title.containsIgnoreCase(title))
             .where(
                 qSetlist.managerId
                     .eq(memberId)
