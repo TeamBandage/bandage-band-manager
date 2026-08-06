@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingRequestCookieException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.servlet.resource.NoResourceFoundException
 
 @RestControllerAdvice
@@ -84,6 +86,36 @@ open class GlobalExceptionHandler {
                     code = errorCode.name,
                 ),
             )
+    }
+
+    /**
+     * 경로변수·쿼리 파라미터의 타입 변환 실패(예: UUID 자리에 숫자, 잘못된 날짜 형식).
+     * 이 핸들러가 없으면 아래 catch-all 로 떨어져 클라이언트 입력 오류가 500 으로 응답된다.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    protected fun handleMethodArgumentTypeMismatch(e: MethodArgumentTypeMismatchException): ResponseEntity<ApiResponse<Nothing>> {
+        val errorCode = ErrorCode.INVALID_INPUT_VALUE
+        return ResponseEntity
+            .status(errorCode.status)
+            .body(
+                ApiResponse.error(
+                    message = errorCode.message,
+                    code = errorCode.name,
+                    fieldErrors = mapOf(e.name to "올바르지 않은 입력 형식입니다."),
+                ),
+            )
+    }
+
+    /**
+     * 필수 쿠키 누락(예: refresh 토큰 재발급 시 refreshToken 쿠키 없음).
+     * 인증 실패이므로 401 로 응답해 클라이언트가 재로그인 분기를 태울 수 있게 한다.
+     */
+    @ExceptionHandler(MissingRequestCookieException::class)
+    protected fun handleMissingRequestCookie(e: MissingRequestCookieException): ResponseEntity<ApiResponse<Nothing>> {
+        val errorCode = ErrorCode.UNAUTHORIZED
+        return ResponseEntity
+            .status(errorCode.status)
+            .body(ApiResponse.error(message = errorCode.message, code = errorCode.name))
     }
 
     @ExceptionHandler(NoResourceFoundException::class)
