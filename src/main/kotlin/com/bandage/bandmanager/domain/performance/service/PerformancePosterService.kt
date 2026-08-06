@@ -1,6 +1,8 @@
 package com.bandage.bandmanager.domain.performance.service
 
+import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterCreateRequest
+import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterPagingQuery
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterUpdateRequest
 import com.bandage.bandmanager.domain.performance.dto.res.PerformancePosterResponse
 import com.bandage.bandmanager.domain.performance.model.Performance
@@ -8,6 +10,7 @@ import com.bandage.bandmanager.domain.performance.model.PerformancePoster
 import com.bandage.bandmanager.domain.performance.repository.PerformanceManagerRepository
 import com.bandage.bandmanager.domain.performance.repository.PerformancePosterRepository
 import com.bandage.bandmanager.domain.performance.repository.PerformanceRepository
+import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
@@ -25,6 +28,7 @@ class PerformancePosterService(
     private val performancePosterRepository: PerformancePosterRepository,
     private val performanceRepository: PerformanceRepository,
     private val performanceManagerRepository: PerformanceManagerRepository,
+    private val bandMemberRepository: BandMemberRepository,
     private val cloudFrontUrlResolver: CloudFrontUrlResolver,
     private val imagePresignSupport: ImagePresignSupport,
 ) {
@@ -55,11 +59,21 @@ class PerformancePosterService(
 
     fun getPoster(posterId: UUID): PerformancePosterResponse = toResponse(requirePoster(posterId))
 
-    fun getPostersByPerformance(performanceId: UUID): List<PerformancePosterResponse> =
-        performancePosterRepository.findAllByPerformanceIdOrderByCreatedAtDesc(performanceId).map { toResponse(it) }
+    /** performanceId 미지정 시 전체 포스터. 커서(lastId)는 포스터 ID 내림차순 = 최신순(UUIDv7). */
+    fun getPosters(
+        performanceId: UUID?,
+        query: PerformancePosterPagingQuery,
+    ): CursorResponse<PerformancePosterResponse, UUID> =
+        toCursorResponse(performancePosterRepository.findAllByPaging(performanceId, query.lastId, query.pageSize))
 
-    fun getAllPosters(): List<PerformancePosterResponse> =
-        performancePosterRepository.findAllByOrderByCreatedAtDesc().map { toResponse(it) }
+    /** 본인이 참여 중인 공연(OWNER/MANAGER 또는 소속 밴드가 셋리스트로 참여)의 포스터 목록. */
+    fun getMyPosters(
+        memberId: Long,
+        query: PerformancePosterPagingQuery,
+    ): CursorResponse<PerformancePosterResponse, UUID> {
+        val bandIds = bandMemberRepository.findAllBandIdsByMember(memberId)
+        return toCursorResponse(performancePosterRepository.findMyPostersByCursor(memberId, bandIds, query.lastId, query.pageSize))
+    }
 
     @Transactional
     fun updateDescription(
@@ -82,6 +96,13 @@ class PerformancePosterService(
         validateParticipant(poster.performance, memberId)
         performancePosterRepository.delete(poster)
     }
+
+    private fun toCursorResponse(result: CursorResponse<PerformancePoster, UUID>): CursorResponse<PerformancePosterResponse, UUID> =
+        CursorResponse(
+            content = result.content.map { toResponse(it) },
+            nextCursor = result.nextCursor,
+            hasNext = result.hasNext,
+        )
 
     private fun toResponse(poster: PerformancePoster): PerformancePosterResponse =
         PerformancePosterResponse.of(poster, cloudFrontUrlResolver.resolve(poster.imageKey))

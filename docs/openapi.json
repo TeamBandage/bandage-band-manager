@@ -342,6 +342,37 @@
                 ],
                 "type": "object"
             },
+            "ApiResponseCursorResponsePerformancePosterResponseUUID": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/CursorResponsePerformancePosterResponseUUID"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
             "ApiResponseCursorResponseSetlistChatMessageResponseUUID": {
                 "properties": {
                     "code": {
@@ -697,40 +728,6 @@
                     "data": {
                         "items": {
                             "$ref": "#/components/schemas/PerformanceInvitationResponse"
-                        },
-                        "type": "array"
-                    },
-                    "fieldErrors": {
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "type": "object"
-                    },
-                    "message": {
-                        "type": "string"
-                    },
-                    "success": {
-                        "type": "boolean"
-                    },
-                    "timestamp": {
-                        "format": "date-time",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "success",
-                    "timestamp"
-                ],
-                "type": "object"
-            },
-            "ApiResponseListPerformancePosterResponse": {
-                "properties": {
-                    "code": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "items": {
-                            "$ref": "#/components/schemas/PerformancePosterResponse"
                         },
                         "type": "array"
                     },
@@ -2119,6 +2116,29 @@
                     "content": {
                         "items": {
                             "$ref": "#/components/schemas/PerformanceListResponse"
+                        },
+                        "type": "array"
+                    },
+                    "hasNext": {
+                        "type": "boolean"
+                    },
+                    "nextCursor": {
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "content",
+                    "hasNext"
+                ],
+                "type": "object"
+            },
+            "CursorResponsePerformancePosterResponseUUID": {
+                "description": "\ucee4\uc11c \uae30\ubc18 \ud398\uc774\uc9d5 \uc751\ub2f5",
+                "properties": {
+                    "content": {
+                        "items": {
+                            "$ref": "#/components/schemas/PerformancePosterResponse"
                         },
                         "type": "array"
                     },
@@ -3773,6 +3793,29 @@
                 "required": [
                     "imageKey",
                     "performanceId"
+                ],
+                "type": "object"
+            },
+            "PerformancePosterPagingQuery": {
+                "description": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ubaa9\ub85d \uc870\ud68c \ucffc\ub9ac",
+                "properties": {
+                    "lastId": {
+                        "description": "\ub9c8\uc9c0\ub9c9\uc73c\ub85c \uc870\ud68c\ub41c \ud3ec\uc2a4\ud130 ID (\ucee4\uc11c)",
+                        "example": "550e8400-e29b-41d4-a716-446655440000",
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "pageSize": {
+                        "description": "\ud398\uc774\uc9c0 \ud06c\uae30",
+                        "example": 10,
+                        "format": "int32",
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "pageSize"
                 ],
                 "type": "object"
             },
@@ -7495,7 +7538,7 @@
         },
         "/api/v1/performance-posters": {
             "get": {
-                "description": "\ud3ec\uc2a4\ud130 \ubaa9\ub85d\uc744 \uc870\ud68c\ud569\ub2c8\ub2e4. performanceId \uc81c\uacf5 \uc2dc \ud574\ub2f9 \uacf5\uc5f0\uc758 \ud3ec\uc2a4\ud130\ub9cc, \ubbf8\uc81c\uacf5 \uc2dc \uc804\uccb4 \ud3ec\uc2a4\ud130\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "description": "\ud3ec\uc2a4\ud130 \ubaa9\ub85d\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4. performanceId \uc81c\uacf5 \uc2dc \ud574\ub2f9 \uacf5\uc5f0\uc758 \ud3ec\uc2a4\ud130\ub9cc, \ubbf8\uc81c\uacf5 \uc2dc \uc804\uccb4 \ud3ec\uc2a4\ud130\ub97c \uc870\ud68c\ud569\ub2c8\ub2e4.",
                 "operationId": "getPerformancePosters",
                 "parameters": [
                     {
@@ -7506,6 +7549,14 @@
                             "format": "uuid",
                             "type": "string"
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/PerformancePosterPagingQuery"
+                        }
                     }
                 ],
                 "responses": {
@@ -7513,7 +7564,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseListPerformancePosterResponse"
+                                    "$ref": "#/components/schemas/ApiResponseCursorResponsePerformancePosterResponseUUID"
                                 }
                             }
                         },
@@ -7551,6 +7602,38 @@
                     }
                 },
                 "summary": "\uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ub4f1\ub85d API",
+                "tags": [
+                    "performance-posters"
+                ]
+            }
+        },
+        "/api/v1/performance-posters/me": {
+            "get": {
+                "description": "\ubcf8\uc778\uc774 \ucc38\uc5ec \uc911\uc778 \uacf5\uc5f0(OWNER/MANAGER \ub610\ub294 \uc18c\uc18d \ubc34\ub4dc\uac00 \uc14b\ub9ac\uc2a4\ud2b8\ub85c \ucc38\uc5ec)\uc758 \ud3ec\uc2a4\ud130 \ubaa9\ub85d\uc744 \ucee4\uc11c \uae30\ubc18\uc73c\ub85c \uc870\ud68c\ud569\ub2c8\ub2e4.",
+                "operationId": "getMyPerformancePosters",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/PerformancePosterPagingQuery"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseCursorResponsePerformancePosterResponseUUID"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\ub0b4 \uacf5\uc5f0 \ud3ec\uc2a4\ud130 \ubaa9\ub85d \uc870\ud68c API",
                 "tags": [
                     "performance-posters"
                 ]

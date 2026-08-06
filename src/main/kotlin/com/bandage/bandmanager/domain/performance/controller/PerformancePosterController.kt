@@ -1,11 +1,13 @@
 package com.bandage.bandmanager.domain.performance.controller
 
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterCreateRequest
+import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterPagingQuery
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePosterUpdateRequest
 import com.bandage.bandmanager.domain.performance.dto.res.PerformancePosterResponse
 import com.bandage.bandmanager.domain.performance.service.PerformancePosterService
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
+import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.infra.s3.ImagePresignRequest
 import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.security.annotation.CurrentMemberId
@@ -52,16 +54,25 @@ class PerformancePosterController(
     @Operation(
         operationId = "getPerformancePosters",
         summary = "공연 포스터 목록 조회 API",
-        description = "포스터 목록을 조회합니다. performanceId 제공 시 해당 공연의 포스터만, 미제공 시 전체 포스터를 조회합니다.",
+        description = "포스터 목록을 커서 기반으로 조회합니다. performanceId 제공 시 해당 공연의 포스터만, 미제공 시 전체 포스터를 조회합니다.",
     )
     fun getPosters(
         @RequestParam(required = false) performanceId: UUID?,
-    ): ApiResponse<List<PerformancePosterResponse>> =
-        if (performanceId != null) {
-            ApiResponse.success(performancePosterService.getPostersByPerformance(performanceId))
-        } else {
-            ApiResponse.success(performancePosterService.getAllPosters())
-        }
+        @Valid query: PerformancePosterPagingQuery,
+    ): ApiResponse<CursorResponse<PerformancePosterResponse, UUID>> =
+        ApiResponse.success(performancePosterService.getPosters(performanceId, query))
+
+    @GetMapping("/me")
+    @Operation(
+        operationId = "getMyPerformancePosters",
+        summary = "내 공연 포스터 목록 조회 API",
+        description = "본인이 참여 중인 공연(OWNER/MANAGER 또는 소속 밴드가 셋리스트로 참여)의 포스터 목록을 커서 기반으로 조회합니다.",
+    )
+    fun getMyPosters(
+        @Valid query: PerformancePosterPagingQuery,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<CursorResponse<PerformancePosterResponse, UUID>> =
+        ApiResponse.success(performancePosterService.getMyPosters(memberId, query))
 
     @GetMapping("/{posterId}")
     @Operation(operationId = "getPerformancePoster", summary = "공연 포스터 단건 조회 API", description = "포스터 고유 식별 ID로 포스터를 조회합니다.")
