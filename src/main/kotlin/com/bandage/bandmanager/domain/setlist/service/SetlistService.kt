@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.setlist.service
 
 import com.bandage.bandmanager.domain.band.model.BandMember
 import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
+import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.performance.repository.PerformanceSetlistRepository
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistManagerTransferRequest
@@ -163,6 +164,35 @@ class SetlistService(
         return CursorResponse(content = content, nextCursor = result.nextCursor, hasNext = result.hasNext)
     }
 
+    /**
+     * 여러 셋리스트의 트랙을 셋리스트별로 묶어 일괄 조립한다(BD-264).
+     *
+     * **접근 권한을 검사하지 않는다.** 호출자가 이미 권한을 검증했다는 전제이므로
+     * 컨트롤러에서 직접 호출하지 말고, 권한 판정 주체(예: PerformanceSetlistTrackFacade 의
+     * 공연 참여자 검증)를 거친 파사드에서만 호출한다.
+     *
+     * 트랙·참여자·회원 정보를 각각 1회씩만 조회한다(셋리스트 수와 무관하게 쿼리 3회).
+     */
+    fun getTracksBySetlistIds(setlistIds: Collection<UUID>): Map<UUID, List<SetlistTrackResponse>> {
+        if (setlistIds.isEmpty()) return emptyMap()
+
+        val tracks = setlistTrackRepository.findAllBySetlistIdIn(setlistIds)
+        if (tracks.isEmpty()) return emptyMap()
+
+        val participantsByTrack = setlistTrackParticipantRepository.findAllByTrackIn(tracks).groupBy { it.track.id }
+        val memberInfos = memberService.getMemberSummaries(participantsByTrack.values.flatten().map { it.memberId })
+
+        return tracks
+            .sortedBy { it.id }
+            .groupBy({ it.setlist.id }) { track ->
+                SetlistTrackResponse.of(
+                    track = track,
+                    participants = participantsByTrack[track.id] ?: emptyList(),
+                    memberInfos = memberInfos,
+                )
+            }
+    }
+
     fun getTrack(
         setlistId: UUID,
         trackId: UUID,
@@ -233,6 +263,34 @@ class SetlistService(
         return track
     }
 
+    /**
+     * 여러 셋리스트의 참여자를 셋리스트별로 묶어 일괄 조립한다(BD-264).
+     *
+     * **접근 권한을 검사하지 않는다.** 호출자가 이미 권한을 검증했다는 전제이므로
+     * [getTracksBySetlistIds] 와 마찬가지로 파사드에서만 호출한다.
+     *
+     * 참여 정의는 셋리스트 단위 [loadParticipants] 와 동일하게 "그 셋리스트의 매니저 OR 트랙 참여자" 다.
+     * 공연 참여자라는 이유로 다른 셋리스트의 참여자 목록에 섞여 들어가지 않는다(트랙 배정 없는 인원이
+     * sessions:[] 로 노출되는 것을 막는다).
+     *
+     * 트랙·참여자·회원 정보를 각각 1회씩만 조회한다(셋리스트 수와 무관하게 쿼리 3회).
+     */
+    fun getParticipantsBySetlistIds(setlists: Collection<Setlist>): Map<UUID, List<SetlistParticipantResponse>> {
+        if (setlists.isEmpty()) return emptyMap()
+
+        val tracks = setlistTrackRepository.findAllBySetlistIdIn(setlists.map { it.id })
+        val participants = if (tracks.isEmpty()) emptyList() else setlistTrackParticipantRepository.findAllByTrackIn(tracks)
+        val memberInfos = memberService.getMemberSummaries(participants.map { it.memberId } + setlists.map { it.managerId })
+
+        val sessionDefs = tracks.flatMap { track -> track.sessions.map { (track.id to it.sessionId) to it } }.toMap()
+        val setlistIdByTrackId = tracks.associate { it.id to it.setlist.id }
+        val participantsBySetlist = participants.groupBy { setlistIdByTrackId[it.track.id] }
+
+        return setlists.associate { setlist ->
+            setlist.id to buildParticipants(setlist, participantsBySetlist[setlist.id].orEmpty(), sessionDefs, memberInfos)
+        }
+    }
+
     private fun loadBandIds(setlistId: UUID): List<UUID> = setlistBandRepository.findAllBySetlistId(setlistId).map { it.bandId }
 
     /**
@@ -250,6 +308,16 @@ class SetlistService(
         val sessionDefs =
             tracks.flatMap { track -> track.sessions.map { (track.id to it.sessionId) to it } }.toMap()
 
+        return buildParticipants(setlist, participants, sessionDefs, memberInfos)
+    }
+
+    /** 참여자 응답 조립. 셋리스트 단위/배치 조회가 동일한 참여 정의를 쓰도록 한 곳에 모은다. */
+    private fun buildParticipants(
+        setlist: Setlist,
+        participants: List<SetlistTrackParticipant>,
+        sessionDefs: Map<Pair<UUID, String>, SessionDef>,
+        memberInfos: Map<Long, MemberSummary>,
+    ): List<SetlistParticipantResponse> {
         val bySession =
             participants.groupBy({ it.memberId }) { participant ->
                 val def = sessionDefs[participant.track.id to participant.sessionId]
