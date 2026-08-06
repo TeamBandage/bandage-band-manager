@@ -17,10 +17,12 @@ class RedisRefreshTokenAdapter(
         refreshToken: String,
         expiration: Long,
     ) {
+        // jwt.refresh-token-expr 은 초 단위다(JwtProvider 도 * 1000 으로 변환해 쓴다).
+        // ofMillis 로 넘기면 7시간이 25초가 되어 재발급이 EXPIRED_REFRESH_TOKEN 으로 실패한다.
         redisTemplate.opsForValue().set(
             getRtKey(memberId),
             refreshToken,
-            Duration.ofMillis(expiration),
+            Duration.ofSeconds(expiration),
         )
     }
 
