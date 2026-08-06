@@ -6,8 +6,6 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-interface PerformancePosterRepository : JpaRepository<PerformancePoster, UUID> {
-    fun findAllByPerformanceIdOrderByCreatedAtDesc(performanceId: UUID): List<PerformancePoster>
-
-    fun findAllByOrderByCreatedAtDesc(): List<PerformancePoster>
-}
+interface PerformancePosterRepository :
+    JpaRepository<PerformancePoster, UUID>,
+    PerformancePosterRepositoryCustom
