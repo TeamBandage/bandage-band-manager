@@ -5254,6 +5254,11 @@
                     "artist": {
                         "type": "string"
                     },
+                    "chatMessageCount": {
+                        "description": "\ud574\ub2f9 \ud56d\ubaa9\uc758 \uc804\uccb4 \ucc44\ud305 \uba54\uc2dc\uc9c0 \uc218(\ud398\uc774\uc9d5\uacfc \ubb34\uad00\ud55c \uc804\uccb4 \uce74\uc6b4\ud2b8)",
+                        "format": "int64",
+                        "type": "integer"
+                    },
                     "createdAt": {
                         "format": "date-time",
                         "type": "string"
@@ -5301,6 +5306,7 @@
                 },
                 "required": [
                     "artist",
+                    "chatMessageCount",
                     "isSelected",
                     "selectionId",
                     "sessions",

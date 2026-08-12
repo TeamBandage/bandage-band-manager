@@ -24,6 +24,8 @@ data class TrackSelectionItemResponse(
     val note: String?,
     val isSelected: Boolean,
     val sessions: List<SessionDefResponse>,
+    @Schema(description = "해당 항목의 전체 채팅 메시지 수(페이징과 무관한 전체 카운트)")
+    val chatMessageCount: Long,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
 ) {
@@ -33,6 +35,7 @@ data class TrackSelectionItemResponse(
             applicants: List<TrackSelectionItemApplicant>,
             confirmations: List<TrackSelectionItemConfirmation>,
             memberInfos: Map<Long, MemberSummary>,
+            chatMessageCount: Long = 0,
         ): TrackSelectionItemResponse {
             val applicantsBySession = applicants.groupBy { it.sessionId }
             val confirmedBySession = confirmations.groupBy { it.sessionId }
@@ -56,6 +59,7 @@ data class TrackSelectionItemResponse(
                 note = item.note,
                 isSelected = item.isSelected,
                 sessions = sessionResponses,
+                chatMessageCount = chatMessageCount,
                 createdAt = item.createdAt,
                 updatedAt = item.lastModifiedAt,
             )

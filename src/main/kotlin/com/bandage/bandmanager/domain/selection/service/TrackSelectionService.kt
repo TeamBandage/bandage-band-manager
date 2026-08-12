@@ -321,6 +321,7 @@ class TrackSelectionService(
                     allConfirmations.forEach { add(it.memberId) }
                 },
             )
+        val chatCounts = chatMessageCounts(result.content.map { it.id })
         val content =
             result.content.map { item ->
                 TrackSelectionItemResponse.of(
@@ -328,6 +329,7 @@ class TrackSelectionService(
                     applicants = applicants[item.id] ?: emptyList(),
                     confirmations = confirmations[item.id] ?: emptyList(),
                     memberInfos = memberInfos,
+                    chatMessageCount = chatCounts[item.id] ?: 0,
                 )
             }
         return CursorResponse(content = content, nextCursor = result.nextCursor, hasNext = result.hasNext)
@@ -594,12 +596,24 @@ class TrackSelectionService(
             },
         )
 
+    /** 페이징(cursor) 쿼리와 분리된 항목별 전체 채팅 수 집계. */
+    private fun chatMessageCounts(itemIds: List<UUID>): Map<UUID, Long> {
+        if (itemIds.isEmpty()) return emptyMap()
+        return chatMessageRepository.countByItemIds(itemIds).associate { it.getItemId() to it.getMessageCount() }
+    }
+
     private fun toItemResponse(
         item: TrackSelectionItem,
         applicants: List<TrackSelectionItemApplicant>,
         confirmations: List<TrackSelectionItemConfirmation>,
     ): TrackSelectionItemResponse =
-        TrackSelectionItemResponse.of(item, applicants, confirmations, itemMemberInfos(item, applicants, confirmations))
+        TrackSelectionItemResponse.of(
+            item = item,
+            applicants = applicants,
+            confirmations = confirmations,
+            memberInfos = itemMemberInfos(item, applicants, confirmations),
+            chatMessageCount = chatMessageCounts(listOf(item.id))[item.id] ?: 0,
+        )
 
     private fun getItemOrThrow(
         selection: TrackSelection,
