@@ -337,3 +337,16 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 027-schedule-board-setlist-item-placement
+      author: bandage
+      comment: |
+        BD-272: 스케줄보드 ↔ 셋리스트 트랙 단위 자동배치 결과 테이블 신설
+        - p_schedule_board_setlist_item_placement 생성 (트랙별 배치 회차 수, 0 이면 미배치)
+      changes:
+        - sqlFile:
+            path: changes/027-schedule-board-setlist-item-placement.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
