@@ -1,6 +1,6 @@
 package com.bandage.bandmanager.domain.schedule.model
 
-import com.bandage.bandmanager.domain.schedule.model.enums.RecurrenceFreq
+import com.bandage.bandmanager.domain.schedule.model.enums.Frequency
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EnumType
@@ -10,20 +10,20 @@ import java.time.LocalDate
 /**
  * ScheduleBlock 의 반복 배치 규칙.
  *
- * freq == NONE 이면 단발성이며 나머지 필드는 무시된다.
+ * freq == ONCE 이면 단발성이며 나머지 필드는 무시된다.
  * 반복 블록은 ScheduleConfirmFacade.expandRecurrence 에서 [anchorDate, until] 구간을 전개해
  * 실제 Jam 인스턴스들로 펼친다.
  */
 @Embeddable
 open class RecurrenceRule(
-    freq: RecurrenceFreq = RecurrenceFreq.NONE,
+    freq: Frequency = Frequency.ONCE,
     interval: Int = 1,
     until: LocalDate? = null,
     count: Int? = null,
 ) {
     @Enumerated(EnumType.STRING)
     @Column(name = "recurrence_freq", nullable = false)
-    var freq: RecurrenceFreq = freq
+    var freq: Frequency = freq
         protected set
 
     // freq 의 배수 간격(예: WEEKLY + interval=2 → 격주). 최소 1.
@@ -41,9 +41,9 @@ open class RecurrenceRule(
     var count: Int? = count
         protected set
 
-    val isRecurring: Boolean get() = freq != RecurrenceFreq.NONE
+    val isRecurring: Boolean get() = freq != Frequency.ONCE
 
     companion object {
-        fun none(): RecurrenceRule = RecurrenceRule(freq = RecurrenceFreq.NONE)
+        fun none(): RecurrenceRule = RecurrenceRule(freq = Frequency.ONCE)
     }
 }

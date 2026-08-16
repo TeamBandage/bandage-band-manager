@@ -115,6 +115,7 @@ enum class ErrorCode(
     SCHEDULE_BLOCK_TRACK_NOT_IN_SETLIST(HttpStatus.BAD_REQUEST, "셋리스트에 속하지 않은 트랙입니다."),
     SCHEDULE_WINDOW_REQUIRED(HttpStatus.BAD_REQUEST, "자동 배치를 위해서는 연습 가능 기간(window)이 필요합니다."),
     SCHEDULE_NO_PLACEABLE_TRACK(HttpStatus.BAD_REQUEST, "배치할 트랙이 없습니다. 공연 셋리스트를 확인하세요."),
+    INVALID_SLOT_RANGE(HttpStatus.BAD_REQUEST, "잘못된 슬롯 범위 입력입니다."),
 
     // upload
     INVALID_FILE_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 타입입니다."),

@@ -8,7 +8,7 @@ ALTER TABLE public.p_schedule_block DROP COLUMN song_id;
 ALTER TABLE public.p_schedule_block RENAME COLUMN song_title_override TO title_override;
 
 -- 7) 반복 배치 규칙(RecurrenceRule)
-ALTER TABLE public.p_schedule_block ADD COLUMN recurrence_freq character varying(20) NOT NULL DEFAULT 'NONE';
+ALTER TABLE public.p_schedule_block ADD COLUMN recurrence_freq character varying(20) NOT NULL DEFAULT 'ONCE';
 ALTER TABLE public.p_schedule_block ALTER COLUMN recurrence_freq DROP DEFAULT;
 ALTER TABLE public.p_schedule_block ADD COLUMN recurrence_interval integer NOT NULL DEFAULT 1;
 ALTER TABLE public.p_schedule_block ALTER COLUMN recurrence_interval DROP DEFAULT;

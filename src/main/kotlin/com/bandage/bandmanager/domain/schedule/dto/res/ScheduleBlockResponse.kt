@@ -1,8 +1,8 @@
 package com.bandage.bandmanager.domain.schedule.dto.res
 
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBlock
+import com.bandage.bandmanager.domain.schedule.model.enums.Frequency
 import com.bandage.bandmanager.domain.schedule.model.enums.PlacementOrigin
-import com.bandage.bandmanager.domain.schedule.model.enums.RecurrenceFreq
 import java.time.LocalDate
 import java.util.UUID
 
@@ -20,7 +20,7 @@ data class ScheduleBlockResponse(
     val placementOrigin: PlacementOrigin,
 ) {
     data class RecurrenceDto(
-        val freq: RecurrenceFreq,
+        val freq: Frequency,
         val interval: Int,
         val until: LocalDate?,
         val count: Int?,
