@@ -1,7 +1,7 @@
 package com.bandage.bandmanager.domain.schedule.controller
 
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleAutoPlaceRequest
-import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBlockResponse
+import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBoardResponse
 import com.bandage.bandmanager.domain.schedule.service.ScheduleAutoPlaceService
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
@@ -33,6 +33,6 @@ class ScheduleAutoPlaceController(
         @PathVariable boardId: UUID,
         @CurrentMemberId memberId: Long,
         @Valid @RequestBody request: ScheduleAutoPlaceRequest,
-    ): ApiResponse<List<ScheduleBlockResponse>> =
+    ): ApiResponse<ScheduleBoardResponse> =
         ApiResponse.success(scheduleAutoPlaceService.autoPlaceScheduleBlocks(setlistId, boardId, memberId, request))
 }

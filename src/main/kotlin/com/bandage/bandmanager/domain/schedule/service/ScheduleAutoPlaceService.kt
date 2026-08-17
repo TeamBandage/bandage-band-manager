@@ -1,26 +1,55 @@
 package com.bandage.bandmanager.domain.schedule.service
 
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleAutoPlaceRequest
-import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBlockResponse
+import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBoardResponse
+import com.bandage.bandmanager.domain.schedule.model.ScheduleBlock
+import com.bandage.bandmanager.domain.schedule.model.ScheduleBlockTrack
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
+import com.bandage.bandmanager.domain.schedule.model.Slot
+import com.bandage.bandmanager.domain.schedule.model.enums.Frequency
+import com.bandage.bandmanager.domain.schedule.model.enums.PlacementOrigin
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockTrackRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardRepository
+import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackParticipantRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 import java.util.UUID
 
+/**
+ * 시간표 자동 배치.
+ *
+ * - 블록 = 트랙 1개. 참여 멤버 집합이 같은 트랙들(그룹)은 같은 날 인접 슬롯에 연속 배치한다.
+ * - 실효 시간대 = boardTimeRange ∩ TimePreference (둘 다 하드 제약).
+ *   그룹이 하루에 다 들어가지 않으면 하루 최대치(실효 폭 / jamDurationSlots)로 잘라
+ *   조각별로 다른 날에 배치한다.
+ * - 회차: 윈도우를 달력 기준(interval)으로 쪼갠 구간. 조각은 회차당 최대 1회 배치되고,
+ *   실패한 회차는 건너뛴다. 부분 회차도 1회차로 인정한다.
+ * - dayPreference 는 소프트 제약: 선호 요일에 후보가 없으면(fellBack) 다른 요일까지 연다.
+ *   폴백된 조각을 먼저, 그다음 후보가 적은 조각부터 배치하고,
+ *   자리는 다른 조각의 후보를 가장 적게 줄이는 위치(동률이면 이른 시간)를 고른다.
+ * - pinned 블록과 그 트랙은 보존하고 멤버 점유로만 반영한다. pinned = false 블록은 배치 전에
+ *   삭제한다(자식 먼저, flush 후 재생성 — uk 제약 순서 때문).
+ * - maxJamsPerDay / maxEmptySlotsBetweenJams 는 멤버별 "모임"(연속 구간은 병합해 1회) 단위로 판정한다.
+ * - 배치 현황은 적재하지 않는다. ScheduleBlockTrack 집계(countPlacementsByBoardId)가 조회를 대신한다.
+ */
 @Service
 @Transactional(readOnly = true)
 class ScheduleAutoPlaceService(
     private val scheduleBoardRepository: ScheduleBoardRepository,
     private val scheduleBlockRepository: ScheduleBlockRepository,
-    private val setlistTrackRepository: SetlistTrackRepository,
     private val scheduleBlockTrackRepository: ScheduleBlockTrackRepository,
+    private val setlistTrackRepository: SetlistTrackRepository,
+    private val setlistTrackParticipantRepository: SetlistTrackParticipantRepository,
+    private val scheduleAvailabilityService: ScheduleAvailabilityService,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     @Transactional
@@ -29,123 +58,206 @@ class ScheduleAutoPlaceService(
         boardId: UUID,
         memberId: Long,
         request: ScheduleAutoPlaceRequest,
-    ): List<ScheduleBlockResponse> {
+    ): ScheduleBoardResponse {
         scheduleAuthService.validateSetlistManager(setlistId, memberId)
         val board = getBoardOrThrow(setlistId, boardId)
         if (board.confirmed) throw BusinessException(ErrorCode.SCHEDULE_BOARD_ALREADY_CONFIRMED)
         request.validateTimePreference()
-        board.scheduleWindowOrNull() ?: throw BusinessException(ErrorCode.SCHEDULE_WINDOW_REQUIRED)
+        val window = board.scheduleWindowOrNull() ?: throw BusinessException(ErrorCode.SCHEDULE_WINDOW_REQUIRED)
 
-        val resultList = mutableListOf<ScheduleBlockResponse>()
-        /**
-         * 0. 정의
-         * 슬롯: 하루를 30분 단위 48칸으로 나눈 것. 블록 구간은 [startSlot, endSlot) 반열린 구간으로 표현한다.
-         *       startSlot 은 0..47, endSlot 은 1..48 이며 이 규약은 Slot / 가용성 / 보드 시간대가 모두 공유한다.
-         * 동시 배치 불가 조건: 같은 슬롯에, 하나의 셋리스트 참여 멤버가 동시에 2개 이상의 스케줄 블럭을 가질 수 없다.
-         *
-         * 스케줄 블록 = 셋리스트 트랙 1개. 자동배치는 블록 하나에 트랙 하나만 연결한다.
-         *   - 같은 멤버가 30분 동안 두 곡을 동시에 연습할 수는 없다. 한 구간에 N곡을 묶어도
-         *     실제로는 순차 진행이므로, 연속된 N개 블록과 물리적으로 동일한 사건이다.
-         *   - 블록을 쪼개 두면 곡별 시각이 남아 곡 단위 이동·삭제가 블록 조작 하나로 끝난다.
-         *     묶어 두면 같은 정보를 잃고, 곡 하나를 빼는 데 블록 분할이 필요해진다.
-         *   - ScheduleBlockTrack 의 N:M 은 사용자가 수동으로 여러 곡을 한 구간으로 묶어 관리할 때만
-         *     쓰이며, 자동배치는 항상 1건만 생성한다.
-         *
-         * 잼 그룹(이하 그룹): 참여 멤버 집합이 완전히 동일한 트랙들의 묶음. 배치의 "순서" 단위이지
-         *                    블록 단위가 아니다.
-         *   - 트랙을 독립적으로 흩어 배치하면, 멤버 구성이 같은 곡들이 서로 다른 날짜/시간대로 밀려
-         *     같은 사람들이 여러 번 모이게 된다. 이를 막기 위해 그룹을 한 자리에 연속 배치한다.
-         *   - 그룹의 트랙들은 같은 날, 서로 인접한(빈틈 없는) 구간에 차례로 배치한다.
-         *   - 멤버 집합이 부분만 겹치는 트랙은 그룹으로 묶지 않는다. (묶음 조합 최적화는 이 단계의 범위 밖)
-         *
-         * 배치 단위: 트랙 1개당 길이 request.jamDurationSlots 인 연속 구간 1개(= 블록 1개).
-         *            그룹은 (jamDurationSlots * 그룹 내 트랙 수) 만큼의 연속 구간을 통째로 확보한 뒤,
-         *            그 안을 트랙 수만큼 잘라 블록을 차례로 만든다.
-         *
-         * 그룹 분할: 그룹 전체가 하루에 들어가지 않으면 하루치씩 잘라 여러 날에 나눠 배치한다.
-         *            하루 최대 곡 수 = 실효 시간대 폭 / jamDurationSlots (내림).
-         *            실효 시간대 폭은 boardTimeRange 와 TimePreference 의 교집합 길이다(둘 다 하드 제약).
-         *   - 조각은 하루 최대치를 꽉 채워 만든다. (예: 하루 최대 6곡, 그룹 10곡 → 6 + 4)
-         *   - 각 조각은 그 자체로 "한 자리에 모여 연속 연습"이며, 조각끼리는 다른 날에 배치된다.
-         *   - 하루 최대 곡 수가 0 이면(jamDurationSlots 가 실효 폭보다 큼) 그룹 전체를 배치 불가로 둔다.
-         *
-         * 가용 판정: 해당 그룹(조각)의 참여 멤버 전원이 확보 구간 전체에 가용해야 한다.
-         *            가용성 미등록 멤버는 제약 없음(항상 가용)으로 본다.
-         *            매니저는 트랙에 참여하면 SetlistTrackParticipant 에 행이 있으므로 별도로 더하지 않는다.
-         * maxJamsPerDay / maxEmptySlotsBetweenJams: 곡이 아니라 "모임" 단위로 센다.
-         *            한 조각이 만든 연속 블록들은 한 자리에 모인 것이므로 그날의 잼 횟수 1 로 센다.
-         *            (블록 개수로 세면 곡이 많을수록 잼 횟수가 늘어 필드명과 의미가 어긋난다)
-         *            maxEmptySlotsBetweenJams 도 조각 내부의 빈틈이 아니라 서로 다른 모임 사이의 간격을 본다.
-         *
-         * 회차: interval 이 ONCE 가 아니면 윈도우를 달력 기준으로 쪼갠 각 구간이 1회차이며,
-         *       각 그룹은 회차당 최대 1회 배치된다. ONCE 면 윈도우 전체가 1회차다.
-         *   - DAILY: 각 날짜 / WEEKLY: 월요일 시작 주(ISO) / MONTHLY: 달력 월(1일~말일)
-         *   - BIWEEKLY: windowFrom 이 속한 주부터 2주씩 묶는다.
-         *     (ISO 주번호의 짝/홀로 나누면 윈도우와 무관하게 경계가 정해져 사용자가 이유를 알 수 없다)
-         *   - 윈도우 양 끝에 생기는 부분 회차(예: 목~일 4일짜리 첫 주)도 1회차로 인정한다.
-         *     짧아서 배치할 슬롯이 없으면 그 회차만 실패하고 다음 회차로 넘어가므로 별도 규칙이 필요 없다.
-         *   - 반복 규칙(RecurrenceRule)은 사용하지 않는다. 회차 수만큼 블록을 실제로 생성하므로
-         *     어떤 회차가 실패해도 나머지 회차는 그대로 남는다.
-         *
-         * 1. 리소스 확보
-         * 권한/상태/요청 검증은 이 메서드 진입부에서 이미 수행했다(매니저 권한, confirmed 여부,
-         * TimePreference 정합성, 윈도우 존재). 아래는 그 이후 단계다.
-         *   - 남은 검증: 없음. 회차는 달력 기준이고 부분 회차도 인정하므로 윈도우가 짧아도 최소 1회차는 나온다.
-         *     (윈도우가 하루뿐이면 회차 1개, 그 안에서 배치를 시도하고 실패하면 미배치로 남는다)
-         * 기존 셋리스트+스케줄보드에 속한 스케줄 블록 중 고정된 스케줄 블록이 배치된 슬롯 목록(pinnedScheduleBlock, 이하 psbl) 을 조회한다.
-         *   - 각 블록은 [startSlot, endSlot) 구간이므로 슬롯 단위로 펼쳐 보유한다.
-         *   - psbl 은 슬롯만이 아니라 그 블록에 걸린 트랙의 참여 멤버까지 펼쳐 보유한다.
-         *     동시 배치 불가 조건이 멤버 단위이므로, 고정 블록도 멤버 단위로 알고 있어야 충돌을 막을 수 있다.
-         *
-         * 수동 배치와의 공존: pinned = false 인 기존 블록(수동으로 만들었든 이전 자동배치가 만들었든)은
-         *   재배치 대상이므로 **배치를 시작하기 전에 먼저 삭제한다.** 삭제 → flush → 신규 생성 순서를 지킨다.
-         *   - 남겨둔 채 배치하면 새 블록과 시간이 겹쳐 같은 멤버가 동시에 두 블록을 갖게 된다.
-         *   - flush 를 생략하면 INSERT 가 DELETE 보다 먼저 나가 uk_schedule_block_track 제약과 충돌한다.
-         *   - 삭제는 자식(ScheduleBlockTrack) 먼저, 부모(ScheduleBlock) 나중 순서로 한다.
-         *   - 고정하고 싶은 수동 블록은 사용자가 pin 해두면 psbl 로 보존된다.
-         *
-         * 셋리스트 아이템 목록 + 각 아이템에 속한 멤버 + 각 멤버의 가용성 정보를 조회한다.
-         * 참여 멤버 집합이 동일한 트랙끼리 묶어 그룹 목록을 만들고, 하루에 들어가지 않는 그룹은 조각으로 나눈다.
-         * 이후 배치는 트랙이 아니라 이 조각 단위로 진행한다. (분할되지 않은 그룹은 조각 1개인 셈이다)
-         * 스케줄보드의 윈도우(날짜 범위) 안에서, 각 조각이 배치될 수 있는 슬롯 목록(availableSlotList, 이하 asl)을 조각별로 조회한다.
-         *   - 후보는 (jamDurationSlots * 조각 내 트랙 수) 길이의 연속 구간이며, 참여 멤버 전원이 그 구간 전체에 가용해야 한다.
-         *     이 구간은 조각 전체가 쓸 자리이며, 배치 시점에 트랙 수만큼 잘려 블록이 된다.
-         *   - 하루 안의 시간대는 보드의 boardTimeRangeFrom/To 로 먼저 좁힌다. (하드 제약)
-         * 요구사항 충족을 위해, TimePreference 범위로 좁힌 슬롯 목록을 (preferredSlotList, 이하 psl) 조각별로 산출한다.
-         *   - TimePreference 도 하드 제약이다. 이 범위 밖에는 배치하지 않는다.
-         * 각 조각별 psl 의 요소가 최소 1개 이상인지 확인한다.
-         * psl 의 요소가 0개인 조각의 경우, asl 로 psl 을 덮어쓴다. (이때도 0개인 경우 auto place 범위에서 제외)
-         * -> 이 경우, 한번 psl 에서 배치 가능 대상이 0개로 판명된 경우 fellBack = true 로 필드값 업데이트, 이후, 정렬 시 fellBack 먼저 처리
-         *   - 이 폴백이 푸는 것은 dayPreference(요일 선호)뿐이며, 시간대 제약은 그대로 유지된다.
-         *     즉 asl 자체가 이미 boardTimeRange 와 TimePreference 안에서만 만들어져 있어야 한다.
-         *     (시간대까지 풀어버리면 사용자가 의도하지 않은 새벽 시간에 배치될 수 있다)
-         *
-         * 2. 배치
-         * 회차 단위로 fellBack=true -> psl 의 사이즈가 작은 순으로 psl 을 담은 리스트를 순회하며, 아래와 같이 배치를 시작한다:
-         * psl 을 dayPreference 에 따라 정렬한다.
-         * psbl 의 슬롯과 겹치는 멤버가 있다면 리스트에서 배제한다.
-         * 해당 psl 을 순회하며 그 회차 안에 다른 조각이 배치되어 있지 않은지 확인하고,
-         * 배치 가능한 슬롯 중 dayPreference 우선순위가 가장 높은 요일을 먼저 취하고,
-         * 그 요일 안에서 해당 시간대에 배치했을 때 다른 조각의 배치가능슬롯 수가 가장 적게 감소되는 위치에 조각을 배치한다.
-         * (감소량이 동일하면 더 이른 시간을 택한다.)
-         * 배치 가능한 슬롯을 찾았다면, 해당 날짜에 기 배치된 슬롯들을 확인하여, 해당 조각에 참여중인 멤버들의 가용성을 확인한다.
-         * maxJamsPerDay, maxEmptySlotsBetweenJams 을 위반한다면, 해당 블록에 배치하지 않고 넘어간다.
-         *   - 두 제약 모두 보드 전체가 아니라 해당 조각의 참여 멤버 각각을 기준으로 판정한다.
-         *   - 같은 그룹에서 나온 조각들은 서로 다른 날에 놓이므로, 한 날에 대해서는 조각 1개 = 잼 1회다.
-         * 배치된 슬롯은 리스트에서 삭제하고, 확보한 구간을 트랙 수만큼 잘라 스케줄 블록들을 생성해 결과 리스트에 담는다.
-         *   - 블록 k 는 [구간시작 + k*jamDurationSlots, +jamDurationSlots) 를 차지한다. 블록 사이에 빈틈을 두지 않는다.
-         *   - 각 블록에는 트랙 1개만 ScheduleBlockTrack 으로 연결한다(ordinal = 0).
-         *   - placementOrigin 은 AUTO 로 기록한다.
-         * 해당 회차에서 끝내 배치되지 못한 조각은 그 회차만 건너뛰고, 다음 회차에서 다시 시도한다.
-         * 전체 psl 들에 대한 순회가 끝났다면, 다음 회차에 대해 동일한 작업을 반복한다.
-         *
-         * 3. 결과 반영
-         * 배치 현황을 따로 적재하지 않는다. 블록이 곧 배치 결과이므로
-         * ScheduleBlockTrack 집계(countPlacementsByBoardId)로 조회 시점에 산출한다.
-         * 이렇게 하면 수동 배치로 생긴 블록도 자동으로 반영되어 집계가 항상 시간표와 일치한다.
-         * 결과를 반환한다.
-         */
-        return resultList
+        val effFrom = maxOf(board.boardTimeRangeFrom, request.startTimePreference)
+        val effTo = minOf(board.boardTimeRangeTo, request.endTimePreference)
+        val maxTracksPerDay = if (effTo > effFrom) (effTo - effFrom) / request.jamDurationSlots else 0
+        val tracks = setlistTrackRepository.findAllBySetlistIdIn(listOf(setlistId))
+        if (tracks.isEmpty() || maxTracksPerDay == 0) throw BusinessException(ErrorCode.SCHEDULE_NO_PLACEABLE_TRACK)
+
+        val membersByTrack: Map<UUID, Set<Long>> =
+            setlistTrackParticipantRepository
+                .findAllBySetlistId(setlistId)
+                .groupBy({ it.track.id }, { it.memberId })
+                .mapValues { (_, members) -> members.toSet() }
+
+        val pinnedBlocks = scheduleBlockRepository.findAllByBoardIdAndPinned(boardId, true)
+        val pinnedTrackIdsByBlock =
+            scheduleBlockTrackRepository
+                .findAllByBlockIdIn(pinnedBlocks.map { it.id })
+                .groupBy({ it.block.id }, { it.setlistTrackId })
+        val pinnedTrackIds = pinnedTrackIdsByBlock.values.flatten().toSet()
+
+        // 고정 블록에 이미 올라간 트랙은 재배치하지 않는다
+        val pieces =
+            tracks
+                .filter { it.id !in pinnedTrackIds }
+                .groupBy { membersByTrack[it.id].orEmpty() }
+                .flatMap { (members, grouped) ->
+                    grouped.map { it.id }.chunked(maxTracksPerDay).map { chunk ->
+                        Piece(chunk, members, chunk.size * request.jamDurationSlots)
+                    }
+                }
+
+        val index =
+            scheduleAvailabilityService.buildIndex(
+                membersByTrack.values.flatten().distinct(),
+                window.from,
+                window.to,
+            )
+        val occupancy = Occupancy(request.maxJamsPerDay, request.maxEmptySlotsBetweenJams)
+        pinnedBlocks.forEach { block ->
+            val members = pinnedTrackIdsByBlock[block.id].orEmpty().flatMap { membersByTrack[it].orEmpty() }.toSet()
+            occupancy.occupy(block.slot, members)
+        }
+
+        deleteStaleBlocks(boardId)
+
+        val newBlocks = mutableListOf<ScheduleBlock>()
+        val newBlockTracks = mutableListOf<ScheduleBlockTrack>()
+        rounds(window.from, window.to, request.interval).forEach { (roundFrom, roundTo) ->
+            placeRound(pieces, roundFrom, roundTo, effFrom, effTo, request, index, occupancy, board, newBlocks, newBlockTracks)
+        }
+        scheduleBlockRepository.saveAll(newBlocks)
+        scheduleBlockTrackRepository.saveAll(newBlockTracks)
+
+        val blocks = (pinnedBlocks + newBlocks).sortedWith(compareBy({ it.startDate }, { it.startSlot }))
+        val trackIdsByBlock = pinnedTrackIdsByBlock + newBlockTracks.groupBy({ it.block.id }, { it.setlistTrackId })
+        return ScheduleBoardResponse.of(board, blocks, trackIdsByBlock)
+    }
+
+    private fun deleteStaleBlocks(boardId: UUID) {
+        val stale = scheduleBlockRepository.findAllByBoardIdAndPinned(boardId, false)
+        if (stale.isEmpty()) return
+        scheduleBlockTrackRepository.deleteAllByBlockIdIn(stale.map { it.id })
+        scheduleBlockTrackRepository.flush()
+        scheduleBlockRepository.deleteAllByBoardIdAndPinned(boardId, false)
+        scheduleBlockRepository.flush()
+    }
+
+    private fun placeRound(
+        pieces: List<Piece>,
+        roundFrom: LocalDate,
+        roundTo: LocalDate,
+        effFrom: Int,
+        effTo: Int,
+        request: ScheduleAutoPlaceRequest,
+        index: MemberAvailabilityIndex,
+        occupancy: Occupancy,
+        board: ScheduleBoard,
+        newBlocks: MutableList<ScheduleBlock>,
+        newBlockTracks: MutableList<ScheduleBlockTrack>,
+    ) {
+        val dates = generateSequence(roundFrom) { it.plusDays(1) }.takeWhile { !it.isAfter(roundTo) }.toList()
+        val preferredDates = dates.filter { it.dayOfWeek in request.dayPreference }
+
+        val candidates =
+            pieces
+                .mapNotNull { piece ->
+                    val preferred = candidateStarts(piece, preferredDates, effFrom, effTo, index, occupancy)
+                    if (preferred.isNotEmpty()) {
+                        RoundCandidate(piece, preferred, fellBack = false)
+                    } else {
+                        val any = candidateStarts(piece, dates, effFrom, effTo, index, occupancy)
+                        if (any.isNotEmpty()) RoundCandidate(piece, any, fellBack = true) else null
+                    }
+                }.sortedWith(compareByDescending<RoundCandidate> { it.fellBack }.thenBy { it.total })
+
+        candidates.forEach { candidate ->
+            val piece = candidate.piece
+            val orderedDates =
+                candidate.startsByDate.keys.sortedWith(
+                    compareBy({ dayPriority(it.dayOfWeek, request.dayPreference) }, { it }),
+                )
+            for (date in orderedDates) {
+                // 앞선 조각의 배치로 점유가 바뀌었으므로 재검증한다
+                val valid =
+                    candidate.startsByDate
+                        .getValue(date)
+                        .filter { occupancy.canPlace(piece.members, date, it, it + piece.lengthSlots) }
+                if (valid.isEmpty()) continue
+                val start = valid.minWithOrNull(compareBy({ damage(candidate, date, it, candidates) }, { it }))!!
+                occupancy.place(piece.members, date, start, start + piece.lengthSlots)
+                piece.trackIds.forEachIndexed { k, trackId ->
+                    val block =
+                        ScheduleBlock.create(
+                            board = board,
+                            slot =
+                                Slot.ofDayRange(
+                                    date,
+                                    start + k * request.jamDurationSlots,
+                                    start + (k + 1) * request.jamDurationSlots,
+                                ),
+                            placementOrigin = PlacementOrigin.AUTO,
+                        )
+                    newBlocks += block
+                    newBlockTracks += ScheduleBlockTrack.create(block = block, setlistTrackId = trackId, ordinal = 0)
+                }
+                break
+            }
+        }
+    }
+
+    private fun candidateStarts(
+        piece: Piece,
+        dates: List<LocalDate>,
+        effFrom: Int,
+        effTo: Int,
+        index: MemberAvailabilityIndex,
+        occupancy: Occupancy,
+    ): Map<LocalDate, List<Int>> {
+        val lastStart = effTo - piece.lengthSlots
+        if (lastStart < effFrom) return emptyMap()
+        return dates
+            .associateWith { date ->
+                (effFrom..lastStart).filter { start ->
+                    index.allAvailableThrough(piece.members, date, start, start + piece.lengthSlots) &&
+                        occupancy.canPlace(piece.members, date, start, start + piece.lengthSlots)
+                }
+            }.filterValues { it.isNotEmpty() }
+    }
+
+    /** 이 자리를 쓰면 멤버가 겹치는 다른 조각의 후보가 몇 개 죽는지. */
+    private fun damage(
+        self: RoundCandidate,
+        date: LocalDate,
+        start: Int,
+        all: List<RoundCandidate>,
+    ): Int {
+        val end = start + self.piece.lengthSlots
+        return all
+            .filter { it !== self && it.piece.members.any(self.piece.members::contains) }
+            .sumOf { other ->
+                other.startsByDate[date].orEmpty().count { s -> s < end && s + other.piece.lengthSlots > start }
+            }
+    }
+
+    private fun dayPriority(
+        day: DayOfWeek,
+        preference: List<DayOfWeek>,
+    ): Int = preference.indexOf(day).let { if (it >= 0) it else preference.size + day.value }
+
+    private fun rounds(
+        from: LocalDate,
+        to: LocalDate,
+        interval: Frequency,
+    ): List<Pair<LocalDate, LocalDate>> {
+        if (interval == Frequency.ONCE) return listOf(from to to)
+        val biweeklyAnchor = from.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val result = mutableListOf<Pair<LocalDate, LocalDate>>()
+        var start = from
+        while (!start.isAfter(to)) {
+            val next =
+                when (interval) {
+                    Frequency.DAILY -> start.plusDays(1)
+                    Frequency.WEEKLY -> start.with(TemporalAdjusters.next(DayOfWeek.MONDAY))
+                    Frequency.BIWEEKLY -> {
+                        val elapsed = ChronoUnit.DAYS.between(biweeklyAnchor, start)
+                        biweeklyAnchor.plusDays((elapsed / 14 + 1) * 14)
+                    }
+                    Frequency.MONTHLY -> start.withDayOfMonth(1).plusMonths(1)
+                    Frequency.ONCE -> error("unreachable")
+                }
+            result += start to minOf(next.minusDays(1), to)
+            start = next
+        }
+        return result
     }
 
     private fun getBoardOrThrow(
@@ -159,5 +271,97 @@ class ScheduleAutoPlaceService(
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_NOT_FOUND)
         }
         return board
+    }
+
+    private data class Piece(
+        val trackIds: List<UUID>,
+        val members: Set<Long>,
+        val lengthSlots: Int,
+    )
+
+    private class RoundCandidate(
+        val piece: Piece,
+        val startsByDate: Map<LocalDate, List<Int>>,
+        val fellBack: Boolean,
+    ) {
+        val total: Int = startsByDate.values.sumOf { it.size }
+    }
+
+    /** 멤버별 점유 슬롯과 모임(연속 구간은 병합해 1회) 추적. */
+    private class Occupancy(
+        private val maxJamsPerDay: Int,
+        private val maxGap: Int,
+    ) {
+        private val occupied = HashMap<Pair<Long, LocalDate>, BooleanArray>()
+        private val jams = HashMap<Pair<Long, LocalDate>, MutableList<Pair<Int, Int>>>()
+
+        fun occupy(
+            slot: Slot,
+            members: Set<Long>,
+        ) {
+            var date = slot.startDate
+            while (!date.isAfter(slot.endDate)) {
+                val from = if (date == slot.startDate) slot.startSlot else 0
+                val until = if (date == slot.endDate) slot.endSlot else Slot.SLOTS_PER_DAY
+                if (from < until) members.forEach { place(it, date, from, until) }
+                date = date.plusDays(1)
+            }
+        }
+
+        fun place(
+            members: Set<Long>,
+            date: LocalDate,
+            start: Int,
+            end: Int,
+        ) = members.forEach { place(it, date, start, end) }
+
+        fun canPlace(
+            members: Set<Long>,
+            date: LocalDate,
+            start: Int,
+            end: Int,
+        ): Boolean =
+            members.all { member ->
+                val arr = occupied[member to date]
+                if (arr != null && (start until end).any { arr[it] }) return@all false
+                canAddJam(jams[member to date].orEmpty(), start, end)
+            }
+
+        private fun canAddJam(
+            existing: List<Pair<Int, Int>>,
+            start: Int,
+            end: Int,
+        ): Boolean {
+            val prev = existing.filter { it.second <= start }.maxByOrNull { it.second }
+            val next = existing.filter { it.first >= end }.minByOrNull { it.first }
+            if (prev != null && start - prev.second > maxGap) return false
+            if (next != null && next.first - end > maxGap) return false
+            val merges = (if (prev?.second == start) 1 else 0) + (if (next?.first == end) 1 else 0)
+            return existing.size + 1 - merges <= maxJamsPerDay
+        }
+
+        private fun place(
+            member: Long,
+            date: LocalDate,
+            start: Int,
+            end: Int,
+        ) {
+            val key = member to date
+            val arr = occupied.getOrPut(key) { BooleanArray(Slot.SLOTS_PER_DAY) }
+            for (s in start until end) arr[s] = true
+            val list = jams.getOrPut(key) { mutableListOf() }
+            var mergedStart = start
+            var mergedEnd = end
+            list.removeAll { (s, e) ->
+                if (e >= mergedStart && s <= mergedEnd) {
+                    mergedStart = minOf(mergedStart, s)
+                    mergedEnd = maxOf(mergedEnd, e)
+                    true
+                } else {
+                    false
+                }
+            }
+            list += mergedStart to mergedEnd
+        }
     }
 }

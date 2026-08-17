@@ -822,40 +822,6 @@
                 ],
                 "type": "object"
             },
-            "ApiResponseListScheduleBlockResponse": {
-                "properties": {
-                    "code": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "items": {
-                            "$ref": "#/components/schemas/ScheduleBlockResponse"
-                        },
-                        "type": "array"
-                    },
-                    "fieldErrors": {
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "type": "object"
-                    },
-                    "message": {
-                        "type": "string"
-                    },
-                    "success": {
-                        "type": "boolean"
-                    },
-                    "timestamp": {
-                        "format": "date-time",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "success",
-                    "timestamp"
-                ],
-                "type": "object"
-            },
             "ApiResponseListScheduleBoardPlacementResponse": {
                 "properties": {
                     "code": {
@@ -1000,6 +966,40 @@
                     "data": {
                         "items": {
                             "$ref": "#/components/schemas/SetlistResponse"
+                        },
+                        "type": "array"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
+            "ApiResponseListSlotAvailabilityResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/SlotAvailabilityResponse"
                         },
                         "type": "array"
                     },
@@ -5063,6 +5063,46 @@
                 ],
                 "type": "object"
             },
+            "SlotAvailabilityResponse": {
+                "description": "\uc2ac\ub86f\ubcc4 \uba64\ubc84 \uac00\uc6a9 \ud604\ud669",
+                "properties": {
+                    "availableMemberIds": {
+                        "description": "\uc774 \uc2ac\ub86f\uc5d0 \uac00\uc6a9\ud55c \uba64\ubc84 ID",
+                        "items": {
+                            "format": "int64",
+                            "type": "integer"
+                        },
+                        "type": "array"
+                    },
+                    "date": {
+                        "description": "\ub0a0\uc9dc",
+                        "example": "2026-09-01",
+                        "format": "date",
+                        "type": "string"
+                    },
+                    "slot": {
+                        "description": "\uc2ac\ub86f \uc778\ub371\uc2a4 (0~47, 30\ubd84 \ub2e8\uc704)",
+                        "example": 36,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "unavailableMemberIds": {
+                        "description": "\uc774 \uc2ac\ub86f\uc5d0 \ubd88\uac00\ub2a5\ud55c \uba64\ubc84 ID",
+                        "items": {
+                            "format": "int64",
+                            "type": "integer"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "availableMemberIds",
+                    "date",
+                    "slot",
+                    "unavailableMemberIds"
+                ],
+                "type": "object"
+            },
             "TrackInfoRequest": {
                 "description": "\uace1 \uc815\ubcf4",
                 "properties": {
@@ -9015,7 +9055,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ApiResponseListScheduleBlockResponse"
+                                    "$ref": "#/components/schemas/ApiResponseScheduleBoardResponse"
                                 }
                             }
                         },
@@ -9238,6 +9278,57 @@
                 "summary": "\uc2dc\uac04\ud45c \uc2dc\uc548\uc758 \ud2b8\ub799\ubcc4 \ubc30\uce58 \ud604\ud669",
                 "tags": [
                     "schedule-boards"
+                ]
+            }
+        },
+        "/api/v1/setlists/{setlistId}/slot-availabilities": {
+            "get": {
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ucc38\uc5ec\uc790 \uad8c\ud55c. \uc870\ud68c \uae30\uac04(from~to, \ucd5c\ub300 31\uc77c)\uc758 \ubaa8\ub4e0 \uc2ac\ub86f\uc5d0 \ub300\ud574 \uac00\uc6a9/\ubd88\uac00 \uba64\ubc84\ub97c \ud3bc\uccd0 \ubc18\ud658\ud55c\ub2e4. \ud654\uba74 \ub2e8\uc704(\uc8fc/\uc6d4)\ub85c \ubc8c\ud06c \uc870\ud68c\ud574 \uce90\uc2f1\ud55c \ub4a4 \uc2ac\ub86f \ud638\ubc84\ub9c1 \uc2dc \ucd94\uac00 \ud638\ucd9c \uc5c6\uc774 \ud45c\uc2dc\ud558\ub294 \uc6a9\ub3c4\ub2e4. \ud2b9\uc815 \ud2b8\ub799 \ubc30\uce58 \uc2dc\uc5d0\ub294 \uadf8 \ud2b8\ub799\uc758 \ucc38\uc5ec\uc790\uc640 availableMemberIds \ub97c \uad50\uc9d1\ud569\ud574 \ud310\uc815\ud55c\ub2e4.",
+                "operationId": "getSlotAvailabilities",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "setlistId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "from",
+                        "required": true,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "to",
+                        "required": true,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSlotAvailabilityResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc2ac\ub86f\ubcc4 \uba64\ubc84 \uac00\uc6a9 \ud604\ud669 \uc870\ud68c",
+                "tags": [
+                    "schedule-availability"
                 ]
             }
         },
@@ -10323,6 +10414,10 @@
         {
             "description": "\uc2dc\uac04\ud45c \uc2dc\uc548 API (\uc14b\ub9ac\uc2a4\ud2b8 \ub2e8\uc704)",
             "name": "schedule-boards"
+        },
+        {
+            "description": "\uc2dc\uac04\ud45c \uc2ac\ub86f\ubcc4 \uba64\ubc84 \uac00\uc6a9 \ud604\ud669 API",
+            "name": "schedule-availability"
         },
         {
             "description": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad API",
