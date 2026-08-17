@@ -1,6 +1,5 @@
 package com.bandage.bandmanager.domain.schedule.dto.req
 
-import com.bandage.bandmanager.domain.schedule.model.enums.Frequency
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
@@ -27,13 +26,4 @@ data class ScheduleBlockUpsertRequest(
     val title: String? = null,
     @field:Size(max = 200, message = "note 는 최대 200자까지 입력할 수 있습니다.")
     val note: String? = null,
-    val recurrence: RecurrenceRequest? = null,
-) {
-    data class RecurrenceRequest(
-        val freq: Frequency = Frequency.ONCE,
-        @field:Min(value = 1, message = "interval 은 1 이상이어야 합니다.")
-        val interval: Int = 1,
-        val until: LocalDate? = null,
-        val count: Int? = null,
-    )
-}
+)

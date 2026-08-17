@@ -4107,69 +4107,6 @@
                 },
                 "type": "object"
             },
-            "RecurrenceDto": {
-                "properties": {
-                    "count": {
-                        "format": "int32",
-                        "type": "integer"
-                    },
-                    "freq": {
-                        "enum": [
-                            "ONCE",
-                            "DAILY",
-                            "WEEKLY",
-                            "BIWEEKLY",
-                            "MONTHLY"
-                        ],
-                        "type": "string"
-                    },
-                    "interval": {
-                        "format": "int32",
-                        "type": "integer"
-                    },
-                    "until": {
-                        "format": "date",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "freq",
-                    "interval"
-                ],
-                "type": "object"
-            },
-            "RecurrenceRequest": {
-                "properties": {
-                    "count": {
-                        "format": "int32",
-                        "type": "integer"
-                    },
-                    "freq": {
-                        "enum": [
-                            "ONCE",
-                            "DAILY",
-                            "WEEKLY",
-                            "BIWEEKLY",
-                            "MONTHLY"
-                        ],
-                        "type": "string"
-                    },
-                    "interval": {
-                        "format": "int32",
-                        "minimum": 1,
-                        "type": "integer"
-                    },
-                    "until": {
-                        "format": "date",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "freq",
-                    "interval"
-                ],
-                "type": "object"
-            },
             "ScheduleAutoPlaceRequest": {
                 "properties": {
                     "dayPreference": {
@@ -4277,9 +4214,6 @@
                         ],
                         "type": "string"
                     },
-                    "recurrence": {
-                        "$ref": "#/components/schemas/RecurrenceDto"
-                    },
                     "startDate": {
                         "format": "date",
                         "type": "string"
@@ -4305,7 +4239,6 @@
                     "endSlot",
                     "pinned",
                     "placementOrigin",
-                    "recurrence",
                     "startDate",
                     "startSlot",
                     "trackIds"
@@ -4331,9 +4264,6 @@
                     },
                     "pinned": {
                         "type": "boolean"
-                    },
-                    "recurrence": {
-                        "$ref": "#/components/schemas/RecurrenceRequest"
                     },
                     "startDate": {
                         "format": "date",

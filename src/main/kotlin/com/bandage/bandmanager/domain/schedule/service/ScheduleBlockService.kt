@@ -2,7 +2,6 @@ package com.bandage.bandmanager.domain.schedule.service
 
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBlockUpsertRequest
 import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBlockResponse
-import com.bandage.bandmanager.domain.schedule.model.RecurrenceRule
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBlock
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBlockTrack
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
@@ -44,7 +43,6 @@ class ScheduleBlockService(
         board.scheduleWindowOrNull()?.let { validateDatesInWindow(request.startDate, request.endDate, it) }
         validateTracksInSetlist(setlistId, request.trackIds)
 
-        val recurrence = toRecurrenceRule(request)
         val existing = scheduleBlockRepository.findByIdOrNull(blockId)
         val block =
             if (existing != null) {
@@ -54,7 +52,6 @@ class ScheduleBlockService(
                 existing.reposition(slot)
                 existing.updateTitle(request.title)
                 existing.updateNote(request.note)
-                existing.updateRecurrenceRule(recurrence)
                 request.pinned?.let { if (it) existing.pin() else existing.unpin() }
                 existing
             } else {
@@ -65,7 +62,6 @@ class ScheduleBlockService(
                         slot = slot,
                         title = request.title,
                         note = request.note,
-                        recurrenceRule = recurrence,
                     ).apply {
                         request.pinned?.let { if (it) pin() }
                     }
@@ -147,16 +143,6 @@ class ScheduleBlockService(
         } catch (e: IllegalArgumentException) {
             throw BusinessException(ErrorCode.INVALID_SLOT_RANGE)
         }
-
-    private fun toRecurrenceRule(request: ScheduleBlockUpsertRequest): RecurrenceRule {
-        val r = request.recurrence ?: return RecurrenceRule.none()
-        return RecurrenceRule(
-            freq = r.freq,
-            interval = r.interval,
-            until = r.until,
-            count = r.count,
-        )
-    }
 
     private fun getBoardOrThrow(
         setlistId: UUID,

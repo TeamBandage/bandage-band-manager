@@ -28,7 +28,6 @@ open class ScheduleBlock(
     slot: Slot,
     title: String?,
     note: String?,
-    recurrenceRule: RecurrenceRule,
     placementOrigin: PlacementOrigin,
 ) : BaseEntity() {
     @Id
@@ -61,10 +60,6 @@ open class ScheduleBlock(
     var note: String? = note
         protected set
 
-    @Embedded
-    var recurrenceRule: RecurrenceRule = recurrenceRule
-        protected set
-
     @Enumerated(EnumType.STRING)
     @Column(name = "placement_origin", nullable = false)
     var placementOrigin: PlacementOrigin = placementOrigin
@@ -76,7 +71,6 @@ open class ScheduleBlock(
             slot: Slot,
             title: String? = null,
             note: String? = null,
-            recurrenceRule: RecurrenceRule = RecurrenceRule.none(),
             placementOrigin: PlacementOrigin = PlacementOrigin.MANUAL,
             id: UUID = UuidCreator.getTimeOrderedEpoch(),
         ): ScheduleBlock =
@@ -86,7 +80,6 @@ open class ScheduleBlock(
                 slot = slot,
                 title = title,
                 note = note,
-                recurrenceRule = recurrenceRule,
                 placementOrigin = placementOrigin,
             )
     }
@@ -109,10 +102,6 @@ open class ScheduleBlock(
 
     fun updateNote(note: String?) {
         this.note = note
-    }
-
-    fun updateRecurrenceRule(rule: RecurrenceRule) {
-        this.recurrenceRule = rule
     }
 
     fun updatePlacementOrigin(origin: PlacementOrigin) {

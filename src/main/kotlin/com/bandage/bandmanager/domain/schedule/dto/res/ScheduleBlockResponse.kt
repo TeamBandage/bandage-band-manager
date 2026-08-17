@@ -1,7 +1,6 @@
 package com.bandage.bandmanager.domain.schedule.dto.res
 
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBlock
-import com.bandage.bandmanager.domain.schedule.model.enums.Frequency
 import com.bandage.bandmanager.domain.schedule.model.enums.PlacementOrigin
 import java.time.LocalDate
 import java.util.UUID
@@ -16,16 +15,8 @@ data class ScheduleBlockResponse(
     val pinned: Boolean,
     val title: String?,
     val note: String?,
-    val recurrence: RecurrenceDto,
     val placementOrigin: PlacementOrigin,
 ) {
-    data class RecurrenceDto(
-        val freq: Frequency,
-        val interval: Int,
-        val until: LocalDate?,
-        val count: Int?,
-    )
-
     companion object {
         fun from(
             block: ScheduleBlock,
@@ -41,13 +32,6 @@ data class ScheduleBlockResponse(
                 pinned = block.pinned,
                 title = block.title,
                 note = block.note,
-                recurrence =
-                    RecurrenceDto(
-                        freq = block.recurrenceRule.freq,
-                        interval = block.recurrenceRule.interval,
-                        until = block.recurrenceRule.until,
-                        count = block.recurrenceRule.count,
-                    ),
                 placementOrigin = block.placementOrigin,
             )
     }
