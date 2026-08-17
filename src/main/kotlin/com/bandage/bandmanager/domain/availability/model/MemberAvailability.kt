@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
+import org.hibernate.annotations.BatchSize
 import org.hibernate.annotations.SQLRestriction
 import java.time.LocalDate
 
@@ -29,7 +30,10 @@ open class MemberAvailability(
     @Column(name = "member_id", nullable = false)
     val memberId: Long = memberId
 
+    // 자동배치는 멤버 여러 명의 가용성을 한 번에 조회한 뒤 컬렉션을 순회한다.
+    // BatchSize 가 없으면 멤버 수만큼 컬렉션 조회 쿼리가 따로 나간다(N+1).
     @ElementCollection(fetch = FetchType.LAZY)
+    @BatchSize(size = COLLECTION_BATCH_SIZE)
     @CollectionTable(
         name = "p_member_availability_weekly_rules",
         joinColumns = [JoinColumn(name = "member_id", referencedColumnName = "member_id")],
@@ -38,6 +42,7 @@ open class MemberAvailability(
     val weeklyRules: List<WeeklyRule> get() = _weeklyRules.toList()
 
     @ElementCollection(fetch = FetchType.LAZY)
+    @BatchSize(size = COLLECTION_BATCH_SIZE)
     @CollectionTable(
         name = "p_member_availability_exceptions",
         joinColumns = [JoinColumn(name = "member_id", referencedColumnName = "member_id")],
@@ -50,6 +55,9 @@ open class MemberAvailability(
         protected set
 
     companion object {
+        /** LAZY 컬렉션을 멤버 단위가 아니라 이 크기만큼 묶어 조회한다(N+1 완화). */
+        const val COLLECTION_BATCH_SIZE = 50
+
         fun create(
             memberId: Long,
             note: String? = null,
