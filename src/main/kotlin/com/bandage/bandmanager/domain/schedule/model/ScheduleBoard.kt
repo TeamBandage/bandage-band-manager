@@ -45,8 +45,7 @@ open class ScheduleBoard(
      * (예: from = 18 → 09:00, to = 44 → 22:00, to = 48 → 24:00)
      * 시(hour)가 아니라 슬롯 인덱스임에 주의한다.
      *
-     * 슬롯 상한 규약이 availability 계열(WeeklyRule, AvailabilityException)과 같고,
-     * Slot(endSlot 이 0..47 이며 자정 넘김을 endDate 증가로 표현)과는 다르다.
+     * Slot, WeeklyRule, AvailabilityException 과 동일한 슬롯 규약을 쓴다.
      */
     @Column(name = "board_time_range_from", nullable = false)
     var boardTimeRangeFrom: Int = boardTimeRangeFrom

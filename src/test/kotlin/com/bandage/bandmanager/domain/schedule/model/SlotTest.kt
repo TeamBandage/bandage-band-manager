@@ -21,6 +21,27 @@ class SlotTest {
     }
 
     @Test
+    fun `당일 24시 종료는 endSlot 48 이다`() {
+        val slot = Slot.of(day, 44, day, 48)
+        assertEquals(4, slot.totalSlots)
+        assertEquals(48, slot.endSlot)
+    }
+
+    @Test
+    fun `다음 날 0슬롯 종료는 당일 48슬롯으로 정규화된다`() {
+        val normalized = Slot.of(day, 44, day.plusDays(1), 0)
+        assertEquals(day, normalized.endDate)
+        assertEquals(48, normalized.endSlot)
+        // 같은 시각을 가리키는 두 입력이 동일한 값이 되어야 한다
+        assertEquals(Slot.of(day, 44, day, 48), normalized)
+    }
+
+    @Test
+    fun `하루 안의 구간을 만든다`() {
+        assertEquals(Slot.of(day, 36, day, 48), Slot.ofDayRange(day, 36, 48))
+    }
+
+    @Test
     fun `끝이 시작보다 앞서면 거부한다`() {
         assertThrows<IllegalArgumentException> { Slot.of(day, 40, day, 36) }
     }
@@ -32,8 +53,9 @@ class SlotTest {
 
     @Test
     fun `슬롯 범위를 벗어나면 거부한다`() {
-        assertThrows<IllegalArgumentException> { Slot.of(day, 0, day, 48) }
         assertThrows<IllegalArgumentException> { Slot.of(day, -1, day, 10) }
+        assertThrows<IllegalArgumentException> { Slot.of(day, 48, day, 48) }
+        assertThrows<IllegalArgumentException> { Slot.of(day, 0, day, 49) }
     }
 
     @Test

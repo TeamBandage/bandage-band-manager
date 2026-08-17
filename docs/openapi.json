@@ -4189,8 +4189,8 @@
                     },
                     "endTimePreference": {
                         "format": "int32",
-                        "maximum": 46,
-                        "minimum": 0,
+                        "maximum": 48,
+                        "minimum": 1,
                         "type": "integer"
                     },
                     "interval": {
@@ -4202,6 +4202,12 @@
                             "MONTHLY"
                         ],
                         "type": "string"
+                    },
+                    "jamDurationSlots": {
+                        "format": "int32",
+                        "maximum": 48,
+                        "minimum": 1,
+                        "type": "integer"
                     },
                     "maxEmptySlotsBetweenJams": {
                         "format": "int32",
@@ -4225,6 +4231,7 @@
                     "dayPreference",
                     "endTimePreference",
                     "interval",
+                    "jamDurationSlots",
                     "maxEmptySlotsBetweenJams",
                     "maxJamsPerDay",
                     "startTimePreference"
@@ -4313,8 +4320,8 @@
                     },
                     "endSlot": {
                         "format": "int32",
-                        "maximum": 47,
-                        "minimum": 0,
+                        "maximum": 48,
+                        "minimum": 1,
                         "type": "integer"
                     },
                     "note": {
@@ -8986,6 +8993,7 @@
         },
         "/api/v1/setlists/{setlistId}/schedule-boards/{boardId}/auto-schedule": {
             "post": {
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ub9e4\ub2c8\uc800 \uad8c\ud55c, confirmed=true \uc778 \uc2dc\uc548\uc740 \ubc30\uce58 \ubd88\uac00(409).",
                 "operationId": "autoSchedule",
                 "parameters": [
                     {
@@ -9029,6 +9037,7 @@
                         "description": "OK"
                     }
                 },
+                "summary": "\uc2dc\uac04\ud45c \uc790\ub3d9 \ubc30\uce58",
                 "tags": [
                     "schedule-auto-place"
                 ]

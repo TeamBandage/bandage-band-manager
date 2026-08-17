@@ -2,9 +2,14 @@ package com.bandage.bandmanager.domain.schedule.service
 
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleAutoPlaceRequest
 import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBlockResponse
+import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardRepository
+import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardSetlistItemPlacementRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
+import com.bandage.bandmanager.global.error.errorcode.ErrorCode
+import com.bandage.bandmanager.global.error.exception.BusinessException
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -12,19 +17,30 @@ import java.util.UUID
 @Service
 @Transactional(readOnly = true)
 class ScheduleAutoPlaceService(
-    private val ScheduleBoardRepository: ScheduleBoardRepository,
-    private val ScheduleBlockRepository: ScheduleBlockRepository,
-    private val SetlistTrackRepository: SetlistTrackRepository,
+    private val scheduleBoardRepository: ScheduleBoardRepository,
+    private val scheduleBlockRepository: ScheduleBlockRepository,
+    private val setlistTrackRepository: SetlistTrackRepository,
+    private val placementRepository: ScheduleBoardSetlistItemPlacementRepository,
+    private val scheduleAuthService: ScheduleAuthService,
 ) {
+    @Transactional
     fun autoPlaceScheduleBlocks(
         setlistId: UUID,
         boardId: UUID,
+        memberId: Long,
         request: ScheduleAutoPlaceRequest,
     ): List<ScheduleBlockResponse> {
+        scheduleAuthService.validateSetlistManager(setlistId, memberId)
+        val board = getBoardOrThrow(setlistId, boardId)
+        if (board.confirmed) throw BusinessException(ErrorCode.SCHEDULE_BOARD_ALREADY_CONFIRMED)
+        request.validateTimePreference()
+        board.scheduleWindowOrNull() ?: throw BusinessException(ErrorCode.SCHEDULE_WINDOW_REQUIRED)
+
         val resultList = mutableListOf<ScheduleBlockResponse>()
         /**
          * 0. 정의
          * 슬롯: 하루를 30분 단위 48칸으로 나눈 것. 블록 구간은 [startSlot, endSlot) 반열린 구간으로 표현한다.
+         *       startSlot 은 0..47, endSlot 은 1..48 이며 이 규약은 Slot / 가용성 / 보드 시간대가 모두 공유한다.
          * 동시 배치 불가 조건: 같은 슬롯에, 하나의 셋리스트 참여 멤버가 동시에 2개 이상의 스케줄 블럭을 가질 수 없다.
          *
          * 잼 그룹(이하 그룹): 참여 멤버 집합이 완전히 동일한 트랙들을 하나로 묶은 것. 배치의 단위다.
@@ -43,13 +59,10 @@ class ScheduleAutoPlaceService(
          *       각 그룹은 회차당 최대 1회 배치된다. (recurrence 는 사용하지 않고 블록을 회차 수만큼 실제 생성한다)
          *
          * 1. 리소스 확보
-         * 권한/상태를 먼저 검증한다.
-         *   - scheduleAuthService.validateSetlistManager(setlistId, memberId) — 매니저만 자동배치할 수 있다.
-         *   - board.confirmed 이면 SCHEDULE_BOARD_ALREADY_CONFIRMED 로 거절한다. (확정 시간표 덮어쓰기 방지)
-         * request 의 각 조건에 기본적인 validation 을 적용한다.
-         *   - validateTimePreference() (startTimePreference < endTimePreference)
-         *   - 윈도우(windowFrom/windowTo)가 존재하는지, from <= to 인지
-         *   - 윈도우 길이가 interval 을 담을 수 있는지 (예: 윈도우 2주 이하면 MONTHLY 불가, 하루 이하면 자동배치 미수행)
+         * 권한/상태/요청 검증은 이 메서드 진입부에서 이미 수행했다(매니저 권한, confirmed 여부,
+         * TimePreference 정합성, 윈도우 존재). 아래는 그 이후 단계다.
+         *   - 남은 검증: 윈도우 길이가 interval 을 담을 수 있는지
+         *     (예: 윈도우 2주 이하면 MONTHLY 불가, 하루 이하면 자동배치 미수행)
          * 기존 셋리스트+스케줄보드에 속한 스케줄 블록 중 고정된 스케줄 블록이 배치된 슬롯 목록(pinnedScheduleBlock, 이하 psbl) 을 조회한다.
          *   - 각 블록은 [startSlot, endSlot) 구간이므로 슬롯 단위로 펼쳐 보유한다.
          *   - pinned = false 인 기존 블록은 재배치 대상이므로 psbl 에 포함하지 않고 이번 배치로 덮어쓴다.
@@ -95,5 +108,18 @@ class ScheduleAutoPlaceService(
          * 결과를 반환한다.
          */
         return resultList
+    }
+
+    private fun getBoardOrThrow(
+        setlistId: UUID,
+        boardId: UUID,
+    ): ScheduleBoard {
+        val board =
+            scheduleBoardRepository.findByIdOrNull(boardId)
+                ?: throw BusinessException(ErrorCode.SCHEDULE_BOARD_NOT_FOUND)
+        if (board.setlistId != setlistId) {
+            throw BusinessException(ErrorCode.SCHEDULE_BOARD_NOT_FOUND)
+        }
+        return board
     }
 }

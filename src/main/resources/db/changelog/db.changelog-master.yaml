@@ -364,3 +364,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 029-schedule-block-slot-convention
+      author: bandage
+      comment: |
+        BD-272: 슬롯 규약 통일 (end_slot 을 1..48 로)
+        - 자정 종료 표현을 [end_date = 당일, end_slot = 48] 하나로 정규화
+        - 기존 [end_date = 다음날, end_slot = 0] 데이터를 변환
+      changes:
+        - sqlFile:
+            path: changes/029-schedule-block-slot-convention.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
