@@ -5,7 +5,7 @@ import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBlockResponse
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardRepository
-import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardSetlistItemPlacementRepository
+import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardSetlistTrackPlacementRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -20,7 +20,7 @@ class ScheduleAutoPlaceService(
     private val scheduleBoardRepository: ScheduleBoardRepository,
     private val scheduleBlockRepository: ScheduleBlockRepository,
     private val setlistTrackRepository: SetlistTrackRepository,
-    private val placementRepository: ScheduleBoardSetlistItemPlacementRepository,
+    private val scheduleBoardSetlistTrackPlacementRepository: ScheduleBoardSetlistTrackPlacementRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     @Transactional
@@ -99,7 +99,7 @@ class ScheduleAutoPlaceService(
          * 전체 psl 들에 대한 순회가 끝났다면, 다음 interval 단위에 대해 동일한 작업을 반복한다.
          *
          * 3. 결과 반영
-         * 배치가 완료된 뒤, 보드-트랙 단위 배치 결과를 ScheduleBoardSetlistItemPlacement 에 업데이트한다.
+         * 배치가 완료된 뒤, 보드-트랙 단위 배치 결과를 ScheduleBoardSetlistTrackPlacement 에 업데이트한다.
          *   - 그룹이 배치될 때마다 그룹에 속한 모든 트랙의 placementCount 를 함께 증가시킨다.
          *     (한 블록에 3곡이 묶였다면 3개 트랙 모두 +1)
          *   - 단 한번도 배치되지 못한 트랙: placementCount = 0 으로 기록한다. (psl/asl 이 0개여서 제외된 트랙 포함)

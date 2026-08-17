@@ -26,23 +26,23 @@ import java.util.UUID
  */
 @Entity
 @Table(
-    name = "p_schedule_board_setlist_item_placement",
+    name = "p_schedule_board_setlist_track_placement",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "uk_schedule_board_setlist_item_placement",
+            name = "uk_schedule_board_setlist_track_placement",
             columnNames = ["schedule_board_id", "setlist_track_id"],
         ),
     ],
 )
 @SQLRestriction("deleted_at IS NULL")
-open class ScheduleBoardSetlistItemPlacement(
+open class ScheduleBoardSetlistTrackPlacement(
     id: UUID,
     board: ScheduleBoard,
     setlistTrackId: UUID,
     placementCount: Int,
 ) : BaseEntity() {
     @Id
-    @Column(name = "schedule_board_setlist_item_placement_id")
+    @Column(name = "schedule_board_setlist_track_placement_id")
     val id: UUID = id
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -66,9 +66,9 @@ open class ScheduleBoardSetlistItemPlacement(
             setlistTrackId: UUID,
             placementCount: Int = 0,
             id: UUID = UuidCreator.getTimeOrderedEpoch(),
-        ): ScheduleBoardSetlistItemPlacement {
+        ): ScheduleBoardSetlistTrackPlacement {
             require(placementCount >= 0) { "placementCount must be >= 0, was $placementCount" }
-            return ScheduleBoardSetlistItemPlacement(
+            return ScheduleBoardSetlistTrackPlacement(
                 id = id,
                 board = board,
                 setlistTrackId = setlistTrackId,
