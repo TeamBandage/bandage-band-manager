@@ -4,7 +4,6 @@ import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBoardCreateReques
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBoardUpdateRequest
 import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBoardResponse
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
-import com.bandage.bandmanager.domain.schedule.model.ScheduleBoardConstraints
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockTrackRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardRepository
@@ -13,6 +12,7 @@ import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.util.UUID
 
 @Service
@@ -49,13 +49,14 @@ class ScheduleBoardService(
         if (existingCount >= MAX_BOARDS_PER_SETLIST) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_LIMIT_EXCEEDED)
         }
-        val constraints = request.constraints?.toEntity() ?: ScheduleBoardConstraints()
+        validateWindow(request.windowFrom, request.windowTo)
         val board =
             scheduleBoardRepository.save(
-                ScheduleBoard.create(
+                createBoardOrThrow(
                     setlistId = setlistId,
                     name = request.name,
-                    constraints = constraints,
+                    from = request.boardTimeRangeFrom,
+                    to = request.boardTimeRangeTo,
                     windowFrom = request.windowFrom,
                     windowTo = request.windowTo,
                 ),
@@ -77,14 +78,17 @@ class ScheduleBoardService(
         }
         request.name?.let { board.rename(it) }
         if (request.windowFrom != null || request.windowTo != null) {
-            board.updateWindow(request.windowFrom ?: board.windowFrom, request.windowTo ?: board.windowTo)
+            val newFrom = request.windowFrom ?: board.windowFrom
+            val newTo = request.windowTo ?: board.windowTo
+            // 한쪽만 갱신해도 from > to 가 되지 않도록 확정 값으로 검증한다.
+            validateWindow(newFrom, newTo)
+            board.updateWindow(newFrom, newTo)
         }
-        request.constraints?.let { dto ->
-            board.constraints.update(
-                workingHoursStart = dto.workingHoursStart,
-                workingHoursEnd = dto.workingHoursEnd,
-                excludeLateNight = dto.excludeLateNight,
-                maxConsecutiveMinutes = dto.maxConsecutiveMinutes,
+        if (request.boardTimeRangeFrom != null || request.boardTimeRangeTo != null) {
+            updateTimeRangeOrThrow(
+                board = board,
+                from = request.boardTimeRangeFrom ?: board.boardTimeRangeFrom,
+                to = request.boardTimeRangeTo ?: board.boardTimeRangeTo,
             )
         }
         val blocks = scheduleBlockRepository.findAllByBoardId(board.id)
@@ -104,6 +108,50 @@ class ScheduleBoardService(
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_ALREADY_CONFIRMED)
         }
         scheduleBoardRepository.delete(board)
+    }
+
+    // 시간대/날짜 검증은 도메인(ScheduleBoard, ScheduleWindow)이 보유하므로,
+    // 생성 실패 시 BusinessException 으로 변환해 400 으로 내보낸다.
+    private fun createBoardOrThrow(
+        setlistId: UUID,
+        name: String,
+        from: Int,
+        to: Int,
+        windowFrom: LocalDate?,
+        windowTo: LocalDate?,
+    ): ScheduleBoard =
+        try {
+            ScheduleBoard.create(
+                setlistId = setlistId,
+                name = name,
+                boardTimeRangeFrom = from,
+                boardTimeRangeTo = to,
+                windowFrom = windowFrom,
+                windowTo = windowTo,
+            )
+        } catch (e: IllegalArgumentException) {
+            throw BusinessException(ErrorCode.INVALID_SLOT_RANGE)
+        }
+
+    private fun updateTimeRangeOrThrow(
+        board: ScheduleBoard,
+        from: Int,
+        to: Int,
+    ) {
+        try {
+            board.updateTimeRange(from, to)
+        } catch (e: IllegalArgumentException) {
+            throw BusinessException(ErrorCode.INVALID_SLOT_RANGE)
+        }
+    }
+
+    private fun validateWindow(
+        from: LocalDate?,
+        to: LocalDate?,
+    ) {
+        if (from != null && to != null && from.isAfter(to)) {
+            throw BusinessException(ErrorCode.SCHEDULE_DATE_OUT_OF_WINDOW)
+        }
     }
 
     private fun trackIdsByBlock(blockIds: List<UUID>): Map<UUID, List<UUID>> {

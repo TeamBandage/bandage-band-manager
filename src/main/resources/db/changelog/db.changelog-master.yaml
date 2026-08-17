@@ -350,3 +350,17 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 028-schedule-board-time-range
+      author: bandage
+      comment: |
+        BD-272: 미사용 보드 제약 제거 및 배치 가능 시간대 필드 정리
+        - working_hours_start/end → board_time_range_from/to 로 rename (슬롯 인덱스임을 이름에 반영, 값 보존)
+        - exclude_late_night / max_consecutive_minutes 제거 (정의·변환·사용 로직 모두 부재)
+      changes:
+        - sqlFile:
+            path: changes/028-schedule-board-time-range.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
