@@ -10402,6 +10402,12 @@
             "bearerAuth": []
         }
     ],
+    "servers": [
+        {
+            "description": "Generated server url",
+            "url": "http://bandage-band-manager:8080"
+        }
+    ],
     "tags": [
         {
             "description": "\uc54c\ub9bc API",
