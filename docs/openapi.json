@@ -856,6 +856,40 @@
                 ],
                 "type": "object"
             },
+            "ApiResponseListScheduleBoardPlacementResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/ScheduleBoardPlacementResponse"
+                        },
+                        "type": "array"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
             "ApiResponseListScheduleBoardResponse": {
                 "properties": {
                     "code": {
@@ -4328,6 +4362,27 @@
                     "boardTimeRangeFrom",
                     "boardTimeRangeTo",
                     "name"
+                ],
+                "type": "object"
+            },
+            "ScheduleBoardPlacementResponse": {
+                "properties": {
+                    "placed": {
+                        "type": "boolean"
+                    },
+                    "placementCount": {
+                        "format": "int64",
+                        "type": "integer"
+                    },
+                    "trackId": {
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "placed",
+                    "placementCount",
+                    "trackId"
                 ],
                 "type": "object"
             },
@@ -9141,6 +9196,48 @@
                 "summary": "\uc2dc\uac04\ud45c \ube14\ub85d \ud540 \ud1a0\uae00",
                 "tags": [
                     "schedule-blocks"
+                ]
+            }
+        },
+        "/api/v1/setlists/{setlistId}/schedule-boards/{boardId}/placements": {
+            "get": {
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ucc38\uc5ec\uc790\ub9cc \ud638\ucd9c \uac00\ub2a5. \uc14b\ub9ac\uc2a4\ud2b8\uc758 \ubaa8\ub4e0 \ud2b8\ub799\uc744 \ubc18\ud658\ud558\uba70 \ubbf8\ubc30\uce58 \ud2b8\ub799\uc740 placementCount=0.",
+                "operationId": "getBoardPlacements",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "setlistId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "boardId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListScheduleBoardPlacementResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc2dc\uac04\ud45c \uc2dc\uc548\uc758 \ud2b8\ub799\ubcc4 \ubc30\uce58 \ud604\ud669",
+                "tags": [
+                    "schedule-boards"
                 ]
             }
         },

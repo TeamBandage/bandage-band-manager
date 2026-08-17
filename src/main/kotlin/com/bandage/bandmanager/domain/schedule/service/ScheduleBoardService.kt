@@ -2,11 +2,13 @@ package com.bandage.bandmanager.domain.schedule.service
 
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBoardCreateRequest
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBoardUpdateRequest
+import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBoardPlacementResponse
 import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBoardResponse
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockTrackRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardRepository
+import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
@@ -21,6 +23,7 @@ class ScheduleBoardService(
     private val scheduleBoardRepository: ScheduleBoardRepository,
     private val scheduleBlockRepository: ScheduleBlockRepository,
     private val scheduleBlockTrackRepository: ScheduleBlockTrackRepository,
+    private val setlistTrackRepository: SetlistTrackRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     fun getBoards(
@@ -36,6 +39,32 @@ class ScheduleBoardService(
         return boards.map { board ->
             ScheduleBoardResponse.of(board, blocksByBoard[board.id].orEmpty(), trackIdsByBlock)
         }
+    }
+
+    /**
+     * 보드 안의 트랙별 배치 현황. 셋리스트의 모든 트랙이 포함되며, 미배치 트랙은 placementCount = 0 이다.
+     *
+     * 별도 적재 테이블 없이 ScheduleBlockTrack 을 집계하므로 수동 배치와 자동 배치가 모두 반영된다.
+     */
+    fun getPlacements(
+        setlistId: UUID,
+        boardId: UUID,
+        memberId: Long,
+    ): List<ScheduleBoardPlacementResponse> {
+        scheduleAuthService.validateSetlistParticipant(setlistId, memberId)
+        getBoardOrThrow(setlistId, boardId)
+        val countByTrackId =
+            scheduleBlockTrackRepository
+                .countPlacementsByBoardId(boardId)
+                .associate { it.getTrackId() to it.getPlacementCount() }
+        return setlistTrackRepository
+            .findAllBySetlistIdIn(listOf(setlistId))
+            .map { track ->
+                ScheduleBoardPlacementResponse(
+                    trackId = track.id,
+                    placementCount = countByTrackId[track.id] ?: 0L,
+                )
+            }
     }
 
     @Transactional

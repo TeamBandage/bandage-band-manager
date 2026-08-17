@@ -4,8 +4,8 @@ import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleAutoPlaceRequest
 import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBlockResponse
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockRepository
+import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockTrackRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardRepository
-import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardSetlistTrackPlacementRepository
 import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
@@ -20,7 +20,7 @@ class ScheduleAutoPlaceService(
     private val scheduleBoardRepository: ScheduleBoardRepository,
     private val scheduleBlockRepository: ScheduleBlockRepository,
     private val setlistTrackRepository: SetlistTrackRepository,
-    private val scheduleBoardSetlistTrackPlacementRepository: ScheduleBoardSetlistTrackPlacementRepository,
+    private val scheduleBlockTrackRepository: ScheduleBlockTrackRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     @Transactional
@@ -94,7 +94,15 @@ class ScheduleAutoPlaceService(
          *     (윈도우가 하루뿐이면 회차 1개, 그 안에서 배치를 시도하고 실패하면 미배치로 남는다)
          * 기존 셋리스트+스케줄보드에 속한 스케줄 블록 중 고정된 스케줄 블록이 배치된 슬롯 목록(pinnedScheduleBlock, 이하 psbl) 을 조회한다.
          *   - 각 블록은 [startSlot, endSlot) 구간이므로 슬롯 단위로 펼쳐 보유한다.
-         *   - pinned = false 인 기존 블록은 재배치 대상이므로 psbl 에 포함하지 않고 이번 배치로 덮어쓴다.
+         *   - psbl 은 슬롯만이 아니라 그 블록에 걸린 트랙의 참여 멤버까지 펼쳐 보유한다.
+         *     동시 배치 불가 조건이 멤버 단위이므로, 고정 블록도 멤버 단위로 알고 있어야 충돌을 막을 수 있다.
+         *
+         * 수동 배치와의 공존: pinned = false 인 기존 블록(수동으로 만들었든 이전 자동배치가 만들었든)은
+         *   재배치 대상이므로 **배치를 시작하기 전에 먼저 삭제한다.** 삭제 → flush → 신규 생성 순서를 지킨다.
+         *   - 남겨둔 채 배치하면 새 블록과 시간이 겹쳐 같은 멤버가 동시에 두 블록을 갖게 된다.
+         *   - flush 를 생략하면 INSERT 가 DELETE 보다 먼저 나가 uk_schedule_block_track 제약과 충돌한다.
+         *   - 삭제는 자식(ScheduleBlockTrack) 먼저, 부모(ScheduleBlock) 나중 순서로 한다.
+         *   - 고정하고 싶은 수동 블록은 사용자가 pin 해두면 psbl 로 보존된다.
          *
          * 셋리스트 아이템 목록 + 각 아이템에 속한 멤버 + 각 멤버의 가용성 정보를 조회한다.
          * 참여 멤버 집합이 동일한 트랙끼리 묶어 그룹 목록을 만들고, 하루에 들어가지 않는 그룹은 조각으로 나눈다.
@@ -132,12 +140,9 @@ class ScheduleAutoPlaceService(
          * 전체 psl 들에 대한 순회가 끝났다면, 다음 회차에 대해 동일한 작업을 반복한다.
          *
          * 3. 결과 반영
-         * 배치가 완료된 뒤, 보드-트랙 단위 배치 결과를 ScheduleBoardSetlistTrackPlacement 에 업데이트한다.
-         *   - 블록이 생성될 때마다 그 블록의 트랙 placementCount 를 1 증가시킨다.
-         *     (조각이 한 회차에 배치되면 조각 내 모든 트랙이 각각 +1 된다)
-         *   - 단 한번도 배치되지 못한 트랙: placementCount = 0 으로 기록한다. (psl/asl 이 0개여서 제외된 트랙 포함)
-         *   - 블록의 실제 시간 정보는 ScheduleBlock 이 보유하므로 여기서는 중복 저장하지 않는다.
-         *   - 재실행 시 보드 단위로 전체 교체한다(deleteAllByBoardId 후 재생성).
+         * 배치 현황을 따로 적재하지 않는다. 블록이 곧 배치 결과이므로
+         * ScheduleBlockTrack 집계(countPlacementsByBoardId)로 조회 시점에 산출한다.
+         * 이렇게 하면 수동 배치로 생긴 블록도 자동으로 반영되어 집계가 항상 시간표와 일치한다.
          * 결과를 반환한다.
          */
         return resultList
