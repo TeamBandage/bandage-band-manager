@@ -2,11 +2,11 @@ package com.bandage.bandmanager.domain.schedule.service
 
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBlockUpsertRequest
 import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBlockResponse
-import com.bandage.bandmanager.domain.schedule.model.RecurrenceRule
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBlock
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBlockTrack
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
 import com.bandage.bandmanager.domain.schedule.model.ScheduleWindow
+import com.bandage.bandmanager.domain.schedule.model.Slot
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockTrackRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardRepository
@@ -39,21 +39,19 @@ class ScheduleBlockService(
         scheduleAuthService.validateSetlistManager(setlistId, memberId)
         val board = getBoardOrThrow(setlistId, boardId)
         ensureBoardEditable(board)
-        ScheduleBlock.validateSlot(request.startDate, request.endDate, request.startSlot, request.endSlot)
+        val slot = toSlot(request)
         board.scheduleWindowOrNull()?.let { validateDatesInWindow(request.startDate, request.endDate, it) }
         validateTracksInSetlist(setlistId, request.trackIds)
 
-        val recurrence = toRecurrenceRule(request)
         val existing = scheduleBlockRepository.findByIdOrNull(blockId)
         val block =
             if (existing != null) {
                 if (existing.board.id != boardId) {
                     throw BusinessException(ErrorCode.SCHEDULE_BLOCK_NOT_FOUND)
                 }
-                existing.reposition(request.startDate, request.endDate, request.startSlot, request.endSlot)
+                existing.reposition(slot)
                 existing.updateTitle(request.title)
                 existing.updateNote(request.note)
-                existing.updateRecurrenceRule(recurrence)
                 request.pinned?.let { if (it) existing.pin() else existing.unpin() }
                 existing
             } else {
@@ -61,13 +59,9 @@ class ScheduleBlockService(
                     .create(
                         id = blockId,
                         board = board,
-                        startDate = request.startDate,
-                        endDate = request.endDate,
-                        startSlot = request.startSlot,
-                        endSlot = request.endSlot,
+                        slot = slot,
                         title = request.title,
                         note = request.note,
-                        recurrenceRule = recurrence,
                     ).apply {
                         request.pinned?.let { if (it) pin() }
                     }
@@ -142,15 +136,13 @@ class ScheduleBlockService(
         }
     }
 
-    private fun toRecurrenceRule(request: ScheduleBlockUpsertRequest): RecurrenceRule {
-        val r = request.recurrence ?: return RecurrenceRule.none()
-        return RecurrenceRule(
-            freq = r.freq,
-            interval = r.interval,
-            until = r.until,
-            count = r.count,
-        )
-    }
+    // 슬롯 규약 검증은 Slot init 에서 수행되므로, 생성 실패 시 BusinessException 으로 변환한다.
+    private fun toSlot(request: ScheduleBlockUpsertRequest): Slot =
+        try {
+            Slot.of(request.startDate, request.startSlot, request.endDate, request.endSlot)
+        } catch (e: IllegalArgumentException) {
+            throw BusinessException(ErrorCode.INVALID_SLOT_RANGE)
+        }
 
     private fun getBoardOrThrow(
         setlistId: UUID,

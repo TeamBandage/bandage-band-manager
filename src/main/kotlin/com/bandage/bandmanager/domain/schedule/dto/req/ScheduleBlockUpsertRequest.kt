@@ -1,6 +1,5 @@
 package com.bandage.bandmanager.domain.schedule.dto.req
 
-import com.bandage.bandmanager.domain.schedule.model.enums.RecurrenceFreq
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
@@ -19,20 +18,12 @@ data class ScheduleBlockUpsertRequest(
     val startSlot: Int,
     @field:NotNull(message = "endDate 는 필수입니다.")
     val endDate: LocalDate,
-    @field:Max(value = 47, message = "endSlot 은 47 이하이어야 합니다.")
-    @field:Min(value = 0, message = "endSlot 은 0 이상이어야 합니다.")
+    // 반열린 구간의 끝이므로 1..48. 48 이면 당일 24:00 을 뜻한다.
+    @field:Max(value = 48, message = "endSlot 은 48 이하이어야 합니다.")
+    @field:Min(value = 1, message = "endSlot 은 1 이상이어야 합니다.")
     val endSlot: Int,
     val pinned: Boolean? = null,
     val title: String? = null,
     @field:Size(max = 200, message = "note 는 최대 200자까지 입력할 수 있습니다.")
     val note: String? = null,
-    val recurrence: RecurrenceRequest? = null,
-) {
-    data class RecurrenceRequest(
-        val freq: RecurrenceFreq = RecurrenceFreq.NONE,
-        @field:Min(value = 1, message = "interval 은 1 이상이어야 합니다.")
-        val interval: Int = 1,
-        val until: LocalDate? = null,
-        val count: Int? = null,
-    )
-}
+)

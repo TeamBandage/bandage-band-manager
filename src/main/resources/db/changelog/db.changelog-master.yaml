@@ -337,3 +337,45 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             endDelimiter: ";"
+  - changeSet:
+      id: 028-schedule-board-time-range
+      author: bandage
+      comment: |
+        BD-272: 미사용 보드 제약 제거 및 배치 가능 시간대 필드 정리
+        - working_hours_start/end → board_time_range_from/to 로 rename (슬롯 인덱스임을 이름에 반영, 값 보존)
+        - exclude_late_night / max_consecutive_minutes 제거 (정의·변환·사용 로직 모두 부재)
+      changes:
+        - sqlFile:
+            path: changes/028-schedule-board-time-range.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
+  - changeSet:
+      id: 029-schedule-block-slot-convention
+      author: bandage
+      comment: |
+        BD-272: 슬롯 규약 통일 (end_slot 을 1..48 로)
+        - 자정 종료 표현을 [end_date = 당일, end_slot = 48] 하나로 정규화
+        - 기존 [end_date = 다음날, end_slot = 0] 데이터를 변환
+      changes:
+        - sqlFile:
+            path: changes/029-schedule-block-slot-convention.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"
+  - changeSet:
+      id: 030-drop-schedule-block-recurrence
+      author: bandage
+      comment: |
+        BD-272: ScheduleBlock 반복 규칙(RecurrenceRule) 제거
+        - recurrence_freq/interval/until/count 컬럼 DROP
+        - 전개 로직(expandRecurrence)이 구현된 적 없고, 자동배치는 회차만큼 블록을 실제 생성하는 방식으로 확정
+      changes:
+        - sqlFile:
+            path: changes/030-drop-schedule-block-recurrence.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+            endDelimiter: ";"

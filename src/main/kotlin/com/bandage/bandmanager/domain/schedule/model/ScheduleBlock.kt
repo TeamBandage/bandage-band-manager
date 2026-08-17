@@ -17,7 +17,6 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import org.hibernate.annotations.SQLRestriction
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Entity
@@ -26,13 +25,9 @@ import java.util.UUID
 open class ScheduleBlock(
     id: UUID,
     board: ScheduleBoard,
-    startDate: LocalDate,
-    endDate: LocalDate,
-    startSlot: Int,
-    endSlot: Int,
+    slot: Slot,
     title: String?,
     note: String?,
-    recurrenceRule: RecurrenceRule,
     placementOrigin: PlacementOrigin,
 ) : BaseEntity() {
     @Id
@@ -44,21 +39,14 @@ open class ScheduleBlock(
     @OnDelete(action = OnDeleteAction.CASCADE)
     val board: ScheduleBoard = board
 
-    @Column(name = "start_date", nullable = false)
-    var startDate: LocalDate = startDate
+    @Embedded
+    var slot: Slot = slot
         protected set
 
-    @Column(name = "end_date", nullable = false)
-    var endDate: LocalDate = endDate
-        protected set
-
-    @Column(name = "start_slot", nullable = false)
-    var startSlot: Int = startSlot
-        protected set
-
-    @Column(name = "end_slot", nullable = false)
-    var endSlot: Int = endSlot
-        protected set
+    val startDate: LocalDate get() = slot.startDate
+    val endDate: LocalDate get() = slot.endDate
+    val startSlot: Int get() = slot.startSlot
+    val endSlot: Int get() = slot.endSlot
 
     @Column(name = "pinned", nullable = false)
     var pinned: Boolean = false
@@ -72,88 +60,32 @@ open class ScheduleBlock(
     var note: String? = note
         protected set
 
-    @Embedded
-    var recurrenceRule: RecurrenceRule = recurrenceRule
-        protected set
-
     @Enumerated(EnumType.STRING)
     @Column(name = "placement_origin", nullable = false)
     var placementOrigin: PlacementOrigin = placementOrigin
         protected set
 
     companion object {
-        const val SLOTS_PER_DAY = 48
-
         fun create(
             board: ScheduleBoard,
-            startDate: LocalDate,
-            endDate: LocalDate,
-            startSlot: Int,
-            endSlot: Int,
+            slot: Slot,
             title: String? = null,
             note: String? = null,
-            recurrenceRule: RecurrenceRule = RecurrenceRule.none(),
             placementOrigin: PlacementOrigin = PlacementOrigin.MANUAL,
             id: UUID = UuidCreator.getTimeOrderedEpoch(),
-        ): ScheduleBlock {
-            validateSlot(startDate, endDate, startSlot, endSlot)
-            return ScheduleBlock(
+        ): ScheduleBlock =
+            ScheduleBlock(
                 id = id,
                 board = board,
-                startDate = startDate,
-                endDate = endDate,
-                startSlot = startSlot,
-                endSlot = endSlot,
+                slot = slot,
                 title = title,
                 note = note,
-                recurrenceRule = recurrenceRule,
                 placementOrigin = placementOrigin,
             )
-        }
-
-        /** [startDate, startSlot) 부터 [endDate, endSlot) 까지의 총 슬롯 수(exclusive). */
-        fun totalSlots(
-            startDate: LocalDate,
-            endDate: LocalDate,
-            startSlot: Int,
-            endSlot: Int,
-        ): Int {
-            val dayDiff = ChronoUnit.DAYS.between(startDate, endDate).toInt()
-            return dayDiff * SLOTS_PER_DAY + (endSlot - startSlot)
-        }
-
-        fun validateSlot(
-            startDate: LocalDate,
-            endDate: LocalDate,
-            startSlot: Int,
-            endSlot: Int,
-        ) {
-            require(!endDate.isBefore(startDate)) {
-                "endDate must be on or after startDate (startDate=$startDate, endDate=$endDate)"
-            }
-            require(startSlot in 0 until SLOTS_PER_DAY) {
-                "startSlot must be in 0..${SLOTS_PER_DAY - 1}, was $startSlot"
-            }
-            require(endSlot in 0 until SLOTS_PER_DAY) {
-                "endSlot must be in 0..${SLOTS_PER_DAY - 1}, was $endSlot"
-            }
-            require(totalSlots(startDate, endDate, startSlot, endSlot) >= 1) {
-                "end must be after start (startDate=$startDate, startSlot=$startSlot, endDate=$endDate, endSlot=$endSlot)"
-            }
-        }
     }
 
-    fun reposition(
-        startDate: LocalDate,
-        endDate: LocalDate,
-        startSlot: Int,
-        endSlot: Int,
-    ) {
-        validateSlot(startDate, endDate, startSlot, endSlot)
-        this.startDate = startDate
-        this.endDate = endDate
-        this.startSlot = startSlot
-        this.endSlot = endSlot
+    fun reposition(slot: Slot) {
+        this.slot = slot
     }
 
     fun pin() {
@@ -170,10 +102,6 @@ open class ScheduleBlock(
 
     fun updateNote(note: String?) {
         this.note = note
-    }
-
-    fun updateRecurrenceRule(rule: RecurrenceRule) {
-        this.recurrenceRule = rule
     }
 
     fun updatePlacementOrigin(origin: PlacementOrigin) {

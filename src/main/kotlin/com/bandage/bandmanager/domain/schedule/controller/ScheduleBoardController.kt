@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.schedule.controller
 
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBoardCreateRequest
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBoardUpdateRequest
+import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBoardPlacementResponse
 import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBoardResponse
 import com.bandage.bandmanager.domain.schedule.service.ScheduleBoardService
 import com.bandage.bandmanager.global.common.constants.PathPrefix
@@ -32,6 +33,19 @@ class ScheduleBoardController(
         @PathVariable setlistId: UUID,
         @CurrentMemberId memberId: Long,
     ): ApiResponse<List<ScheduleBoardResponse>> = ApiResponse.success(scheduleBoardService.getBoards(setlistId, memberId))
+
+    @GetMapping("/{boardId}/placements")
+    @Operation(
+        operationId = "getBoardPlacements",
+        summary = "시간표 시안의 트랙별 배치 현황",
+        description = "셋리스트 참여자만 호출 가능. 셋리스트의 모든 트랙을 반환하며 미배치 트랙은 placementCount=0.",
+    )
+    fun getPlacements(
+        @PathVariable setlistId: UUID,
+        @PathVariable boardId: UUID,
+        @CurrentMemberId memberId: Long,
+    ): ApiResponse<List<ScheduleBoardPlacementResponse>> =
+        ApiResponse.success(scheduleBoardService.getPlacements(setlistId, boardId, memberId))
 
     @PostMapping
     @Operation(operationId = "createBoard", summary = "시간표 시안 생성", description = "셋리스트 매니저 권한, 셋리스트당 최대 5개.")

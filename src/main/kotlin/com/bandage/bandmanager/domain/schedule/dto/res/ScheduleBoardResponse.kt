@@ -1,6 +1,5 @@
 package com.bandage.bandmanager.domain.schedule.dto.res
 
-import com.bandage.bandmanager.domain.schedule.dto.ScheduleBoardConstraintsDto
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBlock
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
 import java.time.LocalDate
@@ -12,7 +11,8 @@ data class ScheduleBoardResponse(
     val setlistId: UUID,
     val name: String,
     val confirmed: Boolean,
-    val constraints: ScheduleBoardConstraintsDto,
+    val boardTimeRangeFrom: Int,
+    val boardTimeRangeTo: Int,
     val windowFrom: LocalDate?,
     val windowTo: LocalDate?,
     val blocks: List<ScheduleBlockResponse>,
@@ -29,7 +29,8 @@ data class ScheduleBoardResponse(
                 setlistId = board.setlistId,
                 name = board.name,
                 confirmed = board.confirmed,
-                constraints = ScheduleBoardConstraintsDto.from(board.constraints),
+                boardTimeRangeFrom = board.boardTimeRangeFrom,
+                boardTimeRangeTo = board.boardTimeRangeTo,
                 windowFrom = board.windowFrom,
                 windowTo = board.windowTo,
                 blocks = blocks.map { ScheduleBlockResponse.from(it, trackIdsByBlock[it.id].orEmpty()) },

@@ -6,6 +6,7 @@ plugins {
     id("com.diffplug.spotless") version "7.2.1"
     kotlin("plugin.jpa") version "2.2.21"
     kotlin("kapt") version "2.2.21"
+    kotlin("plugin.lombok") version "2.2.21"
 }
 
 group = "com.bandage"
@@ -79,6 +80,7 @@ dependencies {
     // Spring Boot 4 에는 spring-boot-starter-aop 가 없어 aspectjweaver 를 직접 추가한다(버전은 BOM 관리).
     // spring-aop 는 spring-context 의 transitive 로 이미 포함되며, AopAutoConfiguration 이 자동 활성화된다.
     implementation("org.aspectj:aspectjweaver")
+    testImplementation(kotlin("test"))
 }
 
 kotlin {
@@ -138,4 +140,7 @@ tasks.register<Exec>("dumpOpenApiSpec") {
         "-c",
         "curl -sf http://localhost:8080/api-docs | python3 -m json.tool --sort-keys > docs/openapi.json && echo 'docs/openapi.json updated'",
     )
+}
+kapt {
+    keepJavacAnnotationProcessors = true
 }

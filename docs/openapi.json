@@ -822,6 +822,40 @@
                 ],
                 "type": "object"
             },
+            "ApiResponseListScheduleBoardPlacementResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/ScheduleBoardPlacementResponse"
+                        },
+                        "type": "array"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
             "ApiResponseListScheduleBoardResponse": {
                 "properties": {
                     "code": {
@@ -932,6 +966,40 @@
                     "data": {
                         "items": {
                             "$ref": "#/components/schemas/SetlistResponse"
+                        },
+                        "type": "array"
+                    },
+                    "fieldErrors": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "success",
+                    "timestamp"
+                ],
+                "type": "object"
+            },
+            "ApiResponseListSlotAvailabilityResponse": {
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/SlotAvailabilityResponse"
                         },
                         "type": "array"
                     },
@@ -4073,64 +4141,71 @@
                 },
                 "type": "object"
             },
-            "RecurrenceDto": {
+            "ScheduleAutoPlaceRequest": {
                 "properties": {
-                    "count": {
+                    "dayPreference": {
+                        "items": {
+                            "enum": [
+                                "MONDAY",
+                                "TUESDAY",
+                                "WEDNESDAY",
+                                "THURSDAY",
+                                "FRIDAY",
+                                "SATURDAY",
+                                "SUNDAY"
+                            ],
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "endTimePreference": {
                         "format": "int32",
+                        "maximum": 48,
+                        "minimum": 1,
                         "type": "integer"
                     },
-                    "freq": {
+                    "interval": {
                         "enum": [
-                            "NONE",
+                            "ONCE",
                             "DAILY",
                             "WEEKLY",
-                            "BIWEEKLY"
+                            "BIWEEKLY",
+                            "MONTHLY"
                         ],
                         "type": "string"
                     },
-                    "interval": {
+                    "jamDurationSlots": {
                         "format": "int32",
+                        "maximum": 48,
+                        "minimum": 1,
                         "type": "integer"
                     },
-                    "until": {
-                        "format": "date",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "freq",
-                    "interval"
-                ],
-                "type": "object"
-            },
-            "RecurrenceRequest": {
-                "properties": {
-                    "count": {
+                    "maxEmptySlotsBetweenJams": {
                         "format": "int32",
+                        "maximum": 46,
+                        "minimum": 0,
                         "type": "integer"
                     },
-                    "freq": {
-                        "enum": [
-                            "NONE",
-                            "DAILY",
-                            "WEEKLY",
-                            "BIWEEKLY"
-                        ],
-                        "type": "string"
-                    },
-                    "interval": {
+                    "maxJamsPerDay": {
                         "format": "int32",
                         "minimum": 1,
                         "type": "integer"
                     },
-                    "until": {
-                        "format": "date",
-                        "type": "string"
+                    "startTimePreference": {
+                        "format": "int32",
+                        "maximum": 47,
+                        "minimum": 0,
+                        "type": "integer"
                     }
                 },
                 "required": [
-                    "freq",
-                    "interval"
+                    "dayPreference",
+                    "endTimePreference",
+                    "interval",
+                    "jamDurationSlots",
+                    "maxEmptySlotsBetweenJams",
+                    "maxJamsPerDay",
+                    "startTimePreference"
                 ],
                 "type": "object"
             },
@@ -4173,9 +4248,6 @@
                         ],
                         "type": "string"
                     },
-                    "recurrence": {
-                        "$ref": "#/components/schemas/RecurrenceDto"
-                    },
                     "startDate": {
                         "format": "date",
                         "type": "string"
@@ -4201,7 +4273,6 @@
                     "endSlot",
                     "pinned",
                     "placementOrigin",
-                    "recurrence",
                     "startDate",
                     "startSlot",
                     "trackIds"
@@ -4216,8 +4287,8 @@
                     },
                     "endSlot": {
                         "format": "int32",
-                        "maximum": 47,
-                        "minimum": 0,
+                        "maximum": 48,
+                        "minimum": 1,
                         "type": "integer"
                     },
                     "note": {
@@ -4227,9 +4298,6 @@
                     },
                     "pinned": {
                         "type": "boolean"
-                    },
-                    "recurrence": {
-                        "$ref": "#/components/schemas/RecurrenceRequest"
                     },
                     "startDate": {
                         "format": "date",
@@ -4262,36 +4330,19 @@
                 ],
                 "type": "object"
             },
-            "ScheduleBoardConstraintsDto": {
-                "properties": {
-                    "excludeLateNight": {
-                        "type": "boolean"
-                    },
-                    "maxConsecutiveMinutes": {
-                        "format": "int32",
-                        "type": "integer"
-                    },
-                    "workingHoursEnd": {
-                        "format": "int32",
-                        "type": "integer"
-                    },
-                    "workingHoursStart": {
-                        "format": "int32",
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "excludeLateNight",
-                    "maxConsecutiveMinutes",
-                    "workingHoursEnd",
-                    "workingHoursStart"
-                ],
-                "type": "object"
-            },
             "ScheduleBoardCreateRequest": {
                 "properties": {
-                    "constraints": {
-                        "$ref": "#/components/schemas/ScheduleBoardConstraintsDto"
+                    "boardTimeRangeFrom": {
+                        "format": "int32",
+                        "maximum": 47,
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "boardTimeRangeTo": {
+                        "format": "int32",
+                        "maximum": 48,
+                        "minimum": 1,
+                        "type": "integer"
                     },
                     "name": {
                         "maxLength": 50,
@@ -4308,7 +4359,30 @@
                     }
                 },
                 "required": [
+                    "boardTimeRangeFrom",
+                    "boardTimeRangeTo",
                     "name"
+                ],
+                "type": "object"
+            },
+            "ScheduleBoardPlacementResponse": {
+                "properties": {
+                    "placed": {
+                        "type": "boolean"
+                    },
+                    "placementCount": {
+                        "format": "int64",
+                        "type": "integer"
+                    },
+                    "trackId": {
+                        "format": "uuid",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "placed",
+                    "placementCount",
+                    "trackId"
                 ],
                 "type": "object"
             },
@@ -4324,11 +4398,16 @@
                         "format": "uuid",
                         "type": "string"
                     },
+                    "boardTimeRangeFrom": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "boardTimeRangeTo": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
                     "confirmed": {
                         "type": "boolean"
-                    },
-                    "constraints": {
-                        "$ref": "#/components/schemas/ScheduleBoardConstraintsDto"
                     },
                     "createdAt": {
                         "format": "date-time",
@@ -4353,8 +4432,9 @@
                 "required": [
                     "blocks",
                     "boardId",
+                    "boardTimeRangeFrom",
+                    "boardTimeRangeTo",
                     "confirmed",
-                    "constraints",
                     "createdAt",
                     "name",
                     "setlistId"
@@ -4363,8 +4443,17 @@
             },
             "ScheduleBoardUpdateRequest": {
                 "properties": {
-                    "constraints": {
-                        "$ref": "#/components/schemas/ScheduleBoardConstraintsDto"
+                    "boardTimeRangeFrom": {
+                        "format": "int32",
+                        "maximum": 47,
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "boardTimeRangeTo": {
+                        "format": "int32",
+                        "maximum": 48,
+                        "minimum": 1,
+                        "type": "integer"
                     },
                     "name": {
                         "maxLength": 50,
@@ -4971,6 +5060,46 @@
                 },
                 "required": [
                     "title"
+                ],
+                "type": "object"
+            },
+            "SlotAvailabilityResponse": {
+                "description": "\uc2ac\ub86f\ubcc4 \uba64\ubc84 \uac00\uc6a9 \ud604\ud669",
+                "properties": {
+                    "availableMemberIds": {
+                        "description": "\uc774 \uc2ac\ub86f\uc5d0 \uac00\uc6a9\ud55c \uba64\ubc84 ID",
+                        "items": {
+                            "format": "int64",
+                            "type": "integer"
+                        },
+                        "type": "array"
+                    },
+                    "date": {
+                        "description": "\ub0a0\uc9dc",
+                        "example": "2026-09-01",
+                        "format": "date",
+                        "type": "string"
+                    },
+                    "slot": {
+                        "description": "\uc2ac\ub86f \uc778\ub371\uc2a4 (0~47, 30\ubd84 \ub2e8\uc704)",
+                        "example": 36,
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "unavailableMemberIds": {
+                        "description": "\uc774 \uc2ac\ub86f\uc5d0 \ubd88\uac00\ub2a5\ud55c \uba64\ubc84 ID",
+                        "items": {
+                            "format": "int64",
+                            "type": "integer"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "availableMemberIds",
+                    "date",
+                    "slot",
+                    "unavailableMemberIds"
                 ],
                 "type": "object"
             },
@@ -8887,6 +9016,58 @@
                 ]
             }
         },
+        "/api/v1/setlists/{setlistId}/schedule-boards/{boardId}/auto-schedule": {
+            "post": {
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ub9e4\ub2c8\uc800 \uad8c\ud55c, confirmed=true \uc778 \uc2dc\uc548\uc740 \ubc30\uce58 \ubd88\uac00(409).",
+                "operationId": "autoSchedule",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "setlistId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "boardId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ScheduleAutoPlaceRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseScheduleBoardResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc2dc\uac04\ud45c \uc790\ub3d9 \ubc30\uce58",
+                "tags": [
+                    "schedule-auto-place"
+                ]
+            }
+        },
         "/api/v1/setlists/{setlistId}/schedule-boards/{boardId}/blocks/{blockId}": {
             "delete": {
                 "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ub9e4\ub2c8\uc800 \uad8c\ud55c, confirmed=true \uc778 \uc2dc\uc548\uc758 \ube14\ub85d\uc740 \uc0ad\uc81c \ubd88\uac00.",
@@ -9055,6 +9236,99 @@
                 "summary": "\uc2dc\uac04\ud45c \ube14\ub85d \ud540 \ud1a0\uae00",
                 "tags": [
                     "schedule-blocks"
+                ]
+            }
+        },
+        "/api/v1/setlists/{setlistId}/schedule-boards/{boardId}/placements": {
+            "get": {
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ucc38\uc5ec\uc790\ub9cc \ud638\ucd9c \uac00\ub2a5. \uc14b\ub9ac\uc2a4\ud2b8\uc758 \ubaa8\ub4e0 \ud2b8\ub799\uc744 \ubc18\ud658\ud558\uba70 \ubbf8\ubc30\uce58 \ud2b8\ub799\uc740 placementCount=0.",
+                "operationId": "getBoardPlacements",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "setlistId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "boardId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListScheduleBoardPlacementResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc2dc\uac04\ud45c \uc2dc\uc548\uc758 \ud2b8\ub799\ubcc4 \ubc30\uce58 \ud604\ud669",
+                "tags": [
+                    "schedule-boards"
+                ]
+            }
+        },
+        "/api/v1/setlists/{setlistId}/slot-availabilities": {
+            "get": {
+                "description": "\uc14b\ub9ac\uc2a4\ud2b8 \ucc38\uc5ec\uc790 \uad8c\ud55c. \uc870\ud68c \uae30\uac04(from~to, \ucd5c\ub300 31\uc77c)\uc758 \ubaa8\ub4e0 \uc2ac\ub86f\uc5d0 \ub300\ud574 \uac00\uc6a9/\ubd88\uac00 \uba64\ubc84\ub97c \ud3bc\uccd0 \ubc18\ud658\ud55c\ub2e4. \ud654\uba74 \ub2e8\uc704(\uc8fc/\uc6d4)\ub85c \ubc8c\ud06c \uc870\ud68c\ud574 \uce90\uc2f1\ud55c \ub4a4 \uc2ac\ub86f \ud638\ubc84\ub9c1 \uc2dc \ucd94\uac00 \ud638\ucd9c \uc5c6\uc774 \ud45c\uc2dc\ud558\ub294 \uc6a9\ub3c4\ub2e4. \ud2b9\uc815 \ud2b8\ub799 \ubc30\uce58 \uc2dc\uc5d0\ub294 \uadf8 \ud2b8\ub799\uc758 \ucc38\uc5ec\uc790\uc640 availableMemberIds \ub97c \uad50\uc9d1\ud569\ud574 \ud310\uc815\ud55c\ub2e4.",
+                "operationId": "getSlotAvailabilities",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "setlistId",
+                        "required": true,
+                        "schema": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "from",
+                        "required": true,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "to",
+                        "required": true,
+                        "schema": {
+                            "format": "date",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListSlotAvailabilityResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    }
+                },
+                "summary": "\uc2ac\ub86f\ubcc4 \uba64\ubc84 \uac00\uc6a9 \ud604\ud669 \uc870\ud68c",
+                "tags": [
+                    "schedule-availability"
                 ]
             }
         },
@@ -10128,12 +10402,6 @@
             "bearerAuth": []
         }
     ],
-    "servers": [
-        {
-            "description": "Generated server url",
-            "url": "http://bandage-band-manager:8080"
-        }
-    ],
     "tags": [
         {
             "description": "\uc54c\ub9bc API",
@@ -10146,6 +10414,10 @@
         {
             "description": "\uc2dc\uac04\ud45c \uc2dc\uc548 API (\uc14b\ub9ac\uc2a4\ud2b8 \ub2e8\uc704)",
             "name": "schedule-boards"
+        },
+        {
+            "description": "\uc2dc\uac04\ud45c \uc2ac\ub86f\ubcc4 \uba64\ubc84 \uac00\uc6a9 \ud604\ud669 API",
+            "name": "schedule-availability"
         },
         {
             "description": "\ubc34\ub4dc \uac00\uc785 \uc2e0\uccad API",
@@ -10166,6 +10438,10 @@
         {
             "description": "Kakao OAuth API",
             "name": "auth-oauth-kakao"
+        },
+        {
+            "description": "\uc2dc\uac04\ud45c \uc790\ub3d9 \ubc30\uce58 API",
+            "name": "schedule-auto-place"
         },
         {
             "description": "\ubc34\ub4dc API",

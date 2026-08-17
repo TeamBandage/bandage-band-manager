@@ -2,17 +2,19 @@ package com.bandage.bandmanager.domain.schedule.service
 
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBoardCreateRequest
 import com.bandage.bandmanager.domain.schedule.dto.req.ScheduleBoardUpdateRequest
+import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBoardPlacementResponse
 import com.bandage.bandmanager.domain.schedule.dto.res.ScheduleBoardResponse
 import com.bandage.bandmanager.domain.schedule.model.ScheduleBoard
-import com.bandage.bandmanager.domain.schedule.model.ScheduleBoardConstraints
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBlockTrackRepository
 import com.bandage.bandmanager.domain.schedule.repository.ScheduleBoardRepository
+import com.bandage.bandmanager.domain.setlist.repository.SetlistTrackRepository
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.util.UUID
 
 @Service
@@ -21,6 +23,7 @@ class ScheduleBoardService(
     private val scheduleBoardRepository: ScheduleBoardRepository,
     private val scheduleBlockRepository: ScheduleBlockRepository,
     private val scheduleBlockTrackRepository: ScheduleBlockTrackRepository,
+    private val setlistTrackRepository: SetlistTrackRepository,
     private val scheduleAuthService: ScheduleAuthService,
 ) {
     fun getBoards(
@@ -38,6 +41,32 @@ class ScheduleBoardService(
         }
     }
 
+    /**
+     * 보드 안의 트랙별 배치 현황. 셋리스트의 모든 트랙이 포함되며, 미배치 트랙은 placementCount = 0 이다.
+     *
+     * 별도 적재 테이블 없이 ScheduleBlockTrack 을 집계하므로 수동 배치와 자동 배치가 모두 반영된다.
+     */
+    fun getPlacements(
+        setlistId: UUID,
+        boardId: UUID,
+        memberId: Long,
+    ): List<ScheduleBoardPlacementResponse> {
+        scheduleAuthService.validateSetlistParticipant(setlistId, memberId)
+        getBoardOrThrow(setlistId, boardId)
+        val countByTrackId =
+            scheduleBlockTrackRepository
+                .countPlacementsByBoardId(boardId)
+                .associate { it.getTrackId() to it.getPlacementCount() }
+        return setlistTrackRepository
+            .findAllBySetlistIdIn(listOf(setlistId))
+            .map { track ->
+                ScheduleBoardPlacementResponse(
+                    trackId = track.id,
+                    placementCount = countByTrackId[track.id] ?: 0L,
+                )
+            }
+    }
+
     @Transactional
     fun createBoard(
         setlistId: UUID,
@@ -49,13 +78,14 @@ class ScheduleBoardService(
         if (existingCount >= MAX_BOARDS_PER_SETLIST) {
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_LIMIT_EXCEEDED)
         }
-        val constraints = request.constraints?.toEntity() ?: ScheduleBoardConstraints()
+        validateWindow(request.windowFrom, request.windowTo)
         val board =
             scheduleBoardRepository.save(
-                ScheduleBoard.create(
+                createBoardOrThrow(
                     setlistId = setlistId,
                     name = request.name,
-                    constraints = constraints,
+                    from = request.boardTimeRangeFrom,
+                    to = request.boardTimeRangeTo,
                     windowFrom = request.windowFrom,
                     windowTo = request.windowTo,
                 ),
@@ -77,14 +107,17 @@ class ScheduleBoardService(
         }
         request.name?.let { board.rename(it) }
         if (request.windowFrom != null || request.windowTo != null) {
-            board.updateWindow(request.windowFrom ?: board.windowFrom, request.windowTo ?: board.windowTo)
+            val newFrom = request.windowFrom ?: board.windowFrom
+            val newTo = request.windowTo ?: board.windowTo
+            // 한쪽만 갱신해도 from > to 가 되지 않도록 확정 값으로 검증한다.
+            validateWindow(newFrom, newTo)
+            board.updateWindow(newFrom, newTo)
         }
-        request.constraints?.let { dto ->
-            board.constraints.update(
-                workingHoursStart = dto.workingHoursStart,
-                workingHoursEnd = dto.workingHoursEnd,
-                excludeLateNight = dto.excludeLateNight,
-                maxConsecutiveMinutes = dto.maxConsecutiveMinutes,
+        if (request.boardTimeRangeFrom != null || request.boardTimeRangeTo != null) {
+            updateTimeRangeOrThrow(
+                board = board,
+                from = request.boardTimeRangeFrom ?: board.boardTimeRangeFrom,
+                to = request.boardTimeRangeTo ?: board.boardTimeRangeTo,
             )
         }
         val blocks = scheduleBlockRepository.findAllByBoardId(board.id)
@@ -104,6 +137,50 @@ class ScheduleBoardService(
             throw BusinessException(ErrorCode.SCHEDULE_BOARD_ALREADY_CONFIRMED)
         }
         scheduleBoardRepository.delete(board)
+    }
+
+    // 시간대/날짜 검증은 도메인(ScheduleBoard, ScheduleWindow)이 보유하므로,
+    // 생성 실패 시 BusinessException 으로 변환해 400 으로 내보낸다.
+    private fun createBoardOrThrow(
+        setlistId: UUID,
+        name: String,
+        from: Int,
+        to: Int,
+        windowFrom: LocalDate?,
+        windowTo: LocalDate?,
+    ): ScheduleBoard =
+        try {
+            ScheduleBoard.create(
+                setlistId = setlistId,
+                name = name,
+                boardTimeRangeFrom = from,
+                boardTimeRangeTo = to,
+                windowFrom = windowFrom,
+                windowTo = windowTo,
+            )
+        } catch (e: IllegalArgumentException) {
+            throw BusinessException(ErrorCode.INVALID_SLOT_RANGE)
+        }
+
+    private fun updateTimeRangeOrThrow(
+        board: ScheduleBoard,
+        from: Int,
+        to: Int,
+    ) {
+        try {
+            board.updateTimeRange(from, to)
+        } catch (e: IllegalArgumentException) {
+            throw BusinessException(ErrorCode.INVALID_SLOT_RANGE)
+        }
+    }
+
+    private fun validateWindow(
+        from: LocalDate?,
+        to: LocalDate?,
+    ) {
+        if (from != null && to != null && from.isAfter(to)) {
+            throw BusinessException(ErrorCode.SCHEDULE_DATE_OUT_OF_WINDOW)
+        }
     }
 
     private fun trackIdsByBlock(blockIds: List<UUID>): Map<UUID, List<UUID>> {
