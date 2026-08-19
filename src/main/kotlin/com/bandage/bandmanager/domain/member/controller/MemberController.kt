@@ -1,6 +1,7 @@
 package com.bandage.bandmanager.domain.member.controller
 
 import com.bandage.bandmanager.domain.member.dto.req.MemberInfoUpdateRequest
+import com.bandage.bandmanager.domain.member.dto.req.MemberSearchQuery
 import com.bandage.bandmanager.domain.member.dto.res.MemberInfoResponse
 import com.bandage.bandmanager.domain.member.dto.res.MemberMetricsResponse
 import com.bandage.bandmanager.domain.member.dto.res.MemberSearchItemResponse
@@ -12,6 +13,7 @@ import com.bandage.bandmanager.facade.dto.MemberJoinRequest
 import com.bandage.bandmanager.facade.dto.MemberResponse
 import com.bandage.bandmanager.global.common.constants.PathPrefix.PREFIX
 import com.bandage.bandmanager.global.common.response.ApiResponse
+import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.infra.s3.ImagePresignRequest
 import com.bandage.bandmanager.global.infra.s3.ImagePresignResponse
 import com.bandage.bandmanager.global.security.annotation.CurrentMemberId
@@ -28,7 +30,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "members", description = "회원 API")
@@ -111,12 +112,12 @@ class MemberController(
     @Operation(
         operationId = "searchMembers",
         summary = "회원 검색 API",
-        description = "이름/이메일 부분 일치 검색. 최대 20건. 본인은 결과에서 제외.",
+        description = "이름/이메일 부분 일치 검색을 회원 ID 커서 기반(내림차순)으로 조회합니다. 본인은 결과에서 제외.",
     )
     fun searchMembers(
-        @RequestParam(name = "q", required = false, defaultValue = "") q: String,
+        @Valid query: MemberSearchQuery,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<List<MemberSearchItemResponse>> = ApiResponse.success(memberService.searchMembers(q, memberId))
+    ): ApiResponse<CursorResponse<MemberSearchItemResponse, Long>> = ApiResponse.success(memberService.searchMembers(query, memberId))
 
     @DeleteMapping("/me")
     @Operation(operationId = "withdrawMember", summary = "회원 탈퇴 API", description = "회원 정보를 삭제하고 로그아웃 처리합니다.")

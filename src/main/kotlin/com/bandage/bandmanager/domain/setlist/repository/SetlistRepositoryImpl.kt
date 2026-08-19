@@ -29,7 +29,7 @@ class SetlistRepositoryImpl(
                 .join(qParticipant.track, qTrack)
                 .where(qParticipant.memberId.eq(memberId))
 
-        val contents =
+        val rows =
             queryFactory
                 .selectFrom(qSetlist)
                 .where(
@@ -41,17 +41,15 @@ class SetlistRepositoryImpl(
                 .limit(pageSize.toLong() + 1)
                 .fetch()
 
-        val hasNext = contents.size > pageSize
-        val resultContents = if (hasNext) contents.dropLast(1) else contents
-        val nextCursor = if (hasNext) resultContents.lastOrNull()?.id else null
-
-        return CursorResponse(content = resultContents, nextCursor = nextCursor, hasNext = hasNext)
+        return CursorResponse.of(rows, pageSize) { it.id }
     }
 
-    override fun findAllAccessibleByTitle(
+    override fun findAllAccessibleByTitleAndPaging(
         title: String,
         memberId: Long,
-    ): List<Setlist> {
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<Setlist, UUID> {
         val qSetlist = QSetlist.setlist
         val qTrack = QSetlistTrack.setlistTrack
         val qParticipant = QSetlistTrackParticipant.setlistTrackParticipant
@@ -63,15 +61,20 @@ class SetlistRepositoryImpl(
                 .join(qParticipant.track, qTrack)
                 .where(qParticipant.memberId.eq(memberId))
 
-        return queryFactory
-            .selectFrom(qSetlist)
-            .where(qSetlist.title.containsIgnoreCase(title))
-            .where(
-                qSetlist.managerId
-                    .eq(memberId)
-                    .or(qSetlist.id.`in`(participantSetlistIds)),
-            ).orderBy(qSetlist.id.desc())
-            .fetch()
+        val rows =
+            queryFactory
+                .selectFrom(qSetlist)
+                .where(qSetlist.title.containsIgnoreCase(title))
+                .where(
+                    qSetlist.managerId
+                        .eq(memberId)
+                        .or(qSetlist.id.`in`(participantSetlistIds)),
+                ).where(ltSetlistId(lastId))
+                .orderBy(qSetlist.id.desc())
+                .limit(pageSize.toLong() + 1)
+                .fetch()
+
+        return CursorResponse.of(rows, pageSize) { it.id }
     }
 
     override fun isAccessibleMember(

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.context.annotation.Import
+import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.ActiveProfiles
 import java.util.UUID
 
@@ -56,6 +57,33 @@ class SetlistTrackParticipantBySetlistTest {
         participant(track(other, "Song B"), "vocal", 99L)
 
         assertThat(sut.findAllBySetlistId(mine.id).map { it.memberId }).containsExactly(1L)
+    }
+
+    @Test
+    fun `참여 회원 ID 를 커서 기반 오름차순으로 중복 없이 조회한다`() {
+        val setlist = setlist("커서 셋리스트")
+        val track = track(setlist, "Song A")
+        participant(track, "vocal", 30L)
+        participant(track, "guitar", 10L)
+        participant(track, "drum", 20L)
+        // 한 회원이 여러 세션에 배정돼도 ID 는 한 번만 나온다
+        participant(track, "bass", 10L)
+
+        assertThat(sut.findMemberIdsBySetlistIdAfter(setlist.id, 0L, PageRequest.of(0, 2))).containsExactly(10L, 20L)
+        assertThat(sut.findMemberIdsBySetlistIdAfter(setlist.id, 20L, PageRequest.of(0, 2))).containsExactly(30L)
+        assertThat(sut.findMemberIdsBySetlistIdAfter(setlist.id, 30L, PageRequest.of(0, 2))).isEmpty()
+    }
+
+    @Test
+    fun `페이지에 포함된 회원의 배정만 조회한다`() {
+        val setlist = setlist("필터 셋리스트")
+        val track = track(setlist, "Song A")
+        participant(track, "vocal", 1L)
+        participant(track, "guitar", 2L)
+
+        val found = sut.findAllByTrackInAndMemberIdIn(listOf(track), listOf(2L))
+
+        assertThat(found.map { it.memberId }).containsExactly(2L)
     }
 
     @Test

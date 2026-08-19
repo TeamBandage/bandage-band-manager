@@ -5,13 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface MemberRepository : JpaRepository<Member, Long> {
+interface MemberRepository :
+    JpaRepository<Member, Long>,
+    MemberRepositoryCustom {
     fun existsByEmail(email: String): Boolean
 
     fun findAllByIdIn(ids: Collection<Long>): List<Member>
-
-    fun findTop20ByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-        name: String,
-        email: String,
-    ): List<Member>
 }

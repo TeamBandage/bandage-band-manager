@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-interface PerformanceInvitationRepository : JpaRepository<PerformanceInvitation, UUID> {
+interface PerformanceInvitationRepository :
+    JpaRepository<PerformanceInvitation, UUID>,
+    PerformanceInvitationRepositoryCustom {
     fun existsByPerformanceAndInvitedMemberAndStatus(
         performance: Performance,
         invitedMember: Long,
@@ -19,11 +21,4 @@ interface PerformanceInvitationRepository : JpaRepository<PerformanceInvitation,
         id: UUID,
         status: PerformanceInvitationStatus,
     ): PerformanceInvitation?
-
-    fun findAllByPerformanceOrderByCreatedAtDesc(performance: Performance): List<PerformanceInvitation>
-
-    fun findAllByInvitedMemberAndStatusOrderByCreatedAtDesc(
-        invitedMember: Long,
-        status: PerformanceInvitationStatus,
-    ): List<PerformanceInvitation>
 }

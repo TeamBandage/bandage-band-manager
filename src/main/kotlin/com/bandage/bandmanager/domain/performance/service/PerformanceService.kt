@@ -6,6 +6,7 @@ import com.bandage.bandmanager.domain.band.repository.BandRepository
 import com.bandage.bandmanager.domain.member.repository.MemberRepository
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceInvitationCreateRequest
+import com.bandage.bandmanager.domain.performance.dto.req.PerformanceInvitationPagingQuery
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceSearchQuery
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceSetlistAddRequest
@@ -265,17 +266,25 @@ class PerformanceService(
     fun getInvitations(
         performanceId: UUID,
         ownerId: Long,
-    ): List<PerformanceInvitationResponse> {
+        query: PerformanceInvitationPagingQuery,
+    ): CursorResponse<PerformanceInvitationResponse, UUID> {
         val performance = getPerformance(performanceId)
         validateOwner(performance, ownerId)
-        return toInvitationResponses(performanceInvitationRepository.findAllByPerformanceOrderByCreatedAtDesc(performance))
+        return toInvitationPage(
+            performanceInvitationRepository.findAllByPerformanceAndPaging(performance, query.lastId, query.pageSize),
+        )
     }
 
-    fun getMyInvitations(memberId: Long): List<PerformanceInvitationResponse> =
-        toInvitationResponses(
-            performanceInvitationRepository.findAllByInvitedMemberAndStatusOrderByCreatedAtDesc(
+    fun getMyInvitations(
+        memberId: Long,
+        query: PerformanceInvitationPagingQuery,
+    ): CursorResponse<PerformanceInvitationResponse, UUID> =
+        toInvitationPage(
+            performanceInvitationRepository.findAllByInvitedMemberAndStatusAndPaging(
                 memberId,
                 PerformanceInvitationStatus.PENDING,
+                query.lastId,
+                query.pageSize,
             ),
         )
 
@@ -358,6 +367,10 @@ class PerformanceService(
                 )
         }
     }
+
+    /** 커서/hasNext 는 그대로 두고 content 만 응답으로 변환한다(회원 정보는 페이지 단위 일괄 조회). */
+    private fun toInvitationPage(page: CursorResponse<PerformanceInvitation, UUID>): CursorResponse<PerformanceInvitationResponse, UUID> =
+        CursorResponse(toInvitationResponses(page.content), page.nextCursor, page.hasNext)
 
     private fun toInvitationResponses(invitations: List<PerformanceInvitation>): List<PerformanceInvitationResponse> {
         if (invitations.isEmpty()) return emptyList()

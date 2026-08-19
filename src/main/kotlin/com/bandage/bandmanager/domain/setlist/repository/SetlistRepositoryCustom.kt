@@ -11,10 +11,12 @@ interface SetlistRepositoryCustom {
         pageSize: Int,
     ): CursorResponse<Setlist, UUID>
 
-    fun findAllAccessibleByTitle(
+    fun findAllAccessibleByTitleAndPaging(
         title: String,
         memberId: Long,
-    ): List<Setlist>
+        lastId: UUID?,
+        pageSize: Int,
+    ): CursorResponse<Setlist, UUID>
 
     fun isAccessibleMember(
         setlistId: UUID,
