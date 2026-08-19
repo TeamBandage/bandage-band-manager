@@ -4,11 +4,13 @@ import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.jam.repository.JamParticipantRepository
 import com.bandage.bandmanager.domain.member.dto.req.MemberCreateRequest
 import com.bandage.bandmanager.domain.member.dto.req.MemberInfoUpdateRequest
+import com.bandage.bandmanager.domain.member.dto.req.MemberSearchQuery
 import com.bandage.bandmanager.domain.member.dto.res.MemberInfoResponse
 import com.bandage.bandmanager.domain.member.dto.res.MemberSearchItemResponse
 import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.domain.member.model.Member
 import com.bandage.bandmanager.domain.member.repository.MemberRepository
+import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
 import com.bandage.bandmanager.global.infra.s3.CloudFrontUrlResolver
@@ -103,14 +105,13 @@ class MemberService(
     ): ImagePresignResponse = imagePresignSupport.issue(request, "profile/member/$memberId")
 
     fun searchMembers(
-        keyword: String,
+        query: MemberSearchQuery,
         excludeMemberId: Long?,
-    ): List<MemberSearchItemResponse> {
-        val q = keyword.trim()
-        if (q.isEmpty()) return emptyList()
+    ): CursorResponse<MemberSearchItemResponse, Long> {
+        val q = query.q.trim()
+        if (q.isEmpty()) return CursorResponse(emptyList(), null, false)
         return memberRepository
-            .findTop20ByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(q, q)
-            .filter { excludeMemberId == null || it.id != excludeMemberId }
+            .searchByKeywordAndPaging(q, excludeMemberId, query.lastId, query.pageSize)
             .map { MemberSearchItemResponse.of(it, profileImageUrl(it.profileImg)) }
     }
 

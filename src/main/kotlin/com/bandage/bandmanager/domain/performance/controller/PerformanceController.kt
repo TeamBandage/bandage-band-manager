@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.performance.controller
 
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceCreateRequest
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceInvitationCreateRequest
+import com.bandage.bandmanager.domain.performance.dto.req.PerformanceInvitationPagingQuery
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceOwnerDelegateRequest
 import com.bandage.bandmanager.domain.performance.dto.req.PerformancePagingQuery
 import com.bandage.bandmanager.domain.performance.dto.req.PerformanceSearchQuery
@@ -155,17 +156,29 @@ class PerformanceController(
     ): ApiResponse<PerformanceInvitationResponse> = ApiResponse.success(performanceService.sendInvitation(performanceId, request, memberId))
 
     @GetMapping("/{performanceId}/invitations")
-    @Operation(operationId = "getInvitations", summary = "공연 초대 목록 조회 API", description = "공연에 발송된 초대 목록을 조회합니다. OWNER만 가능.")
+    @Operation(
+        operationId = "getInvitations",
+        summary = "공연 초대 목록 조회 API",
+        description = "공연에 발송된 초대 목록을 초대 ID 커서 기반 최신순으로 조회합니다. OWNER만 가능.",
+    )
     fun getInvitations(
         @PathVariable performanceId: UUID,
+        @Valid query: PerformanceInvitationPagingQuery,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<List<PerformanceInvitationResponse>> = ApiResponse.success(performanceService.getInvitations(performanceId, memberId))
+    ): ApiResponse<CursorResponse<PerformanceInvitationResponse, UUID>> =
+        ApiResponse.success(performanceService.getInvitations(performanceId, memberId, query))
 
     @GetMapping("/invitations/me")
-    @Operation(operationId = "getMyInvitations", summary = "내 공연 초대 목록 조회 API", description = "본인이 받은 대기 중(PENDING) 공연 초대 목록을 조회합니다.")
+    @Operation(
+        operationId = "getMyInvitations",
+        summary = "내 공연 초대 목록 조회 API",
+        description = "본인이 받은 대기 중(PENDING) 공연 초대 목록을 초대 ID 커서 기반 최신순으로 조회합니다.",
+    )
     fun getMyInvitations(
+        @Valid query: PerformanceInvitationPagingQuery,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<List<PerformanceInvitationResponse>> = ApiResponse.success(performanceService.getMyInvitations(memberId))
+    ): ApiResponse<CursorResponse<PerformanceInvitationResponse, UUID>> =
+        ApiResponse.success(performanceService.getMyInvitations(memberId, query))
 
     @PatchMapping("/{performanceId}/invitations/{invitationId}")
     @Operation(

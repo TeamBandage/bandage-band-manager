@@ -7,6 +7,8 @@ import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.performance.repository.PerformanceSetlistRepository
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistManagerTransferRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistPagingQuery
+import com.bandage.bandmanager.domain.setlist.dto.req.SetlistParticipantPagingQuery
+import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTitleSearchQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackUpdateRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistUpdateRequest
@@ -30,6 +32,7 @@ import com.bandage.bandmanager.global.common.domain.SessionDef
 import com.bandage.bandmanager.global.common.response.CursorResponse
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -61,16 +64,33 @@ class SetlistService(
     fun getParticipants(
         setlistId: UUID,
         memberId: Long,
-    ): List<SetlistParticipantResponse> {
+        query: SetlistParticipantPagingQuery,
+    ): CursorResponse<SetlistParticipantResponse, Long> {
         val setlist = getSetlistOrThrow(setlistId)
         validateAccess(setlist, memberId)
-        return loadParticipants(setlist)
+
+        // 참여 회원 ID 를 먼저 페이징하고(회원 ID 오름차순), 그 페이지의 회원에 대해서만 세션 배정을 조립한다.
+        // 매니저는 트랙 배정이 없어도 목록에 포함해야 하므로 커서보다 큰 경우 후보에 넣고 함께 정렬한다.
+        val lastId = query.lastId
+        val participantIds =
+            setlistTrackParticipantRepository.findMemberIdsBySetlistIdAfter(
+                setlistId,
+                lastId ?: 0L,
+                PageRequest.of(0, query.pageSize + 1),
+            )
+        val candidates = if (lastId == null || setlist.managerId > lastId) participantIds + setlist.managerId else participantIds
+        val idPage = CursorResponse.of(candidates.distinct().sorted().take(query.pageSize + 1), query.pageSize) { it }
+
+        return CursorResponse(loadParticipantsOf(setlist, idPage.content), idPage.nextCursor, idPage.hasNext)
     }
 
     fun getSetlistsByTitle(
-        title: String,
+        query: SetlistTitleSearchQuery,
         memberId: Long,
-    ): List<SetlistResponse> = setlistRepository.findAllAccessibleByTitle(title, memberId).map { SetlistResponse.of(it) }
+    ): CursorResponse<SetlistResponse, UUID> =
+        setlistRepository
+            .findAllAccessibleByTitleAndPaging(query.title, memberId, query.lastId, query.pageSize)
+            .map { SetlistResponse.of(it) }
 
     fun getMySetlists(
         memberId: Long,
@@ -287,7 +307,15 @@ class SetlistService(
         val participantsBySetlist = participants.groupBy { setlistIdByTrackId[it.track.id] }
 
         return setlists.associate { setlist ->
-            setlist.id to buildParticipants(setlist, participantsBySetlist[setlist.id].orEmpty(), sessionDefs, memberInfos)
+            val setlistParticipants = participantsBySetlist[setlist.id].orEmpty()
+            setlist.id to
+                buildParticipants(
+                    setlist,
+                    participantMemberIds(setlist, setlistParticipants),
+                    setlistParticipants,
+                    sessionDefs,
+                    memberInfos,
+                )
         }
     }
 
@@ -308,12 +336,35 @@ class SetlistService(
         val sessionDefs =
             tracks.flatMap { track -> track.sessions.map { (track.id to it.sessionId) to it } }.toMap()
 
-        return buildParticipants(setlist, participants, sessionDefs, memberInfos)
+        return buildParticipants(setlist, participantMemberIds(setlist, participants), participants, sessionDefs, memberInfos)
     }
+
+    /** 페이징된 참여 회원 ID 에 대해서만 세션 배정을 조립한다(BD-286). 세션 정의를 위해 트랙은 셋리스트 단위로 조회한다. */
+    private fun loadParticipantsOf(
+        setlist: Setlist,
+        memberIds: List<Long>,
+    ): List<SetlistParticipantResponse> {
+        if (memberIds.isEmpty()) return emptyList()
+        val tracks = setlistTrackRepository.findAllBySetlist(setlist)
+        val participants =
+            if (tracks.isEmpty()) emptyList() else setlistTrackParticipantRepository.findAllByTrackInAndMemberIdIn(tracks, memberIds)
+        val memberInfos = memberService.getMemberSummaries(memberIds)
+        val sessionDefs =
+            tracks.flatMap { track -> track.sessions.map { (track.id to it.sessionId) to it } }.toMap()
+
+        return buildParticipants(setlist, memberIds, participants, sessionDefs, memberInfos)
+    }
+
+    /** 매니저는 트랙 배정이 없어도 참여자 목록에 포함한다(접근 권한 정의와 일치). 매니저를 맨 앞에 둔다. */
+    private fun participantMemberIds(
+        setlist: Setlist,
+        participants: List<SetlistTrackParticipant>,
+    ): List<Long> = (listOf(setlist.managerId) + participants.map { it.memberId }).distinct()
 
     /** 참여자 응답 조립. 셋리스트 단위/배치 조회가 동일한 참여 정의를 쓰도록 한 곳에 모은다. */
     private fun buildParticipants(
         setlist: Setlist,
+        memberIds: List<Long>,
         participants: List<SetlistTrackParticipant>,
         sessionDefs: Map<Pair<UUID, String>, SessionDef>,
         memberInfos: Map<Long, MemberSummary>,
@@ -330,8 +381,6 @@ class SetlistService(
                 )
             }
 
-        // 매니저는 트랙 배정이 없어도 참여자 목록에 포함한다(접근 권한 정의와 일치).
-        val memberIds = LinkedHashSet<Long>().apply { add(setlist.managerId) }.apply { addAll(bySession.keys) }
         return memberIds.map { id ->
             SetlistParticipantResponse(
                 member = memberInfos[id],

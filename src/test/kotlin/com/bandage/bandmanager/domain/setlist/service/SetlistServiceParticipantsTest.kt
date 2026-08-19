@@ -4,6 +4,7 @@ import com.bandage.bandmanager.domain.band.repository.BandMemberRepository
 import com.bandage.bandmanager.domain.member.dto.res.MemberSummary
 import com.bandage.bandmanager.domain.member.service.MemberService
 import com.bandage.bandmanager.domain.performance.repository.PerformanceSetlistRepository
+import com.bandage.bandmanager.domain.setlist.dto.req.SetlistParticipantPagingQuery
 import com.bandage.bandmanager.domain.setlist.model.Setlist
 import com.bandage.bandmanager.domain.setlist.model.SetlistTrack
 import com.bandage.bandmanager.domain.setlist.model.SetlistTrackParticipant
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyCollection
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.springframework.data.domain.PageRequest
 import java.util.Optional
 import java.util.UUID
 
@@ -50,6 +52,7 @@ class SetlistServiceParticipantsTest {
     private val trackId: UUID = UUID.randomUUID()
     private val managerId = 1L
     private val guitaristId = 2L
+    private val defaultQuery = SetlistParticipantPagingQuery(lastId = null)
 
     @Test
     fun `참여자별로 배정 세션과 약어를 반환하고 매니저도 포함한다`() {
@@ -59,7 +62,7 @@ class SetlistServiceParticipantsTest {
         stubParticipants(track, listOf("G-2" to guitaristId))
         stubMembers(managerId to "매니저", guitaristId to "기타리스트")
 
-        val result = sut.getParticipants(setlistId, managerId)
+        val result = sut.getParticipants(setlistId, managerId, defaultQuery).content
 
         assertThat(result).hasSize(2)
         val manager = result.first { it.isManager }
@@ -85,7 +88,7 @@ class SetlistServiceParticipantsTest {
         stubParticipants(track, listOf("V-1" to guitaristId, "G-1" to guitaristId))
         stubMembers(managerId to "매니저", guitaristId to "멀티플레이어")
 
-        val result = sut.getParticipants(setlistId, managerId)
+        val result = sut.getParticipants(setlistId, managerId, defaultQuery).content
 
         val multi = result.first { !it.isManager }
         assertThat(multi.sessions.map { it.short }).containsExactlyInAnyOrder("V", "G")
@@ -100,7 +103,7 @@ class SetlistServiceParticipantsTest {
         stubParticipants(track, listOf("GHOST" to guitaristId))
         stubMembers(managerId to "매니저", guitaristId to "유령")
 
-        val result = sut.getParticipants(setlistId, managerId)
+        val result = sut.getParticipants(setlistId, managerId, defaultQuery).content
 
         val orphan = result.first { !it.isManager }.sessions.single()
         assertThat(orphan.label).isEqualTo("GHOST")
@@ -113,7 +116,7 @@ class SetlistServiceParticipantsTest {
         stubTracks(setlist)
         stubMembers(managerId to "매니저")
 
-        val result = sut.getParticipants(setlistId, managerId)
+        val result = sut.getParticipants(setlistId, managerId, defaultQuery).content
 
         assertThat(result).singleElement().satisfies({
             assertThat(it.isManager).isTrue()
@@ -122,11 +125,46 @@ class SetlistServiceParticipantsTest {
     }
 
     @Test
+    fun `커서 페이징으로 매니저와 참여자를 나눠 조회한다`() {
+        val setlist = setlist()
+        val track = track(setlist, listOf("G-1" to "GUITAR"))
+        stubTracks(setlist, track)
+        stubMembers(managerId to "매니저", guitaristId to "기타리스트")
+        val pageable = PageRequest.of(0, 2)
+
+        // 1페이지: 매니저(회원 ID 1)가 커서 순서상 앞이라 먼저 나오고, 다음 커서로 매니저 ID 를 준다
+        `when`(setlistTrackParticipantRepository.findMemberIdsBySetlistIdAfter(setlistId, 0L, pageable)).thenReturn(listOf(guitaristId))
+        `when`(setlistTrackParticipantRepository.findAllByTrackInAndMemberIdIn(listOf(track), listOf(managerId))).thenReturn(emptyList())
+
+        val first = sut.getParticipants(setlistId, managerId, SetlistParticipantPagingQuery(lastId = null, pageSize = 1))
+
+        assertThat(first.content).singleElement().satisfies({ assertThat(it.member?.memberId).isEqualTo(managerId) })
+        assertThat(first.hasNext).isTrue()
+        assertThat(first.nextCursor).isEqualTo(managerId)
+
+        // 2페이지: 커서 이후 참여자만. 매니저는 커서보다 작아 후보에서 제외된다
+        `when`(
+            setlistTrackParticipantRepository.findMemberIdsBySetlistIdAfter(setlistId, managerId, pageable),
+        ).thenReturn(listOf(guitaristId))
+        `when`(setlistTrackParticipantRepository.findAllByTrackInAndMemberIdIn(listOf(track), listOf(guitaristId)))
+            .thenReturn(listOf(SetlistTrackParticipant.create(track, "G-1", guitaristId)))
+
+        val second = sut.getParticipants(setlistId, managerId, SetlistParticipantPagingQuery(lastId = managerId, pageSize = 1))
+
+        assertThat(second.content).singleElement().satisfies({
+            assertThat(it.member?.memberId).isEqualTo(guitaristId)
+            assertThat(it.sessions).hasSize(1)
+        })
+        assertThat(second.hasNext).isFalse()
+        assertThat(second.nextCursor).isNull()
+    }
+
+    @Test
     fun `접근 권한이 없으면 조회할 수 없다`() {
         setlist()
         `when`(setlistRepository.isAccessibleMember(setlistId, 99L)).thenReturn(false)
 
-        assertThatThrownBy { sut.getParticipants(setlistId, 99L) }
+        assertThatThrownBy { sut.getParticipants(setlistId, 99L, defaultQuery) }
             .isInstanceOf(BusinessException::class.java)
             .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SETLIST_FORBIDDEN)
     }
@@ -171,7 +209,17 @@ class SetlistServiceParticipantsTest {
         assignments: List<Pair<String, Long>>,
     ) {
         val participants = assignments.map { (sessionId, memberId) -> SetlistTrackParticipant.create(track, sessionId, memberId) }
-        `when`(setlistTrackParticipantRepository.findAllByTrackIn(listOf(track))).thenReturn(participants)
+        val participantIds = assignments.map { it.second }.distinct().sorted()
+        // 첫 페이지 조회(커서 없음 → 0)와, 매니저를 포함해 정렬된 페이지 멤버로 이뤄지는 후속 조립을 각각 스텁한다.
+        `when`(
+            setlistTrackParticipantRepository.findMemberIdsBySetlistIdAfter(setlistId, 0L, PageRequest.of(0, defaultQuery.pageSize + 1)),
+        ).thenReturn(participantIds)
+        `when`(
+            setlistTrackParticipantRepository.findAllByTrackInAndMemberIdIn(
+                listOf(track),
+                (participantIds + managerId).distinct().sorted(),
+            ),
+        ).thenReturn(participants)
     }
 
     private fun stubMembers(vararg members: Pair<Long, String>) {

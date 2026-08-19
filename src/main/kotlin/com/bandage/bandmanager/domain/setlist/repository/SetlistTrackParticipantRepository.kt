@@ -2,6 +2,7 @@ package com.bandage.bandmanager.domain.setlist.repository
 
 import com.bandage.bandmanager.domain.setlist.model.SetlistTrack
 import com.bandage.bandmanager.domain.setlist.model.SetlistTrackParticipant
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -29,6 +30,28 @@ interface SetlistTrackParticipantRepository : JpaRepository<SetlistTrackParticip
     fun findAllBySetlistId(
         @Param("setlistId") setlistId: UUID,
     ): List<SetlistTrackParticipant>
+
+    fun findAllByTrackInAndMemberIdIn(
+        tracks: List<SetlistTrack>,
+        memberIds: Collection<Long>,
+    ): List<SetlistTrackParticipant>
+
+    /**
+     * 셋리스트 참여 회원 ID 를 커서(회원 ID 오름차순) 기반으로 조회한다(BD-286).
+     * 회원 PK 는 1부터 시작하는 IDENTITY 라 커서 없음(첫 페이지)은 호출부에서 0 으로 넘긴다.
+     */
+    @Query(
+        """
+        SELECT DISTINCT p.memberId FROM SetlistTrackParticipant p
+        WHERE p.track.setlist.id = :setlistId AND p.memberId > :lastMemberId
+        ORDER BY p.memberId ASC
+        """,
+    )
+    fun findMemberIdsBySetlistIdAfter(
+        @Param("setlistId") setlistId: UUID,
+        @Param("lastMemberId") lastMemberId: Long,
+        pageable: Pageable,
+    ): List<Long>
 
     fun deleteAllByTrack(track: SetlistTrack)
 

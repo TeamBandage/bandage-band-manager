@@ -5,6 +5,8 @@ import com.bandage.bandmanager.domain.jam.dto.res.JamResponse
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistCreateRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistManagerTransferRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistPagingQuery
+import com.bandage.bandmanager.domain.setlist.dto.req.SetlistParticipantPagingQuery
+import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTitleSearchQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackPagingQuery
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistTrackUpdateRequest
 import com.bandage.bandmanager.domain.setlist.dto.req.SetlistUpdateRequest
@@ -22,7 +24,6 @@ import com.bandage.bandmanager.global.security.annotation.CurrentMemberId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotBlank
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -60,12 +60,13 @@ class SetlistController(
     @Operation(
         operationId = "getSetlistsByTitle",
         summary = "셋리스트 타이틀 검색",
-        description = "본인이 접근 가능한 셋리스트 중 타이틀에 검색어가 포함된 항목을 조회합니다(대소문자 무시).",
+        description =
+            "본인이 접근 가능한 셋리스트 중 타이틀에 검색어가 포함된 항목을 커서 기반(셋리스트 ID 내림차순)으로 조회합니다(대소문자 무시).",
     )
     fun getSetlistsByTitle(
         @CurrentMemberId memberId: Long,
-        @RequestParam @NotBlank title: String,
-    ): ApiResponse<List<SetlistResponse>> = ApiResponse.success(setlistService.getSetlistsByTitle(title, memberId))
+        @Valid query: SetlistTitleSearchQuery,
+    ): ApiResponse<CursorResponse<SetlistResponse, UUID>> = ApiResponse.success(setlistService.getSetlistsByTitle(query, memberId))
 
     @GetMapping("/{setlistId}")
     @Operation(operationId = "getSetlist", summary = "셋리스트 단건 조회")
@@ -103,13 +104,15 @@ class SetlistController(
         operationId = "getSetlistParticipants",
         summary = "셋리스트 참여 멤버 목록 조회",
         description =
-            "셋리스트에 참여 중인 멤버 전체를 조회합니다. 참여자별로 배정된 트랙/세션과 세션 약어를 함께 반환하며, " +
+            "셋리스트에 참여 중인 멤버를 회원 ID 커서 기반(오름차순)으로 조회합니다. 참여자별로 배정된 트랙/세션과 세션 약어를 함께 반환하며, " +
                 "매니저는 트랙 배정이 없어도 포함됩니다.",
     )
     fun getSetlistParticipants(
         @PathVariable setlistId: UUID,
         @CurrentMemberId memberId: Long,
-    ): ApiResponse<List<SetlistParticipantResponse>> = ApiResponse.success(setlistService.getParticipants(setlistId, memberId))
+        @Valid query: SetlistParticipantPagingQuery,
+    ): ApiResponse<CursorResponse<SetlistParticipantResponse, Long>> =
+        ApiResponse.success(setlistService.getParticipants(setlistId, memberId, query))
 
     @DeleteMapping("/{setlistId}")
     @Operation(
