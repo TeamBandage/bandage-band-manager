@@ -4276,15 +4276,6 @@
                         "type": "integer"
                     }
                 },
-                "required": [
-                    "dayPreference",
-                    "endTimePreference",
-                    "interval",
-                    "jamDurationSlots",
-                    "maxEmptySlotsBetweenJams",
-                    "maxJamsPerDay",
-                    "startTimePreference"
-                ],
                 "type": "object"
             },
             "ScheduleBlockPinRequest": {

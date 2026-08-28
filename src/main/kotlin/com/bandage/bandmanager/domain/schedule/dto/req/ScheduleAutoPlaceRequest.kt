@@ -3,6 +3,7 @@ package com.bandage.bandmanager.domain.schedule.dto.req
 import com.bandage.bandmanager.domain.schedule.model.enums.Frequency
 import com.bandage.bandmanager.global.error.errorcode.ErrorCode
 import com.bandage.bandmanager.global.error.exception.BusinessException
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import java.time.DayOfWeek
@@ -14,16 +15,21 @@ import java.time.DayOfWeek
  * 시간대 구간 [startTimePreference, endTimePreference) 는 반열린 구간이므로 end 는 1..48 이다.
  */
 data class ScheduleAutoPlaceRequest(
+    @field:Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val interval: Frequency = Frequency.ONCE,
     // 잼 1곡당 배치 길이(슬롯). 그룹에 곡이 여러 개면 이 값 × 곡 수 만큼의 연속 구간을 잡는다.
     @field:Min(1)
     @field:Max(48)
+    @field:Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val jamDurationSlots: Int = DEFAULT_JAM_DURATION_SLOTS,
     @field:Min(1)
+    @field:Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val maxJamsPerDay: Int = 1,
     @field:Max(46)
     @field:Min(0)
+    @field:Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val maxEmptySlotsBetweenJams: Int = 4,
+    @field:Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val dayPreference: List<DayOfWeek> =
         listOf(
             DayOfWeek.SATURDAY,
@@ -36,10 +42,12 @@ data class ScheduleAutoPlaceRequest(
         ),
     @field:Max(47)
     @field:Min(0)
+    @field:Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val startTimePreference: Int = 18,
     // 반열린 구간의 끝이므로 1..48. 48 이면 당일 24:00 을 뜻한다.
     @field:Max(48)
     @field:Min(1)
+    @field:Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val endTimePreference: Int = 34,
 ) {
     fun validateTimePreference() {
