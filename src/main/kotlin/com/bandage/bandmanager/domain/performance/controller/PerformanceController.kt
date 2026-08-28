@@ -119,14 +119,13 @@ class PerformanceController(
         summary = "공연 참여 셋리스트 트랙·참여자 전체 조회 API",
         description =
             "공연에 참여하는 모든 셋리스트와 각 셋리스트의 트랙·참여자 전체를 셋리스트별로 묶어 조회합니다. " +
-                "공연 OWNER/MANAGER면 본인이 소유·참여하지 않은 셋리스트의 트랙·참여자도 조회할 수 있습니다. " +
+                "공연 참여 여부와 무관하게 조회할 수 있습니다. " +
                 "참여자 목록은 각 셋리스트 기준(매니저 + 트랙 배정자)이며, 공연에 묶였다는 이유로 확장되지 않습니다.",
     )
     fun getPerformanceSetlistTracks(
         @PathVariable performanceId: UUID,
-        @CurrentMemberId memberId: Long,
     ): ApiResponse<List<PerformanceSetlistTracksResponse>> =
-        ApiResponse.success(performanceSetlistTrackFacade.getSetlistTracks(performanceId, memberId))
+        ApiResponse.success(performanceSetlistTrackFacade.getSetlistTracks(performanceId))
 
     @DeleteMapping("/{performanceId}/setlists/{setlistId}")
     @Operation(
