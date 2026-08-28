@@ -6,11 +6,8 @@ import com.bandage.bandmanager.domain.setlist.dto.res.SetlistTrackResponse
 import com.bandage.bandmanager.domain.setlist.model.Setlist
 import com.bandage.bandmanager.domain.setlist.repository.SetlistRepository
 import com.bandage.bandmanager.domain.setlist.service.SetlistService
-import com.bandage.bandmanager.global.error.errorcode.ErrorCode
-import com.bandage.bandmanager.global.error.exception.BusinessException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.mockito.ArgumentMatchers.anyCollection
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
@@ -23,6 +20,7 @@ import java.util.UUID
  *
  * 시나리오 — 공연 OWNER A 가 매니저 B 를 초대하고, B 가 자기 셋리스트를 공연에 추가한 경우
  * A 는 B 의 셋리스트 트랙까지 볼 수 있어야 한다(셋리스트 단위 권한으로는 막히는 케이스).
+ * BD-279 이후로는 공연 비참여자도 동일하게 조회할 수 있어 권한 판정 자체가 없다.
  */
 class PerformanceSetlistTrackFacadeTest {
     private val performanceService = mock(PerformanceService::class.java)
@@ -36,12 +34,12 @@ class PerformanceSetlistTrackFacadeTest {
     private val memberB = 2L
 
     @Test
-    fun `공연 참여자는 본인이 소유하지 않은 셋리스트의 트랙과 참여자도 조회한다`() {
+    fun `공연 참여 여부와 무관하게 셋리스트의 트랙과 참여자를 조회한다`() {
         val setlistA = setlist(title = "A 셋리스트", managerId = memberA)
         val setlistB = setlist(title = "B 셋리스트", managerId = memberB)
         val trackOfB = trackResponse(setlistB.id, "B 의 곡")
 
-        `when`(performanceService.getAccessibleSetlistIds(performanceId, memberA))
+        `when`(performanceService.getSetlistIds(performanceId))
             .thenReturn(listOf(setlistA.id, setlistB.id))
         `when`(setlistRepository.findAllById(listOf(setlistA.id, setlistB.id)))
             .thenReturn(listOf(setlistA, setlistB))
@@ -50,7 +48,7 @@ class PerformanceSetlistTrackFacadeTest {
         `when`(setlistService.getParticipantsBySetlistIds(anyCollection()))
             .thenReturn(mapOf(setlistB.id to listOf(participantResponse(isManager = true))))
 
-        val result = sut.getSetlistTracks(performanceId, memberA)
+        val result = sut.getSetlistTracks(performanceId)
 
         // A 소유가 아닌 setlistB 의 트랙·참여자가 응답에 포함된다 — 이것이 BD-264 의 핵심.
         val bResult = result.single { it.setlist.setlistId == setlistB.id }
@@ -65,23 +63,10 @@ class PerformanceSetlistTrackFacadeTest {
     }
 
     @Test
-    fun `공연 참여자가 아니면 조회할 수 없다`() {
-        val outsider = 99L
-        `when`(performanceService.getAccessibleSetlistIds(performanceId, outsider))
-            .thenThrow(BusinessException(ErrorCode.NOT_A_PERFORMANCE_MANAGER))
-
-        assertThrows<BusinessException> { sut.getSetlistTracks(performanceId, outsider) }
-
-        // 권한 검증 전에 트랙을 조립하지 않는다.
-        verify(setlistService, never()).getTracksBySetlistIds(anyCollection())
-        verify(setlistService, never()).getParticipantsBySetlistIds(anyCollection())
-    }
-
-    @Test
     fun `공연에 묶인 셋리스트가 없으면 빈 목록을 반환한다`() {
-        `when`(performanceService.getAccessibleSetlistIds(performanceId, memberA)).thenReturn(emptyList())
+        `when`(performanceService.getSetlistIds(performanceId)).thenReturn(emptyList())
 
-        assertThat(sut.getSetlistTracks(performanceId, memberA)).isEmpty()
+        assertThat(sut.getSetlistTracks(performanceId)).isEmpty()
         verify(setlistService, never()).getTracksBySetlistIds(anyCollection())
         verify(setlistService, never()).getParticipantsBySetlistIds(anyCollection())
     }

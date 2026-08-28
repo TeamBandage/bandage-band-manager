@@ -102,6 +102,17 @@ class PerformanceServiceTest {
     }
 
     @Test
+    fun `getSetlistIds - 공연 비참여자도 셋리스트 목록을 조회할 수 있다`() {
+        val performance = registeredPerformance()
+        performance.addSetlist(PerformanceSetlist.create(performance, setlistId))
+        val outsider = 99L
+
+        assertThat(sut.getSetlistIds(performanceId)).containsExactly(setlistId)
+        // 참여자 판정 자체를 하지 않는다(BD-279).
+        verify(performanceManagerRepository, never()).findByPerformanceAndMember(performance, outsider)
+    }
+
+    @Test
     fun `addSetlists - 본인이 접근 불가한 셋리스트는 SETLIST_FORBIDDEN`() {
         val performance = registeredPerformance()
         stubParticipant(performance, managerId, owner = false)
